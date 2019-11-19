@@ -26,10 +26,12 @@ SOURCES += \
     inkcanvas.cpp \
     knownidcache.cpp \
     knownids.cpp \
+    lasso.cpp \
     stroke.cpp \
     strokecollection.cpp \
     strokecollectionserializer.cpp \
     strokefindices.cpp \
+    strokeintersection.cpp \
     styluspoint.cpp \
     styluspointcollection.cpp \
     styluspointdescription.cpp \
@@ -52,10 +54,12 @@ HEADERS += \
     inkcanvas.h \
     knownidcache.h \
     knownids.h \
+    lasso.h \
     stroke.h \
     strokecollection.h \
     strokecollectionserializer.h \
     strokefindices.h \
+    strokeintersection.h \
     styluspoint.h \
     styluspointcollection.h \
     styluspointdescription.h \

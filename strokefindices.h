@@ -16,13 +16,17 @@ private:
     /// </summary>
     /// <value></value>
 public:
-    static double BeforeFirst() { return DBL_MIN; }
+    static constexpr double BeforeFirst = DBL_MIN;
 
     /// <summary>
     /// AfterLast
     /// </summary>
     /// <value></value>
-    static double AfterLast() { return DBL_MAX; }
+    static constexpr double AfterLast = DBL_MAX;
+
+    StrokeFIndices()
+    {
+    }
 
     /// <summary>
     /// StrokeFIndices
