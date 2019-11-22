@@ -6,10 +6,22 @@
 #include "styluspoint.h"
 #include "strokefindices.h"
 #include "doubleutil.h"
+#include "lasso.h"
+#include "strokenodeiterator.h"
+#include "incrementalhittester.h"
+#include "drawingcontext.h"
+#include "strokerenderer.h"
+#include "events.h"
 
 #include <QMatrix>
+#include <QBrush>
 
 Stroke::Stroke()
+{
+
+}
+
+Stroke::~Stroke()
 {
 
 }
@@ -18,8 +30,8 @@ Stroke::Stroke()
 /// <remarks>
 /// </remarks>
 /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
-Stroke::Stroke(StylusPointCollection const & stylusPoints)
-    : Stroke (stylusPoints, DrawingAttributes(), nullptr)
+Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints)
+    : Stroke (stylusPoints, nullptr, nullptr)
 {
 }
 
@@ -28,7 +40,7 @@ Stroke::Stroke(StylusPointCollection const & stylusPoints)
 /// </remarks>
 /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
 /// <param name="drawingAttributes">drawingAttributes</param>
-Stroke::Stroke(StylusPointCollection const & stylusPoints, DrawingAttributes const & drawingAttributes)
+Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes)
     : Stroke(stylusPoints, drawingAttributes, nullptr)
 {
 }
@@ -39,9 +51,9 @@ Stroke::Stroke(StylusPointCollection const & stylusPoints, DrawingAttributes con
 /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
 /// <param name="drawingAttributes">drawingAttributes</param>
 /// <param name="extendedProperties">extendedProperties</param>
-Stroke::Stroke(StylusPointCollection const & stylusPoints, DrawingAttributes const & drawingAttributes, QVariantMap * extendedProperties)
+Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, QVariantMap * extendedProperties)
 {
-    if (stylusPoints.size() == 0)
+    if (stylusPoints->size() == 0)
     {
         throw std::exception("stylusPoints");
     }
@@ -142,21 +154,22 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
 
         try
         {
-            _stylusPoints.Transform(transformMatrix);
+            _stylusPoints->Transform(transformMatrix);
 
             if (applyToStylusTip)
             {
-                QMatrix newMatrix = _drawingAttributes.StylusTipTransform();
+                QMatrix newMatrix = _drawingAttributes->StylusTipTransform();
                 // Don't allow a Translation in the matrix
-                transformMatrix.OffsetX = 0;
-                transformMatrix.OffsetY = 0;
+                //transformMatrix.OffsetX = 0;
+                //transformMatrix.OffsetY = 0;
+                transformMatrix.translate(transformMatrix.dx() / transformMatrix.m11(), transformMatrix.dx() / transformMatrix.m22());
                 newMatrix *= transformMatrix;
                 //only persist the StylusTipTransform if there is an inverse.
                 //there are cases where two invertible xf's result in a non-invertible one
                 //we decided not to throw here because it is so unobvious
                 if (newMatrix.isInvertible())
                 {
-                    _drawingAttributes.SetStylusTipTransform(newMatrix);
+                    _drawingAttributes->SetStylusTipTransform(newMatrix);
                 }
             }
             if (_delayRaiseInvalidated)
@@ -178,25 +191,25 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
 /// Returns a Bezier smoothed version of the StylusPoints
 /// </summary>
 /// <returns></returns>
-StylusPointCollection Stroke::GetBezierStylusPoints()
+QSharedPointer<StylusPointCollection> Stroke::GetBezierStylusPoints()
 {
     // Since we can't compute Bezier for single point stroke, we should return.
-    if (_stylusPoints.size() < 2)
+    if (_stylusPoints->size() < 2)
     {
         return _stylusPoints;
     }
 
     // Construct the Bezier approximation
     Bezier bezier;
-    if (!bezier.ConstructBezierState(   _stylusPoints,
-                                        _drawingAttributes.FittingError()))
+    if (!bezier.ConstructBezierState(   *_stylusPoints,
+                                        _drawingAttributes->FittingError()))
     {
         //construction failed, return a clone of the original points
         return _stylusPoints;
     }
 
     double tolerance = 0.5;
-    StylusShape * stylusShape = _drawingAttributes.GetStylusShape();
+    StylusShape * stylusShape = _drawingAttributes->GetStylusShape();
     if (nullptr != stylusShape)
     {
         QRectF shapeBoundingBox = stylusShape->BoundingBox();
@@ -218,20 +231,20 @@ StylusPointCollection Stroke::GetBezierStylusPoints()
 /// <summary>
 /// Interpolate packet / pressure data from _stylusPoints
 /// </summary>
-StylusPointCollection Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints)
+QSharedPointer<StylusPointCollection> Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints)
 {
     //Debug.Assert(bezierPoints != null && bezierPoints.Count > 0);
 
     //new points need the same description
-    StylusPointCollection bezierStylusPoints(_stylusPoints.Description(), bezierPoints.size());
+    QSharedPointer<StylusPointCollection> bezierStylusPoints(new StylusPointCollection(_stylusPoints->Description(), bezierPoints.size()));
 
     //
     // add the first point
     //
-    AddInterpolatedBezierPoint( bezierStylusPoints,
+    AddInterpolatedBezierPoint( *bezierStylusPoints,
                                 bezierPoints[0],
-                                _stylusPoints[0].GetAdditionalData(),
-                                _stylusPoints[0].PressureFactor());
+                                (*_stylusPoints)[0].GetAdditionalData(),
+                                (*_stylusPoints)[0].PressureFactor());
 
     if (bezierPoints.size() == 1)
     {
@@ -259,10 +272,10 @@ StylusPointCollection Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezie
     //
     double bezierLength = 0.0;
     double prevUnbezierLength = 0.0;
-    double unbezierLength = GetDistanceBetweenPoints(_stylusPoints[0], _stylusPoints[1]);
+    double unbezierLength = GetDistanceBetweenPoints((*_stylusPoints)[0], (*_stylusPoints)[1]);
 
     int stylusPointsIndex = 1;
-    int stylusPointsCount = _stylusPoints.size();
+    int stylusPointsCount = _stylusPoints->size();
     //skip the first and last point
     for (int x = 1; x < bezierPoints.size() - 1; x++)
     {
@@ -274,15 +287,15 @@ StylusPointCollection Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezie
             {
                 //Debug.Assert(stylusPointsCount > stylusPointsIndex);
 
-                StylusPoint prevStylusPoint = _stylusPoints[stylusPointsIndex - 1];
+                StylusPoint prevStylusPoint = (*_stylusPoints)[stylusPointsIndex - 1];
                 float percentFromPrev =
                     ((float)bezierLength - (float)prevUnbezierLength) /
                     ((float)unbezierLength - (float)prevUnbezierLength);
                 float pressureAtPrev = prevStylusPoint.PressureFactor();
-                float pressureDelta = _stylusPoints[stylusPointsIndex].PressureFactor() - pressureAtPrev;
+                float pressureDelta = (*_stylusPoints)[stylusPointsIndex].PressureFactor() - pressureAtPrev;
                 float interopolatedPressure = (percentFromPrev * pressureDelta) + pressureAtPrev;
 
-                AddInterpolatedBezierPoint(bezierStylusPoints,
+                AddInterpolatedBezierPoint(*bezierStylusPoints,
                                             bezierPoints[x],
                                             prevStylusPoint.GetAdditionalData(),
                                             interopolatedPressure);
@@ -300,8 +313,8 @@ StylusPointCollection Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezie
                 {
                     prevUnbezierLength = unbezierLength;
                     unbezierLength +=
-                        GetDistanceBetweenPoints(_stylusPoints[stylusPointsIndex - 1],
-                                                 _stylusPoints[stylusPointsIndex]);
+                        GetDistanceBetweenPoints((*_stylusPoints)[stylusPointsIndex - 1],
+                                                 (*_stylusPoints)[stylusPointsIndex]);
                 } //else we'll break
             }
         }
@@ -310,10 +323,10 @@ StylusPointCollection Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezie
     //
     // add the last point
     //
-    AddInterpolatedBezierPoint( bezierStylusPoints,
+    AddInterpolatedBezierPoint( *bezierStylusPoints,
                                 bezierPoints[bezierPoints.size() - 1],
-                                _stylusPoints[stylusPointsCount - 1].GetAdditionalData(),
-                                _stylusPoints[stylusPointsCount - 1].PressureFactor());
+                                (*_stylusPoints)[stylusPointsCount - 1].GetAdditionalData(),
+                                (*_stylusPoints)[stylusPointsCount - 1].PressureFactor());
 
     return bezierStylusPoints;
 }
@@ -371,7 +384,8 @@ void Stroke::AddPropertyData(QString propertyDataId, QVariant propertyData)
     }
 
     // fire notification
-    OnPropertyDataChanged(propertyDataId);
+    PropertyDataChangedEventArgs e(propertyDataId, propertyData, oldValue);
+    OnPropertyDataChanged(e);
 }
 
 
@@ -384,7 +398,8 @@ void Stroke::RemovePropertyData(QString propertyDataId)
     QVariant propertyData = GetPropertyData(propertyDataId);
     (*ExtendedProperties()).remove(propertyDataId);
     // fire notification
-    OnPropertyDataChanged(propertyDataId);
+    PropertyDataChangedEventArgs e(propertyDataId, QVariant(), propertyData);
+    OnPropertyDataChanged(e);
 }
 
 /// <summary>
@@ -424,33 +439,39 @@ bool Stroke::ContainsPropertyData(QString propertyDataId)
 /// If the stroke has been deleted, the 'set' will no-op.
 /// </remarks>
 /// <value>The drawing attributes associated with the current stroke.</value>
-void Stroke::SetDrawingAttributes(DrawingAttributes const & value)
+void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
 {
-    DrawingAttributes previousDa = _drawingAttributes;
+    //_drawingAttributes.AttributeChanged -= new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
+
+    DrawingAttributesReplacedEventArgs e(value, _drawingAttributes);
+
+    QSharedPointer<DrawingAttributes> previousDa = _drawingAttributes;
     _drawingAttributes = value;
 
 
     // If the drawing attributes change involves Width, Height, StylusTipTransform, IgnorePressure, or FitToCurve,
     // we need to force a recaculation of the cached path geometry right after the
     // DrawingAttributes changed, beforet the events are raised.
-    if (false == DrawingAttributes::GeometricallyEqual(previousDa, _drawingAttributes))
+    if (false == DrawingAttributes::GeometricallyEqual(*previousDa, *_drawingAttributes))
     {
         _cachedGeometry = nullptr;
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
 
-    OnDrawingAttributesReplaced();
+    //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
+    OnDrawingAttributesReplaced(e);
     OnInvalidated();
+    OnPropertyChanged(DrawingAttributesName);
 }
 
 
 /// <summary>
 /// StylusPoints
 /// </summary>
-void Stroke::SetStylusPoints(StylusPointCollection const & value)
+void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
 {
-    if (value.size() == 0)
+    if (value->size() == 0)
     {
         //we don't allow this
         throw new std::exception("StylusPoints");
@@ -462,10 +483,18 @@ void Stroke::SetStylusPoints(StylusPointCollection const & value)
     // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
     _cachedBounds = QRectF();
 
+    StylusPointsReplacedEventArgs e(value, _stylusPoints);
+
+    //_stylusPoints.Changed -= new EventHandler(StylusPoints_Changed);
+    //_stylusPoints.CountGoingToZero -= new CancelEventHandler(StylusPoints_CountGoingToZero);
+
     _stylusPoints = value;
 
+    //_stylusPoints.Changed += new EventHandler(StylusPoints_Changed);
+    //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
+
     // fire notification
-    OnStylusPointsReplaced();
+    OnStylusPointsReplaced(e);
     OnInvalidated();
     OnPropertyChanged("StylusPoints");
 }
@@ -475,7 +504,7 @@ void Stroke::SetStylusPoints(StylusPointCollection const & value)
 /// Clip
 /// </summary>
 /// <param name="cutAt">Fragment markers for clipping</param>
-StrokeCollection Stroke::Clip(QVector<StrokeFIndices> const & cutAt)
+QSharedPointer<StrokeCollection> Stroke::Clip(QVector<StrokeFIndices> cutAt)
 {
 #ifdef DEBUG
     //
@@ -484,7 +513,7 @@ StrokeCollection Stroke::Clip(QVector<StrokeFIndices> const & cutAt)
     AssertSortedNoOverlap(cutAt);
 #endif
 
-    StrokeCollection leftovers;
+    QSharedPointer<StrokeCollection> leftovers(new StrokeCollection);
     if (cutAt.size() == 0)
     {
         return leftovers;
@@ -492,12 +521,12 @@ StrokeCollection Stroke::Clip(QVector<StrokeFIndices> const & cutAt)
 
     if ((cutAt.size() == 1) && cutAt[0].IsFull())
     {
-        leftovers.push_back(this); //clip and erase always return clones
+        leftovers->push_back(sharedFromThis()); //clip and erase always return clones
         return leftovers;
     }
 
 
-    StylusPointCollection sourceStylusPoints = StylusPoints();
+    QSharedPointer<StylusPointCollection> sourceStylusPoints = StylusPoints();
     if (DrawingAttributes().FitToCurve())
     {
         sourceStylusPoints = GetBezierStylusPoints();
@@ -520,10 +549,10 @@ StrokeCollection Stroke::Clip(QVector<StrokeFIndices> const & cutAt)
             continue;
         }
 
-        Stroke * stroke = Copy(sourceStylusPoints, fragment.BeginFIndex(), fragment.EndFIndex());
+        QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, fragment.BeginFIndex(), fragment.EndFIndex());
 
         // Add the stroke to the output collection
-        leftovers.push_back(stroke);
+        leftovers->push_back(stroke);
     }
 
     return leftovers;
@@ -534,7 +563,7 @@ StrokeCollection Stroke::Clip(QVector<StrokeFIndices> const & cutAt)
 /// </summary>
 /// <param name="cutAt">Fragment markers for clipping</param>
 /// <returns>Survived fragments of current Stroke as a StrokeCollection</returns>
-StrokeCollection Stroke::Erase(QVector<StrokeFIndices> const & cutAt)
+QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
 {
 #ifdef DEBUG
     //
@@ -543,14 +572,14 @@ StrokeCollection Stroke::Erase(QVector<StrokeFIndices> const & cutAt)
     AssertSortedNoOverlap(cutAt);
 #endif
 
-    StrokeCollection leftovers;
+    QSharedPointer<StrokeCollection> leftovers(new StrokeCollection);
     // Return an empty collection if the entire stroke it to erase
     if ((cutAt.size() == 0) || ((cutAt.size() == 1) && cutAt[0].IsFull()))
     {
         return leftovers;
     }
 
-    StylusPointCollection sourceStylusPoints = StylusPoints();
+    QSharedPointer<StylusPointCollection> sourceStylusPoints = StylusPoints();
     if (DrawingAttributes().FitToCurve())
     {
         sourceStylusPoints = GetBezierStylusPoints();
@@ -564,8 +593,8 @@ StrokeCollection Stroke::Erase(QVector<StrokeFIndices> const & cutAt)
 
 
     int i = 0;
-    double beginFIndex = StrokeFIndices::BeforeFirst();
-    if (cutAt[0].BeginFIndex() == StrokeFIndices::BeforeFirst())
+    double beginFIndex = StrokeFIndices::BeforeFirst;
+    if (cutAt[0].BeginFIndex() == StrokeFIndices::BeforeFirst)
     {
         beginFIndex = cutAt[0].EndFIndex();
         i++;
@@ -582,19 +611,19 @@ StrokeCollection Stroke::Erase(QVector<StrokeFIndices> const & cutAt)
         }
 
 
-        Stroke* stroke = Copy(sourceStylusPoints, beginFIndex, fragment.BeginFIndex());
+        QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, beginFIndex, fragment.BeginFIndex());
         // Add the stroke to the output collection
-        leftovers.push_back(stroke);
+        leftovers->push_back(stroke);
 
         beginFIndex = fragment.EndFIndex();
     }
 
-    if (beginFIndex != StrokeFIndices::AfterLast())
+    if (beginFIndex != StrokeFIndices::AfterLast)
     {
-        Stroke* stroke = Copy(sourceStylusPoints, beginFIndex, StrokeFIndices::AfterLast());
+        QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, beginFIndex, StrokeFIndices::AfterLast);
 
         // Add the stroke to the output collection
-        leftovers.push_back(stroke);
+        leftovers->push_back(stroke);
     }
 
     return leftovers;
@@ -604,24 +633,24 @@ StrokeCollection Stroke::Erase(QVector<StrokeFIndices> const & cutAt)
 /// <summary>
 /// Creates a new stroke from a subset of the points
 /// </summary>
-Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double beginFIndex, double endFIndex)
+QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> sourceStylusPoints, double beginFIndex, double endFIndex)
 {
     //Debug.Assert(sourceStylusPoints != null);
     //
     // get the floor and ceiling to copy from, we'll adjust the ends below
     //
     int beginIndex =
-        (DoubleUtil::AreClose(StrokeFIndices::BeforeFirst(), beginFIndex))
+        (DoubleUtil::AreClose(StrokeFIndices::BeforeFirst, beginFIndex))
             ? 0 : static_cast<int>(floor(beginFIndex));
 
     int endIndex =
-        (DoubleUtil::AreClose(StrokeFIndices::AfterLast(), endFIndex))
-            ? (sourceStylusPoints.size() - 1) : static_cast<int>(ceil(endFIndex));
+        (DoubleUtil::AreClose(StrokeFIndices::AfterLast, endFIndex))
+            ? (sourceStylusPoints->size() - 1) : static_cast<int>(ceil(endFIndex));
 
     int pointCount = endIndex - beginIndex + 1;
     //System.Diagnostics.Debug.Assert(pointCount >= 1);
 
-    StylusPointCollection stylusPoints(_stylusPoints.Description(), pointCount);
+    QSharedPointer<StylusPointCollection> stylusPoints(new StylusPointCollection(_stylusPoints->Description(), pointCount));
 
     //
     // copy the data from the floor of beginIndex to the ceiling
@@ -629,8 +658,8 @@ Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double b
     for (int i = 0; i < pointCount; i++)
     {
         //System.Diagnostics.Debug.Assert(sourceStylusPoints.Count > i + beginIndex);
-        StylusPoint stylusPoint = sourceStylusPoints[i + beginIndex];
-        stylusPoints.push_back(stylusPoint);
+        StylusPoint stylusPoint = (*sourceStylusPoints)[i + beginIndex];
+        stylusPoints->push_back(stylusPoint);
     }
     //System.Diagnostics.Debug.Assert(stylusPoints.Count == pointCount);
 
@@ -647,23 +676,23 @@ Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double b
     // now that we've copied the stroke points 1, 2 and 3, we need to
     // adjust beginFIndex to .1 and endFIndex to 1.7
     //
-    if (!DoubleUtil::AreClose(beginFIndex, StrokeFIndices::BeforeFirst()))
+    if (!DoubleUtil::AreClose(beginFIndex, StrokeFIndices::BeforeFirst))
     {
         beginFIndex = beginFIndex - beginIndex;
     }
-    if (!DoubleUtil::AreClose(endFIndex, StrokeFIndices::AfterLast()))
+    if (!DoubleUtil::AreClose(endFIndex, StrokeFIndices::AfterLast))
     {
         endFIndex = endFIndex - beginIndex;
     }
 
-    if (stylusPoints.size() > 1)
+    if (stylusPoints->size() > 1)
     {
 
-        QPointF begPoint = stylusPoints[0];
-        QPointF endPoint = stylusPoints[stylusPoints.size() - 1];
+        QPointF begPoint = (*stylusPoints)[0];
+        QPointF endPoint = (*stylusPoints)[stylusPoints->size() - 1];
 
         // Adjust the last point to fragment.EndFIndex.
-        if ((!DoubleUtil::AreClose(endFIndex, StrokeFIndices::AfterLast())) && !DoubleUtil::AreClose(endIndex, endFIndex))
+        if ((!DoubleUtil::AreClose(endFIndex, StrokeFIndices::AfterLast)) && !DoubleUtil::AreClose(endIndex, endFIndex))
         {
             //
             // for 1.7, we need to get .3, because that is the distance
@@ -673,18 +702,18 @@ Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double b
             double ceiling = ceil(endFIndex);
             double fraction = ceiling - endFIndex;
 
-            endPoint = GetIntermediatePoint(stylusPoints[stylusPoints.size() - 1],
-                                            stylusPoints[stylusPoints.size() - 2],
+            endPoint = GetIntermediatePoint((*stylusPoints)[stylusPoints->size() - 1],
+                                            (*stylusPoints)[stylusPoints->size() - 2],
                                             fraction);
 
         }
 
         // Adjust the first point to fragment.BeginFIndex.
-        if ((!DoubleUtil::AreClose(beginFIndex, StrokeFIndices::BeforeFirst()))
+        if ((!DoubleUtil::AreClose(beginFIndex, StrokeFIndices::BeforeFirst))
                 && !DoubleUtil::AreClose(beginIndex, beginFIndex))
         {
-            begPoint = GetIntermediatePoint(stylusPoints[0],
-                                            stylusPoints[1],
+            begPoint = GetIntermediatePoint((*stylusPoints)[0],
+                                            (*stylusPoints)[1],
                                             beginFIndex);
 
 
@@ -693,16 +722,16 @@ Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double b
         //
         // now set the end points
         //
-        StylusPoint tempEnd = stylusPoints[stylusPoints.size() - 1];
+        StylusPoint tempEnd = (*stylusPoints)[stylusPoints->size() - 1];
         tempEnd = endPoint;
-        stylusPoints[stylusPoints.size() - 1] = tempEnd;
+        (*stylusPoints)[stylusPoints->size() - 1] = tempEnd;
 
-        StylusPoint tempBegin = stylusPoints[0];
+        StylusPoint tempBegin = (*stylusPoints)[0];
         tempBegin = begPoint;
-        stylusPoints[0] = tempBegin;
+        (*stylusPoints)[0] = tempBegin;
     }
 
-    Stroke * stroke = nullptr;
+    QSharedPointer<Stroke> stroke = nullptr;
     try
     {
         //
@@ -712,13 +741,13 @@ Stroke * Stroke::Copy(StylusPointCollection const & sourceStylusPoints, double b
         //
         _cloneStylusPoints = false;
         stroke = Clone();
-        if (stroke->GetDrawingAttributes().FitToCurve())
+        if (stroke->GetDrawingAttributes()->FitToCurve())
         {
             //
             // we're using the beziered points for the new data,
             // FitToCurve needs to be false to prevent re-bezier.
             //
-            stroke->GetDrawingAttributes().SetFitToCurve(false);
+            stroke->GetDrawingAttributes()->SetFitToCurve(false);
         }
 
         //this will reset the cachedGeometry and cachedBounds
@@ -796,17 +825,17 @@ bool IsValidStrokeFIndices(StrokeFIndices findex)
 /// </summary>
 /// <param name="sender">The Drawing Attributes object that was changed</param>
 /// <param name="e">More data about the change that occurred</param>
-void Stroke::DrawingAttributes_Changed()
+void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
 {
     // set Geometry flag to be dirty if the DA change will cause change in geometry
-    if (DrawingAttributes::IsGeometricalDaGuid(e.PropertyGuid) == true)
+    if (DrawingAttributes::IsGeometricalDaGuid(e.PropertyGuid()) == true)
     {
         _cachedGeometry = nullptr;
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
 
-    OnDrawingAttributesChanged();
+    OnDrawingAttributesChanged(e);
     if (!_delayRaiseInvalidated)
     {
         //when Stroke.Transform(Matrix, bool) is called, we don't raise invalidated from
@@ -844,11 +873,11 @@ QRectF Stroke::GetBounds()
 {
     if (_cachedBounds.isEmpty())
     {
-        StrokeNodeIterator iterator = StrokeNodeIterator.GetIterator(this, this.DrawingAttributes);
-        for (int i = 0; i < iterator.Count; i++)
+        StrokeNodeIterator iterator = StrokeNodeIterator::GetIterator(*this, *GetDrawingAttributes());
+        for (int i = 0; i < iterator.Count(); i++)
         {
             StrokeNode strokeNode = iterator[i];
-            _cachedBounds.Union(strokeNode.GetBounds());
+            _cachedBounds = _cachedBounds.united(strokeNode.GetBounds());
         }
     }
 
@@ -860,18 +889,18 @@ QRectF Stroke::GetBounds()
 /// batch operationg that uses the rendering methods exposed off of DrawingContext
 /// </summary>
 /// <param name="context"></param>
-void Stroke::Draw(DrawingContext *context)
+void Stroke::Draw(DrawingContext &context)
 {
-    if (nullptr == context)
-    {
-        throw std::exception("context");
-    }
+    //if (nullptr == context)
+    //{
+    //    throw std::exception("context");
+    //}
 
     //our code never calls this public API so we can assume that opacity
     //has not been set up
 
     //call our public Draw method with the strokes.DA
-    Draw(context, DrawingAttributes());
+    Draw(context, GetDrawingAttributes());
 }
 
 
@@ -881,12 +910,12 @@ void Stroke::Draw(DrawingContext *context)
 /// </summary>
 /// <param name="drawingContext"></param>
 /// <param name="drawingAttributes"></param>
-void Stroke::Draw(DrawingContext * drawingContext, DrawingAttributes & drawingAttributes)
+void Stroke::Draw(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes>  drawingAttributes)
 {
-    if (nullptr == drawingContext)
-    {
-        throw std::exception("context");
-    }
+    //if (nullptr == drawingContext)
+    //{
+    //    throw std::exception("context");
+    //}
 
 
     //             context.VerifyAccess();
@@ -894,16 +923,19 @@ void Stroke::Draw(DrawingContext * drawingContext, DrawingAttributes & drawingAt
     //our code never calls this public API so we can assume that opacity
     //has not been set up
 
-    if (drawingAttributes.IsHighlighter())
+    if (drawingAttributes->IsHighlighter())
     {
-        drawingContext.PushOpacity(StrokeRenderer.HighlighterOpacity);
+        drawingContext.PushOpacity(StrokeRenderer::HighlighterOpacity);
         try
         {
-            DrawInternal(drawingContext, StrokeRenderer.GetHighlighterAttributes(this, this.DrawingAttributes), false);
+            QSharedPointer<DrawingAttributes> da(StrokeRenderer::GetHighlighterAttributes(*this, GetDrawingAttributes()));
+            DrawInternal(drawingContext, da, false);
+            drawingContext.Pop();
         }
-        finally
+        catch(...)
         {
             drawingContext.Pop();
+            throw;
         }
     }
     else
@@ -918,7 +950,7 @@ void Stroke::Draw(DrawingContext * drawingContext, DrawingAttributes & drawingAt
 /// </summary>
 /// <param name="bounds">A Rect to clip with</param>
 /// <returns>The after-clipping strokes.</returns>
-StrokeCollection Stroke::GetClipResult(QRectF const & bounds)
+QSharedPointer<StrokeCollection> Stroke::GetClipResult(QRectF const & bounds)
 {
     return GetClipResult({ bounds.topLeft(), bounds.topRight(), bounds.bottomRight(), bounds.bottomLeft() });
 }
@@ -929,7 +961,7 @@ StrokeCollection Stroke::GetClipResult(QRectF const & bounds)
 /// </summary>
 /// <param name="lassoPoints">The lasso points to clip with</param>
 /// <returns>The after-clipping strokes</returns>
-StrokeCollection Stroke::GetClipResult(QVector<QPointF> const & lassoPoints)
+QSharedPointer<StrokeCollection> Stroke::GetClipResult(QVector<QPointF> const & lassoPoints)
 {
     if (lassoPoints.count() == 0)
     {
@@ -947,7 +979,7 @@ StrokeCollection Stroke::GetClipResult(QVector<QPointF> const & lassoPoints)
 /// </summary>
 /// <param name="bounds">A Rect to clip with</param>
 /// <returns>The after-erasing strokes</returns>
-StrokeCollection Stroke::GetEraseResult(QRectF const & bounds)
+QSharedPointer<StrokeCollection> Stroke::GetEraseResult(QRectF const & bounds)
 {
     return GetEraseResult({ bounds.topLeft(), bounds.topRight(), bounds.bottomRight(), bounds.bottomLeft() });
 }
@@ -957,7 +989,7 @@ StrokeCollection Stroke::GetEraseResult(QRectF const & bounds)
 /// </summary>
 /// <param name="lassoPoints">Lasso points to erase with</param>
 /// <returns>The after-erasing strokes</returns>
-StrokeCollection Stroke::GetEraseResult(QVector<QPointF> const & lassoPoints)
+QSharedPointer<StrokeCollection> Stroke::GetEraseResult(QVector<QPointF> const & lassoPoints)
 {
     if (lassoPoints.size() == 0)
     {
@@ -975,13 +1007,13 @@ StrokeCollection Stroke::GetEraseResult(QVector<QPointF> const & lassoPoints)
 /// <param name="eraserPath">The path to erase</param>
 /// <param name="eraserShape">Shape of the eraser</param>
 /// <returns></returns>
-StrokeCollection Stroke::GetEraseResult(QVector<QPointF> const & eraserPath, StylusShape * eraserShape)
+QSharedPointer<StrokeCollection> Stroke::GetEraseResult(QVector<QPointF> const & eraserPath, StylusShape & eraserShape)
 {
     // Check the input parameters
-    if (eraserShape == nullptr)
-    {
-        throw std::exception("eraserShape");
-    }
+    //if (eraserShape == nullptr)
+    //{
+    //    throw std::exception("eraserShape");
+    //}
 
     return Erase(EraseTest(eraserPath, eraserShape));
 }
@@ -994,7 +1026,8 @@ StrokeCollection Stroke::GetEraseResult(QVector<QPointF> const & eraserPath, Sty
 /// <returns>True is this stroke is hit, false otherwise</returns>
 bool Stroke::HitTest(QPointF const & point)
 {
-    return HitTest({point}, new EllipseStylusShape(TapHitPointSize, TapHitPointSize, TapHitRotation));
+    EllipseStylusShape stylusShape(TapHitPointSize, TapHitPointSize, TapHitRotation);
+    return HitTest({point}, stylusShape);
 }
 
 /// <summary>
@@ -1009,7 +1042,8 @@ bool Stroke::HitTest(QPointF const & point, double diameter)
     {
         throw std::exception("diameter");
     }
-    return HitTest({point}, new EllipseStylusShape(diameter, diameter, TapHitRotation));
+    EllipseStylusShape stylusShape(diameter, diameter, TapHitRotation);
+    return HitTest({point}, stylusShape);
 }
 
 /// <summary>
@@ -1030,17 +1064,17 @@ bool Stroke::HitTest(QRectF const & bounds, int percentageWithinBounds)
         return true;
     }
 
-    StrokeInfo strokeInfo = null;
-    try
-    {
-        strokeInfo = new StrokeInfo(this);
+    StrokeInfo strokeInfo(sharedFromThis());
+    //try
+    //{
+        //strokeInfo = new StrokeInfo(this);
 
-        StylusPointCollection stylusPoints = strokeInfo.StylusPoints;
-        double target = strokeInfo.TotalWeight * percentageWithinBounds / 100.0f - PercentageTolerance;
+        QSharedPointer<StylusPointCollection> stylusPoints = strokeInfo.StylusPoints();
+        double target = strokeInfo.TotalWeight() * percentageWithinBounds / 100.0f - PercentageTolerance;
 
-        for (int i = 0; i < stylusPoints.size(); i++)
+        for (int i = 0; i < stylusPoints->size(); i++)
         {
-            if (true == bounds.contains((QPointF)stylusPoints[i]))
+            if (true == bounds.contains((*stylusPoints)[i]))
             {
                 target -= strokeInfo.GetPointWeight(i);
                 if (DoubleUtil::LessThanOrClose(target, 0))
@@ -1051,15 +1085,15 @@ bool Stroke::HitTest(QRectF const & bounds, int percentageWithinBounds)
         }
 
         return false;
-    }
-    finally
-    {
-        if (strokeInfo != null)
-        {
-            //detach from event handlers, or else we leak.
-            strokeInfo.Detach();
-        }
-    }
+    //}
+    //finally
+    //{
+    //    if (strokeInfo != null)
+    //    {
+    //        //detach from event handlers, or else we leak.
+    //        strokeInfo.Detach();
+    //    }
+    //}
 }
 
 /// <summary>
@@ -1081,23 +1115,23 @@ bool Stroke::HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinL
     }
 
 
-    StrokeInfo strokeInfo = null;
-    try
-    {
-        strokeInfo = new StrokeInfo(this);
+    StrokeInfo strokeInfo(sharedFromThis());
+    //try
+    //{
+        //strokeInfo = new StrokeInfo(this);
 
-        StylusPointCollection stylusPoints = strokeInfo.StylusPoints;
-        double target = strokeInfo.TotalWeight * percentageWithinLasso / 100.0f - PercentageTolerance;
+        QSharedPointer<StylusPointCollection> stylusPoints = strokeInfo.StylusPoints();
+        double target = strokeInfo.TotalWeight() * percentageWithinLasso / 100.0f - PercentageTolerance;
 
-        Lasso lasso = new SingleLoopLasso();
+        SingleLoopLasso lasso;
         lasso.AddPoints(lassoPoints);
 
-        for (int i = 0; i < stylusPoints.Count; i++)
+        for (int i = 0; i < stylusPoints->size(); i++)
         {
-            if (true == lasso.Contains((Point)stylusPoints[i]))
+            if (true == lasso.Contains((*stylusPoints)[i]))
             {
                 target -= strokeInfo.GetPointWeight(i);
-                if (DoubleUtil::LessThan(target, 0f))
+                if (DoubleUtil::LessThan(target, 0))
                 {
                     return true;
                 }
@@ -1105,15 +1139,15 @@ bool Stroke::HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinL
         }
 
         return false;
-    }
-    finally
-    {
-        if (strokeInfo != null)
-        {
-            //detach from event handlers, or else we leak.
-            strokeInfo.Detach();
-        }
-    }
+    //}
+    //finally
+    //{
+    //    if (strokeInfo != null)
+    //    {
+    //        //detach from event handlers, or else we leak.
+    //        strokeInfo.Detach();
+    //    }
+    //}
 
 }
 
@@ -1123,22 +1157,22 @@ bool Stroke::HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinL
 /// <param name="path"></param>
 /// <param name="stylusShape"></param>
 /// <returns></returns>
-bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape *stylusShape)
+bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape &stylusShape)
 {
-    if (stylusShape == nullptr)
-    {
-        throw std::exception("stylusShape");
-    }
+    //if (stylusShape == nullptr)
+    //{
+    //    throw std::exception("stylusShape");
+    //}
 
     if (path.size() == 0)
     {
         return false;
     }
 
-    ErasingStroke erasingStroke = new ErasingStroke(stylusShape);
+    ErasingStroke erasingStroke(stylusShape);
     erasingStroke.MoveTo(path);
 
-    QRectF erasingBounds = erasingStroke.Bounds;
+    QRectF erasingBounds = erasingStroke.Bounds();
 
     if (erasingBounds.isEmpty())
     {
@@ -1147,7 +1181,7 @@ bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape *stylusShape)
 
     if (erasingBounds.intersects(GetBounds()))
     {
-        return erasingStroke.HitTest(StrokeNodeIterator.GetIterator(this, this.DrawingAttributes));
+        return erasingStroke.HitTest(StrokeNodeIterator::GetIterator(*this, *GetDrawingAttributes()));
     }
 
     return false;
@@ -1176,12 +1210,12 @@ bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape *stylusShape)
 /// </summary>
 /// <param name="drawingContext">DrawingContext to draw on</param>
 /// <param name="drawingAttributes">DrawingAttributes to draw with</param>
-void Stroke::DrawCore(DrawingContext* drawingContext, DrawingAttributes & drawingAttributes)
+void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes>  drawingAttributes)
 {
-    if (nullptr == drawingContext)
-    {
-        throw std::exception("drawingContext");
-    }
+    //if (nullptr == drawingContext)
+    //{
+    //    throw std::exception("drawingContext");
+    //}
 
     if (_drawAsHollow == true)
     {
@@ -1191,23 +1225,23 @@ void Stroke::DrawCore(DrawingContext* drawingContext, DrawingAttributes & drawin
         // also, the minimum display size for selected ink is our default width / height
 
         QMatrix innerTransform, outerTransform;
-        DrawingAttributes selectedDA = drawingAttributes.Clone();
-        selectedDA.Height = qMax(selectedDA.Height, DrawingAttributes::DefaultHeight);
-        selectedDA.Width = qMax(selectedDA.Width, DrawingAttributes::DefaultWidth);
+        QSharedPointer<DrawingAttributes>  selectedDA = drawingAttributes->Clone();
+        selectedDA->SetHeight(qMax(selectedDA->Height(), DrawingAttributes::DefaultHeight));
+        selectedDA->SetWidth(qMax(selectedDA->Width(), DrawingAttributes::DefaultWidth));
         CalcHollowTransforms(selectedDA, innerTransform, outerTransform);
 
-        // First pass drawing. Use drawingAttributes.Color to create a solid color brush. The stroke will be drawn as
+        // First pass drawing. Use drawingAttributes->Color to create a solid color brush. The stroke will be drawn as
         // 1 avalon-unit higher and wider (HollowLineSize = 1.0f)
-        selectedDA.StylusTipTransform = outerTransform;
-        SolidColorBrush brush = new SolidColorBrush(drawingAttributes.Color);
-        brush.Freeze();
-        drawingContext.DrawGeometry(brush, nullptr, GetGeometry(selectedDA));
+        selectedDA->SetStylusTipTransform(outerTransform);
+        QBrush brush(drawingAttributes->Color());
+        //brush.Freeze();
+        drawingContext.DrawGeometry(brush, Qt::NoPen, *GetGeometry(selectedDA));
 
         //Second pass drawing with a white color brush. The stroke will be drawn as
         // 1 avalon-unit shorter and narrower (HollowLineSize = 1.0f) if the actual-width/height (considering StylusTipTransform)
         // is larger than HollowLineSize. Otherwise the same size stroke is drawn.
-        selectedDA.StylusTipTransform = innerTransform;
-        drawingContext.DrawGeometry(Brushes.White, null, GetGeometry(selectedDA));
+        selectedDA->SetStylusTipTransform(innerTransform);
+        drawingContext.DrawGeometry(QBrush(Qt::white), Qt::NoPen, *GetGeometry(selectedDA));
     }
     else
     {
@@ -1237,9 +1271,9 @@ void Stroke::DrawCore(DrawingContext* drawingContext, DrawingAttributes & drawin
         else
         {
 #endif
-        SolidColorBrush brush = new SolidColorBrush(drawingAttributes.Color);
-        brush.Freeze();
-        drawingContext.DrawGeometry(brush, null, GetGeometry(drawingAttributes));
+        QBrush brush(drawingAttributes->Color());
+        //brush.Freeze();
+        drawingContext.DrawGeometry(brush, Qt::NoPen, *GetGeometry(drawingAttributes));
 #if DEBUG_RENDERING_FEEDBACK
         }
 #endif
@@ -1252,7 +1286,7 @@ void Stroke::DrawCore(DrawingContext* drawingContext, DrawingAttributes & drawin
 /// <returns></returns>
 Geometry* Stroke::GetGeometry()
 {
-    return GetGeometry(DrawingAttributes());
+    return GetGeometry(GetDrawingAttributes());
 }
 
 /// <summary>
@@ -1260,26 +1294,26 @@ Geometry* Stroke::GetGeometry()
 /// </summary>
 /// <param name="drawingAttributes"></param>
 /// <returns></returns>
-Geometry * Stroke::GetGeometry(DrawingAttributes& drawingAttributes)
+Geometry * Stroke::GetGeometry(QSharedPointer<DrawingAttributes> drawingAttributes)
 {
-    bool geometricallyEqual = DrawingAttributes::GeometricallyEqual(drawingAttributes, DrawingAttributes());
+    bool geometricallyEqual = DrawingAttributes::GeometricallyEqual(*drawingAttributes, *GetDrawingAttributes());
 
     // need to recalculate the PathGemetry if the DA passed in is "geometrically" different from
     // this DA, or if the cached PathGeometry is dirty.
     if (false == geometricallyEqual || (true == geometricallyEqual && nullptr == _cachedGeometry))
     {
         //Recalculate _pathGeometry;
-        StrokeNodeIterator iterator = StrokeNodeIterator.GetIterator(this, drawingAttributes);
-        Geometry geometry;
-        Rect bounds;
-        StrokeRenderer.CalcGeometryAndBounds(iterator,
-                                             drawingAttributes,
+        StrokeNodeIterator iterator = StrokeNodeIterator::GetIterator(*this, *drawingAttributes);
+        Geometry * geometry = nullptr;
+        QRectF bounds;
+        StrokeRenderer::CalcGeometryAndBounds(iterator,
+                                             *drawingAttributes,
 #if DEBUG_RENDERING_FEEDBACK
                                              null, 0d, false,
 #endif
                                              true, //calc bounds
-                                             out geometry,
-                                             out bounds);
+                                             geometry,
+                                             bounds);
 
         // return the calculated value directly. We cannot cache the result since the DA passed in
         // is "geometrically" different from this.DrawingAttributes.
@@ -1306,7 +1340,7 @@ Geometry * Stroke::GetGeometry(DrawingAttributes& drawingAttributes)
 /// so we can assume the correct opacity has already been pushed on dc. The flag drawAsHollow is set
 /// to true when this function is called from Renderer and this.IsSelected == true.
 /// </summary>
-void Stroke::DrawInternal(DrawingContext* dc, DrawingAttributes &DrawingAttributes, bool drawAsHollow)
+void Stroke::DrawInternal(DrawingContext& dc, QSharedPointer<DrawingAttributes> DrawingAttributes, bool drawAsHollow)
 {
     if (drawAsHollow == true)
     {
@@ -1315,9 +1349,10 @@ void Stroke::DrawInternal(DrawingContext* dc, DrawingAttributes &DrawingAttribut
         try
         {
             _drawAsHollow = true;  // temporarily set the flag to be true
-            this.DrawCore(dc, DrawingAttributes);
+            DrawCore(dc, DrawingAttributes);
+            _drawAsHollow = false;  // reset _drawAsHollow
         }
-        finally
+        catch(...)
         {
             _drawAsHollow = false;  // reset _drawAsHollow
         }
@@ -1335,7 +1370,7 @@ void Stroke::DrawInternal(DrawingContext* dc, DrawingAttributes &DrawingAttribut
 /// <param name="shape"></param>
 /// <param name="path"></param>
 /// <returns>StrokeIntersection array for these segments</returns>
-QVector<StrokeIntersection> Stroke::EraseTest(QVector<QPointF> const& path, StylusShape * shape)
+QVector<StrokeIntersection> Stroke::EraseTest(QVector<QPointF> const& path, StylusShape & shape)
 {
     //System.Diagnostics.Debug.Assert(shape != null);
     //System.Diagnostics.Debug.Assert(path != null);
@@ -1346,7 +1381,7 @@ QVector<StrokeIntersection> Stroke::EraseTest(QVector<QPointF> const& path, Styl
 
     ErasingStroke erasingStroke(shape, path);
     QList<StrokeIntersection> intersections;
-    erasingStroke.EraseTest(StrokeNodeIterator.GetIterator(this, DrawingAttributes()), intersections);
+    erasingStroke.EraseTest(StrokeNodeIterator::GetIterator(*this, *GetDrawingAttributes()), intersections);
     return intersections.toVector();
 }
 
@@ -1354,22 +1389,23 @@ QVector<StrokeIntersection> Stroke::EraseTest(QVector<QPointF> const& path, Styl
 /// Hit tests all segments within the lasso loops
 /// </summary>
 /// <returns> a StrokeIntersection array for these segments</returns>
-QVector<StrokeIntersection> Stroke::HitTest(Lasso* lasso)
+QVector<StrokeIntersection> Stroke::HitTest(Lasso& lasso)
 {
     // Check the input parameters
     //System.Diagnostics.Debug.Assert(lasso != null);
-    if (lasso.IsEmpty)
+    if (lasso.IsEmpty())
     {
         return QVector<StrokeIntersection>();
     }
 
     // The following will check whether all the points are within the lasso.
     // If yes, return the whole stroke as being hit.
-    if (!lasso.Bounds.IntersectsWith(GetBounds()))
+    if (!lasso.Bounds().intersects(GetBounds()))
     {
         return QVector<StrokeIntersection>();
     }
-    return lasso.HitTest(StrokeNodeIterator.GetIterator(this, this.DrawingAttributes));
+    StrokeNodeIterator sni = StrokeNodeIterator::GetIterator(*this, *GetDrawingAttributes());
+    return lasso.HitTest(sni);
 }
 
 
@@ -1378,13 +1414,13 @@ QVector<StrokeIntersection> Stroke::HitTest(Lasso* lasso)
 /// </summary>
 /// <param name="cutAt">Array of intersections indicating the erasing locations</param>
 /// <returns></returns>
-StrokeCollection Stroke::Erase(QVector<StrokeIntersection> const & cutAt)
+QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeIntersection> cutAt)
 {
     // Nothing needs to be erased
     if(cutAt.size() == 0)
     {
-        StrokeCollection strokes;
-        strokes.append(Clone()); //clip and erase always return clones for this condition
+        QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
+        strokes->append(Clone()); //clip and erase always return clones for this condition
         return strokes;
     }
 
@@ -1400,12 +1436,12 @@ StrokeCollection Stroke::Erase(QVector<StrokeIntersection> const & cutAt)
 /// </summary>
 /// <param name="cutAt">Array of intersections indicating the clipping locations</param>
 /// <returns>The resulting StrokeCollection</returns>
-StrokeCollection Stroke::Clip(QVector<StrokeIntersection> const & cutAt)
+QSharedPointer<StrokeCollection> Stroke::Clip(QVector<StrokeIntersection> cutAt)
 {
     // Nothing is inside
     if (cutAt.size() == 0)
     {
-        return StrokeCollection();
+        return QSharedPointer<StrokeCollection>(new StrokeCollection);
     }
 
 
@@ -1415,7 +1451,7 @@ StrokeCollection Stroke::Clip(QVector<StrokeIntersection> const & cutAt)
     // For special case like cutAt is {BF, AL, BF, 0.67}, the inSegments are empty
     if (inSegments.size() == 0)
     {
-        return StrokeCollection();
+        return QSharedPointer<StrokeCollection>(new StrokeCollection);
     }
 
     // Two other validations are deferred to the private clip function to avoid duplicate code.
@@ -1429,14 +1465,14 @@ StrokeCollection Stroke::Clip(QVector<StrokeIntersection> const & cutAt)
 /// first-pass-rendering 1 avalon-unit wider/heigher. The resulting innerTransform will make the second-pass-rendering 1 avalon-unit
 /// narrower/shorter.
 /// </summary>
-void Stroke::CalcHollowTransforms(DrawingAttributes & originalDa, QMatrix & innerTransform, QMatrix & outerTransform)
+void Stroke::CalcHollowTransforms(QSharedPointer<DrawingAttributes>  originalDa, QMatrix & innerTransform, QMatrix & outerTransform)
 {
 
-    //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(originalDa.StylusTipTransform.OffsetX) && DoubleUtil::IsZero(originalDa.StylusTipTransform.OffsetY));
+    //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(originalDa->StylusTipTransform.OffsetX) && DoubleUtil::IsZero(originalDa->StylusTipTransform.OffsetY));
 
     innerTransform = outerTransform = QMatrix(1, 0, 0, 1, 0, 0);
-    QPointF w = originalDa.StylusTipTransform().map(QPointF(originalDa.Width(), 0));
-    QPointF h = originalDa.StylusTipTransform().map(QPoint(0, originalDa.Height()));
+    QPointF w = originalDa->StylusTipTransform().map(QPointF(originalDa->Width(), 0));
+    QPointF h = originalDa->StylusTipTransform().map(QPoint(0, originalDa->Height()));
 
     // the newWidth and newHeight are the actual width/height of the stylus shape considering StylusTipTransform.
     // The assumption is TylusTipTransform has no translation component.
@@ -1449,9 +1485,9 @@ void Stroke::CalcHollowTransforms(DrawingAttributes & originalDa, QMatrix & inne
                         (newHeight - HollowLineSize) / newHeight : 1.0f;
 
     innerTransform.scale(xTransform, yTransform);
-    innerTransform *= originalDa.StylusTipTransform();
+    innerTransform *= originalDa->StylusTipTransform();
 
     outerTransform.scale((newWidth + HollowLineSize) / newWidth,
                          (newHeight + HollowLineSize) / newHeight);
-    outerTransform *= originalDa.StylusTipTransform();
+    outerTransform *= originalDa->StylusTipTransform();
 }

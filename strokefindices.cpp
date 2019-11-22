@@ -2,8 +2,8 @@
 
 #include <QString>
 
-StrokeFIndices StrokeFIndices::s_empty(AfterLast(), BeforeFirst());
-StrokeFIndices StrokeFIndices::s_full(BeforeFirst(), AfterLast());
+StrokeFIndices StrokeFIndices::s_empty(AfterLast, BeforeFirst);
+StrokeFIndices StrokeFIndices::s_full(BeforeFirst, AfterLast);
 
 StrokeFIndices::StrokeFIndices(double beginFIndex, double endFIndex)
 {
@@ -18,11 +18,11 @@ QString StrokeFIndices::ToString() const
 
 QString StrokeFIndices::GetStringRepresentation(double fIndex)
 {
-    if (DoubleUtil::AreClose(fIndex, BeforeFirst()))
+    if (DoubleUtil::AreClose(fIndex, BeforeFirst))
     {
         return "BeforeFirst";
     }
-    if (DoubleUtil::AreClose(fIndex, AfterLast()))
+    if (DoubleUtil::AreClose(fIndex, AfterLast))
     {
         return "AfterLast";
     }

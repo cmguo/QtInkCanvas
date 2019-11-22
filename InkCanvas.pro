@@ -18,20 +18,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     bezier.cpp \
+    contoursegment.cpp \
     cuspdata.cpp \
     doubleutil.cpp \
     drawingattributes.cpp \
     drawingattributeserializer.cpp \
+    drawingcontext.cpp \
     drawingflags.cpp \
+    ellipticalnodeoperations.cpp \
+    erasingstroke.cpp \
+    extendedproperty.cpp \
+    geometry.cpp \
+    incrementalhittester.cpp \
     inkcanvas.cpp \
     knownidcache.cpp \
     knownids.cpp \
     lasso.cpp \
+    qtstreamgeometrycontext.cpp \
+    quad.cpp \
+    streamgeometry.cpp \
+    streamgeometrycontext.cpp \
     stroke.cpp \
     strokecollection.cpp \
     strokecollectionserializer.cpp \
     strokefindices.cpp \
     strokeintersection.cpp \
+    strokenode.cpp \
+    strokenodedata.cpp \
+    strokenodeiterator.cpp \
+    strokenodeoperations.cpp \
+    strokerenderer.cpp \
     styluspoint.cpp \
     styluspointcollection.cpp \
     styluspointdescription.cpp \
@@ -46,20 +62,37 @@ SOURCES += \
 HEADERS += \
     InkCanvas_global.h \
     bezier.h \
+    contoursegment.h \
     cuspdata.h \
     doubleutil.h \
     drawingattributes.h \
     drawingattributeserializer.h \
+    drawingcontext.h \
     drawingflags.h \
+    ellipticalnodeoperations.h \
+    erasingstroke.h \
+    events.h \
+    extendedproperty.h \
+    geometry.h \
+    incrementalhittester.h \
     inkcanvas.h \
     knownidcache.h \
     knownids.h \
     lasso.h \
+    qtstreamgeometrycontext.h \
+    quad.h \
+    streamgeometry.h \
+    streamgeometrycontext.h \
     stroke.h \
     strokecollection.h \
     strokecollectionserializer.h \
     strokefindices.h \
     strokeintersection.h \
+    strokenode.h \
+    strokenodedata.h \
+    strokenodeiterator.h \
+    strokenodeoperations.h \
+    strokerenderer.h \
     styluspoint.h \
     styluspointcollection.h \
     styluspointdescription.h \

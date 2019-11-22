@@ -7,6 +7,7 @@
 #include <QPointF>
 #include <QVector>
 #include <QMap>
+#include <QSharedPointer>
 
 class StylusPointDescription;
 
@@ -20,7 +21,7 @@ private:
     double _y;
     float _pressureFactor;
     QVector<int> _additionalValues;
-    StylusPointDescription * _stylusPointDescription;
+    QSharedPointer<StylusPointDescription> _stylusPointDescription;
 
     /// <summary>
     /// StylusPoint
@@ -28,6 +29,8 @@ private:
     /// <param name="x">x
     /// <param name="y">y
 public:
+    StylusPoint() {}
+
     StylusPoint(QPointF const & p)
         : StylusPoint(p.x(), p.y())
     {
@@ -52,7 +55,8 @@ public:
     /// <param name="pressureFactor">pressureFactor
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="additionalValues">additionalValues
-    StylusPoint(double x, double y, float pressureFactor, StylusPointDescription *stylusPointDescription,
+    StylusPoint(double x, double y, float pressureFactor,
+                QSharedPointer<StylusPointDescription> stylusPointDescription,
                 QVector<int> const & additionalValues);
 
     /// <summary>
@@ -62,7 +66,7 @@ public:
         double x,
         double y,
         float pressureFactor,
-        StylusPointDescription * stylusPointDescription,
+        QSharedPointer<StylusPointDescription> stylusPointDescription,
         QVector<int> const & additionalValues,
         bool validateAdditionalData,
         bool validatePressureFactor);
@@ -108,9 +112,9 @@ public:
     /// <summary>
     /// Describes the properties this StylusPoint contains
     /// </summary>
-    StylusPointDescription * Description();
+    QSharedPointer<StylusPointDescription> Description();
 
-    void SetDescription(StylusPointDescription * value);
+    void SetDescription(QSharedPointer<StylusPointDescription> value);
 
     /// <summary>
     /// Returns true if this StylusPoint supports the specified property

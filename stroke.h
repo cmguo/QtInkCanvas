@@ -14,8 +14,10 @@ class DrawingContext;
 class StrokeCollection;
 class StrokeIntersection;
 class Lasso;
+class StylusPointsReplacedEventArgs;
+class DrawingAttributesReplacedEventArgs;
 
-class Stroke : QObject
+class Stroke : public QObject, public QEnableSharedFromThis<Stroke>
 {
     Q_OBJECT
 public:
@@ -25,14 +27,14 @@ public:
     /// <remarks>
     /// </remarks>
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
-    Stroke(StylusPointCollection const & stylusPoints);
+    Stroke(QSharedPointer<StylusPointCollection> stylusPoints);
 
     /// <summary>Create a stroke from a StylusPointCollection</summary>
     /// <remarks>
     /// </remarks>
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
     /// <param name="drawingAttributes">drawingAttributes</param>
-    Stroke(StylusPointCollection const & stylusPoints, DrawingAttributes const & drawingAttributes);
+    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>Create a stroke from a StylusPointCollection</summary>
     /// <remarks>
@@ -40,7 +42,7 @@ public:
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
     /// <param name="drawingAttributes">drawingAttributes</param>
     /// <param name="extendedProperties">extendedProperties</param>
-    Stroke(StylusPointCollection const & stylusPoints, DrawingAttributes const & drawingAttributes, QVariantMap * extendedProperties);
+    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, QVariantMap * extendedProperties);
 
     Stroke(Stroke const & o);
 
@@ -55,7 +57,7 @@ public:
     /// <summary>Returns a new stroke that has a deep copy.</summary>
     /// <remarks>Deep copied data includes points, point description, drawing attributes, and transform</remarks>
     /// <returns>Deep copy of current stroke</returns>
-    virtual Stroke * Clone() { return new Stroke(*this); }
+    virtual QSharedPointer<Stroke> Clone() { return QSharedPointer<Stroke>(new Stroke(*this)); }
 
     /// <summary>Transforms the ink and also changes the StylusTip</summary>
     /// <param name="transformMatrix">Matrix to transform the stroke by</param>
@@ -66,12 +68,12 @@ public:
     /// Returns a Bezier smoothed version of the StylusPoints
     /// </summary>
     /// <returns></returns>
-    StylusPointCollection GetBezierStylusPoints();
+    QSharedPointer<StylusPointCollection> GetBezierStylusPoints();
 
     /// <summary>
     /// Interpolate packet / pressure data from _stylusPoints
     /// </summary>
-    StylusPointCollection GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints);
+    QSharedPointer<StylusPointCollection> GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints);
 
     /// <summary>
     /// helper used to get the length between two points
@@ -127,37 +129,37 @@ public:
     /// If the stroke has been deleted, the 'set' will no-op.
     /// </remarks>
     /// <value>The drawing attributes associated with the current stroke.</value>
-    DrawingAttributes & GetDrawingAttributes()
+    QSharedPointer<DrawingAttributes> GetDrawingAttributes()
     {
         return _drawingAttributes;
     }
 
-    void SetDrawingAttributes(DrawingAttributes const & value);
+    void SetDrawingAttributes(QSharedPointer<DrawingAttributes> value);
 
     /// <summary>
     /// StylusPoints
     /// </summary>
-    StylusPointCollection const & StylusPoints()
+    QSharedPointer<StylusPointCollection> StylusPoints()
     {
         return _stylusPoints;
     }
 
-    void SetStylusPoints(StylusPointCollection const & value);
+    void SetStylusPoints(QSharedPointer<StylusPointCollection> value);
 
 signals:
     /// <summary>Event that is fired when a drawing attribute is changed.</summary>
     /// <value>The event listener to add or remove in the listener chain</value>
-    void DrawingAttributesChanged();
+    void DrawingAttributesChanged(PropertyDataChangedEventArgs& e);
 
     /// <summary>
     /// Event that is fired when the DrawingAttributes have been replaced
     /// </summary>
-    void DrawingAttributesReplaced();
+    void DrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e);
 
     /// <summary>
     /// Notifies listeners whenever the StylusPoints have been replaced
     /// </summary>
-    void StylusPointsReplaced();
+    void StylusPointsReplaced(StylusPointsReplacedEventArgs& e);
 
     /// <summary>
     /// Notifies listeners whenever the StylusPoints have been changed
@@ -168,7 +170,7 @@ signals:
     /// Notifies listeners whenever a change occurs in the propertyData
     /// </summary>
     /// <value>PropertyDataChangedEventHandler</value>
-    void PropertyDataChanged(QUuid const & propName);
+    void PropertyDataChanged(PropertyDataChangedEventArgs& e);
 
 
     /// <summary>
@@ -184,8 +186,9 @@ signals:
     void PropertyChanged(QByteArray const & propName);
 
 protected:
-    virtual void OnDrawingAttributesChanged()
+    virtual void OnDrawingAttributesChanged(PropertyDataChangedEventArgs& e)
     {
+        emit DrawingAttributesChanged(e);
     }
 
     /// <summary>
@@ -193,16 +196,18 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">DrawingAttributesReplacedEventArgs to raise the event with</param>
-    virtual void OnDrawingAttributesReplaced()
+    virtual void OnDrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e)
     {
+        emit DrawingAttributesReplaced(e);
     }
 
     /// <summary>
     /// Method called on derived classes whenever the StylusPoints are replaced
     /// </summary>
     /// <param name="e">EventArgs</param>
-    virtual void OnStylusPointsReplaced()
+    virtual void OnStylusPointsReplaced(StylusPointsReplacedEventArgs& e)
     {
+        emit StylusPointsReplaced(e);
     }
 
     /// <summary>
@@ -219,9 +224,9 @@ protected:
     /// </summary>
     /// <remarks>Derived classes should call this method (their base class)
     /// to ensure that event listeners are notified</remarks>
-    virtual void OnPropertyDataChanged(QUuid const & propName)
+    virtual void OnPropertyDataChanged(PropertyDataChangedEventArgs& e)
     {
-        emit PropertyDataChanged(propName);
+        emit PropertyDataChanged(e);
     }
 
 
@@ -264,20 +269,20 @@ protected:
     /// Clip
     /// </summary>
     /// <param name="cutAt">Fragment markers for clipping</param>
-    StrokeCollection Clip(QVector<StrokeFIndices> const & cutAt);
+    QSharedPointer<StrokeCollection> Clip(QVector<StrokeFIndices> cutAt);
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="cutAt">Fragment markers for clipping</param>
     /// <returns>Survived fragments of current Stroke as a StrokeCollection</returns>
-    StrokeCollection Erase(QVector<StrokeFIndices> const & cutAt);
+    QSharedPointer<StrokeCollection> Erase(QVector<StrokeFIndices> cutAt);
 
 
     /// <summary>
     /// Creates a new stroke from a subset of the points
     /// </summary>
-    Stroke * Copy(StylusPointCollection const & sourceStylusPoints, double beginFIndex, double endFIndex);
+    QSharedPointer<Stroke> Copy(QSharedPointer<StylusPointCollection> sourceStylusPoints, double beginFIndex, double endFIndex);
 
     /// <summary>
     /// helper that will generate a new point between two points at an findex
@@ -305,7 +310,7 @@ protected:
     /// </summary>
     /// <param name="sender">The Drawing Attributes object that was changed</param>
     /// <param name="e">More data about the change that occurred</param>
-    void DrawingAttributes_Changed();
+    void DrawingAttributes_Changed(PropertyDataChangedEventArgs& e);
 
     /// <summary>
     /// Method called whenever the Stroke's StylusPoints are changed.
@@ -328,7 +333,7 @@ public:
     /// batch operationg that uses the rendering methods exposed off of DrawingContext
     /// </summary>
     /// <param name="context"></param>
-    void Draw(DrawingContext * context);
+    void Draw(DrawingContext & context);
 
 
     /// <summary>
@@ -337,7 +342,7 @@ public:
     /// </summary>
     /// <param name="drawingContext"></param>
     /// <param name="drawingAttributes"></param>
-    void Draw(DrawingContext * drawingContext, DrawingAttributes& drawingAttributes);
+    void Draw(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes> drawingAttributes);
 
 
     /// <summary>
@@ -345,7 +350,7 @@ public:
     /// </summary>
     /// <param name="bounds">A Rect to clip with</param>
     /// <returns>The after-clipping strokes.</returns>
-    StrokeCollection GetClipResult(QRectF const & bounds);
+    QSharedPointer<StrokeCollection> GetClipResult(QRectF const & bounds);
 
 
     /// <summary>
@@ -353,7 +358,7 @@ public:
     /// </summary>
     /// <param name="lassoPoints">The lasso points to clip with</param>
     /// <returns>The after-clipping strokes</returns>
-    StrokeCollection GetClipResult(QVector<QPointF> const & lassoPoints);
+    QSharedPointer<StrokeCollection> GetClipResult(QVector<QPointF> const & lassoPoints);
 
 
     /// <summary>
@@ -361,14 +366,14 @@ public:
     /// </summary>
     /// <param name="bounds">A Rect to clip with</param>
     /// <returns>The after-erasing strokes</returns>
-    StrokeCollection GetEraseResult(QRectF const & bounds);
+    QSharedPointer<StrokeCollection> GetEraseResult(QRectF const & bounds);
 
     /// <summary>
     /// Erase with lasso points.
     /// </summary>
     /// <param name="lassoPoints">Lasso points to erase with</param>
     /// <returns>The after-erasing strokes</returns>
-    StrokeCollection GetEraseResult(QVector<QPointF> const & lassoPoints);
+    QSharedPointer<StrokeCollection> GetEraseResult(QVector<QPointF> const & lassoPoints);
 
     /// <summary>
     /// Erase with an eraser with passed in shape
@@ -376,7 +381,7 @@ public:
     /// <param name="eraserPath">The path to erase</param>
     /// <param name="eraserShape">Shape of the eraser</param>
     /// <returns></returns>
-    StrokeCollection GetEraseResult(QVector<QPointF> const & eraserPath, StylusShape* eraserShape);
+    QSharedPointer<StrokeCollection> GetEraseResult(QVector<QPointF> const & eraserPath, StylusShape& eraserShape);
 
 
     /// <summary>
@@ -415,7 +420,7 @@ public:
     /// <param name="path"></param>
     /// <param name="stylusShape"></param>
     /// <returns></returns>
-    bool HitTest(QVector<QPointF> const & path, StylusShape* stylusShape);
+    bool HitTest(QVector<QPointF> const & path, StylusShape& stylusShape);
 
     /// <summary>
     /// The core functionality to draw a stroke. The function can be called from the following code paths.
@@ -440,7 +445,7 @@ public:
     /// <param name="drawingContext">DrawingContext to draw on</param>
     /// <param name="drawingAttributes">DrawingAttributes to draw with</param>
 protected:
-    virtual void DrawCore(DrawingContext * drawingContext, DrawingAttributes & drawingAttributes);
+    virtual void DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes>  drawingAttributes);
 
     /// <summary>
     /// Returns the Geometry of this stroke.
@@ -453,16 +458,16 @@ protected:
     /// </summary>
     /// <param name="drawingAttributes"></param>
     /// <returns></returns>
-    Geometry * GetGeometry(DrawingAttributes &drawingAttributes);
+    Geometry * GetGeometry(QSharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>
     /// our code - StrokeVisual.OnRender and StrokeCollection.Draw - always calls this
     /// so we can assume the correct opacity has already been pushed on dc. The flag drawAsHollow is set
     /// to true when this function is called from Renderer and this.IsSelected == true.
     /// </summary>
-    void DrawInternal(DrawingContext * dc, DrawingAttributes& DrawingAttributes, bool drawAsHollow);
+    void DrawInternal(DrawingContext & dc, QSharedPointer<DrawingAttributes> DrawingAttributes, bool drawAsHollow);
 
-
+public:
     /// <summary>
     /// Used by Inkcanvas to draw selected stroke as hollow.
     /// </summary>
@@ -503,7 +508,7 @@ protected:
     /// <param name="shape"></param>
     /// <param name="path"></param>
     /// <returns>StrokeIntersection array for these segments</returns>
-    QVector<StrokeIntersection> EraseTest(QVector<QPointF> const &, StylusShape shape);
+    QVector<StrokeIntersection> EraseTest(QVector<QPointF> const &, StylusShape &shape);
 
     /// <summary>
     /// Hit tests all segments within the lasso loops
@@ -517,14 +522,14 @@ protected:
     /// </summary>
     /// <param name="cutAt">Array of intersections indicating the erasing locations</param>
     /// <returns></returns>
-    StrokeCollection Erase(QVector<StrokeIntersection> const & cutAt);
+    QSharedPointer<StrokeCollection> Erase(QVector<StrokeIntersection> cutAt);
 
     /// <summary>
     /// Calculate the after-clipping Strokes. Only the "in-segments" are left after this operation.
     /// </summary>
     /// <param name="cutAt">Array of intersections indicating the clipping locations</param>
     /// <returns>The resulting StrokeCollection</returns>
-    StrokeCollection Clip(QVector<StrokeIntersection> const & cutAt);
+    QSharedPointer<StrokeCollection> Clip(QVector<StrokeIntersection> cutAt);
 
     static constexpr double TapHitPointSize = 1.0;
     static constexpr double TapHitRotation = 0;
@@ -536,16 +541,16 @@ protected:
     /// narrower/shorter.
     /// </summary>
 private:
-    static void CalcHollowTransforms(DrawingAttributes &originalDa, QMatrix & innerTransform, QMatrix & outerTransform);
+    static void CalcHollowTransforms(QSharedPointer<DrawingAttributes> originalDa, QMatrix & innerTransform, QMatrix & outerTransform);
 
 private:
         // Custom attributes associated with this stroke
     QVariantMap * _extendedProperties = nullptr;
 
         // Drawing attributes associated with this stroke
-    DrawingAttributes _drawingAttributes;
+    QSharedPointer<DrawingAttributes> _drawingAttributes;
 
-    StylusPointCollection _stylusPoints;
+    QSharedPointer<StylusPointCollection> _stylusPoints;
 
 private:
     Geometry * _cachedGeometry     = nullptr;
@@ -558,6 +563,9 @@ private:
 
     static constexpr char const * DrawingAttributesName = "DrawingAttributes";
     static constexpr char const * StylusPointsName = "StylusPoints";
+
+public:
+    static constexpr double PercentageTolerance = 0.0001;
 };
 
 

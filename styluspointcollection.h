@@ -1,7 +1,7 @@
 #ifndef STYLUSPOINTCOLLECTION_H
 #define STYLUSPOINTCOLLECTION_H
 
-
+#include <QSharedPointer>
 #include <QList>
 #include <QMatrix>
 #include <QObject>
@@ -11,9 +11,22 @@
 
 class StylusPoint;
 class StylusPointDescription;
+class CancelEventArgs;
 
-class StylusPointCollection : public QList<StylusPoint>
+class StylusPointCollection : public QObject, public QList<StylusPoint>
 {
+    Q_OBJECT
+signals:
+    /// <summary>
+    /// Changed event, anytime the data in this collection changes, this event is raised
+    /// </summary>
+    void Changed();
+
+    /// <summary>
+    /// Internal only changed event used by Stroke to prevent zero count strokes
+    /// </summary>
+    void CountGoingToZero(CancelEventArgs & e);
+
 public:
     StylusPointCollection();
 
@@ -27,27 +40,27 @@ public:
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPointDescription">stylusPointDescription
-    StylusPointCollection(StylusPointDescription * stylusPointDescription);
+    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription);
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="initialCapacity">initialCapacity
-    StylusPointCollection(StylusPointDescription * stylusPointDescription, int initialCapacity);
+    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity);
 
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPoints">stylusPoints
-    StylusPointCollection(QList<StylusPoint> const & stylusPoints);
+    StylusPointCollection(QVector<StylusPoint> const & stylusPoints);
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="points">points
-    StylusPointCollection(QList<QPointF> const & points);
+    StylusPointCollection(QVector<QPointF> const & points);
 
     /// <summary>
     /// ctor called by input with a raw int[]
@@ -56,7 +69,7 @@ public:
     /// <param name="rawPacketData">rawPacketData
     /// <param name="tabletToView">tabletToView
     /// <param name="tabletToViewMatrix">tabletToView
-    StylusPointCollection(StylusPointDescription * stylusPointDescription, QVector<int> rawPacketData,
+    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData,
                           QMatrix & tabletToView, QMatrix & tabletToViewMatrix);
 
     /// <summary>
@@ -68,7 +81,7 @@ public:
     /// <summary>
     /// Read only access to the StylusPointDescription shared by the StylusPoints in this collection
     /// </summary>
-    StylusPointDescription * Description();
+    QSharedPointer<StylusPointDescription> Description();
 
     /// <summary>
     /// called by base class Collection<T> when the list is being cleared;
@@ -115,13 +128,13 @@ public:
     /// <summary>
     /// Clone with a transform, used by input
     /// </summary>
-    StylusPointCollection * Clone(QMatrix const & transform, StylusPointDescription * descriptionToUse);
+    StylusPointCollection * Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse);
 
 
     /// <summary>
     /// clone implementation
     /// </summary>
-    StylusPointCollection * Clone(QMatrix const & transform, StylusPointDescription * descriptionToUse, int count);
+    StylusPointCollection * Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count);
 
     /// <summary>
     /// virtual for raising changed notification
@@ -139,12 +152,12 @@ public:
     /// Reformat
     /// </summary>
     /// <param name="subsetToReformatTo">subsetToReformatTo
-    StylusPointCollection * Reformat(StylusPointDescription & subsetToReformatTo);
+    StylusPointCollection * Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo);
 
     /// <summary>
     /// Helper that transforms and scales in one go
     /// </summary>
-    StylusPointCollection * Reformat(StylusPointDescription & subsetToReformatTo, QMatrix const & transform);
+    StylusPointCollection * Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform);
 
     /// <summary>
     /// Returns this StylusPointCollection as a flat integer array in the himetric coordiate space
@@ -175,7 +188,7 @@ public:
     bool CanGoToZero();
 
 private:
-    StylusPointDescription * _stylusPointDescription = nullptr;
+    QSharedPointer<StylusPointDescription> _stylusPointDescription;
 
 public:
     static constexpr double MaxXY = 0;

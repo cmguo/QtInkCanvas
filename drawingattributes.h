@@ -2,7 +2,6 @@
 #define DRAWINGATTRIBUTES_H
 
 #include "knownids.h"
-#include "stylusshape.h"
 #include "stylustip.h"
 #include "drawingflags.h"
 #include "drawingattributeserializer.h"
@@ -14,9 +13,12 @@
 #include <QVariant>
 
 class StylusShape;
+class PropertyChangedEventArgs;
+class PropertyDataChangedEventArgs;
 
-class DrawingAttributes
+class DrawingAttributes : public QObject
 {
+    Q_OBJECT
 public:
     /// <summary>
     /// Creates a DrawingAttributes with default values
@@ -181,7 +183,10 @@ public:
     //
     //------------------------------------------------------
 
+signals:
+    void PropertyChanged(PropertyChangedEventArgs & e);
 
+public:
     /// <summary>Overload of the Equals method which determines if two DrawingAttributes
     /// objects contain the same drawing attributes</summary>
     bool Equals(DrawingAttributes const & that) const;
@@ -206,7 +211,7 @@ public:
     /// </summary>
     /// <returns>Deep copy of the DrawingAttributes</returns>
     /// <remarks></remarks>
-    virtual DrawingAttributes * Clone();
+    virtual QSharedPointer<DrawingAttributes> Clone();
 
 
     /// <summary>
@@ -237,8 +242,73 @@ public:
     /// <summary>
     /// Returns true if the QUuid passed in has impact on geometry of the stroke
     /// </summary>
-    static bool IsGeometricalDaQUuid(QUuid const & QUuid);
+    static bool IsGeometricalDaGuid(QUuid const & QUuid);
 
+signals:
+    /// <summary>
+    /// Event fired whenever a DrawingAttribute is modified
+    /// </summary>
+    void AttributeChanged(PropertyDataChangedEventArgs& e);
+
+    void _propertyChanged(PropertyChangedEventArgs& e);
+
+protected:
+    /// <summary>
+    /// Method called when a change occurs to any DrawingAttribute
+    /// </summary>
+    /// <param name="e">The change information for the DrawingAttribute that was modified</param>
+    virtual void OnAttributeChanged(PropertyDataChangedEventArgs &e)
+    {
+        //if (null == e)
+        //{
+        //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
+        //}
+
+        //try
+        //{
+            PrivateNotifyPropertyChanged(e);
+        //}
+        //finally
+        //{
+            //if ( this.AttributeChanged != null )
+            //{
+                emit AttributeChanged(e);
+            //}
+        //}
+    }
+
+signals:
+     /// <summary>
+    /// Event fired whenever a DrawingAttribute is modified
+    /// </summary>
+    void PropertyDataChanged(PropertyDataChangedEventArgs& e);
+
+protected:
+    /// <summary>
+    /// Method called when a change occurs to any PropertyData
+    /// </summary>
+    /// <param name="e">The change information for the PropertyData that was modified</param>
+    virtual void OnPropertyDataChanged(PropertyDataChangedEventArgs& e)
+    {
+        //if (null == e)
+        //{
+        //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
+        //}
+
+        //if (this.PropertyDataChanged != null)
+        //{
+            emit PropertyDataChanged(e);
+        //}
+    }
+
+
+    virtual void OnPropertyChanged(PropertyChangedEventArgs& e)
+    {
+        //if ( _propertyChanged != null )
+        {
+            emit  _propertyChanged(e);
+        }
+    }
 
     /// <summary>
     /// All DrawingAttributes are backed by an ExtendedProperty
@@ -260,7 +330,7 @@ public:
     /// A help method which fires INotifyPropertyChanged.PropertyChanged event
     /// </summary>
     /// <param name="e"></param>
-    void PrivateNotifyPropertyChanged(QUuid const & id);
+    void PrivateNotifyPropertyChanged(PropertyDataChangedEventArgs &e);
 
     void OnPropertyChanged(QString propertyName);
 
@@ -269,6 +339,7 @@ private:
     uint _v1RasterOperation = DrawingAttributeSerializer::RasterOperationDefaultV1;
     bool _heightChangedForCompatabity = false;
 
+public:
     /// <summary>
     /// Statics
     /// </summary>

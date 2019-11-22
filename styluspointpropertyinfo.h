@@ -4,37 +4,21 @@
 #include "styluspointproperty.h"
 
 enum StylusPointPropertyUnit {
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 未指定属性的度量单位。
+
     None = 0,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以英寸为单位。
+
     Inches = 1,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以厘米为单位。
+
     Centimeters = 2,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以度为单位。
+
     Degrees = 3,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以弧度为单位。
+
     Radians = 4,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以秒为单位。
+
     Seconds = 5,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性以磅为单位。
+
     Pounds = 6,
-    //
-    // 摘要:
-    //     指示 System.Windows.Input.StylusPoint 属性的单位元语法。
+
     Grams = 7
 };
 
@@ -54,7 +38,7 @@ private:
     /// </summary>
     /// <param name="stylusPointProperty">
 public:
-    StylusPointPropertyInfo() {};
+    StylusPointPropertyInfo() {}
 
     StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty);
 

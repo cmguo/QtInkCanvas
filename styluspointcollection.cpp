@@ -4,10 +4,11 @@
 #include "styluspointproperties.h"
 #include "strokecollectionserializer.h"
 #include "styluspointpropertyinfodefaults.h"
+#include "events.h"
 
 StylusPointCollection::StylusPointCollection()
+    : _stylusPointDescription(new StylusPointDescription())
 {
-    _stylusPointDescription = new StylusPointDescription();
 }
 
 /// <summary>
@@ -28,7 +29,7 @@ StylusPointCollection::StylusPointCollection(int initialCapacity)
 /// StylusPointCollection
 /// </summary>
 /// <param name="stylusPointDescription">stylusPointDescription
-StylusPointCollection::StylusPointCollection(StylusPointDescription * stylusPointDescription)
+StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription)
 {
     if (nullptr == stylusPointDescription)
     {
@@ -42,7 +43,7 @@ StylusPointCollection::StylusPointCollection(StylusPointDescription * stylusPoin
 /// </summary>
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="initialCapacity">initialCapacity
-StylusPointCollection::StylusPointCollection(StylusPointDescription * stylusPointDescription, int initialCapacity)
+StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity)
     : StylusPointCollection (stylusPointDescription)
 {
     if (initialCapacity < 0)
@@ -57,10 +58,10 @@ StylusPointCollection::StylusPointCollection(StylusPointDescription * stylusPoin
 /// StylusPointCollection
 /// </summary>
 /// <param name="stylusPoints">stylusPoints
-StylusPointCollection::StylusPointCollection(QList<StylusPoint> const & stylusPoints)
+StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylusPoints)
     //: this() //don't call the base ctor, we want to use the first sp
 {
-    QList<StylusPoint> points(stylusPoints);
+    QVector<StylusPoint> points(stylusPoints);
     if (points.size() == 0)
     {
         throw std::exception("stylusPoints");
@@ -82,7 +83,7 @@ StylusPointCollection::StylusPointCollection(QList<StylusPoint> const & stylusPo
 /// StylusPointCollection
 /// </summary>
 /// <param name="points">points
-StylusPointCollection::StylusPointCollection(QList<QPointF> const & points)
+StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
     : StylusPointCollection()
 {
     QList<StylusPoint> stylusPoints;
@@ -110,7 +111,7 @@ StylusPointCollection::StylusPointCollection(QList<QPointF> const & points)
 /// <param name="rawPacketData">rawPacketData
 /// <param name="tabletToView">tabletToView
 /// <param name="tabletToViewMatrix">tabletToView
-StylusPointCollection::StylusPointCollection(StylusPointDescription * stylusPointDescription, QVector<int> rawPacketData, QMatrix & tabletToView, QMatrix & tabletToViewMatrix)
+StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData, QMatrix & tabletToView, QMatrix & tabletToViewMatrix)
 {
     if (nullptr == stylusPointDescription)
     {
@@ -206,11 +207,11 @@ void StylusPointCollection::Add(StylusPointCollection & stylusPoints)
 /// <summary>
 /// Read only access to the StylusPointDescription shared by the StylusPoints in this collection
 /// </summary>
-StylusPointDescription * StylusPointCollection::Description()
+QSharedPointer<StylusPointDescription> StylusPointCollection::Description()
 {
     if (nullptr == _stylusPointDescription)
     {
-        _stylusPointDescription = new StylusPointDescription();
+        _stylusPointDescription.reset(new StylusPointDescription());
     }
     return _stylusPointDescription;
 }
@@ -327,7 +328,7 @@ StylusPointCollection * StylusPointCollection::Clone(int count)
 /// <summary>
 /// Clone with a transform, used by input
 /// </summary>
-StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, StylusPointDescription * descriptionToUse)
+StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse)
 {
     return Clone(transform, descriptionToUse, size());
 }
@@ -336,7 +337,7 @@ StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, 
 /// <summary>
 /// clone implementation
 /// </summary>
-StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, StylusPointDescription * descriptionToUse, int count)
+StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count)
 {
     //Debug.Assert(count <= this.Count);
     //
@@ -401,7 +402,7 @@ void StylusPointCollection::Transform(QMatrix const & transform)
 /// Reformat
 /// </summary>
 /// <param name="subsetToReformatTo">subsetToReformatTo
-StylusPointCollection * StylusPointCollection::Reformat(StylusPointDescription & subsetToReformatTo)
+StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo)
 {
     return Reformat(subsetToReformatTo, QMatrix(1, 0, 0, 1, 0, 0));
 }
@@ -409,15 +410,15 @@ StylusPointCollection * StylusPointCollection::Reformat(StylusPointDescription &
 /// <summary>
 /// Helper that transforms and scales in one go
 /// </summary>
-StylusPointCollection * StylusPointCollection::Reformat(StylusPointDescription & subsetToReformatTo, QMatrix const & transform)
+StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform)
 {
-    if (!subsetToReformatTo.IsSubsetOf(Description()))
+    if (!subsetToReformatTo->IsSubsetOf(Description()))
     {
         throw std::exception("subsetToReformatTo");
     }
 
-    StylusPointDescription* subsetToReformatToWithCurrentMetrics =
-        StylusPointDescription::GetCommonDescription(&subsetToReformatTo,
+    QSharedPointer<StylusPointDescription> subsetToReformatToWithCurrentMetrics =
+        StylusPointDescription::GetCommonDescription(subsetToReformatTo,
                                                     Description()); //preserve metrics from this spd
 
     if (StylusPointDescription::AreCompatible(Description(), subsetToReformatToWithCurrentMetrics) &&
@@ -595,18 +596,18 @@ bool StylusPointCollection::CanGoToZero()
         //
         // no one is listening
         //
-        return true;
+        //return true;
     }
 
-    //CancelEventArgs e = new CancelEventArgs();
+    CancelEventArgs e;
     //e.Cancel = false;
 
     //
     // call the listeners
     //
-    //this.CountGoingToZero(this, e);
+    emit CountGoingToZero(e);
     //Debug.Assert(e.Cancel, "This event should always be cancelled");
 
-    //return !e.Cancel;
+    return !e.Cancel();
 
 }

@@ -120,8 +120,8 @@ public:
     /// <summary>
     ///
     /// </summary>
-    bool IsFull() const { return ((DoubleUtil::AreClose(_beginFIndex, BeforeFirst()))
-                                  && (DoubleUtil::AreClose(_endFIndex,AfterLast()))); }
+    bool IsFull() const { return ((DoubleUtil::AreClose(_beginFIndex, BeforeFirst))
+                                  && (DoubleUtil::AreClose(_endFIndex,AfterLast))); }
 
 
 #if DEBUG

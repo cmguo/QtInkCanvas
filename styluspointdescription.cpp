@@ -1,6 +1,8 @@
 #include "styluspointdescription.h"
 #include "styluspointpropertyinfodefaults.h"
 
+#include <QList>
+
 StylusPointDescription::StylusPointDescription()
 {
     //implement the default packet description
@@ -240,8 +242,8 @@ int StylusPointDescription::OriginalPressureIndex()
 /// </summary>
 /// <param name="stylusPointDescription1">stylusPointDescription1
 /// <param name="stylusPointDescription2">stylusPointDescription2
-bool StylusPointDescription::AreCompatible(StylusPointDescription * stylusPointDescription1,
-                                           StylusPointDescription * stylusPointDescription2)
+bool StylusPointDescription::AreCompatible(QSharedPointer<StylusPointDescription> stylusPointDescription1,
+                                           QSharedPointer<StylusPointDescription> stylusPointDescription2)
 {
     //
     // ignore X, Y, Pressure - they are guaranteed to be the first3 members
@@ -277,8 +279,8 @@ bool StylusPointDescription::AreCompatible(StylusPointDescription * stylusPointD
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="stylusPointDescriptionPreserveInfo">stylusPointDescriptionPreserveInfo
 /// <remarks>The StylusPointProperties from stylusPointDescriptionPreserveInfo will be returned in the new StylusPointDescription</remarks>
-StylusPointDescription * StylusPointDescription::GetCommonDescription(StylusPointDescription * stylusPointDescription,
-                                                                      StylusPointDescription * stylusPointDescriptionPreserveInfo)
+QSharedPointer<StylusPointDescription> StylusPointDescription::GetCommonDescription(QSharedPointer<StylusPointDescription> stylusPointDescription,
+                                                                      QSharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo)
 {
     //
     // ignore X, Y, Pressure - they are guaranteed to be the first3 members
@@ -313,7 +315,7 @@ StylusPointDescription * StylusPointDescription::GetCommonDescription(StylusPoin
         }
     }
 
-    return new StylusPointDescription(commonProperties);
+    return QSharedPointer<StylusPointDescription>(new StylusPointDescription(commonProperties));
 }
 
 /// <summary>
@@ -322,7 +324,7 @@ StylusPointDescription * StylusPointDescription::GetCommonDescription(StylusPoin
 /// </summary>
 /// <param name="stylusPointDescriptionSuperset">stylusPointDescriptionSuperset
 /// <returns></returns>
-bool StylusPointDescription::IsSubsetOf(StylusPointDescription*  stylusPointDescriptionSuperset)
+bool StylusPointDescription::IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset)
 {
     if (nullptr == stylusPointDescriptionSuperset)
     {

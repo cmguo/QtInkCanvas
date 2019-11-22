@@ -1,4 +1,6 @@
 #include "drawingattributes.h"
+#include "stylusshape.h"
+#include "events.h"
 
 /// <summary>
 /// Creates a DrawingAttributes with default values
@@ -409,7 +411,7 @@ bool DrawingAttributes::Equals(DrawingAttributes const & that) const
 /// </summary>
 /// <returns>Deep copy of the DrawingAttributes</returns>
 /// <remarks></remarks>
-DrawingAttributes * DrawingAttributes::Clone()
+QSharedPointer<DrawingAttributes> DrawingAttributes::Clone()
 {
     //
     // use MemberwiseClone, which will instance the most derived type
@@ -417,7 +419,7 @@ DrawingAttributes * DrawingAttributes::Clone()
     // require ReflectionPermission.  One thing to note, all references
     // are shared, including event delegates, so we need to set those to null
     //
-    DrawingAttributes * clone = new DrawingAttributes(_extendedProperties);
+    QSharedPointer<DrawingAttributes> clone(new DrawingAttributes(_extendedProperties));
 
     clone->Initialize();
 
@@ -542,7 +544,7 @@ bool DrawingAttributes::GeometricallyEqual(DrawingAttributes const & left, Drawi
 /// <summary>
 /// Returns true if the QUuid passed in has impact on geometry of the stroke
 /// </summary>
-bool DrawingAttributes::IsGeometricalDaQUuid(QUuid const & QUuid)
+bool DrawingAttributes::IsGeometricalDaGuid(QUuid const & QUuid)
 {
     // Assert it is a DA QUuid
     //System.Diagnostics.Debug.Assert(null != DrawingAttributes.GetDefaultDrawingAttributeValue(QUuid));
@@ -633,33 +635,33 @@ QVariant DrawingAttributes::GetExtendedPropertyBackedProperty(QUuid const & id) 
 /// A help method which fires INotifyPropertyChanged.PropertyChanged event
 /// </summary>
 /// <param name="e"></param>
-void DrawingAttributes::PrivateNotifyPropertyChanged(QUuid const & id)
+void DrawingAttributes::PrivateNotifyPropertyChanged(PropertyDataChangedEventArgs & e)
 {
-    if ( id == KnownIds::Color)
+    if ( e.PropertyGuid() == KnownIds::Color)
     {
         OnPropertyChanged("Color");
     }
-    else if ( id == KnownIds::StylusTip)
+    else if ( e.PropertyGuid() == KnownIds::StylusTip)
     {
         OnPropertyChanged("StylusTip");
     }
-    else if ( id == KnownIds::StylusTipTransform)
+    else if ( e.PropertyGuid() == KnownIds::StylusTipTransform)
     {
         OnPropertyChanged("StylusTipTransform");
     }
-    else if ( id == KnownIds::StylusHeight)
+    else if ( e.PropertyGuid() == KnownIds::StylusHeight)
     {
         OnPropertyChanged("Height");
     }
-    else if ( id == KnownIds::StylusWidth)
+    else if ( e.PropertyGuid() == KnownIds::StylusWidth)
     {
         OnPropertyChanged("Width");
     }
-    else if ( id == KnownIds::IsHighlighter)
+    else if ( e.PropertyGuid() == KnownIds::IsHighlighter)
     {
         OnPropertyChanged("IsHighlighter");
     }
-    else if ( id == KnownIds::DrawingFlags )
+    else if ( e.PropertyGuid() == KnownIds::DrawingFlags )
     {
         DrawingFlags changedBits;// = ( ( (DrawingFlags)e.PreviousValue ) ^ ( (DrawingFlags)e.NewValue ) );
 
@@ -680,5 +682,6 @@ void DrawingAttributes::PrivateNotifyPropertyChanged(QUuid const & id)
 
 void DrawingAttributes::OnPropertyChanged(QString propertyName)
 {
-    (void)propertyName;
+    PropertyChangedEventArgs args(propertyName);
+    OnPropertyChanged(args);
 }

@@ -4,6 +4,7 @@
 #include "styluspointpropertyinfo.h"
 
 #include <QVector>
+#include <QSharedPointer>
 
 #include <iterator>
 
@@ -122,7 +123,7 @@ public:
     /// </summary>
     /// <param name="stylusPointDescription1">stylusPointDescription1
     /// <param name="stylusPointDescription2">stylusPointDescription2
-    static bool AreCompatible(StylusPointDescription * stylusPointDescription1, StylusPointDescription * stylusPointDescription2);
+    static bool AreCompatible(QSharedPointer<StylusPointDescription> stylusPointDescription1, QSharedPointer<StylusPointDescription> stylusPointDescription2);
 
     /// <summary>
     /// Returns a new StylusPointDescription with the common StylusPointProperties from both
@@ -130,8 +131,8 @@ public:
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="stylusPointDescriptionPreserveInfo">stylusPointDescriptionPreserveInfo
     /// <remarks>The StylusPointProperties from stylusPointDescriptionPreserveInfo will be returned in the new StylusPointDescription</remarks>
-    static StylusPointDescription * GetCommonDescription(StylusPointDescription * stylusPointDescription,
-                                                         StylusPointDescription * stylusPointDescriptionPreserveInfo);
+    static QSharedPointer<StylusPointDescription> GetCommonDescription(QSharedPointer<StylusPointDescription> stylusPointDescription,
+                                                         QSharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo);
 
     /// <summary>
     /// Returns true if this StylusPointDescription is a subset
@@ -139,7 +140,7 @@ public:
     /// </summary>
     /// <param name="stylusPointDescriptionSuperset">stylusPointDescriptionSuperset
     /// <returns></returns>
-    bool IsSubsetOf(StylusPointDescription*  stylusPointDescriptionSuperset);
+    bool IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset);
 
     /// <summary>
     /// Returns the index of the given StylusPointProperty, or -1 if none is found

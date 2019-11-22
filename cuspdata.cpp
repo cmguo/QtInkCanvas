@@ -1,5 +1,6 @@
 #include "cuspdata.h"
 #include "styluspointcollection.h"
+#include "styluspoint.h"
 #include "strokecollectionserializer.h"
 
 CuspData::CuspData()

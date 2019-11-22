@@ -5,10 +5,13 @@
 #include <QList>
 #include <QMap>
 #include <QObject>
+#include <QUuid>
+
+class StrokeCollectionChangedEventArgs;
 
 class Stroke;
 
-class StrokeCollection : public QObject, public QList<Stroke *>
+class StrokeCollection : public QObject, public QList<QSharedPointer<Stroke>>
 {
     Q_OBJECT
 public:
@@ -22,7 +25,7 @@ public:
     StrokeCollection();
 
     /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
-    StrokeCollection(QVector<Stroke*> const & strokes);
+    StrokeCollection(QVector<QSharedPointer<Stroke>> const & strokes);
 
     /// <summary>Creates a collection from ISF data in the specified stream</summary>
     /// <param name="stream">Stream of ISF data</param>
@@ -52,6 +55,7 @@ private:
     /// </summary>
     QIODevice* GetSeekableStream(QIODevice * stream);
 
+public:
     /// <summary>
     /// Allows addition of objects to the EPC
     /// </summary>
@@ -114,26 +118,26 @@ private:
     /// <summary>
     /// called by base class Insert, Add methods
     /// </summary>
-    void InsertItem(int index, Stroke * stroke);
+    void InsertItem(int index, QSharedPointer<Stroke> stroke);
 
     /// <summary>
     /// called by base class set_Item method
     /// </summary>
-    void SetItem(int index, Stroke * stroke);
+    void SetItem(int index, QSharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Gets the index of the stroke, or -1 if it is not found
     /// </summary>
     /// <param name="stroke">stroke</param>
     /// <returns></returns>
-    int IndexOf(Stroke * stroke);
+    int IndexOf(QSharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Remove a set of Stroke objects to the collection
     /// </summary>
     /// <param name="strokes">The strokes to remove from the collection</param>
     /// <remarks>Changes to the collection trigger a StrokesChanged event.</remarks>
-    void Remove(StrokeCollection const & strokes);
+    void Remove(QSharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Add a set of Stroke objects to the collection
@@ -141,26 +145,26 @@ private:
     /// <param name="strokes">The strokes to add to the collection</param>
     /// <remarks>The items are added to the collection at the end of the list.
     /// If the item already exists in the collection, then the item is not added again.</remarks>
-    void Add(StrokeCollection const & strokes);
+    void Add(QSharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Replace
     /// </summary>
     /// <param name="strokeToReplace"></param>
     /// <param name="strokesToReplaceWith"></param>
-    void Replace(Stroke * strokeToReplace, StrokeCollection const & strokesToReplaceWith);
+    void Replace(QSharedPointer<Stroke> strokeToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith);
 
     /// <summary>
     /// Replace
     /// </summary>
     /// <param name="strokesToReplace"></param>
     /// <param name="strokesToReplaceWith"></param>
-    void Replace(StrokeCollection const & strokesToReplace, StrokeCollection const & strokesToReplaceWith);
+    void Replace(QSharedPointer<StrokeCollection> strokesToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith);
 
     /// <summary>
     /// called by StrokeCollectionSerializer during Load, bypasses Change notification
     /// </summary>
-    void AddWithoutEvent(Stroke *stroke);
+    void AddWithoutEvent(QSharedPointer<Stroke>stroke);
 
 
     /// <summary>Collection of extended properties on this StrokeCollection</summary>
@@ -169,6 +173,7 @@ private:
         return _extendedProperties;
     }
 
+    operator QVariantList();
 
 signals:
     /// <summary>
@@ -176,14 +181,14 @@ signals:
     /// of stroke objects contained in the collection.
     /// </summary>
     /// <value>StrokeCollectionChangedEventHandler</value>
-    void StrokesChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);
+    void StrokesChanged(StrokeCollectionChangedEventArgs& e);
 
     /// <summary>
     /// Event that notifies internal listeners whenever a change occurs in the set
     /// of stroke objects contained in the collection.
     /// </summary>
     /// <value>StrokeCollectionChangedEventHandler</value>
-    void StrokesChangedInternal(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);
+    void StrokesChangedInternal(StrokeCollectionChangedEventArgs& e);
 
     /// <summary>
     /// Event that notifies listeners whenever a change occurs in the propertyData
@@ -199,7 +204,7 @@ signals:
     /// <summary>
     /// INotifyCollectionChanged.CollectionChanged event, explicitly implemented
     /// </summary>
-    void CollectionChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);
+    void CollectionChanged(StrokeCollectionChangedEventArgs& e);
 
 protected:
     /// <summary>Method called on derived classes whenever a drawing attributes
@@ -211,7 +216,7 @@ protected:
     /// being added or removed from the collection.
     /// To ensure that events fire for event listeners, derived classes
     /// should call this method.</remarks>
-    virtual void OnStrokesChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);
+    virtual void OnStrokesChanged(StrokeCollectionChangedEventArgs& e);
 
     /// <summary>
     /// Method called on derived classes whenever a change occurs in
@@ -239,7 +244,7 @@ protected:
     /// this produces closer to O(n), if they are not in order, it is no worse
     /// </summary>
 private:
-    int OptimisticIndexOf(int startingIndex, Stroke * stroke);
+    int OptimisticIndexOf(int startingIndex, QSharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Private helper that returns an array of indexes where the specified
@@ -248,19 +253,19 @@ private:
     /// The indexes are sorted from smallest to largest
     /// </summary>
     /// <returns></returns>
-    QVector<int> GetStrokeIndexes(StrokeCollection const & strokes);
+    QVector<int> GetStrokeIndexes(QSharedPointer<StrokeCollection> strokes);
 
     // This function will invoke OnStrokesChanged method.
     //      addedStrokes    -   the collection which contains the added strokes during the previous op.
     //      removedStrokes  -   the collection which contains the removed strokes during the previous op.
-    void RaiseStrokesChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);
+    void RaiseStrokesChanged(QSharedPointer<StrokeCollection> addedStrokes, QSharedPointer<StrokeCollection> removedStrokes, int index);
 
 signals:
     // The private PropertyChanged event
     void _propertyChanged(QByteArray const & propName);
 
     // private CollectionChanged event raiser
-    void _collectionChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index);    // Custom 'user-defined' attributes assigned to this collection
+    void _collectionChanged(StrokeCollectionChangedEventArgs& e);    // Custom 'user-defined' attributes assigned to this collection
 
 private:
     //  In v1, these were called Ink.ExtendedProperties

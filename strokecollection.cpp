@@ -1,6 +1,7 @@
 #include "strokecollection.h"
 #include "drawingattributes.h"
 #include "stroke.h"
+#include "events.h"
 
 #include <QIODevice>
 #include <QBuffer>
@@ -10,13 +11,20 @@ StrokeCollection::StrokeCollection()
 {
 }
 
+StrokeCollection::StrokeCollection(StrokeCollection const & o)
+    : QList<QSharedPointer<Stroke>>(o)
+    , _extendedProperties(o._extendedProperties)
+{
+
+}
+
 /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
-StrokeCollection::StrokeCollection(QVector<Stroke*> const & strokes)
+StrokeCollection::StrokeCollection(QVector<QSharedPointer<Stroke>> const & strokes)
 {
     //unfortunately we have to check for dupes with this ctor
-    for ( Stroke * stroke : strokes )
+    for ( QSharedPointer<Stroke> stroke : strokes )
     {
-        if ( QList<Stroke *>::contains(stroke) )
+        if ( QList<QSharedPointer<Stroke>>::contains(stroke) )
         {
             //clear and throw
             clear();
@@ -212,7 +220,7 @@ void StrokeCollection::Transform(QMatrix const & transformMatrix, bool applyToSt
     }
 
     // Apply the transform to each strokes
-    for ( Stroke * stroke : (*this) )
+    for ( QSharedPointer<Stroke> stroke : (*this) )
     {
         // samgeo - Presharp issue
         // Presharp gives a warning when get methods might deref a null.  It's complaining
@@ -228,7 +236,7 @@ void StrokeCollection::Transform(QMatrix const & transformMatrix, bool applyToSt
 StrokeCollection * StrokeCollection::Clone()
 {
     StrokeCollection * clone = new StrokeCollection();
-    for ( Stroke * s : (*this) )
+    for ( QSharedPointer<Stroke> s : (*this) )
     {
         // samgeo - Presharp issue
         // Presharp gives a warning when get methods might deref a null.  It's complaining
@@ -255,15 +263,15 @@ void StrokeCollection::ClearItems()
 {
     if ( size() > 0 )
     {
-        StrokeCollection removed;
+        QSharedPointer<StrokeCollection> removed(new StrokeCollection);
         for ( int x = 0; x < size(); x++ )
         {
-            removed.append(this[x]);
+            removed->append(this[x]);
         }
 
         clear();
 
-        RaiseStrokesChanged(StrokeCollection() /*added*/, removed, -1);
+        RaiseStrokesChanged(nullptr /*added*/, removed, -1);
     }
 }
 
@@ -272,18 +280,18 @@ void StrokeCollection::ClearItems()
 /// </summary>
 void StrokeCollection::RemoveItem(int index)
 {
-    Stroke* removedStroke = (*this)[index];
+    QSharedPointer<Stroke> removedStroke = (*this)[index];
     removeAt(index);
 
-    StrokeCollection removed;
-    removed.append(removedStroke);
-    RaiseStrokesChanged(StrokeCollection() /*added*/, removed, index);
+    QSharedPointer<StrokeCollection> removed(new StrokeCollection);
+    removed->append(removedStroke);
+    RaiseStrokesChanged(nullptr /*added*/, removed, index);
 }
 
 /// <summary>
 /// called by base class Insert, Add methods
 /// </summary>
-void StrokeCollection::InsertItem(int index, Stroke * stroke)
+void StrokeCollection::InsertItem(int index, QSharedPointer<Stroke> stroke)
 {
     if ( stroke == nullptr )
     {
@@ -296,15 +304,15 @@ void StrokeCollection::InsertItem(int index, Stroke * stroke)
 
     insert(index, stroke);
 
-    StrokeCollection addedStrokes;
-    addedStrokes.append(stroke);
-    RaiseStrokesChanged(addedStrokes, StrokeCollection() /*removed*/, index);
+    QSharedPointer<StrokeCollection> addedStrokes(new StrokeCollection);
+    addedStrokes->append(stroke);
+    RaiseStrokesChanged(addedStrokes, nullptr /*removed*/, index);
 }
 
 /// <summary>
 /// called by base class set_Item method
 /// </summary>
-void StrokeCollection::SetItem(int index, Stroke * stroke)
+void StrokeCollection::SetItem(int index, QSharedPointer<Stroke> stroke)
 {
     if ( stroke == nullptr )
     {
@@ -315,14 +323,14 @@ void StrokeCollection::SetItem(int index, Stroke * stroke)
         throw std::exception("stroke");
     }
 
-    Stroke* removedStroke = (*this)[index];
+    QSharedPointer<Stroke> removedStroke = (*this)[index];
     (*this)[index] = stroke;
 
-    StrokeCollection removed;
-    removed.append(removedStroke);
+    QSharedPointer<StrokeCollection> removed(new StrokeCollection);
+    removed->append(removedStroke);
 
-    StrokeCollection added;
-    added.append(stroke);
+    QSharedPointer<StrokeCollection> added(new StrokeCollection);
+    added->append(stroke);
     RaiseStrokesChanged(added, removed, index);
 }
 
@@ -331,7 +339,7 @@ void StrokeCollection::SetItem(int index, Stroke * stroke)
 /// </summary>
 /// <param name="stroke">stroke</param>
 /// <returns></returns>
-int StrokeCollection::IndexOf(Stroke * stroke)
+int StrokeCollection::IndexOf(QSharedPointer<Stroke> stroke)
 {
     if (stroke == nullptr)
     {
@@ -353,9 +361,9 @@ int StrokeCollection::IndexOf(Stroke * stroke)
 /// </summary>
 /// <param name="strokes">The strokes to remove from the collection</param>
 /// <remarks>Changes to the collection trigger a StrokesChanged event.</remarks>
-void StrokeCollection::Remove(StrokeCollection const & strokes)
+void StrokeCollection::Remove(QSharedPointer<StrokeCollection> strokes)
 {
-    if ( strokes.size() == 0 )
+    if ( strokes->size() == 0 )
     {
         // NOTICE-2004/06/08-WAYNEZEN:
         // We don't throw if an empty collection is going to be removed. And there is no event either.
@@ -374,7 +382,7 @@ void StrokeCollection::Remove(StrokeCollection const & strokes)
         removeAt(indexes[x]);
     }
 
-    RaiseStrokesChanged(StrokeCollection() /*added*/, strokes, indexes[0]);
+    RaiseStrokesChanged(nullptr /*added*/, strokes, indexes[0]);
 }
 
 /// <summary>
@@ -383,9 +391,9 @@ void StrokeCollection::Remove(StrokeCollection const & strokes)
 /// <param name="strokes">The strokes to add to the collection</param>
 /// <remarks>The items are added to the collection at the end of the list.
 /// If the item already exists in the collection, then the item is not added again.</remarks>
-void StrokeCollection::Add(StrokeCollection const & strokes)
+void StrokeCollection::Add(QSharedPointer<StrokeCollection> strokes)
 {
-    if ( strokes.size() == 0 )
+    if ( strokes->size() == 0 )
     {
         // NOTICE-2004/06/08-WAYNEZEN:
         // We don't throw if an empty collection is going to be added. And there is no event either.
@@ -395,9 +403,9 @@ void StrokeCollection::Add(StrokeCollection const & strokes)
     int index = size();
 
     //validate that none of the strokes exist in the collection
-    for ( int x = 0; x < strokes.size(); x++ )
+    for ( int x = 0; x < strokes->size(); x++ )
     {
-        Stroke* stroke = strokes[x];
+        QSharedPointer<Stroke> stroke = (*strokes)[x];
         if ( indexOf(stroke) != -1 )
         {
             throw std::exception("strokes");
@@ -407,9 +415,9 @@ void StrokeCollection::Add(StrokeCollection const & strokes)
     //add the strokes
     //bypass this.AddRange, which calls changed events
     //and call our protected List<Stroke> directly
-    append(strokes);
+    QList<QSharedPointer<Stroke>>::append(*strokes);
 
-    RaiseStrokesChanged(strokes, StrokeCollection() /*removed*/, index);
+    RaiseStrokesChanged(strokes, nullptr /*removed*/, index);
 }
 
 /// <summary>
@@ -417,15 +425,15 @@ void StrokeCollection::Add(StrokeCollection const & strokes)
 /// </summary>
 /// <param name="strokeToReplace"></param>
 /// <param name="strokesToReplaceWith"></param>
-void StrokeCollection::Replace(Stroke * strokeToReplace, StrokeCollection const & strokesToReplaceWith)
+void StrokeCollection::Replace(QSharedPointer<Stroke> strokeToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith)
 {
     if ( strokeToReplace == nullptr )
     {
         throw std::exception("SR.Get(SRID.EmptyScToReplace)");
     }
 
-    StrokeCollection strokesToReplace;
-    strokesToReplace.append(strokeToReplace);
+    QSharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection);
+    strokesToReplace->append(strokeToReplace);
     Replace(strokesToReplace, strokesToReplaceWith);
 }
 
@@ -434,9 +442,9 @@ void StrokeCollection::Replace(Stroke * strokeToReplace, StrokeCollection const 
 /// </summary>
 /// <param name="strokesToReplace"></param>
 /// <param name="strokesToReplaceWith"></param>
-void StrokeCollection::Replace(StrokeCollection const & strokesToReplace, StrokeCollection const & strokesToReplaceWith)
+void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith)
 {
-    int replaceCount = strokesToReplace.size();
+    int replaceCount = strokesToReplace->size();
     if ( replaceCount == 0 )
     {
         throw std::exception("strokesToReplace");
@@ -445,9 +453,9 @@ void StrokeCollection::Replace(StrokeCollection const & strokesToReplace, Stroke
     QVector<int> indexes = GetStrokeIndexes(strokesToReplace);
 
     //validate that none of the relplaceWith strokes exist in the collection
-    for ( int x = 0; x < strokesToReplaceWith.size(); x++ )
+    for ( int x = 0; x < strokesToReplaceWith->size(); x++ )
     {
-        Stroke* stroke = strokesToReplaceWith[x];
+        QSharedPointer<Stroke> stroke = (*strokesToReplaceWith)[x];
         if ( IndexOf(stroke) != -1 )
         {
             throw std::exception("strokesToReplaceWith");
@@ -464,10 +472,10 @@ void StrokeCollection::Replace(StrokeCollection const & strokesToReplace, Stroke
         removeAt(indexes[x]);
     }
 
-    if ( strokesToReplaceWith.size() > 0 )
+    if ( strokesToReplaceWith->size() > 0 )
     {
         //insert at the
-        for (Stroke * stroke : strokesToReplaceWith)
+        for (QSharedPointer<Stroke> stroke : *strokesToReplaceWith)
         insert(++indexes[0], stroke);
     }
 
@@ -478,7 +486,7 @@ void StrokeCollection::Replace(StrokeCollection const & strokesToReplace, Stroke
 /// <summary>
 /// called by StrokeCollectionSerializer during Load, bypasses Change notification
 /// </summary>
-void StrokeCollection::AddWithoutEvent(Stroke *stroke)
+void StrokeCollection::AddWithoutEvent(QSharedPointer<Stroke>stroke)
 {
     //Debug.Assert(stroke != null && IndexOf(stroke) == -1);
     push_back(stroke);
@@ -494,7 +502,7 @@ void StrokeCollection::AddWithoutEvent(Stroke *stroke)
 /// being added or removed from the collection.
 /// To ensure that events fire for event listeners, derived classes
 /// should call this method.</remarks>
-void StrokeCollection::OnStrokesChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index)
+void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
 {
     //raise our internal event first.  This is used by
     //our Renderer and IncrementalHitTester since if they can assume
@@ -503,37 +511,37 @@ void StrokeCollection::OnStrokesChanged(StrokeCollection const & addedStrokes, S
     //getting called first
     //if ( this.StrokesChangedInternal != null)
     {
-        emit StrokesChangedInternal(addedStrokes, removedStrokes, index);
+        emit StrokesChangedInternal(e);
     }
     //if ( this.StrokesChanged != null )
     {
-        emit StrokesChanged(addedStrokes, removedStrokes, index);
+        emit StrokesChanged(e);
     }
     //if ( _collectionChanged != null )
     {
         //raise CollectionChanged.  We support the following
         //NotifyCollectionChangedActions
-        //NotifyCollectionChangedEventArgs args = null;
+        NotifyCollectionChangedEventArgs* args = nullptr;
         if ( size() == 0 )
         {
             //Reset
             //Debug.Assert(e.Removed.Count > 0);
-            _collectionChanged(StrokeCollection(), removedStrokes, -1);
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Reset);
         }
-        else if ( addedStrokes.size() == 0 )
+        else if ( e.Added()->size() == 0 )
         {
             //Remove
-            _collectionChanged(StrokeCollection(), removedStrokes, index);
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Remove, *e.Removed(), e.Index());
         }
-        else if ( removedStrokes.size() == 0 )
+        else if ( e.Removed()->size() == 0 )
         {
             //Add
-            _collectionChanged(addedStrokes, StrokeCollection(), index);
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Add, *e.Added(), e.Index());
         }
         else
         {
             //Replace
-            _collectionChanged(addedStrokes, removedStrokes, index);
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Replace, *e.Added(), *e.Removed(), e.Index());
         }
     }
 }
@@ -567,6 +575,13 @@ void StrokeCollection::OnPropertyChanged(QByteArray const & propName)
     }
 }
 
+StrokeCollection::operator QVariantList()
+{
+    QVariantList list;
+    for (auto s : *this)
+        list.append(QVariant::fromValue(s));
+    return list;
+}
 
 /// <summary>
 /// Private helper that starts searching for stroke at index,
@@ -576,7 +591,7 @@ void StrokeCollection::OnPropertyChanged(QByteArray const & propName)
 /// IndexOf to validate each stroke is O(n2).  If the strokes are in order
 /// this produces closer to O(n), if they are not in order, it is no worse
 /// </summary>
-int StrokeCollection::OptimisticIndexOf(int startingIndex, Stroke *stroke)
+int StrokeCollection::OptimisticIndexOf(int startingIndex, QSharedPointer<Stroke>stroke)
 {
     //Debug.Assert(startingIndex >= 0);
     for ( int x = startingIndex; x < size(); x++ )
@@ -605,11 +620,11 @@ int StrokeCollection::OptimisticIndexOf(int startingIndex, Stroke *stroke)
 /// The indexes are sorted from smallest to largest
 /// </summary>
 /// <returns></returns>
-QVector<int> StrokeCollection::GetStrokeIndexes(StrokeCollection const & strokes)
+QVector<int> StrokeCollection::GetStrokeIndexes(QSharedPointer<StrokeCollection> strokes)
 {
     //to keep from walking the StrokeCollection twice for each stroke, we will maintain an index of
     //strokes to remove as we go
-    QVector<int> indexes(strokes.size());
+    QVector<int> indexes(strokes->size());
     for ( int x = 0; x < indexes.size(); x++ )
     {
         indexes[x] = INT_MAX;
@@ -618,9 +633,9 @@ QVector<int> StrokeCollection::GetStrokeIndexes(StrokeCollection const & strokes
     int currentIndex = 0;
     int highestIndex = -1;
     int usedIndexCount = 0;
-    for ( int x = 0; x < strokes.size(); x++ )
+    for ( int x = 0; x < strokes->size(); x++ )
     {
-        currentIndex = OptimisticIndexOf(currentIndex, strokes[x]);
+        currentIndex = OptimisticIndexOf(currentIndex, (*strokes)[x]);
         if ( currentIndex == -1 )
         {
             //stroke doe3sn't exist, bail out.
@@ -670,12 +685,14 @@ QVector<int> StrokeCollection::GetStrokeIndexes(StrokeCollection const & strokes
 // This function will invoke OnStrokesChanged method.
 //      addedStrokes    -   the collection which contains the added strokes during the previous op.
 //      removedStrokes  -   the collection which contains the removed strokes during the previous op.
-void StrokeCollection::RaiseStrokesChanged(StrokeCollection const & addedStrokes, StrokeCollection const & removedStrokes, int index)
+void StrokeCollection::RaiseStrokesChanged(QSharedPointer<StrokeCollection> addedStrokes, QSharedPointer<StrokeCollection> removedStrokes, int index)
 {
-    // Invoke OnPropertyChanged
+    StrokeCollectionChangedEventArgs eventArgs(addedStrokes, removedStrokes, index);
+
+     // Invoke OnPropertyChanged
     OnPropertyChanged(CountName);
     OnPropertyChanged(IndexerName);
 
     // Invoke OnStrokesChanged which will fire the StrokesChanged event AND the CollectionChanged event.
-    OnStrokesChanged(addedStrokes, removedStrokes, index);
+    OnStrokesChanged(eventArgs);
 }

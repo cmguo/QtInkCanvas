@@ -25,7 +25,8 @@ StylusPoint::StylusPoint(double x, double y, float pressureFactor)
 /// <param name="pressureFactor">pressureFactor
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="additionalValues">additionalValues
-StylusPoint::StylusPoint(double x, double y, float pressureFactor, StylusPointDescription *stylusPointDescription, QVector<int> const & additionalValues)
+StylusPoint::StylusPoint(double x, double y, float pressureFactor,
+                         QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> const & additionalValues)
     : StylusPoint(x, y, pressureFactor, stylusPointDescription, additionalValues, true, true)
 {
 }
@@ -37,7 +38,7 @@ StylusPoint::StylusPoint(
     double x,
     double y,
     float pressureFactor,
-    StylusPointDescription * stylusPointDescription,
+    QSharedPointer<StylusPointDescription> stylusPointDescription,
     QVector<int> const & additionalValues,
     bool validateAdditionalData,
     bool validatePressureFactor)
@@ -142,7 +143,7 @@ void StylusPoint::SetY(double value)
 /// <summary>
 /// PressureFactor.  A value between 0.0 (no pressure) and 1.0 (max pressure)
 /// </summary>
-float StylusPoint::PressureFactor()
+float StylusPoint::PressureFactor() const
 {
     //
     // note that pressure can be stored a > 1 or < 0.
@@ -171,18 +172,18 @@ void StylusPoint::SetPressureFactor(float value)
 /// <summary>
 /// Describes the properties this StylusPoint contains
 /// </summary>
-StylusPointDescription * StylusPoint::Description()
+QSharedPointer<StylusPointDescription> StylusPoint::Description()
 {
     if (nullptr == _stylusPointDescription)
     {
         // this can happen when you call new StylusPoint()
         // a few of the ctor's lazy init this as well
-        _stylusPointDescription = new StylusPointDescription();
+        _stylusPointDescription.reset(new StylusPointDescription());
     }
     return _stylusPointDescription;
 }
 
-void StylusPoint::SetDescription(StylusPointDescription * value)
+void StylusPoint::SetDescription(QSharedPointer<StylusPointDescription> value)
 {
     //
     // called by StylusPointCollection.Add / Set
