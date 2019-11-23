@@ -1491,3 +1491,5 @@ void Stroke::CalcHollowTransforms(QSharedPointer<DrawingAttributes>  originalDa,
                          (newHeight + HollowLineSize) / newHeight);
     outerTransform *= originalDa->StylusTipTransform();
 }
+
+

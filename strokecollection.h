@@ -6,12 +6,16 @@
 #include <QMap>
 #include <QObject>
 #include <QUuid>
+#include <QSharedPointer>
 
 class StrokeCollectionChangedEventArgs;
-
+class IncrementalStrokeHitTester;
+class IncrementalLassoHitTester;
+class StylusShape;
 class Stroke;
+class DrawingContext;
 
-class StrokeCollection : public QObject, public QList<QSharedPointer<Stroke>>
+class StrokeCollection : public QObject, public QList<QSharedPointer<Stroke>>, public QEnableSharedFromThis<StrokeCollection>
 {
     Q_OBJECT
 public:
@@ -266,6 +270,132 @@ signals:
 
     // private CollectionChanged event raiser
     void _collectionChanged(StrokeCollectionChangedEventArgs& e);    // Custom 'user-defined' attributes assigned to this collection
+
+public:
+    /// <summary>
+    /// Calculates the combined bounds of all strokes in the collection
+    /// </summary>
+    /// <returns></returns>
+    QRectF GetBounds();
+
+    // ISSUE-2004/12/13-XIAOTU: In M8.2, the following two tap-hit APIs return the top-hit stroke,
+    // giving preference to non-highlighter strokes. We have decided not to treat highlighter and
+    // non-highlighter differently and only return the top-hit stroke. But there are two remaining
+    // open-issues on this:
+    //  1. Do we need to make these two APIs virtual, so user can treat highlighter differently if they
+    //     want to?
+    //  2. Since we are only returning the top-hit stroke, should we use Stroke as the return type?
+    //
+
+    /// <summary>
+    /// Tap-hit. Hit tests all strokes within a point, and returns a StrokeCollection for these strokes.Internally does Stroke.HitTest(Point, 1pxlRectShape).
+    /// </summary>
+    /// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
+    QSharedPointer<StrokeCollection> HitTest(QPointF const & point);
+
+    /// <summary>
+    /// Tap-hit
+    /// </summary>
+    /// <param name="point">The central point</param>
+    /// <param name="diameter">The diameter value of the circle</param>
+    /// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
+    QSharedPointer<StrokeCollection> HitTest(QPointF const & point, double diameter);
+
+    /// <summary>
+    /// Hit-testing with lasso
+    /// </summary>
+    /// <param name="lassoPoints">points making the lasso</param>
+    /// <param name="percentageWithinLasso">the margin value to tell whether a stroke
+    /// is in or outside of the rect</param>
+    /// <returns>collection of strokes found inside the rectangle</returns>
+    QSharedPointer<StrokeCollection> HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinLasso);
+
+
+    /// <summary>
+    /// Hit-testing with rectangle
+    /// </summary>
+    /// <param name="bounds">hitting rectangle</param>
+    /// <param name="percentageWithinBounds">the percentage of the stroke that must be within
+    /// the bounds to be considered hit</param>
+    /// <returns>collection of strokes found inside the rectangle</returns>
+    QSharedPointer<StrokeCollection> HitTest(QRectF const & bounds, int percentageWithinBounds);
+
+
+    /// <summary>
+    /// Issue: what's the return value
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="stylusShape"></param>
+    /// <returns></returns>
+    QSharedPointer<StrokeCollection> HitTest(QVector<QPointF> const & path, StylusShape& stylusShape);
+
+    /// <summary>
+    /// Clips out all ink outside a given lasso
+    /// </summary>
+    /// <param name="lassoPoints">lasso</param>
+    void Clip(QVector<QPointF> const & lassoPoints);
+
+    /// <summary>
+    /// Clips out all ink outside a given rectangle.
+    /// </summary>
+    /// <param name="bounds">rectangle to clip with</param>
+    void Clip(QRectF const & bounds);
+
+    /// <summary>
+    /// Erases all ink inside a lasso
+    /// </summary>
+    /// <param name="lassoPoints">lasso to erase within</param>
+    void Erase(QVector<QPointF> const & lassoPoints);
+
+
+    /// <summary>
+    /// Erases all ink inside a given rectangle
+    /// </summary>
+    /// <param name="bounds">rectangle to erase within</param>
+    void Erase(QRectF const & bounds);
+
+
+    /// <summary>
+    /// Erases all ink hit by the contour of an erasing stroke
+    /// </summary>
+    /// <param name="eraserShape">Shape of the eraser</param>
+    /// <param name="eraserPath">a path making the spine of the erasing stroke </param>
+    void Erase(QVector<QPointF> const & eraserPath, StylusShape& eraserShape);
+
+    /// <summary>
+    /// Render the StrokeCollection under the specified DrawingContext.
+    /// </summary>
+    /// <param name="context"></param>
+    void Draw(DrawingContext& context);
+
+    //#endregion
+
+    //#region Incremental hit-testing
+
+    /// <summary>
+    /// Creates an incremental hit-tester for hit-testing with a shape.
+    /// Scenarios: stroke-erasing and point-erasing
+    /// </summary>
+    /// <param name="eraserShape">shape of the eraser</param>
+    /// <returns>an instance of IncrementalStrokeHitTester</returns>
+    IncrementalStrokeHitTester* GetIncrementalStrokeHitTester(StylusShape& eraserShape);
+
+
+    /// <summary>
+    /// Creates an incremental hit-tester for selecting with lasso.
+    /// </summary>
+    /// <param name="percentageWithinLasso">The percentage of the stroke that must be within the lasso to be considered hit</param>
+    /// <returns>an instance of incremental hit-tester</returns>
+    IncrementalLassoHitTester* GetIncrementalLassoHitTester(int percentageWithinLasso);
+    //#endregion
+
+private:
+    /// <summary>
+    /// Return all hit strokes that the StylusShape intersects and returns them in a StrokeCollection
+    /// </summary>
+    QSharedPointer<StrokeCollection> PointHitTest(QPointF const & point, StylusShape& shape);
+
+    void UpdateStrokeCollection(QSharedPointer<Stroke> original, QSharedPointer<StrokeCollection> toReplace, int& index);
 
 private:
     //  In v1, these were called Ink.ExtendedProperties

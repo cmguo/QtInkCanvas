@@ -1,4 +1,4 @@
-QT += gui
+QT += gui widgets
 
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
@@ -20,22 +20,38 @@ SOURCES += \
     bezier.cpp \
     contoursegment.cpp \
     cuspdata.cpp \
+    dependencyobject.cpp \
+    dependencyproperty.cpp \
+    dependencypropertychangedeventargs.cpp \
     doubleutil.cpp \
     drawingattributes.cpp \
     drawingattributeserializer.cpp \
     drawingcontext.cpp \
     drawingflags.cpp \
+    dynamicrenderer.cpp \
+    editingbehavior.cpp \
+    editingcoordinator.cpp \
+    effectivevalueentry.cpp \
     ellipticalnodeoperations.cpp \
+    eraserbehavior.cpp \
     erasingstroke.cpp \
     extendedproperty.cpp \
     geometry.cpp \
     incrementalhittester.cpp \
     inkcanvas.cpp \
+    inkcanvaseditingmode.cpp \
+    inkcanvasselectioneditingeventargs.cpp \
+    inkcanvasselectionhitresult.cpp \
+    inkcollectionbehavior.cpp \
     knownidcache.cpp \
     knownids.cpp \
     lasso.cpp \
+    lassoselectionbehavior.cpp \
+    propertymetadata.cpp \
     qtstreamgeometrycontext.cpp \
     quad.cpp \
+    selectioneditingbehavior.cpp \
+    selectioneditor.cpp \
     streamgeometry.cpp \
     streamgeometrycontext.cpp \
     stroke.cpp \
@@ -48,6 +64,7 @@ SOURCES += \
     strokenodeiterator.cpp \
     strokenodeoperations.cpp \
     strokerenderer.cpp \
+    styluseditingbehavior.cpp \
     styluspoint.cpp \
     styluspointcollection.cpp \
     styluspointdescription.cpp \
@@ -64,23 +81,40 @@ HEADERS += \
     bezier.h \
     contoursegment.h \
     cuspdata.h \
+    dependencyobject.h \
+    dependencyproperty.h \
+    dependencypropertychangedeventargs.h \
     doubleutil.h \
     drawingattributes.h \
     drawingattributeserializer.h \
     drawingcontext.h \
     drawingflags.h \
+    dynamicrenderer.h \
+    editingbehavior.h \
+    editingcoordinator.h \
+    editingmode.h \
+    effectivevalueentry.h \
     ellipticalnodeoperations.h \
+    eraserbehavior.h \
     erasingstroke.h \
     events.h \
     extendedproperty.h \
     geometry.h \
     incrementalhittester.h \
     inkcanvas.h \
+    inkcanvaseditingmode.h \
+    inkcanvasselectioneditingeventargs.h \
+    inkcanvasselectionhitresult.h \
+    inkcollectionbehavior.h \
     knownidcache.h \
     knownids.h \
     lasso.h \
+    lassoselectionbehavior.h \
+    propertymetadata.h \
     qtstreamgeometrycontext.h \
     quad.h \
+    selectioneditingbehavior.h \
+    selectioneditor.h \
     streamgeometry.h \
     streamgeometrycontext.h \
     stroke.h \
@@ -93,6 +127,7 @@ HEADERS += \
     strokenodeiterator.h \
     strokenodeoperations.h \
     strokerenderer.h \
+    styluseditingbehavior.h \
     styluspoint.h \
     styluspointcollection.h \
     styluspointdescription.h \

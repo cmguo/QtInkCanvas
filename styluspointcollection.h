@@ -110,7 +110,7 @@ public:
     /// <summary>
     /// Clone
     /// </summary>
-    StylusPointCollection * Clone();
+    QSharedPointer<StylusPointCollection> Clone();
 
     /// <summary>
     /// Explicit cast converter between StylusPointCollection and Point[]
@@ -123,18 +123,18 @@ public:
     /// </summary>
     /// <param name="count">The maximum count of points to clone (used by GestureRecognizer)
     /// <returns></returns>
-    StylusPointCollection * Clone(int count);
+    QSharedPointer<StylusPointCollection> Clone(int count);
 
     /// <summary>
     /// Clone with a transform, used by input
     /// </summary>
-    StylusPointCollection * Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse);
+    QSharedPointer<StylusPointCollection> Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse);
 
 
     /// <summary>
     /// clone implementation
     /// </summary>
-    StylusPointCollection * Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count);
+    QSharedPointer<StylusPointCollection> Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count);
 
     /// <summary>
     /// virtual for raising changed notification
@@ -152,12 +152,12 @@ public:
     /// Reformat
     /// </summary>
     /// <param name="subsetToReformatTo">subsetToReformatTo
-    StylusPointCollection * Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo);
+    QSharedPointer<StylusPointCollection> Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo);
 
     /// <summary>
     /// Helper that transforms and scales in one go
     /// </summary>
-    StylusPointCollection * Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform);
+    QSharedPointer<StylusPointCollection> Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform);
 
     /// <summary>
     /// Returns this StylusPointCollection as a flat integer array in the himetric coordiate space

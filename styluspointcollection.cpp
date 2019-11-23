@@ -290,7 +290,7 @@ void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
 /// <summary>
 /// Clone
 /// </summary>
-StylusPointCollection * StylusPointCollection::Clone()
+QSharedPointer<StylusPointCollection> StylusPointCollection::Clone()
 {
     return Clone(QMatrix(1, 0, 0, 1, 0, 0), Description(), size());
 }
@@ -314,7 +314,7 @@ StylusPointCollection::operator QVector<QPointF>()
 /// </summary>
 /// <param name="count">The maximum count of points to clone (used by GestureRecognizer)
 /// <returns></returns>
-StylusPointCollection * StylusPointCollection::Clone(int count)
+QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(int count)
 {
     if (count > size() || count < 1)
     {
@@ -328,7 +328,7 @@ StylusPointCollection * StylusPointCollection::Clone(int count)
 /// <summary>
 /// Clone with a transform, used by input
 /// </summary>
-StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse)
+QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse)
 {
     return Clone(transform, descriptionToUse, size());
 }
@@ -337,21 +337,21 @@ StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, 
 /// <summary>
 /// clone implementation
 /// </summary>
-StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count)
+QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count)
 {
     //Debug.Assert(count <= this.Count);
     //
     // We don't need to copy our _stylusPointDescription because it is immutable
     // and we don't need to copy our StylusPoints, because they are structs.
     //
-    StylusPointCollection & newCollection(*new StylusPointCollection(descriptionToUse, count));
+    QSharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(descriptionToUse, count));
 
     bool isIdentity = transform.isIdentity();
     for (int x = 0; x < count; x++)
     {
         if (isIdentity)
         {
-            newCollection.push_back((*this)[x]);
+            newCollection->push_back((*this)[x]);
         }
         else
         {
@@ -360,10 +360,10 @@ StylusPointCollection * StylusPointCollection::Clone(QMatrix const & transform, 
             point = stylusPoint;
             point = transform.map(point);
             stylusPoint = point;
-            newCollection.push_back(stylusPoint);
+            newCollection->push_back(stylusPoint);
         }
     }
-    return &newCollection;
+    return newCollection;
 }
 
 /// <summary>
@@ -402,7 +402,7 @@ void StylusPointCollection::Transform(QMatrix const & transform)
 /// Reformat
 /// </summary>
 /// <param name="subsetToReformatTo">subsetToReformatTo
-StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo)
+QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo)
 {
     return Reformat(subsetToReformatTo, QMatrix(1, 0, 0, 1, 0, 0));
 }
@@ -410,7 +410,7 @@ StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPoi
 /// <summary>
 /// Helper that transforms and scales in one go
 /// </summary>
-StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform)
+QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform)
 {
     if (!subsetToReformatTo->IsSubsetOf(Description()))
     {
@@ -431,7 +431,7 @@ StylusPointCollection * StylusPointCollection::Reformat(QSharedPointer<StylusPoi
     //
     // we really need to reformat this...
     //
-    StylusPointCollection * newCollection = new StylusPointCollection(subsetToReformatToWithCurrentMetrics, size());
+    QSharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(subsetToReformatToWithCurrentMetrics, size()));
     int additionalDataCount = subsetToReformatToWithCurrentMetrics->GetExpectedAdditionalDataCount();
 
     QVector<StylusPointPropertyInfo> properties

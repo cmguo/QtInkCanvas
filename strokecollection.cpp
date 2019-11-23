@@ -2,6 +2,12 @@
 #include "drawingattributes.h"
 #include "stroke.h"
 #include "events.h"
+#include "incrementalhittester.h"
+#include "stylusshape.h"
+#include "lasso.h"
+#include "styluspoint.h"
+#include "strokerenderer.h"
+#include "drawingcontext.h"
 
 #include <QIODevice>
 #include <QBuffer>
@@ -94,11 +100,11 @@ void StrokeCollection::SaveIsf(QIODevice * stream, bool compress)
 }
 
 /// <summary>
-/// Private helper to read from a stream to the end and get a byte[]
+/// helper to read from a stream to the end and get a byte[]
 /// </summary>
 QIODevice* StrokeCollection::GetSeekableStream(QIODevice * stream)
 {
-    //Debug.Assert(stream != null);
+    //Debug.Assert(stream != nullptr);
     //Debug.Assert(stream.CanRead);
     if ( stream->seek(0) )
     {
@@ -509,7 +515,7 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
     //they are the first in the delegate chain, they can be optimized
     //to not have to handle out of order events caused by 3rd party code
     //getting called first
-    //if ( this.StrokesChangedInternal != null)
+    //if ( this.StrokesChangedInternal != nullptr)
     {
         emit StrokesChangedInternal(e);
     }
@@ -584,7 +590,7 @@ StrokeCollection::operator QVariantList()
 }
 
 /// <summary>
-/// Private helper that starts searching for stroke at index,
+/// helper that starts searching for stroke at index,
 /// but will loop around before reporting -1.  This is used for
 /// Stroke.Remove(StrokeCollection).  For example, if we're removing
 /// strokes, chances are they are in contiguous order.  If so, calling
@@ -614,7 +620,7 @@ int StrokeCollection::OptimisticIndexOf(int startingIndex, QSharedPointer<Stroke
 }
 
 /// <summary>
-/// Private helper that returns an array of indexes where the specified
+/// helper that returns an array of indexes where the specified
 /// strokes exist in this stroke collection.  Returns null if at least one is not found.
 ///
 /// The indexes are sorted from smallest to largest
@@ -695,4 +701,489 @@ void StrokeCollection::RaiseStrokesChanged(QSharedPointer<StrokeCollection> adde
 
     // Invoke OnStrokesChanged which will fire the StrokesChanged event AND the CollectionChanged event.
     OnStrokesChanged(eventArgs);
+}
+
+
+
+/// <summary>
+/// Calculates the combined bounds of all strokes in the collection
+/// </summary>
+/// <returns></returns>
+QRectF StrokeCollection::GetBounds()
+{
+    QRectF bounds;
+    for (QSharedPointer<Stroke> stroke : *this)
+    {
+        // samgeo - Presharp issue
+        // Presharp gives a warning when get methods might deref a null.  It's complaining
+        // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
+        // so this is not possible
+#pragma warning disable 1634, 1691
+#pragma warning suppress 6506
+        bounds |= (stroke->GetBounds());
+#pragma warning restore 1634, 1691
+    }
+    return bounds;
+}
+
+// ISSUE-2004/12/13-XIAOTU: In M8.2, the following two tap-hit APIs return the top-hit stroke,
+// giving preference to non-highlighter strokes. We have decided not to treat highlighter and
+// non-highlighter differently and only return the top-hit stroke. But there are two remaining
+// open-issues on this:
+//  1. Do we need to make these two APIs virtual, so user can treat highlighter differently if they
+//     want to?
+//  2. Since we are only returning the top-hit stroke, should we use Stroke as the return type?
+//
+
+/// <summary>
+/// Tap-hit. Hit tests all strokes within a point, and returns a StrokeCollection for these strokes.Internally does Stroke.HitTest(Point, 1pxlRectShape).
+/// </summary>
+/// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
+QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QPointF const & point)
+{
+    RectangleStylusShape stylusShape(1, 1);
+    return PointHitTest(point, stylusShape);
+}
+
+/// <summary>
+/// Tap-hit
+/// </summary>
+/// <param name="point">The central point</param>
+/// <param name="diameter">The diameter value of the circle</param>
+/// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
+QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QPointF const & point, double diameter)
+{
+    if (qIsNaN(diameter) || diameter < DrawingAttributes::MinWidth || diameter > DrawingAttributes::MaxWidth)
+    {
+        throw std::exception("diameter");
+    }
+    EllipseStylusShape stylusShape(diameter, diameter);
+    return PointHitTest(point, stylusShape);
+}
+
+/// <summary>
+/// Hit-testing with lasso
+/// </summary>
+/// <param name="lassoPoints">points making the lasso</param>
+/// <param name="percentageWithinLasso">the margin value to tell whether a stroke
+/// is in or outside of the rect</param>
+/// <returns>collection of strokes found inside the rectangle</returns>
+QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinLasso)
+{
+    // Check the input parameters
+    //if (lassoPoints == nullptr)
+    //{
+    //    throw std::exception("lassoPoints");
+    //}
+    if ((percentageWithinLasso < 0) || (percentageWithinLasso > 100))
+    {
+        throw std::exception("percentageWithinLasso");
+    }
+
+    if (lassoPoints.size() < 3)
+    {
+        return QSharedPointer<StrokeCollection>();
+    }
+
+    Lasso* lasso = new SingleLoopLasso();
+    lasso->AddPoints(lassoPoints);
+
+    // Enumerate through the strokes and collect those captured by the lasso.
+    QSharedPointer<StrokeCollection> lassoedStrokes(new StrokeCollection());
+    for (QSharedPointer<Stroke> stroke : *this)
+    {
+
+        if (percentageWithinLasso == 0)
+        {
+            lassoedStrokes->append(stroke);
+        }
+        else
+        {
+            StrokeInfo* strokeInfo = nullptr;
+            try
+            {
+                strokeInfo = new StrokeInfo(stroke);
+
+                QSharedPointer<StylusPointCollection> stylusPoints = strokeInfo->StylusPoints();
+                double target = strokeInfo->TotalWeight() * percentageWithinLasso / 100.0 - Stroke::PercentageTolerance;
+
+                for (int i = 0; i < stylusPoints->size(); i++)
+                {
+                    if (true == lasso->Contains((*stylusPoints)[i]))
+                    {
+                        target -= strokeInfo->GetPointWeight(i);
+                        if (DoubleUtil::LessThanOrClose(target, 0))
+                        {
+                            lassoedStrokes->Add(stroke);
+                            break;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (strokeInfo != nullptr)
+                {
+                    //detach from event handlers, or else we leak.
+                    strokeInfo->Detach();
+                }
+            }
+        }
+    }
+
+    // Return the resulting collection
+    return lassoedStrokes;
+}
+
+
+/// <summary>
+/// Hit-testing with rectangle
+/// </summary>
+/// <param name="bounds">hitting rectangle</param>
+/// <param name="percentageWithinBounds">the percentage of the stroke that must be within
+/// the bounds to be considered hit</param>
+/// <returns>collection of strokes found inside the rectangle</returns>
+QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QRectF const & bounds, int percentageWithinBounds)
+{
+    // Check the input parameters
+    if ((percentageWithinBounds < 0) || (percentageWithinBounds > 100))
+    {
+        throw std::exception("percentageWithinBounds");
+    }
+    if (bounds.isEmpty())
+    {
+        return QSharedPointer<StrokeCollection>();
+    }
+
+    // Enumerate thru the strokes collect those found within the rectangle.
+    QSharedPointer<StrokeCollection> hits(new StrokeCollection());
+    for (QSharedPointer<Stroke> stroke : *this)
+    {
+        // samgeo - Presharp issue
+        // Presharp gives a warning when get methods might deref a null.  It's complaining
+        // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
+        // so this is not possible
+#pragma warning disable 1634, 1691
+#pragma warning suppress 6506
+        if (true == stroke->HitTest(bounds, percentageWithinBounds))
+        {
+            hits->Add(stroke);
+        }
+#pragma warning restore 1634, 1691
+    }
+    return hits;
+}
+
+
+/// <summary>
+/// Issue: what's the return value
+/// </summary>
+/// <param name="path"></param>
+/// <param name="stylusShape"></param>
+/// <returns></returns>
+QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> const & path, StylusShape& stylusShape)
+{
+    // Check the input parameters
+    //if (stylusShape == nullptr)
+    //{
+    //    throw std::exception("stylusShape");
+    //}
+    //if (path == nullptr)
+    //{
+    //    throw std::exception("path");
+    //}
+    if (path.size() == 0)
+    {
+        return QSharedPointer<StrokeCollection>();
+    }
+
+    // validate input
+    ErasingStroke* erasingStroke = new ErasingStroke(stylusShape, path);
+    QRectF erasingBounds = erasingStroke->Bounds();
+    if (erasingBounds.isEmpty())
+    {
+        return QSharedPointer<StrokeCollection>();
+    }
+    QSharedPointer<StrokeCollection> hits(new StrokeCollection());
+    for (QSharedPointer<Stroke> stroke : *this)
+    {
+        // samgeo - Presharp issue
+        // Presharp gives a warning when get methods might deref a null.  It's complaining
+        // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
+        // so this is not possible
+#pragma warning disable 1634, 1691
+#pragma warning suppress 6506
+        if (erasingBounds.intersects(stroke->GetBounds()) &&
+            erasingStroke->HitTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes())))
+        {
+            hits->append(stroke);
+        }
+#pragma warning restore 1634, 1691
+    }
+
+    return hits;
+}
+
+/// <summary>
+/// Clips out all ink outside a given lasso
+/// </summary>
+/// <param name="lassoPoints">lasso</param>
+void StrokeCollection::Clip(QVector<QPointF> const & lassoPoints)
+{
+    // Check the input parameters
+    //if (lassoPoints == nullptr)
+    //{
+    //    throw std::exception("lassoPoints");
+    //}
+
+    int length = lassoPoints.size();
+    if (length == 0)
+    {
+        throw std::exception("SR.Get(SRID.EmptyArray)");
+    }
+
+    if (length < 3)
+    {
+        //
+        // if you're clipping with a point or a line with
+        // two points, it doesn't matter where the line is or if it
+        // intersects any of the strokes, the point or line has no region
+        // so technically everything in the strokecollection
+        // should be removed
+        //
+        clear(); //raises the appropriate events
+        return;
+    }
+
+    SingleLoopLasso lasso;
+    lasso.AddPoints(lassoPoints);
+
+    for (int i = 0; i < size(); i++)
+    {
+        QSharedPointer<Stroke> stroke = (*this)[i];
+        QSharedPointer<StrokeCollection> clipResult = stroke->Clip(stroke->HitTest(lasso));
+        UpdateStrokeCollection(stroke, clipResult, i);
+    }
+}
+
+/// <summary>
+/// Clips out all ink outside a given rectangle.
+/// </summary>
+/// <param name="bounds">rectangle to clip with</param>
+void StrokeCollection::Clip(QRectF const & bounds)
+{
+    if (bounds.isEmpty() == false)
+    {
+        Clip({ bounds.topLeft(), bounds.topRight(), bounds.bottomRight(), bounds.bottomLeft() });
+    }
+}
+
+/// <summary>
+/// Erases all ink inside a lasso
+/// </summary>
+/// <param name="lassoPoints">lasso to erase within</param>
+void StrokeCollection::Erase(QVector<QPointF> const & lassoPoints)
+{
+    // Check the input parameters
+    //if (lassoPoints == nullptr)
+    //{
+    //    throw std::exception("lassoPoints");
+    //}
+    int length = lassoPoints.size();
+    if (length == 0)
+    {
+        throw std::exception("SR.Get(SRID.EmptyArray)");
+    }
+
+    if (length < 3)
+    {
+        return;
+    }
+
+    SingleLoopLasso lasso;
+    lasso.AddPoints(lassoPoints);
+    for (int i = 0; i < size(); i++)
+    {
+        QSharedPointer<Stroke> stroke = (*this)[i];
+
+        QSharedPointer<StrokeCollection> eraseResult = stroke->Erase(stroke->HitTest(lasso));
+        UpdateStrokeCollection(stroke, eraseResult, i);
+    }
+}
+
+
+/// <summary>
+/// Erases all ink inside a given rectangle
+/// </summary>
+/// <param name="bounds">rectangle to erase within</param>
+void StrokeCollection::Erase(QRectF const & bounds)
+{
+    if (bounds.isEmpty() == false)
+    {
+        Erase({ bounds.topLeft(), bounds.topRight(), bounds.bottomRight(), bounds.bottomLeft() });
+    }
+}
+
+
+/// <summary>
+/// Erases all ink hit by the contour of an erasing stroke
+/// </summary>
+/// <param name="eraserShape">Shape of the eraser</param>
+/// <param name="eraserPath">a path making the spine of the erasing stroke </param>
+void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& eraserShape)
+{
+    // Check the input parameters
+    //if (eraserShape == nullptr)
+    //{
+    //    throw std::exception("SR.Get(SRID.SCEraseShape)");
+    //}
+    //if (eraserPath == nullptr)
+    //{
+    //    throw std::exception(SR.Get(SRID.SCErasePath));
+    //}
+    if (eraserPath.size() == 0)
+    {
+        return;
+    }
+
+    ErasingStroke* erasingStroke = new ErasingStroke(eraserShape, eraserPath);
+    for (int i = 0; i < size(); i++)
+    {
+        QSharedPointer<Stroke> stroke = (*this)[i];
+
+        QList<StrokeIntersection> intersections;
+        erasingStroke->EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), intersections);
+        QSharedPointer<StrokeCollection> eraseResult = stroke->Erase(intersections.toVector());
+
+        UpdateStrokeCollection(stroke, eraseResult, i);
+    }
+}
+
+/// <summary>
+/// Render the StrokeCollection under the specified DrawingContext.
+/// </summary>
+/// <param name="context"></param>
+void StrokeCollection::Draw(DrawingContext& context)
+{
+    //if (nullptr == context)
+    //{
+    //    throw std::exception("context");
+    //}
+
+    //The verification of UI context affinity is done in Stroke.Draw()
+
+    QList<QSharedPointer<Stroke>> solidStrokes;
+    QMap<QColor, QList<QSharedPointer<Stroke>>> highLighters;
+
+    for (int i = 0; i < size(); i++)
+    {
+        QSharedPointer<Stroke> stroke = (*this)[i];
+        QList<QSharedPointer<Stroke>> strokes;
+        if (stroke->GetDrawingAttributes()->IsHighlighter())
+        {
+            // It's very important to override the Alpha value so that Colors of the same RGB vale
+            // but different Alpha would be in the same list.
+            QColor color = StrokeRenderer::GetHighlighterColor(stroke->GetDrawingAttributes()->Color());
+            //if (highLighters.TryGetValue(color, out strokes) == false)
+            //{
+            //    strokes = new List<Stroke>();
+            //    highLighters.Add(color, strokes);
+            //}
+            highLighters[color].append(stroke);
+        }
+        else
+        {
+            solidStrokes.append(stroke);
+        }
+    }
+
+    for (QList<QSharedPointer<Stroke>> strokes : highLighters.values())
+    {
+        context.PushOpacity(StrokeRenderer::HighlighterOpacity);
+        try
+        {
+            for (QSharedPointer<Stroke> stroke : strokes)
+            {
+                stroke->DrawInternal(context, StrokeRenderer::GetHighlighterAttributes(*stroke, stroke->GetDrawingAttributes()),
+                                    false /*Don't draw selected stroke as hollow*/);
+            }
+        }
+        finally
+        {
+            context.Pop();
+        }
+    }
+
+    for (QSharedPointer<Stroke> stroke : solidStrokes)
+    {
+        stroke->DrawInternal(context, stroke->GetDrawingAttributes(), false/*Don't draw selected stroke as hollow*/);
+    }
+}
+
+
+/// <summary>
+/// Creates an incremental hit-tester for hit-testing with a shape.
+/// Scenarios: stroke-erasing and point-erasing
+/// </summary>
+/// <param name="eraserShape">shape of the eraser</param>
+/// <returns>an instance of IncrementalStrokeHitTester</returns>
+IncrementalStrokeHitTester* StrokeCollection::GetIncrementalStrokeHitTester(StylusShape& eraserShape)
+{
+    //if (eraserShape == nullptr)
+    //{
+    //    throw std::exception("eraserShape");
+    //}
+    return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape);
+}
+
+
+/// <summary>
+/// Creates an incremental hit-tester for selecting with lasso.
+/// </summary>
+/// <param name="percentageWithinLasso">The percentage of the stroke that must be within the lasso to be considered hit</param>
+/// <returns>an instance of incremental hit-tester</returns>
+IncrementalLassoHitTester* StrokeCollection::GetIncrementalLassoHitTester(int percentageWithinLasso)
+{
+    if ((percentageWithinLasso < 0) || (percentageWithinLasso > 100))
+    {
+        throw std::exception("percentageWithinLasso");
+    }
+    return new IncrementalLassoHitTester(sharedFromThis(), percentageWithinLasso);
+}
+
+/// <summary>
+/// Return all hit strokes that the StylusShape intersects and returns them in a StrokeCollection
+/// </summary>
+QSharedPointer<StrokeCollection> StrokeCollection::PointHitTest(QPointF const & point, StylusShape& shape)
+{
+    // Create the collection to return
+    QSharedPointer<StrokeCollection> hits(new StrokeCollection());
+    for (int i = 0; i < size(); i++)
+    {
+        QSharedPointer<Stroke> stroke = (*this)[i];
+        if (stroke->HitTest(QVector<QPointF>({ point }), shape))
+        {
+            hits->Add(stroke);
+        }
+    }
+
+    return hits;
+}
+
+void StrokeCollection::UpdateStrokeCollection(QSharedPointer<Stroke> original, QSharedPointer<StrokeCollection> toReplace, int& index)
+{
+    //System.Diagnostics.Debug.Assert(original != null && toReplace != nullptr);
+    //System.Diagnostics.Debug.Assert(index >= 0 && index < this.Count);
+    if (toReplace->size() == 0)
+    {
+        Remove(original);
+        index--;
+    }
+    else if (!(toReplace->size() == 1 && (*toReplace)[0] == original))
+    {
+        Replace(original, toReplace);
+
+        // Update the current index
+        index += toReplace->size() - 1;
+    }
 }

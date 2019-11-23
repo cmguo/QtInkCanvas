@@ -460,6 +460,7 @@ protected:
     /// <returns></returns>
     Geometry * GetGeometry(QSharedPointer<DrawingAttributes> drawingAttributes);
 
+public:
     /// <summary>
     /// our code - StrokeVisual.OnRender and StrokeCollection.Draw - always calls this
     /// so we can assume the correct opacity has already been pushed on dc. The flag drawAsHollow is set
@@ -535,7 +536,7 @@ public:
     static constexpr double TapHitRotation = 0;
 
 
-    /// <summary>
+/// <summary>
     /// Calculate the two transforms for two-pass rendering used to draw as hollow. The resulting outerTransform will make the
     /// first-pass-rendering 1 avalon-unit wider/heigher. The resulting innerTransform will make the second-pass-rendering 1 avalon-unit
     /// narrower/shorter.
@@ -633,7 +634,7 @@ class IEnumerablePointHelper
     /// <summary>
     /// Returns a Point[] for a given IEnumerable of Points.
     /// </summary>
-    static Point[] GetPointArray(IEnumerable<Point> ienum)
+    static Point[] GetPointArray(QList<QPointF> const & ienum)
     {
         Debug.Assert(ienum != null);
         Point[] points = ienum as Point[];
