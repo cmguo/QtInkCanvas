@@ -499,7 +499,7 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
         // Get the longer median
         Q[0] = (GetBezierPoint(i - 1) + GetBezierPoint(i + 1)) * 0.5 - GetBezierPoint(i);
 
-        double r = StylusPoint::length(Q[0]);
+        double r = Length(Q[0]);
 
         if (r > rCurv)
             rCurv = r;

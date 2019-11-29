@@ -3,6 +3,7 @@
 
 #include "editingmode.h"
 
+#include <QObject>
 #include <QVector>
 #include <QCursor>
 #include <QSharedPointer>
@@ -24,8 +25,14 @@ class StylusDevice;
 class StylusPointDescription;
 class MouseDevice;
 
-class EditingCoordinator
+/// <summary>
+/// Internal class that represents the editing stack of InkCanvas
+/// Please see the design detain at http://tabletpc/longhorn/Specs/Mid-Stroke%20and%20Pen%20Cursor%20Dev%20Design.mht
+/// </summary>
+class EditingCoordinator : public QObject
 {
+    Q_OBJECT
+
     /// <summary>
     /// Enum values which represent the cursor valid flag for each EditingBehavior.
     /// </summary>
@@ -345,7 +352,7 @@ public:
     ///                 perform gesture recognition
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    void OnInkCanvasDeviceMove(EventArgs& args);
+    void OnInkCanvasDeviceMove(InputEventArgs& args);
 
     /// <summary>
     /// InkCanvas.StylusUp handler

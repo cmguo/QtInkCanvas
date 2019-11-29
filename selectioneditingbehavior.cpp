@@ -1,5 +1,12 @@
 #include "selectioneditingbehavior.h"
 #include "doubleutil.h"
+#include "inputdevice.h"
+#include "inkcanvas.h"
+#include "editingcoordinator.h"
+#include "inkcanvasselection.h"
+#include "inkcanvasselectionadorner.h"
+#include "mouseeventargs.h"
+#include "mousebuttoneventargs.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -34,33 +41,35 @@ void SelectionEditingBehavior::OnActivate()
 {
     _actionStarted = false;
 
-    // Capture the mouse.
+    // Capture the Mouse::
     InitializeCapture();
 
     // Hittest for the grab handle
-    MouseDevice mouse = Mouse.PrimaryDevice;
+    MouseDevice* mouse = Mouse::PrimaryDevice;
 
     _hitResult = GetInkCanvas().SelectionAdorner().SelectionHandleHitTest(
-            mouse.GetPosition((GetInkCanvas().SelectionAdorner)));
+            mouse->GetPosition(&GetInkCanvas().SelectionAdorner()));
 
-    Debug.Assert(_hitResult != InkCanvasSelectionHitResult::None);
+    //Debug.Assert(_hitResult != InkCanvasSelectionHitResult::None);
     GetEditingCoordinator().InvalidateBehaviorCursor(this);
 
     // Get the current selection bounds.
     _selectionRect = GetInkCanvas().GetSelectionBounds( );
 
     // Set the initial tracking position and rectangle
-    _previousLocation = mouse.GetPosition(GetInkCanvas().SelectionAdorner);
+    _previousLocation = mouse->GetPosition(&GetInkCanvas().SelectionAdorner());
     _previousRect = _selectionRect;
 
     // Start the feedback rubber band.
-    GetInkCanvas().InkCanvasSelection().StartFeedbackAdorner(_selectionRect, _hitResult);
+    GetInkCanvas().GetInkCanvasSelection().StartFeedbackAdorner(_selectionRect, _hitResult);
 
     // Add handlers to the mouse events.
-    GetInkCanvas().SelectionAdorner.AddHandler(Mouse.MouseUpEvent, new MouseButtonEventHandler(OnMouseUp));
-    GetInkCanvas().SelectionAdorner.AddHandler(Mouse.MouseMoveEvent, new MouseEventHandler(OnMouseMove));
-    GetInkCanvas().SelectionAdorner.AddHandler(UIElement.LostMouseCaptureEvent,
-        new MouseEventHandler(OnLostMouseCapture));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseUpEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseButtonEventArgs, &SelectionEditingBehavior::OnMouseUp>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseMoveEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseEventArgs, &SelectionEditingBehavior::OnMouseMove>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(UIElement::LostMouseCaptureEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseEventArgs, &SelectionEditingBehavior::OnLostMouseCapture>(this));
 
 }
 
@@ -70,10 +79,12 @@ void SelectionEditingBehavior::OnActivate()
 void SelectionEditingBehavior::OnDeactivate()
 {
     // Remove the mouse event handlers.
-    GetInkCanvas().SelectionAdorner.RemoveHandler(Mouse.MouseUpEvent, new MouseButtonEventHandler(OnMouseUp));
-    GetInkCanvas().SelectionAdorner.RemoveHandler(Mouse.MouseMoveEvent, new MouseEventHandler(OnMouseMove));
-    GetInkCanvas().SelectionAdorner.RemoveHandler(UIElement.LostMouseCaptureEvent,
-        new MouseEventHandler(OnLostMouseCapture));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseUpEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseButtonEventArgs, &SelectionEditingBehavior::OnMouseUp>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseMoveEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseEventArgs, &SelectionEditingBehavior::OnMouseMove>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(UIElement::LostMouseCaptureEvent,
+            RoutedEventHandlerT<SelectionEditingBehavior, MouseEventArgs, &SelectionEditingBehavior::OnLostMouseCapture>(this));
 }
 
 void SelectionEditingBehavior::OnCommit(bool commit)
@@ -106,7 +117,7 @@ QCursor SelectionEditingBehavior::GetCurrentCursor()
 void SelectionEditingBehavior::OnMouseMove(MouseEventArgs& args)
 {
     // Get the current mouse location.
-    QPointF curPoint = args.GetPosition(GetInkCanvas().SelectionAdorner);
+    QPointF curPoint = args.GetPosition(&GetInkCanvas().SelectionAdorner());
 
     // Check if we have a mouse movement at all.
     if ( !DoubleUtil::AreClose(curPoint.x(), _previousLocation.x())
@@ -137,7 +148,8 @@ void SelectionEditingBehavior::OnMouseUp(MouseButtonEventArgs& args)
     // We won't start the move until we really see a movement.
     if ( _actionStarted )
     {
-        _previousRect = ChangeFeedbackRectangle(args.GetPosition(GetInkCanvas().SelectionAdorner));
+        QPointF point = args.GetPosition(&GetInkCanvas().SelectionAdorner());
+        _previousRect = ChangeFeedbackRectangle(point);
     }
 
     Commit(true);
@@ -150,6 +162,7 @@ void SelectionEditingBehavior::OnMouseUp(MouseButtonEventArgs& args)
 /// <param name="args"></param>
 void SelectionEditingBehavior::OnLostMouseCapture(MouseEventArgs& args)
 {
+    (void) args;
     // If user is editing, we have to commit the current operation and reset our state.
     if ( GetEditingCoordinator().UserIsEditing() )
     {
@@ -377,6 +390,6 @@ void SelectionEditingBehavior::ReleaseCapture(bool releaseDevice, bool commit)
 
         // End the rubber band. If the operation is committed, we set the selection to the tracking rectangle.
         // Otherwise, reset the selection to the original bounds.
-        GetInkCanvas().InkCanvasSelection()().EndFeedbackAdorner(commit ? _previousRect : _selectionRect);
+        GetInkCanvas().GetInkCanvasSelection().EndFeedbackAdorner(commit ? _previousRect : _selectionRect);
     }
 }

@@ -7,9 +7,20 @@
 
 #include <QMatrix>
 #include <QPointF>
+#include <QObject>
 
-class StylusShape
+///<summary>
+/// Defines the style of pen tip for rendering.
+///</summary>
+/// <remarks>
+/// The Stylus size and coordinates are in units equal to 1/96th of an inch.
+/// The default in V1 the default width is 1 pixel. This is 53 himetric units.
+/// There are 2540 himetric units per inch.
+/// This means that 53 high metric units is equivalent to 53/2540*96 in avalon.
+/// </remarks>
+class StylusShape : public QObject
 {
+    Q_OBJECT
 private:
     double    m_width;
     double    m_height;

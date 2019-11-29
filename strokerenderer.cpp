@@ -3,6 +3,8 @@
 #include "strokenodeiterator.h"
 #include "streamgeometrycontext.h"
 #include "streamgeometry.h"
+#include "finallyhelper.h"
+#include "debug.h"
 
 #include <QtMath>
 #include <QTransform>
@@ -25,8 +27,8 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
                                                    Geometry*& geometry,
                                                    QRectF& bounds)
 {
-    ////Debug.Assert(iterator != null);
-    ////Debug.Assert(drawingAttributes != null);
+    //Debug::Assert(iterator != nullptr);
+    //Debug::Assert(drawingAttributes != nullptr);
 
     StreamGeometry* streamGeometry= new StreamGeometry;
     streamGeometry->SetFillRule(FillRule::Nonzero);
@@ -34,6 +36,12 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
     StreamGeometryContext& context = streamGeometry->Open();
     geometry = streamGeometry;
     bounds = QRectF();
+
+    FinallyHelper final([&context](){
+        context.Close();
+        //geometry->Freeze();
+    });
+
     //try
     //{
         QList<QPointF> connectingQuadPoints; connectingQuadPoints.reserve(iterator.Count() * 4);
@@ -199,7 +207,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                                            QRectF &bounds)
 {
 
-    //Debug.Assert(iterator != null && drawingAttributes != null);
+    //Debug.Assert(iterator != nullptr && drawingAttributes != nullptr);
 
     //we can use our new algorithm for identity only.
     QTransform stylusTipTransform(drawingAttributes.StylusTipTransform());
@@ -265,7 +273,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                     }
                     else
                     {
-                        prevPrevStrokeNode = iterator[index++, previousIndex++];
+                        prevPrevStrokeNode = iterator.GetNode(index++, previousIndex++);
                         prevPrevStrokeNodeBounds = prevPrevStrokeNode.GetBounds();
                         continue; //so we always check if index < iterator.Count
                     }
@@ -284,7 +292,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                     else
                     {
                         //get the next strokeNode, but don't automatically update previousIndex
-                        prevStrokeNode = iterator[index++, previousIndex];
+                        prevStrokeNode = iterator.GetNode(index++, previousIndex);
                         prevStrokeNodeBounds = prevStrokeNode.GetBounds();
 
                         RectCompareResult result =
@@ -348,7 +356,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 //we know prevPrevStrokeNode and prevStrokeNode are both valid
                 if (!strokeNode.IsValid())
                 {
-                    strokeNode = iterator[index++, previousIndex];
+                    strokeNode = iterator.GetNode(index++, previousIndex);
                     strokeNodeBounds = strokeNode.GetBounds();
 
                     RectCompareResult result =
@@ -747,10 +755,10 @@ void StrokeRenderer::RenderTwoStrokeNodes(   StreamGeometryContext& context,
 #endif
                                             )
 {
-    //Debug.Assert(pointBuffer1 != null);
-    //Debug.Assert(pointBuffer2 != null);
-    //Debug.Assert(pointBuffer3 != null);
-    //Debug.Assert(context != null);
+    //Debug.Assert(pointBuffer1 != nullptr);
+    //Debug.Assert(pointBuffer2 != nullptr);
+    //Debug.Assert(pointBuffer3 != nullptr);
+    //Debug.Assert(context != nullptr);
 
 
     //see if we need to render a quad - if there is not at least a 70% overlap
@@ -828,8 +836,8 @@ StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QR
 
     double intersectLeft = qMax(rect1.left(), rect2.left());
     double intersectTop = qMax(rect1.top(), rect2.top());
-    double intersectWidth = qMax((double)(qMin(rect1.right(), rect2.right()) - intersectLeft), (double)0);
-    double intersectHeight = qMax((double)(qMin(rect1.bottom(), rect2.bottom()) - intersectTop), (double)0);
+    double intersectWidth = qMax((qMin(rect1.right(), rect2.right()) - intersectLeft), 0.0);
+    double intersectHeight = qMax((qMin(rect1.bottom(), rect2.bottom()) - intersectTop), 0.0);
 
     if (intersectWidth == 0.0 || intersectHeight == 0.0)
     {
@@ -859,8 +867,8 @@ StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QR
 /// </summary>
 void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> points, bool isBezierFigure)
 {
-    //Debug.Assert(context != null);
-    //Debug.Assert(points != null);
+    //Debug.Assert(context != nullptr);
+    //Debug.Assert(points != nullptr);
     //Debug.Assert(Points.size() > 0);
 
     context.BeginFigure(points[points.size() - 1], //start point
@@ -887,8 +895,8 @@ void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& con
 /// </summary>
 void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints)
 {
-    //Debug.Assert(context != null);
-    //Debug.Assert(abPoints != null && dcPoints != null);
+    //Debug.Assert(context != nullptr);
+    //Debug.Assert(abPoints != nullptr && dcPoints != nullptr);
     //Debug.Assert(abPoints.size() > 0 && dcPoints.size() > 0);
 
     context.BeginFigure(abPoints[0], //start point
@@ -910,10 +918,10 @@ void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryCont
 /// </summary>
 void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints)
 {
-    //Debug.Assert(context != null);
-    //Debug.Assert(abPoints != null && dcPoints != null);
-    //Debug.Assert(polyLinePoints != null);
-    ////Debug.Assert(abPoints.size() > 0 && dcPoints.size() > 0);
+    //Debug.Assert(context != nullptr);
+    //Debug.Assert(abPoints != nullptr && dcPoints != nullptr);
+    //Debug.Assert(polyLinePoints != nullptr);
+    Debug::Assert(abPoints.size() > 0 && dcPoints.size() > 0);
     if (abPoints.size() == 0 || dcPoints.size() == 0)
     {
         return;

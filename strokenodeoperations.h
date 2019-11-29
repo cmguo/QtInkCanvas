@@ -12,6 +12,9 @@
 #include <QRectF>
 #include <QVector>
 
+/// <summary>
+/// The base operations class that implements polygonal node operations by default.
+/// </summary>
 class StrokeNodeOperations
 {
 public:

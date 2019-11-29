@@ -9,6 +9,7 @@
 #include <QSharedPointer>
 
 class StrokeCollectionChangedEventArgs;
+class NotifyCollectionChangedEventArgs;
 class IncrementalStrokeHitTester;
 class IncrementalLassoHitTester;
 class StylusShape;
@@ -106,7 +107,7 @@ public:
     /// <summary>
     /// Performs a deep copy of the StrokeCollection.
     /// </summary>
-    virtual StrokeCollection * Clone();
+    virtual QSharedPointer<StrokeCollection> Clone();
 
     /// <summary>
     /// called by base class Collection&lt;T&gt; when the list is being cleared;
@@ -269,7 +270,7 @@ signals:
     void _propertyChanged(QByteArray const & propName);
 
     // private CollectionChanged event raiser
-    void _collectionChanged(StrokeCollectionChangedEventArgs& e);    // Custom 'user-defined' attributes assigned to this collection
+    void _collectionChanged(NotifyCollectionChangedEventArgs& e);    // Custom 'user-defined' attributes assigned to this collection
 
 public:
     /// <summary>

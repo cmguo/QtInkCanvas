@@ -23,8 +23,9 @@ public:
 /// <summary>
 /// StylusEditingBehavior - a base class for all stylus related editing behaviors
 /// </summary>
-class StylusEditingBehavior : public EditingBehavior, IStylusEditing
+class StylusEditingBehavior : public EditingBehavior, public IStylusEditing
 {
+    Q_OBJECT
     //-------------------------------------------------------------------------------
     //
     // Constructors

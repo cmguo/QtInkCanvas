@@ -17,9 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    applicationgesture.cpp \
     bezier.cpp \
+    clipboarddata.cpp \
+    clipboardprocessor.cpp \
     contoursegment.cpp \
     cuspdata.cpp \
+    debug.cpp \
     dependencyobject.cpp \
     dependencyproperty.cpp \
     dependencypropertychangedeventargs.cpp \
@@ -31,25 +35,49 @@ SOURCES += \
     dynamicrenderer.cpp \
     editingbehavior.cpp \
     editingcoordinator.cpp \
+    editingmode.cpp \
     effectivevalueentry.cpp \
+    elementsclipboarddata.cpp \
     ellipticalnodeoperations.cpp \
     eraserbehavior.cpp \
     erasingstroke.cpp \
+    eventargs.cpp \
     extendedproperty.cpp \
+    finallyhelper.cpp \
     geometry.cpp \
+    gesturerecognitionresult.cpp \
+    hittestparameters.cpp \
+    hittestresult.cpp \
     incrementalhittester.cpp \
     inkcanvas.cpp \
-    inkcanvaseditingmode.cpp \
-    inkcanvasselectioneditingeventargs.cpp \
+    inkcanvasclipboardformat.cpp \
+    inkcanvasfeedbackadorner.cpp \
+    inkcanvasinnercanvas.cpp \
+    inkcanvasselection.cpp \
+    inkcanvasselectionadorner.cpp \
     inkcanvasselectionhitresult.cpp \
     inkcollectionbehavior.cpp \
+    inkevents.cpp \
+    inkpresenter.cpp \
+    inkrenderer.cpp \
+    inputdevice.cpp \
+    inputeventargs.cpp \
+    isfclipboarddata.cpp \
     knownidcache.cpp \
     knownids.cpp \
     lasso.cpp \
+    lassohelper.cpp \
     lassoselectionbehavior.cpp \
+    mousebuttoneventargs.cpp \
+    mouseeventargs.cpp \
+    notifycollectionchangedeventargs.cpp \
+    pointhittestparameters.cpp \
+    pointhittestresult.cpp \
     propertymetadata.cpp \
     qtstreamgeometrycontext.cpp \
     quad.cpp \
+    querycursoreventargs.cpp \
+    routedeventargs.cpp \
     selectioneditingbehavior.cpp \
     selectioneditor.cpp \
     streamgeometry.cpp \
@@ -65,6 +93,7 @@ SOURCES += \
     strokenodeoperations.cpp \
     strokerenderer.cpp \
     styluseditingbehavior.cpp \
+    stylusplugin.cpp \
     styluspoint.cpp \
     styluspointcollection.cpp \
     styluspointdescription.cpp \
@@ -74,13 +103,19 @@ SOURCES += \
     styluspointpropertyinfo.cpp \
     styluspointpropertyinfodefaults.cpp \
     stylusshape.cpp \
-    stylustip.cpp
+    stylustip.cpp \
+    textclipboarddata.cpp \
+    uielement.cpp
 
 HEADERS += \
     InkCanvas_global.h \
+    applicationgesture.h \
     bezier.h \
+    clipboarddata.h \
+    clipboardprocessor.h \
     contoursegment.h \
     cuspdata.h \
+    debug.h \
     dependencyobject.h \
     dependencyproperty.h \
     dependencypropertychangedeventargs.h \
@@ -94,25 +129,48 @@ HEADERS += \
     editingcoordinator.h \
     editingmode.h \
     effectivevalueentry.h \
+    elementsclipboarddata.h \
     ellipticalnodeoperations.h \
     eraserbehavior.h \
     erasingstroke.h \
+    eventargs.h \
     events.h \
     extendedproperty.h \
+    finallyhelper.h \
     geometry.h \
+    gesturerecognitionresult.h \
+    hittestparameters.h \
+    hittestresult.h \
     incrementalhittester.h \
     inkcanvas.h \
-    inkcanvaseditingmode.h \
-    inkcanvasselectioneditingeventargs.h \
+    inkcanvasclipboardformat.h \
+    inkcanvasfeedbackadorner.h \
+    inkcanvasinnercanvas.h \
+    inkcanvasselection.h \
+    inkcanvasselectionadorner.h \
     inkcanvasselectionhitresult.h \
     inkcollectionbehavior.h \
+    inkevents.h \
+    inkpresenter.h \
+    inkrenderer.h \
+    inputdevice.h \
+    inputeventargs.h \
+    isfclipboarddata.h \
     knownidcache.h \
     knownids.h \
     lasso.h \
+    lassohelper.h \
     lassoselectionbehavior.h \
+    mousebuttoneventargs.h \
+    mouseeventargs.h \
+    notifycollectionchangedeventargs.h \
+    pointhittestparameters.h \
+    pointhittestresult.h \
     propertymetadata.h \
     qtstreamgeometrycontext.h \
     quad.h \
+    querycursoreventargs.h \
+    routedeventargs.h \
     selectioneditingbehavior.h \
     selectioneditor.h \
     streamgeometry.h \
@@ -128,6 +186,7 @@ HEADERS += \
     strokenodeoperations.h \
     strokerenderer.h \
     styluseditingbehavior.h \
+    stylusplugin.h \
     styluspoint.h \
     styluspointcollection.h \
     styluspointdescription.h \
@@ -137,7 +196,9 @@ HEADERS += \
     styluspointpropertyinfo.h \
     styluspointpropertyinfodefaults.h \
     stylusshape.h \
-    stylustip.h
+    stylustip.h \
+    textclipboarddata.h \
+    uielement.h
 
 # Default rules for deployment.
 unix {

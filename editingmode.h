@@ -1,7 +1,9 @@
 #ifndef EDITINGMODE_H
 #define EDITINGMODE_H
 
-enum InkCanvasEditingMode
+#include <QMetaType>
+
+enum class InkCanvasEditingMode
 {
     /// <summary>
     /// None
@@ -32,6 +34,8 @@ enum InkCanvasEditingMode
     /// </summary>
     EraseByStroke,
 };
+
+Q_DECLARE_METATYPE(InkCanvasEditingMode)
 
 // NOTICE-2004/10/13-WAYNEZEN,
 // Whenever the InkCanvasEditingMode is modified, please update this EditingModeHelper.IsDefined.

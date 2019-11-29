@@ -18,6 +18,7 @@ class DrawingAttributes;
 /// </SecurityNote>
 class InkCollectionBehavior : public StylusEditingBehavior
 {
+public:
     //-------------------------------------------------------------------------------
     //
     // Constructors
@@ -150,7 +151,7 @@ protected:
     ///         stylusPoints were user initiated
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void StylusInputContinue(StylusPointCollection stylusPoints, bool userInitiated);
+    virtual void StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputEnd

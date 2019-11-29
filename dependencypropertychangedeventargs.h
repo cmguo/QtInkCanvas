@@ -11,17 +11,17 @@ class PropertyMetadata;
 
 //[FriendAccessAllowed] // Built into Base, also used by Core & Framework.
 
+enum class OperationType
+{
+    Unknown                     = 0,
+    AddChild                    = 1,
+    RemoveChild                 = 2,
+    Inherit                     = 3,
+    ChangeMutableDefaultValue   = 4,
+};
+
 class DependencyPropertyChangedEventArgs
 {
-    enum OperationType
-    {
-        Unknown                     = 0,
-        AddChild                    = 1,
-        RemoveChild                 = 2,
-        Inherit                     = 3,
-        ChangeMutableDefaultValue   = 4,
-    };
-
     enum PrivateFlag
     {
         IsAValueChange        = 0x01,
@@ -163,7 +163,7 @@ public:
     ///     Says what operation caused this property change
     /// </summary>
     //[FriendAccessAllowed] // Built into Base, also used by Core & Framework.
-    OperationType OperationType()
+    OperationType GetOperationType()
     {
         return _operationType;
     }

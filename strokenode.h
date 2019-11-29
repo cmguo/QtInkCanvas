@@ -14,6 +14,10 @@ class StrokeRenderer;
 
 class StrokeNodeOperations;
 
+/// <summary>
+/// StrokeNode represents a single segment on a stroke spine.
+/// It's used in enumerating through basic geometries making a stroke contour.
+/// </summary>
 class StrokeNode
 {
 public:

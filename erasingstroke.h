@@ -5,6 +5,11 @@
 
 class StylusShape;
 
+/// <summary>
+/// This class represents a contour of an erasing stroke, and provides
+/// internal API for static and incremental stroke_contour vs stroke_contour
+/// hit-testing.
+/// </summary>
 class ErasingStroke
 {
 public:

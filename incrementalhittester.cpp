@@ -17,17 +17,52 @@ IncrementalHitTester::~IncrementalHitTester()
 }
 
 /// <summary>
+/// Adds a point representing an incremental move of the hit-testing tool
+/// </summary>
+/// <param name="point">a point that represents an incremental move of the hitting tool</param>
+void IncrementalHitTester::AddPoint(QPointF const & point)
+{
+    AddPoints({ point });
+}
+
+/// <summary>
+/// Adds an array of points representing an incremental move of the hit-testing tool
+/// </summary>
+/// <param name="points">points representing an incremental move of the hitting tool</param>
+void IncrementalHitTester::AddPoints(QVector<QPointF> const & points)
+{
+    //if (points == nullptr)
+    //{
+    //    throw new System.ArgumentNullException("points");
+    //}
+
+    if (points.size() == 0)
+    {
+        throw std::exception("points");
+    }
+
+    if (false == _fValid)
+    {
+        throw std::exception("SR.Get(SRID.EndHitTestingCalled");
+    }
+
+    //System.Diagnostics.Debug.Assert(_strokes != nullptr);
+
+    AddPointsCore(points);
+}
+
+/// <summary>
 /// Adds a StylusPacket representing an incremental move of the hit-testing tool
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
-void IncrementalHitTester::AddPoints(StylusPointCollection const & stylusPoints)
+void IncrementalHitTester::AddPoints(QSharedPointer<StylusPointCollection> const & stylusPoints)
 {
     //if (stylusPoints == nullptr)
     //{
     //    throw new System.ArgumentNullException("stylusPoints");
     //}
 
-    if (stylusPoints.size() == 0)
+    if (stylusPoints->size() == 0)
     {
         throw new std::exception("stylusPoints");
     }
@@ -39,10 +74,10 @@ void IncrementalHitTester::AddPoints(StylusPointCollection const & stylusPoints)
 
     //System.Diagnostics.Debug.Assert(_strokes != nullptr);
 
-    QVector<QPointF> points(stylusPoints.size());
-    for (int x = 0; x < stylusPoints.size(); x++)
+    QVector<QPointF> points(stylusPoints->size());
+    for (int x = 0; x < stylusPoints->size(); x++)
     {
-        points[x] = (QPointF)stylusPoints[x];
+        points[x] = (*stylusPoints)[x];
     }
 
     AddPointsCore(points);
@@ -58,7 +93,8 @@ void IncrementalHitTester::EndHitTesting()
     {
         // Detach the event handler
         //_strokes.StrokesChangedInternal -= new StrokeCollectionChangedEventHandler(OnStrokesChanged);
-        QObject::disconnect(_strokes.get(), &StrokeCollection::StrokesChangedInternal, this, &IncrementalHitTester::OnStrokesChanged);
+        QObject::disconnect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
+                            this, &IncrementalHitTester::OnStrokesChanged);
         _strokes = nullptr;
         int count = _strokeInfos.size();
         for ( int i = 0; i < count; i++)
@@ -605,6 +641,7 @@ void StrokeInfo::OnStylusPointsChanged()
 /// <summary>Event handler for stroke data changed events</summary>
 void StrokeInfo::OnStylusPointsReplaced(StylusPointsReplacedEventArgs& args)
 {
+    (void) args;
     Invalidate();
 }
 

@@ -4,11 +4,14 @@
 #include "editingbehavior.h"
 #include "inkcanvasselectionhitresult.h"
 
+#include <QRectF>
+
 class MouseEventArgs;
 class MouseButtonEventArgs;
 
 class SelectionEditingBehavior : public EditingBehavior
 {
+    Q_OBJECT
 public:
     //-------------------------------------------------------------------------------
     //

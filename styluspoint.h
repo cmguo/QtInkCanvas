@@ -319,17 +319,6 @@ public:
     /// We only accept values in this range to support ISF serialization
     /// </summary>
     static double GetClampedXYValue(double xyValue);
-
-public:
-    static qreal length(QPointF const & p)
-    {
-        return sqrt(QPointF::dotProduct(p, p));
-    }
-
-    static qreal Determinant(QPointF const & p1, QPointF const & p2)
-    {
-        return p1.x() * p2.y() - p2.x() * p1.y();
-    }
 };
 
 #endif // STYLUSPOINT_H

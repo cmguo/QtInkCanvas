@@ -2,6 +2,10 @@
 #include "styluspointcollection.h"
 #include "inkcanvas.h"
 #include "stylusshape.h"
+#include "incrementalhittester.h"
+#include "inkevents.h"
+#include "finallyhelper.h"
+
 
 //-------------------------------------------------------------------------------
 //
@@ -147,10 +151,10 @@ void EraserBehavior::OnActivate()
         // If the cached EraserShape is different from the current EraserShape, we shoud just reset the cache.
         // The new QCursor will be generated when it's needed later.
         if ( isPointEraserCursorValid
-            && ( _cachedStylusShape.Width() != GetInkCanvas().EraserShape().Width()
-                || _cachedStylusShape.Height() != GetInkCanvas().EraserShape().Height()
-                || _cachedStylusShape.Rotation() != GetInkCanvas().EraserShape().Rotation()
-                || _cachedStylusShape.GetType() != GetInkCanvas().EraserShape().GetType()) )
+            && ( _cachedStylusShape->Width() != GetInkCanvas().EraserShape()->Width()
+                || _cachedStylusShape->Height() != GetInkCanvas().EraserShape()->Height()
+                || _cachedStylusShape->Rotation() != GetInkCanvas().EraserShape()->Rotation()
+                || _cachedStylusShape->metaObject() != GetInkCanvas().EraserShape()->metaObject()) )
         {
             //Debug.Assert(_cachedPointEraserCursor != nullptr, "_cachedPointEraserCursor shouldn't be nullptr.");
             ResetCachedPointEraserCursor();
@@ -181,12 +185,16 @@ void EraserBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> styl
 
     if ( InkCanvasEditingMode::EraseByPoint == _cachedEraseMode )
     {
-        _incrementalStrokeHitTester->StrokeHit += new StrokeHitEventHandler(OnPointEraseResultChanged);
+        QObject::connect(_incrementalStrokeHitTester, &IncrementalStrokeHitTester::StrokeHit,
+                         this, &EraserBehavior::OnPointEraseResultChanged);
+        //_incrementalStrokeHitTester->StrokeHit += new StrokeHitEventHandler(OnPointEraseResultChanged);
     }
     else
     {
         //we're in stroke hit test mode
-        _incrementalStrokeHitTester->StrokeHit += new StrokeHitEventHandler(OnStrokeEraseResultChanged);
+        QObject::connect(_incrementalStrokeHitTester, &IncrementalStrokeHitTester::StrokeHit,
+                         this, &EraserBehavior::OnStrokeEraseResultChanged);
+        //_incrementalStrokeHitTester->StrokeHit += new StrokeHitEventHandler(OnStrokeEraseResultChanged);
     }
 
     _stylusPoints.reset(new StylusPointCollection(stylusPoints->Description(), 100));
@@ -195,7 +203,7 @@ void EraserBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> styl
     //
     // start erasing
     //
-    _incrementalStrokeHitTester->AddPoints(stylusPoints);
+    _incrementalStrokeHitTester->AddPoints(*stylusPoints);
 
     // NTRAID:WINDOWSOS#1642274-2006/05/10-WAYNEZEN,
     // Since InkCanvas will ignore the animated tranforms when it receives the property changes.
@@ -217,7 +225,7 @@ void EraserBehavior::StylusInputContinue(QSharedPointer<StylusPointCollection> s
 {
     _stylusPoints->Add(*stylusPoints);
 
-    _incrementalStrokeHitTester->AddPoints(stylusPoints);
+    _incrementalStrokeHitTester->AddPoints(*stylusPoints);
 }
 
 /// <summary>
@@ -228,12 +236,16 @@ void EraserBehavior::StylusInputEnd(bool commit)
 {
     if ( InkCanvasEditingMode::EraseByPoint == _cachedEraseMode )
     {
-        _incrementalStrokeHitTester->StrokeHit-= new StrokeHitEventHandler(OnPointEraseResultChanged);
+        QObject::disconnect(_incrementalStrokeHitTester, &IncrementalStrokeHitTester::StrokeHit,
+                         this, &EraserBehavior::OnPointEraseResultChanged);
+        //_incrementalStrokeHitTester->StrokeHit-= new StrokeHitEventHandler(OnPointEraseResultChanged);
     }
     else
     {
         //we're in stroke hit test mode
-        _incrementalStrokeHitTester->StrokeHit -= new StrokeHitEventHandler(OnStrokeEraseResultChanged);
+        QObject::disconnect(_incrementalStrokeHitTester, &IncrementalStrokeHitTester::StrokeHit,
+                         this, &EraserBehavior::OnStrokeEraseResultChanged);
+        //_incrementalStrokeHitTester->StrokeHit -= new StrokeHitEventHandler(OnStrokeEraseResultChanged);
     }
 
     _stylusPoints = nullptr;
@@ -252,7 +264,7 @@ QCursor EraserBehavior::GetCurrentCursor()
 {
     if ( InkCanvasEditingMode::EraseByPoint == _cachedEraseMode )
     {
-        if ( _cachedPointEraserCursor == nullptr )
+        if ( _cachedStylusShape == nullptr )
         {
             _cachedStylusShape = GetInkCanvas().EraserShape();
 
@@ -270,10 +282,10 @@ QCursor EraserBehavior::GetCurrentCursor()
                 }
                 else
                 {
-                    xf = Matrix.Identity;
+                    xf = QMatrix(1, 0, 0, 1, 0, 0);
                 }
             }
-            DpiScale dpi = GetInkCanvas().GetDpi();
+            //DpiScale dpi = GetInkCanvas().GetDpi();
             _cachedPointEraserCursor = PenCursorManager.GetPointEraserCursor(_cachedStylusShape, xf, dpi.DpiScaleX, dpi.DpiScaleY);
         }
 
@@ -309,7 +321,7 @@ void EraserBehavior::OnTransformChanged()
 /// </summary>
 void EraserBehavior::ResetCachedPointEraserCursor()
 {
-    _cachedPointEraserCursor = nullptr;
+    _cachedPointEraserCursor = QCursor();
     _cachedStylusShape = nullptr;
 }
 
@@ -327,28 +339,36 @@ void EraserBehavior::OnStrokeEraseResultChanged(StrokeHitEventArgs& e)
     // The below code calls out StrokeErasing or StrokeErased event.
     // The out-side code could throw exception.
     // We use try/finally block to protect our status.
-    try
-    {
-        InkCanvasStrokeErasingEventArgs args = new InkCanvasStrokeErasingEventArgs(e.HitStroke);
-        GetInkCanvas().RaiseStrokeErasing(args);
 
-        if ( !args.Cancel )
-        {
-            // Erase only if the event wasn't cancelled
-            GetInkCanvas().Strokes()->Remove(e.HitStroke);
-            GetInkCanvas().RaiseInkErased();
-        }
-
-        fSucceeded = true;
-    }
-    finally
-    {
+    FinallyHelper final([this, &fSucceeded](){
         if ( !fSucceeded )
         {
             // Abort the editing.
             Commit(false);
         }
+    });
+    //try
+    {
+        InkCanvasStrokeErasingEventArgs args(e.HitStroke());
+        GetInkCanvas().RaiseStrokeErasing(args);
+
+        if ( !args.Cancel() )
+        {
+            // Erase only if the event wasn't cancelled
+            GetInkCanvas().Strokes()->Remove(e.HitStroke());
+            GetInkCanvas().RaiseInkErased();
+        }
+
+        fSucceeded = true;
     }
+    //finally
+    //{
+    //    if ( !fSucceeded )
+    //    {
+            // Abort the editing.
+    //        Commit(false);
+    //    }
+    //}
 }
 
 /// <summary>
@@ -365,25 +385,32 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
     // The below code might call out StrokeErasing or StrokeErased event.
     // The out-side code could throw exception.
     // We use try/finally block to protect our status.
-    try
+    FinallyHelper final([this, &fSucceeded](){
+        if ( !fSucceeded )
+        {
+            // Abort the editing.
+            Commit(false);
+        }
+    });
+    //try
     {
 
-        InkCanvasStrokeErasingEventArgs args = new InkCanvasStrokeErasingEventArgs(e.HitStroke);
+        InkCanvasStrokeErasingEventArgs args(e.HitStroke());
         GetInkCanvas().RaiseStrokeErasing(args);
 
-        if ( !args.Cancel )
+        if ( !args.Cancel() )
         {
             // Erase only if the event wasn't cancelled
-            StrokeCollection eraseResult = e.GetPointEraseResults();
+            QSharedPointer<StrokeCollection> eraseResult = e.GetPointEraseResults();
             //Debug.Assert(eraseResult != nullptr, "eraseResult cannot be nullptr");
 
-            StrokeCollection strokesToReplace = new StrokeCollection();
-            strokesToReplace.Add(e.HitStroke);
+            QSharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection());
+            strokesToReplace->Add(e.HitStroke());
 
             try
             {
                 // replace or remove the stroke
-                if (eraseResult.Count > 0)
+                if (eraseResult->size() > 0)
                 {
                     GetInkCanvas().Strokes()->Replace(strokesToReplace, eraseResult);
                 }
@@ -392,17 +419,17 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
                     GetInkCanvas().Strokes()->Remove(strokesToReplace);
                 }
             }
-            catch (ArgumentException ex)
+            catch (std::exception ex)
             {
                 //this can happen if someone sits in an event handler
                 //for StrokeErasing and removes the stroke.
                 //this to harden against failure here.
-                if (!ex.Data.Contains("System.Windows.Ink.StrokeCollection"))
-                {
+                //if (!ex.Data.Contains("System.Windows.Ink.StrokeCollection"))
+                //{
                     //System.Windows.Ink.StrokeCollection didn't throw this,
                     //we need to just throw the original exception
                     throw;
-                }
+                //}
             }
 
 
@@ -412,12 +439,12 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
 
         fSucceeded = true;
     }
-    finally
-    {
-        if ( !fSucceeded )
-        {
+    //finally
+    //{
+    //    if ( !fSucceeded )
+    //    {
             // Abort the editing.
-            Commit(false);
-        }
-    }
+    //        Commit(false);
+    //    }
+    //}
 }

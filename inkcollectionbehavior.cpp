@@ -1,4 +1,12 @@
 #include "inkcollectionbehavior.h"
+#include "inkcanvas.h"
+#include "routedeventargs.h"
+#include "drawingattributes.h"
+#include "inputdevice.h"
+#include "dynamicrenderer.h"
+#include "stroke.h"
+#include "inkevents.h"
+#include "finallyhelper.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -30,7 +38,7 @@ InkCollectionBehavior::InkCollectionBehavior(EditingCoordinator& editingCoordina
 ///    Called By:
 ///         GetEditingCoordinator().OnInkCanvasDeviceDown
 /// </summary>
-void ResetDynamicRenderer()
+void InkCollectionBehavior::ResetDynamicRenderer()
 {
     _resetDynamicRenderer = true;
 }
@@ -103,7 +111,8 @@ void InkCollectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
         case InkCanvasEditingMode::GestureOnly:
             {
                 // We are under one of those Ink modes now. Nothing to change here except raising the mode change event.
-                GetInkCanvas().RaiseActiveEditingModeChanged(new RoutedEventArgs(GetInkCanvas().ActiveEditingModeChangedEvent, InkCanvas));
+                RoutedEventArgs e(InkCanvas::ActiveEditingModeChangedEvent, &GetInkCanvas());
+                GetInkCanvas().RaiseActiveEditingModeChanged(e);
                 break;
             }
         case InkCanvasEditingMode::EraseByPoint:
@@ -119,14 +128,14 @@ void InkCollectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
         case InkCanvasEditingMode::Select:
             {
                 // Make a copy of the current cached points.
-                StylusPointCollection cachedPoints = _stylusPoints != nullptr ?
-                                                        _stylusPoints.Clone() : nullptr ;
+                QSharedPointer<StylusPointCollection> cachedPoints = _stylusPoints != nullptr ?
+                                                        _stylusPoints->Clone() : nullptr ;
 
                 // Discard the collected ink.
                 Commit(false);
 
                 // Change the Select mode
-                IStylusEditing newBehavior = GetEditingCoordinator().ChangeStylusEditingMode(this, mode);
+                IStylusEditing* newBehavior = GetEditingCoordinator().ChangeStylusEditingMode(this, mode);
 
                 if ( cachedPoints != nullptr
                     // NOTICE-2006/04/27-WAYNEZEN,
@@ -138,7 +147,7 @@ void InkCollectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
                     // Now add the previous points to the lasso behavior
                     // The SelectionBehavior doesn't check userInitiated, pass false
                     // even if our _userInitiated flag is true
-                    newBehavior.AddStylusPoints(cachedPoints, false/*userInitiated*/);
+                    newBehavior->AddStylusPoints(cachedPoints, false/*userInitiated*/);
                 }
 
                 break;
@@ -166,9 +175,9 @@ void InkCollectionBehavior::OnActivate()
     StylusEditingBehavior::OnActivate();
 
     // Enable RealTimeInking.
-    if (GetInkCanvas().InternalDynamicRenderer != nullptr )
+    if (GetInkCanvas().InternalDynamicRenderer() != nullptr )
     {
-        GetInkCanvas().InternalDynamicRenderer.Enabled = true;
+        GetInkCanvas().InternalDynamicRenderer()->SetEnabled(true);
         GetInkCanvas().UpdateDynamicRenderer(); // Kick DynamicRenderer to be hooked up to renderer.
     }
 
@@ -185,9 +194,9 @@ void InkCollectionBehavior::OnDeactivate()
     StylusEditingBehavior::OnDeactivate();
 
     // Disable RealTimeInking.
-    if (GetInkCanvas().InternalDynamicRenderer != nullptr )
+    if (GetInkCanvas().InternalDynamicRenderer() != nullptr )
     {
-        GetInkCanvas().InternalDynamicRenderer.Enabled = false;
+        GetInkCanvas().InternalDynamicRenderer()->SetEnabled(false);
         GetInkCanvas().UpdateDynamicRenderer();  // Kick DynamicRenderer to be removed from renderer.
     }
 }
@@ -232,20 +241,20 @@ void InkCollectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollectio
         _userInitiated = true;
     }
 
-    _stylusPoints = new StylusPointCollection(stylusPoints.Description, 100);
-    _stylusPoints.Add(stylusPoints);
+    _stylusPoints.reset(new StylusPointCollection(stylusPoints->Description(), 100));
+    _stylusPoints->Add(*stylusPoints);
 
-    _strokeDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes.Clone();
+    _strokeDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes()->Clone();
 
     // Reset the dynamic renderer if it's been flagged.
     if ( _resetDynamicRenderer )
     {
-        InputDevice inputDevice = GetEditingCoordinator().GetInputDeviceForReset();
-        if ( GetInkCanvas().InternalDynamicRenderer != nullptr && inputDevice != nullptr )
+        InputDevice* inputDevice = GetEditingCoordinator().GetInputDeviceForReset();
+        if ( GetInkCanvas().InternalDynamicRenderer() != nullptr && inputDevice != nullptr )
         {
-            StylusDevice stylusDevice = inputDevice as StylusDevice;
+            StylusDevice* stylusDevice = static_cast<StylusDevice*>(inputDevice);
             // If the input device is MouseDevice, nullptr will be passed in Reset Method.
-            GetInkCanvas().InternalDynamicRenderer.Reset(stylusDevice, stylusPoints);
+            GetInkCanvas().InternalDynamicRenderer()->Reset(stylusDevice, stylusPoints);
         }
 
         _resetDynamicRenderer = false;
@@ -269,7 +278,7 @@ void InkCollectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollectio
 ///         stylusPoints were user initiated
 /// </SecurityNote>
 //[SecurityCritical]
-void InkCollectionBehavior::StylusInputContinue(StylusPointCollection stylusPoints, bool userInitiated)
+void InkCollectionBehavior::StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     //we never set _userInitated to true after it is initialized, only to false
     if (!userInitiated)
@@ -277,7 +286,7 @@ void InkCollectionBehavior::StylusInputContinue(StylusPointCollection stylusPoin
         _userInitiated = false;
     }
 
-    _stylusPoints.Add(stylusPoints);
+    _stylusPoints->Add(*stylusPoints);
 }
 
 /// <summary>
@@ -300,7 +309,14 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
 {
     // The follow code raises Gesture and/or StrokeCollected event
     // The out-side code could throw exception in the their handlers. We use try/finally block to protect our status.
-    try
+
+    FinallyHelper final([this](){
+        _stylusPoints = nullptr ;
+        _strokeDrawingAttributes = nullptr ;
+        _userInitiated = false;
+        GetEditingCoordinator().InvalidateBehaviorCursor(this);
+    });
+    //try
     {
         if ( commit )
         {
@@ -311,23 +327,22 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
             {
                 //Debug.Assert(_strokeDrawingAttributes != nullptr , "_strokeDrawingAttributes can not be nullptr , did we not see a down?");
 
-                Stroke stroke =
-                    new Stroke(_stylusPoints, _strokeDrawingAttributes);
+                QSharedPointer<Stroke>  stroke(new Stroke(_stylusPoints, _strokeDrawingAttributes));
 
                 //we don't add the stroke to the InkCanvas stroke collection until RaiseStrokeCollected
                 //since this might be a gesture and in some modes, gestures don't get added
-                InkCanvasStrokeCollectedEventArgs argsStroke = new InkCanvasStrokeCollectedEventArgs(stroke);
+                InkCanvasStrokeCollectedEventArgs argsStroke(stroke);
                 GetInkCanvas().RaiseGestureOrStrokeCollected(argsStroke, _userInitiated);
             }
         }
     }
-    finally
-    {
-        _stylusPoints = nullptr ;
-        _strokeDrawingAttributes = nullptr ;
-        _userInitiated = false;
-        GetEditingCoordinator().InvalidateBehaviorCursor(this);
-    }
+    //finally
+    //{
+    //    _stylusPoints = nullptr ;
+    //    _strokeDrawingAttributes = nullptr ;
+    //    _userInitiated = false;
+    //    GetEditingCoordinator().InvalidateBehaviorCursor(this);
+    //}
 }
 
 /// <summary>
@@ -336,7 +351,7 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
 void InkCollectionBehavior::OnTransformChanged()
 {
     // Drop the cached pen cursor.
-    _cachedPenCursor = nullptr ;
+    //_cachedPenCursor = nullptr ;
 }
 
 //#endregion Protected Methods
@@ -353,28 +368,28 @@ QCursor InkCollectionBehavior::PenCursor()
 {
     // We only update our cache cursor when DefaultDrawingAttributes has changed or
     // there are animated transforms being applied to GetInkCanvas().
-    if ( _cachedPenCursor == nullptr || _cursorDrawingAttributes != GetInkCanvas().DefaultDrawingAttributes )
+    if ( /*_cachedPenCursor == nullptr ||*/ _cursorDrawingAttributes != GetInkCanvas().DefaultDrawingAttributes() )
     {
         //adjust the DA for any Layout/Render transforms.
         QMatrix xf = GetElementTransformMatrix();
 
-        QSharedPointer<DrawingAttributes> da = GetInkCanvas().DefaultDrawingAttributes;
-        if ( !xf.IsIdentity )
+        QSharedPointer<DrawingAttributes> da = GetInkCanvas().DefaultDrawingAttributes();
+        if ( !xf.isIdentity() )
         {
             //scale the DA, zero the offsets.
-            xf *= da.StylusTipTransform;
+            xf *= da->StylusTipTransform();
             xf.OffsetX = 0;
             xf.OffsetY = 0;
-            if ( xf.HasInverse )
+            if ( xf.isInvertible() )
             {
-                da = da.Clone();
-                da.StylusTipTransform = xf;
+                da = da->Clone();
+                da->SetStylusTipTransform(xf);
             }
         }
 
-        _cursorDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes.Clone();
-        DpiScale dpi = GetInkCanvas().GetDpi();
-        _cachedPenCursor = PenCursorManager.GetPenCursor(da, false, (GetInkCanvas().FlowDirection == FlowDirection.RightToLeft), dpi.DpiScaleX, dpi.DpiScaleY);
+        _cursorDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes()->Clone();
+        //DpiScale dpi = GetInkCanvas().GetDpi();
+        //_cachedPenCursor = PenCursorManager.GetPenCursor(da, false, (GetInkCanvas().FlowDirection == FlowDirection.RightToLeft), dpi.DpiScaleX, dpi.DpiScaleY);
     }
 
     return _cachedPenCursor;

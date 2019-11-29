@@ -3,6 +3,9 @@
 
 #include "strokenodeoperations.h"
 
+/// <summary>
+/// StrokeNodeOperations implementation for elliptical nodes
+/// </summary>
 class EllipticalNodeOperations : public StrokeNodeOperations
 {
 public:
@@ -10,7 +13,7 @@ public:
     /// Constructor
     /// </summary>
     /// <param name="nodeShape"></param>
-    EllipticalNodeOperations(StylusShape nodeShape);
+    EllipticalNodeOperations(StylusShape& nodeShape);
 
     /// <summary>
     /// This is probably not the best (design-wise) but the cheapest way to tell

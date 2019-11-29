@@ -5,6 +5,9 @@
 
 #include <QPointF>
 
+/// <summary>
+/// This structure represents a node on a stroke spine.
+/// </summary>、
 class StrokeNodeData
 {
 private:

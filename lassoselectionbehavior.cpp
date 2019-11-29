@@ -2,6 +2,10 @@
 #include "styluspoint.h"
 #include "inkcanvas.h"
 #include "doubleutil.h"
+#include "lassohelper.h"
+#include "incrementalhittester.h"
+#include "lassoselectionbehavior.h"
+#include "inkcanvasinnercanvas.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -97,6 +101,7 @@ void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
 void LassoSelectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
+    (void) userInitiated;
     //Debug.Assert(stylusPoints.Count != 0, "An empty stylusPoints has been passed in.");
 
     _disableLasso = false;
@@ -183,7 +188,7 @@ void LassoSelectionBehavior::StylusInputContinue(QSharedPointer<StylusPointColle
                 QPointF vector = point - _startPoint;
                 double distanceSquared = LengthSquared(vector);
 
-                if ( DoubleUtil::GreaterThan(distanceSquared, LassoHelper.MinDistanceSquared) )
+                if ( DoubleUtil::GreaterThan(distanceSquared, LassoHelper::MinDistanceSquared) )
                 {
                     points.append(point);
                     startLasso = true;
@@ -213,7 +218,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
 {
     // Initialize with empty selection
     QSharedPointer<StrokeCollection> selectedStrokes(new StrokeCollection());
-    QList<QWidget*> elementsToSelect;
+    QList<UIElement*> elementsToSelect;
 
     if ( _lassoHelper != nullptr )
     {
@@ -222,7 +227,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         //
         // end dynamic rendering
         //
-        selectedStrokes = GetInkCanvas().EndDynamicSelection(_lassoHelper->Visual());
+        selectedStrokes = GetInkCanvas().EndDynamicSelection(_lassoHelper->GetVisual());
 
         //
         // hit test for elements
@@ -230,7 +235,9 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         // NOTE: HitTestForElements uses the _lassoHelper so it must be alive at this point
         elementsToSelect = HitTestForElements();
 
-        _incrementalLassoHitTester->SelectionChanged() -= new LassoSelectionChangedEventHandler(OnSelectionChanged);
+        QObject::disconnect(_incrementalLassoHitTester, &IncrementalLassoHitTester::SelectionChanged,
+                            this, &LassoSelectionBehavior::OnSelectionChanged);
+        //_incrementalLassoHitTester->SelectionChanged() -= new LassoSelectionChangedEventHandler(OnSelectionChanged);
         _incrementalLassoHitTester->EndHitTesting();
         _incrementalLassoHitTester = nullptr;
         _lassoHelper = nullptr;
@@ -241,7 +248,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
 
         // Now try the tap selection
         QSharedPointer<Stroke> tappedStroke;
-        QWidget* tappedElement;
+        UIElement* tappedElement;
 
         TapSelectObject(_startPoint,  tappedStroke,  tappedElement);
 
@@ -263,7 +270,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
 
     if ( commit )
     {
-        GetInkCanvas().ChangeInkCanvasSelection(selectedStrokes, elementsToSelect.toVector());
+        GetInkCanvas().ChangeInkCanvasSelection(selectedStrokes, elementsToSelect);
     }
 }
 
@@ -305,16 +312,16 @@ QCursor LassoSelectionBehavior::GetCurrentCursor()
 /// <param name="e"></param>
 void LassoSelectionBehavior::OnSelectionChanged(LassoSelectionChangedEventArgs& e)
 {
-    GetInkCanvas().UpdateDynamicSelection(e.SelectedStrokes, e.DeselectedStrokes);
+    GetInkCanvas().UpdateDynamicSelection(e.SelectedStrokes(), e.DeselectedStrokes());
 }
 
 
 /// <summary>
 /// Private helper that will hit test for elements
 /// </summary>
-QList<QWidget*> LassoSelectionBehavior::HitTestForElements()
+QList<UIElement*> LassoSelectionBehavior::HitTestForElements()
 {
-    QList<QWidget*> elementsToSelect;
+    QList<UIElement*> elementsToSelect;
 
     if ( GetInkCanvas().children().size() == 0 )
     {
@@ -323,7 +330,7 @@ QList<QWidget*> LassoSelectionBehavior::HitTestForElements()
 
     for (int x = 0; x < GetInkCanvas().children().size(); x++)
     {
-        QWidget* uiElement = GetInkCanvas().children()[x];
+        UIElement* uiElement = GetInkCanvas().Children()[x];
         HitTestElement(GetInkCanvas().InnerCanvas(), uiElement, elementsToSelect);
     }
 
@@ -334,7 +341,7 @@ QList<QWidget*> LassoSelectionBehavior::HitTestForElements()
 /// Private helper that will turn an element in any nesting level into a stroke
 /// in the InkCanvas's coordinate space.  This method calls itself recursively
 /// </summary>
-void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas* parent, QWidget* uiElement, QList<QWidget*> elementsToSelect)
+void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, QList<UIElement*> elementsToSelect)
 {
     ElementCornerPoints elementPoints = LassoSelectionBehavior::GetTransformedElementCornerPoints(parent, uiElement);
     if (elementPoints.Set != false)
@@ -359,7 +366,7 @@ void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas* parent, QWidge
 /// Private helper that takes an element and transforms it's 4 points
 /// into the InkCanvas's space
 /// </summary>
-ElementCornerPoints LassoSelectionBehavior::GetTransformedElementCornerPoints(InkCanvasInnerCanvas* canvas, QWidget* childElement)
+LassoSelectionBehavior::ElementCornerPoints LassoSelectionBehavior::GetTransformedElementCornerPoints(InkCanvasInnerCanvas& canvas, UIElement* childElement)
 {
     //Debug.Assert(canvas != null);
     //Debug.Assert(childElement != null);
@@ -380,14 +387,14 @@ ElementCornerPoints LassoSelectionBehavior::GetTransformedElementCornerPoints(In
     //
     // get the transform from us to our parent InkCavas
     //
-    //GeneralTransform parentTransform = childElement.TransformToAncestor(canvas);
+    QTransform parentTransform = childElement->TransformToAncestor(&canvas);
 
     //
 
-    //parentTransform.TryTransform(QPointF(0, 0),  elementPoints.UpperLeft);
-    //parentTransform.TryTransform(QPointF(childElement.RenderSize.Width, 0),  elementPoints.UpperRight);
-    //parentTransform.TryTransform(QPointF(0, childElement.RenderSize.Height),  elementPoints.LowerLeft);
-    //parentTransform.TryTransform(QPointF(childElement.RenderSize.Width, childElement.RenderSize.Height),  elementPoints.LowerRight);
+    elementPoints.UpperLeft = parentTransform.map(QPointF(0, 0));
+    elementPoints.UpperRight = parentTransform.map(QPointF(childElement->RenderSize().width(), 0));
+    elementPoints.LowerLeft = parentTransform.map(QPointF(0, childElement->RenderSize().height()));
+    elementPoints.LowerRight = parentTransform.map(QPointF(childElement->RenderSize().width(), childElement->RenderSize().height()));
 
     elementPoints.Set = true;
     return elementPoints;
@@ -537,7 +544,7 @@ void LassoSelectionBehavior::UpdatePointDistances(ElementCornerPoints elementPoi
         height = -height;
     }
 
-    _xDiff = width * 0.25f;
+    _xDiff = width * 0.25;
     if (_xDiff > _maxThreshold)
     {
         _xDiff = _maxThreshold;
@@ -547,7 +554,7 @@ void LassoSelectionBehavior::UpdatePointDistances(ElementCornerPoints elementPoi
         _xDiff = _minThreshold;
     }
 
-    _yDiff = height * 0.25f;
+    _yDiff = height * 0.25;
     if (_yDiff > _maxThreshold)
     {
         _yDiff = _maxThreshold;
@@ -582,17 +589,19 @@ void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
         //
         // add event handler
         //
-        _incrementalLassoHitTester->SelectionChanged += new LassoSelectionChangedEventHandler(OnSelectionChanged);
+        QObject::connect(_incrementalLassoHitTester, &IncrementalLassoHitTester::SelectionChanged,
+                            this, &LassoSelectionBehavior::OnSelectionChanged);
+        //_incrementalLassoHitTester->SelectionChanged += new LassoSelectionChangedEventHandler(OnSelectionChanged);
 
         //
         // start dynamic rendering
         //
 
         _lassoHelper = new LassoHelper();
-        GetInkCanvas().BeginDynamicSelection(_lassoHelper->Visual);
+        GetInkCanvas().BeginDynamicSelection(_lassoHelper->GetVisual());
 
-        Point[] lassoPoints = _lassoHelper->AddPoints(points);
-        if ( 0 != lassoPoints.Length )
+        QVector<QPointF> lassoPoints = _lassoHelper->AddPoints(points);
+        if ( 0 != lassoPoints.size() )
         {
             _incrementalLassoHitTester->AddPoints(lassoPoints);
         }
@@ -610,7 +619,7 @@ void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
 /// <param name="point"></param>
 /// <param name="tappedStroke"></param>
 /// <param name="tappedElement"></param>
-void LassoSelectionBehavior::TapSelectObject(QPointF const & point,  QSharedPointer<Stroke>& tappedStroke,  QWidget*& tappedElement)
+void LassoSelectionBehavior::TapSelectObject(QPointF const & point,  QSharedPointer<Stroke>& tappedStroke,  UIElement*& tappedElement)
 {
     tappedStroke = nullptr;
     tappedElement = nullptr;
@@ -622,11 +631,11 @@ void LassoSelectionBehavior::TapSelectObject(QPointF const & point,  QSharedPoin
     }
     else
     {
-        GeneralTransform transformToInnerCanvas = GetInkCanvas().TransformToVisual(GetInkCanvas().InnerCanvas);
-        QPointF pointOnInnerCanvas = transformToInnerCanvas.Transform(point);
+        QTransform transformToInnerCanvas = GetInkCanvas().TransformToVisual(&GetInkCanvas().InnerCanvas());
+        QPointF pointOnInnerCanvas = transformToInnerCanvas.map(point);
 
         // Try to find  whether we have a pre-select object.
-        tappedElement = GetInkCanvas().InnerCanvas()->HitTestOnElements(pointOnInnerCanvas);
+        tappedElement = GetInkCanvas().InnerCanvas().HitTestOnElements(pointOnInnerCanvas);
     }
 
 }

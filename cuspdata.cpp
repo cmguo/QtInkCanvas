@@ -2,6 +2,7 @@
 #include "styluspointcollection.h"
 #include "styluspoint.h"
 #include "strokecollectionserializer.h"
+#include "doubleutil.h"
 
 CuspData::CuspData()
 {
@@ -52,7 +53,7 @@ void CuspData::Analyze(StylusPointCollection & stylusPoints, double rSpan)
             cdp.Point = point2;
 
             _points.insert(index, cdp);
-            _nodes.insert(index, _nodes[index - 1] + StylusPoint::length(XY(index) - XY(index - 1)));
+            _nodes.insert(index, _nodes[index - 1] + Length(XY(index) - XY(index - 1)));
         }
     }
 

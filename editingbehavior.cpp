@@ -137,12 +137,12 @@ void EditingBehavior::SelfDeactivate()
 /// <returns></returns>
 QMatrix EditingBehavior::GetElementTransformMatrix()
 {
-    QMatrix layoutTransform = GetInkCanvas()->LayoutTransform();
-    QMatrix renderTransform = GetInkCanvas()->RenderTransform();
-    QMatrix xf = layoutTransform;
+    QTransform layoutTransform = GetInkCanvas().LayoutTransform();
+    QTransform renderTransform = GetInkCanvas().RenderTransform();
+    QTransform xf = layoutTransform;
     xf *= renderTransform;
 
-    return xf;
+    return xf.toAffine();
 }
 
 /// <summary>

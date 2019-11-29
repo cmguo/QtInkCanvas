@@ -6,6 +6,16 @@
 class StrokeNodeOperations;
 class StrokeNode;
 
+/// <summary>
+/// This class serves as a unified tool for enumerating through stroke nodes
+/// for all kinds of rendering and/or hit-testing that uses stroke contours.
+/// It provides static API for static (atomic) rendering, and it needs to be
+/// instantiated for dynamic (incremental) rendering. It generates stroke nodes
+/// from Stroke objects with or w/o overriden drawing attributes, as well as from
+/// a arrays of points (for a given StylusShape), and from raw stylus packets.
+/// In either case, the output collection of nodes is represented by a disposable
+/// iterator (i.e. good for a single enumeration only).
+/// </summary>
 class StrokeNodeIterator
 {
 public:
@@ -80,10 +90,10 @@ public:
     /// </summary>
     int Count()
     {
-        //if (_stylusPoints == null)
-        //{
-        //    return 0;
-        //}
+        if (_stylusPoints == nullptr)
+        {
+            return 0;
+        }
         return _stylusPoints->size();
     }
 

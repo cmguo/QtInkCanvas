@@ -5,7 +5,7 @@
 /// Constructor
 /// </summary>
 /// <param name="nodeShape"></param>
-EllipticalNodeOperations::EllipticalNodeOperations(StylusShape nodeShape)
+EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
     : StrokeNodeOperations(nodeShape)
 {
     //System.Diagnostics.//Debug.Assert((nodeShape != null) && nodeShape.IsEllipse);

@@ -4,7 +4,7 @@
 /// <summary>
 /// InkCanvas Selection Hit Result
 /// </summary>
-enum InkCanvasSelectionHitResult
+enum class InkCanvasSelectionHitResult
 {
     /// <summary>
     /// None

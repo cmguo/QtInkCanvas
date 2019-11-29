@@ -133,9 +133,9 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
         //first, determine the x, y values by xf-ing them
         QPointF p(rawPacketData[i], rawPacketData[i + 1]);
         //if (tabletToView != nullptr)
-        //{
-        //    tabletToView.TryTransform(p, p);
-        //}
+        {
+            p = tabletToView.map(p);
+        }
         //else
         {
             p = tabletToViewMatrix.map(p);

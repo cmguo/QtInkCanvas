@@ -10,8 +10,14 @@ class InkCanvas;
 
 #include <exception>
 
-class EditingBehavior
+/// <summary>
+/// Base class for all EditingBehaviors in the InkCanvas
+/// Please see the design detain at http://tabletpc/longhorn/Specs/Mid-Stroke%20and%20Pen%20Cursor%20Dev%20Design.mht
+/// </summary>
+class EditingBehavior : public QObject
 {
+    Q_OBJECT
+
 public:
     /// <summary>
     /// Constructor

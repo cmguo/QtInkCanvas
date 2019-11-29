@@ -2,30 +2,29 @@
 #define INKCANVAS_H
 
 #include "InkCanvas_global.h"
-#include "styluspointcollection.h"
-#include "strokecollection.h"
-#include "drawingattributes.h"
-#include "dependencyobject.h"
+
+#include "uielement.h"
 #include "events.h"
-#include "inkcanvaseditingmode.h"
-
-#include <QWidget>
-
+#include "editingmode.h"
+#include "inkcanvasselectionhitresult.h"
+#include "inkcanvasclipboardformat.h"
+#include "applicationgesture.h"
 
 class InkCanvasSelection;
 class InkCanvasSelectionAdorner;
 class InkCanvasFeedbackAdorner;
 class InkCanvasInnerCanvas;
-class AdornerDecorator;
 class EditingCoordinator;
 class InkPresenter;
 class ClipboardProcessor;
 class GestureRecognizer;
 class DynamicRenderer;
-class ApplicationGesture;
 class StylusPointCollection;
-class InkCanvasClipboardFormat;
 class Visual;
+class HitTestResult;
+class PointHitTestParameters;
+class QMimeData;
+typedef QMimeData DataObject;
 
 class InkCanvasSelectionEditingEventArgs;
 class InkCanvasStrokeCollectedEventArgs;
@@ -37,8 +36,17 @@ class EventArgs;
 class InkCanvasSelectionChangingEventArgs;
 class QueryCursorEventArgs;
 class DependencyPropertyChangedEventArgs;
+class RoutedEvent;
+class ExecutedRoutedEventArgs;
 
-class InkCanvas : public QWidget, public DependencyObject
+class RoutedCommand {};
+
+class AdornerDecorator : public UIElement
+{
+
+};
+
+class InkCanvas : public FrameworkElement
 {
     Q_OBJECT
 public:
@@ -75,10 +83,10 @@ public:
 
         // Set up the commanding handlers
         _RegisterClipboardHandlers();
-        CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.Delete,
+        CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands::Delete,
             new ExecutedRoutedEventHandler(_OnCommandExecuted), new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled));
 
-        CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands.SelectAll,
+        CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands::SelectAll,
             Key.A, ModifierKeys.Control, new ExecutedRoutedEventHandler(_OnCommandExecuted), new CanExecuteRoutedEventHandler(_OnQueryCommandEnabled));
 
         CommandHelpers.RegisterCommandHandler(ownerType, InkCanvas.DeselectCommand,
@@ -143,7 +151,7 @@ public:
     /// <summary>
     /// Public constructor.
     /// </summary>
-    InkCanvas(QWidget * parent = nullptr);
+    InkCanvas();
 
 private:
     /// <summary>
@@ -169,44 +177,20 @@ protected:
     /// </summary>
     /// <param name="availableSize"></param>
     /// <returns></returns>
-    /*
-    override Size MeasureOverride(Size availableSize)
-    {
-        // No need to invoke VerifyAccess since _localAdornerDecorator.Measure should check it.
-        if ( _localAdornerDecorator == null )
-        {
-            ApplyTemplate();
-        }
-
-        _localAdornerDecorator.Measure(availableSize);
-
-        return  _localAdornerDecorator.DesiredSize;
-    }
+    virtual QSizeF MeasureOverride(QSizeF availableSize);
 
     /// <summary>
     /// ArrangeOverride
     /// </summary>
     /// <param name="arrangeSize"></param>
     /// <returns></returns>
-    protected override Size ArrangeOverride(Size arrangeSize)
-    {
-        // No need to invoke VerifyAccess since _localAdornerDecorator.Arrange should check it.
-
-        if ( _localAdornerDecorator == null )
-        {
-            ApplyTemplate();
-        }
-
-        _localAdornerDecorator.Arrange(new Rect(arrangeSize));
-
-        return arrangeSize;
-    }*/
+    virtual QSizeF ArrangeOverride(QSizeF arrangeSize);
 
 
     /// <summary>
     /// HitTestCore implements precise hit testing against render contents
     /// </summary>
-    HitTestResult HitTestCore(PointHitTestParameters hitTestParams);
+    HitTestResult HitTestCore(PointHitTestParameters& hitTestParams);
 
     /// <summary>
     /// OnPropertyChanged
@@ -218,16 +202,16 @@ protected:
 
         if (e.IsAValueChange || e.IsASubPropertyChange)
         {
-            if (e.Property == QWidget*.RenderTransformProperty ||
+            if (e.Property == UIElement*.RenderTransformProperty ||
                 e.Property == FrameworkElement.LayoutTransformProperty)
             {
                 EditingCoordinator.InvalidateTransform();
 
                 Transform transform = e.NewValue as Transform;
-                if (transform != null && !transform.HasAnimatedProperties)
+                if (transform != nullptr && !transform.HasAnimatedProperties)
                 {
                     TransformGroup transformGroup = transform as TransformGroup;
-                    if ( transformGroup != null )
+                    if ( transformGroup != nullptr )
                     {
                         //walk down the tree looking for animated transforms
                         Stack<Transform> transforms = new Stack<Transform>();
@@ -240,7 +224,7 @@ protected:
                                 return;
                             }
                             transformGroup = transform as TransformGroup;
-                            if ( transformGroup != null )
+                            if ( transformGroup != nullptr )
                             {
                                 for ( int i = 0; i < transformGroup.Children.Count; i++ )
                                 {
@@ -291,7 +275,7 @@ protected:
         //     </AdornerDecorator>
         //  </InkCanvas>
 
-        if ( _localAdornerDecorator == null )
+        if ( _localAdornerDecorator == nullptr )
         {
             //
             _localAdornerDecorator = new AdornerDecorator();
@@ -337,34 +321,29 @@ protected:
         return new InkCanvasAutomationPeer(this);
     }*/
 
-    /*
     /// <summary>
     ///     The DependencyProperty for the Background property.
     /// </summary>
-    public static readonly DependencyProperty BackgroundProperty =
-            Panel.BackgroundProperty.AddOwner(
-                    typeof(InkCanvas),
-                    new FrameworkPropertyMetadata(
-                            null,
-                            FrameworkPropertyMetadataOptions.AffectsRender));
+    static DependencyProperty const * BackgroundProperty;
 
     /// <summary>
     ///     An object that describes the background.
     /// </summary>
-    [Bindable(true), Category("Appearance")]
-    public Brush Background
+    //[Bindable(true), Category("Appearance")]
+    QBrush Background()
     {
-        get { return (Brush) GetValue(BackgroundProperty); }
-        set { SetValue(BackgroundProperty, value); }
+        return GetValue<QBrush>(BackgroundProperty);
     }
+    void SetBackground(QBrush value)
+    {
+        SetValue(BackgroundProperty, value);
+    }
+
 
     /// <summary>
     /// Top DependencyProperty
     /// </summary>
-    public static readonly DependencyProperty TopProperty =
-            DependencyProperty.RegisterAttached("Top", typeof(double), typeof(InkCanvas),
-                new FrameworkPropertyMetadata(Double.NaN, new PropertyChangedCallback(OnPositioningChanged)),
-                new ValidateValueCallback(System.Windows.Shapes.Shape.IsDoubleFiniteOrNaN));
+    static DependencyProperty const * TopProperty;
 
     /// <summary>
     /// Reads the attached property Top from the given element.
@@ -372,12 +351,12 @@ protected:
     /// <param name="element">The element from which to read the Top attached property.</param>
     /// <returns>The property's value.</returns>
     /// <seealso cref="InkCanvas.TopProperty" />
-    [TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
-    [AttachedPropertyBrowsableForChildren()]
-    public static double GetTop(QWidget* element)
+    //[TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
+    //[AttachedPropertyBrowsableForChildren()]
+    static double GetTop(UIElement* element)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        return (double)element.GetValue(TopProperty);
+        return element->GetValue<double>(TopProperty);
     }
 
     /// <summary>
@@ -386,19 +365,16 @@ protected:
     /// <param name="element">The element to which to write the Top attached property.</param>
     /// <param name="length">The length to set</param>
     /// <seealso cref="InkCanvas.TopProperty" />
-    public static void SetTop(QWidget* element, double length)
+    static void SetTop(UIElement* element, double length)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        element.SetValue(TopProperty, length);
+        element->SetValue(TopProperty, length);
     }
 
     /// <summary>
     /// The Bottom DependencyProperty
     /// </summary>
-    public static readonly DependencyProperty BottomProperty =
-            DependencyProperty.RegisterAttached("Bottom", typeof(double), typeof(InkCanvas),
-                new FrameworkPropertyMetadata(Double.NaN, new PropertyChangedCallback(OnPositioningChanged)),
-                new ValidateValueCallback(System.Windows.Shapes.Shape.IsDoubleFiniteOrNaN));
+    static DependencyProperty const * BottomProperty;
 
     /// <summary>
     /// Reads the attached property Bottom from the given element.
@@ -406,12 +382,12 @@ protected:
     /// <param name="element">The element from which to read the Bottom attached property.</param>
     /// <returns>The property's Length value.</returns>
     /// <seealso cref="InkCanvas.BottomProperty" />
-    [TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
-    [AttachedPropertyBrowsableForChildren()]
-    public static double GetBottom(QWidget* element)
+    //[TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
+    //[AttachedPropertyBrowsableForChildren()]
+    static double GetBottom(UIElement* element)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        return (double)element.GetValue(BottomProperty);
+        return element->GetValue<double>(BottomProperty);
     }
 
     /// <summary>
@@ -420,19 +396,16 @@ protected:
     /// <param name="element">The element to which to write the Bottom attached property.</param>
     /// <param name="length">The Length to set</param>
     /// <seealso cref="InkCanvas.BottomProperty" />
-    public static void SetBottom(QWidget* element, double length)
+    static void SetBottom(UIElement* element, double length)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        element.SetValue(BottomProperty, length);
+        element->SetValue(BottomProperty, length);
     }
 
     /// <summary>
     /// The Left DependencyProperty
     /// </summary>
-    public static readonly DependencyProperty LeftProperty =
-            DependencyProperty.RegisterAttached("Left", typeof(double), typeof(InkCanvas),
-                new FrameworkPropertyMetadata(Double.NaN, new PropertyChangedCallback(OnPositioningChanged)),
-                new ValidateValueCallback(System.Windows.Shapes.Shape.IsDoubleFiniteOrNaN));
+    static DependencyProperty const * LeftProperty;
 
     /// <summary>
     /// Reads the attached property Left from the given element.
@@ -440,12 +413,12 @@ protected:
     /// <param name="element">The element from which to read the Left attached property.</param>
     /// <returns>The property's value.</returns>
     /// <seealso cref="InkCanvas.LeftProperty" />
-    [TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
-    [AttachedPropertyBrowsableForChildren()]
-    public static double GetLeft(QWidget* element)
+    //[TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
+    //[AttachedPropertyBrowsableForChildren()]
+    static double GetLeft(UIElement* element)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        return (double)element.GetValue(LeftProperty);
+        return element->GetValue<double>(LeftProperty);
     }
 
     /// <summary>
@@ -454,19 +427,16 @@ protected:
     /// <param name="element">The element to which to write the Left attached property.</param>
     /// <param name="length">The length to set</param>
     /// <seealso cref="InkCanvas.LeftProperty" />
-    static void SetLeft(QWidget* element, double length)
+    static void SetLeft(UIElement* element, double length)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        element.SetValue(LeftProperty, length);
+        element->SetValue(LeftProperty, length);
     }
 
     /// <summary>
     /// The Right DependencyProperty
     /// </summary>
-    //public static readonly DependencyProperty RightProperty =
-    //        DependencyProperty.RegisterAttached("Right", typeof(double), typeof(InkCanvas),
-    //            new FrameworkPropertyMetadata(Double.NaN, new PropertyChangedCallback(OnPositioningChanged)),
-    //            new ValidateValueCallback(System.Windows.Shapes.Shape.IsDoubleFiniteOrNaN));
+    static DependencyProperty const * RightProperty;
 
     /// <summary>
     /// Reads the attached property Right from the given element.
@@ -476,10 +446,10 @@ protected:
     /// <seealso cref="InkCanvas.RightProperty" />
     //[TypeConverter("System.Windows.LengthConverter, PresentationFramework, Version=" +BuildInfo.WCP_VERSION + ", Culture=neutral, PublicKeyToken=" +BuildInfo.WCP_PUBLIC_KEY_TOKEN + ", Custom=null")]
     //[AttachedPropertyBrowsableForChildren()]
-    static double GetRight(QWidget* element)
+    static double GetRight(UIElement* element)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        return (double)element.GetValue(RightProperty);
+        return element->GetValue<double>(RightProperty);
     }
 
     /// <summary>
@@ -488,10 +458,10 @@ protected:
     /// <param name="element">The element to which to write the Right attached property.</param>
     /// <param name="length">The Length to set</param>
     /// <seealso cref="InkCanvas.RightProperty" />
-    static void SetRight(QWidget* element, double length)
+    static void SetRight(UIElement* element, double length)
     {
         if (element == nullptr) { throw new std::exception("element"); }
-        element.SetValue(RightProperty, length);
+        element->SetValue(RightProperty, length);
     }
 
     /// <summary>
@@ -499,38 +469,13 @@ protected:
     /// </summary>
     /// <param name="d"></param>
     /// <param name="e"></param>
-    static void OnPositioningChanged(DependencyObject d, DependencyPropertyChangedEventArgs& e)
-    {
-        QWidget* uie = d as QWidget*;
-        if ( uie != null )
-        {
-            // Make sure the QWidget* is a child of InkCanvasInnerCanvas.
-            InkCanvasInnerCanvas p = VisualTreeHelper.GetParent(uie) as InkCanvasInnerCanvas;
-            if ( p != null )
-            {
-                if ( e.Property == InkCanvas.LeftProperty
-                    || e.Property == InkCanvas.TopProperty )
-                {
-                    // Invalidate measure for Left and/or Top.
-                    p.InvalidateMeasure();
-                }
-                else
-                {
-                    //Debug.Assert(e.Property == InkCanvas.RightProperty || e.Property == InkCanvas.BottomProperty,
-                        string.Format(System.Globalization.CultureInfo.InvariantCulture, "Unknown dependency property detected - {0}.", e.Property));
-
-                    // Invalidate arrange for Right and/or Bottom.
-                    p.InvalidateArrange();
-                }
-            }
-        }
-    }*/
+    static void OnPositioningChanged(DependencyObject* d, DependencyPropertyChangedEventArgs& e);
 
 public:
     /// <summary>
     ///     The DependencyProperty for the Strokes property.
     /// </summary>
-    //public static readonly DependencyProperty StrokesProperty =
+    //static DependencyProperty StrokesProperty =
     //        InkPresenter().StrokesProperty.AddOwner(
     //                typeof(InkCanvas),
     //                new FrameworkPropertyMetadata(
@@ -573,7 +518,7 @@ public:
     //    get
     //    {
             //this property will verify access
-    //        return GestureRecognizer.IsRecognizerAvailable;
+    //        return GetGestureRecognizer().IsRecognizerAvailable;
      //   }
     //}
 
@@ -582,7 +527,7 @@ public:
     /// Emulate Panel's Children property.
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-    //public QWidget*Collection Children
+    //public UIElement*Collection Children
     //{
     //    get
    //     {
@@ -595,7 +540,7 @@ public:
     /// <summary>
     /// The DependencyProperty for the DefaultDrawingAttributes property.
     /// </summary>
-    //public static readonly DependencyProperty DefaultDrawingAttributesProperty =
+    //static DependencyProperty DefaultDrawingAttributesProperty =
     //        DependencyProperty.Register(
     //                "DefaultDrawingAttributes",
     //                typeof(DrawingAttributes),
@@ -604,21 +549,15 @@ public:
     //                        new DrawingAttributesDefaultValueFactory(),
     //                        new PropertyChangedCallback(OnDefaultDrawingAttributesChanged)),
     //                (ValidateValueCallback)delegate(object value)
-    //                    { return value != null; });
+    //                    { return value != nullptr; });
 
     static DependencyProperty * const DefaultDrawingAttributesProperty;
 
     /// <summary>
     /// Gets/Sets the DefaultDrawingAttributes property.
     /// </summary>
-    QSharedPointer<DrawingAttributes> DefaultDrawingAttributes()
-    {
-        return GetValue<QSharedPointer<DrawingAttributes>>(DefaultDrawingAttributesProperty);
-    }
-    void SetDefaultDrawingAttributes(QSharedPointer<DrawingAttributes> value)
-    {
-        SetValue(DefaultDrawingAttributesProperty, value);
-    }
+    QSharedPointer<DrawingAttributes> DefaultDrawingAttributes();
+    void SetDefaultDrawingAttributes(QSharedPointer<DrawingAttributes> value);
 
     static void OnDefaultDrawingAttributesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e);
 
@@ -643,7 +582,7 @@ public:
     /// <summary>
     /// ActiveEditingModeProperty Dependency Property
     /// </summary>
-    //public static readonly DependencyProperty ActiveEditingModeProperty = ActiveEditingModePropertyKey.DependencyProperty;
+    //static DependencyProperty ActiveEditingModeProperty = ActiveEditingModePropertyKey.DependencyProperty;
     static DependencyProperty * const ActiveEditingModeProperty;
 
     /// <summary>
@@ -657,15 +596,15 @@ public:
     /// <summary>
     /// The DependencyProperty for the EditingMode property.
     /// </summary>
-    //public static readonly DependencyProperty EditingModeProperty =
-   //         DependencyProperty.Register(
-     //               "EditingMode",
+    //static DependencyProperty EditingModeProperty =
+    //        DependencyProperty.Register(
+    //                "EditingMode",
     //                typeof(InkCanvasEditingMode),
     //                typeof(InkCanvas),
     //                new FrameworkPropertyMetadata(
     //                        InkCanvasEditingMode.Ink,
-     //                       new PropertyChangedCallback(OnEditingModeChanged)),
-    //                new ValidateValueCallback(ValidateEditingMode));
+    //                      new PropertyChangedCallback(OnEditingModeChanged)),
+    //                  new ValidateValueCallback(ValidateEditingMode));
     static DependencyProperty * const EditingModeProperty;
 
 
@@ -687,7 +626,7 @@ public:
     /// <summary>
     /// The DependencyProperty for the EditingModeInverted property.
     /// </summary>
-    //public static readonly DependencyProperty EditingModeInvertedProperty =
+    //static DependencyProperty EditingModeInvertedProperty =
     //        DependencyProperty.Register(
     //                "EditingModeInverted",
     //                typeof(InkCanvasEditingMode),
@@ -721,21 +660,8 @@ public:
     /// on edit mode change.
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    bool UseCustomCursor()
-    {
-        VerifyAccess();
-        return _useCustomCursor;
-    }
-    void SetUseCustomCursor(bool value)
-    {
-        VerifyAccess();
-
-        if ( _useCustomCursor != value )
-        {
-            _useCustomCursor = value;
-            UpdateCursor();
-        }
-    }
+    bool UseCustomCursor();
+    void SetUseCustomCursor(bool value);
 
     /// <summary>
     /// Gets or set if moving of selection is enabled
@@ -756,40 +682,21 @@ public:
     /// Read/Write access to the DefaultPacketDescription property.
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    QSharedPointer<StylusPointDescription> DefaultStylusPointDescription()
-    {
-        VerifyAccess();
-
-        return _defaultStylusPointDescription;
-    }
-    void SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescription> value)
-    {
-        VerifyAccess();
-
-        //
-        // no nulls allowed
-        //
-        if ( value == nullptr )
-        {
-            throw new std::exception("value");
-        }
-
-        _defaultStylusPointDescription = value;
-    }
+    QSharedPointer<StylusPointDescription> DefaultStylusPointDescription();
+    void SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescription> value);
 
     /// <summary>
     /// Read/Write the enabled ClipboardFormats
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     QList<InkCanvasClipboardFormat> PreferredPasteFormats();
-    void SetPreferredPasteFormats();
+    void SetPreferredPasteFormats(QList<InkCanvasClipboardFormat> value);
 
 
     /// <summary>
     ///     The StrokeErased Routed Event
     /// </summary>
-    //public static readonly RoutedEvent StrokeCollectedEvent =
-    //    EventManager.RegisterRoutedEvent("StrokeCollected", RoutingStrategy.Bubble, typeof(InkCanvasStrokeCollectedEventHandler), typeof(InkCanvas));
+    static RoutedEvent StrokeCollectedEvent;
 
     /// <summary>
     ///     Add / Remove StrokeCollected handler
@@ -807,23 +714,16 @@ public:
     //        RemoveHandler(InkCanvas.StrokeCollectedEvent, value);
    //     }
     //}
+signals:
+    void StrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
 
+protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">InkCanvasStrokeCollectedEventArgs& to raise the event with</param>
-    virtual void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-
-        RaiseEvent(e);
-    }
+    virtual void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
 
     /// <summary>
     /// Allows the InkCollectionBehavior to raise the StrokeCollected event via the protected virtual
@@ -832,16 +732,17 @@ public:
     /// <param name="userInitiated">true only if 100% of the stylusPoints that makes up the stroke
     /// came from EventArgs& with the UserInitiated flag set to true</param>
     /// <SecurityNote>
-    ///     Critical: Calls critical method GestureRecognizer.CriticalRecognize.  It is important
+    ///     Critical: Calls critical method GetGestureRecognizer().CriticalRecognize.  It is important
     ///         that this is only called if userInitiated is true.
     /// </SecurityNote>
     //[SecurityCritical]
     void RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs& e, bool userInitiated);
+
+public:
     /// <summary>
     ///     The Gesture Routed Event
     /// </summary>
-    //public static readonly RoutedEvent GestureEvent =
-     //   EventManager.RegisterRoutedEvent("Gesture", RoutingStrategy.Bubble, typeof(InkCanvasGestureEventHandler), typeof(InkCanvas));
+    static RoutedEvent GestureEvent;
 
     /// <summary>
     ///     Add / Remove Gesture handler
@@ -859,23 +760,17 @@ public:
     //        RemoveHandler(InkCanvas.GestureEvent, value);
     //    }
     //}
+signals:
+    void Gesture(InkCanvasGestureEventArgs& e);
+
+protected:
 
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">InkCanvasGestureEventArgs& to raise the event with</param>
-    virtual void OnGesture(InkCanvasGestureEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-
-        RaiseEvent(e);
-    }
+    virtual void OnGesture(InkCanvasGestureEventArgs& e);
 
     /// <summary>
     /// Raised when the InkCanvas.Strokes StrokeCollection has been replaced with another one
@@ -891,19 +786,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">InkCanvasStrokesChangedEventArgs& to raise the event with</param>
-    virtual void OnStrokesReplaced(InkCanvasStrokesReplacedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != StrokesReplaced)
-        //{
-            StrokesReplaced(e);
-        //}
-    }
+    virtual void OnStrokesReplaced(InkCanvasStrokesReplacedEventArgs& e);
 
     /// <summary>
     /// Raised when the InkCanvas.DefaultDrawingAttributes has been replaced with another one
@@ -919,19 +802,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">DrawingAttributesReplacedEventArgs& to raise the event with</param>
-    virtual void OnDefaultDrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if (e == nullptr)
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != DefaultDrawingAttributesReplaced)
-        //{
-            DefaultDrawingAttributesReplaced(e);
-        //}
-    }
+    virtual void OnDefaultDrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e);
 
     /// <summary>
     /// Private helper for raising DDAReplaced.  Invalidates the inking cursor
@@ -942,8 +813,7 @@ protected:
     /// <summary>
     ///     Event corresponds to ActiveEditingModeChanged
     /// </summary>
-    //public static readonly RoutedEvent ActiveEditingModeChangedEvent =
-    //    EventManager.RegisterRoutedEvent("ActiveEditingModeChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(InkCanvas));
+    static RoutedEvent ActiveEditingModeChangedEvent;
 
     /// <summary>
     ///     Add / Remove ActiveEditingModeChanged handler
@@ -960,23 +830,16 @@ protected:
     //        RemoveHandler(InkCanvas.ActiveEditingModeChangedEvent, value);
     //    }
     //}
+signals:
+    void ActiveEditingModeChanged(RoutedEventArgs & e);
 
+protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnActiveEditingModeChanged(RoutedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if (e == nullptr)
-        //{
-        //    throw new std::exception("e");
-        //}
-
-        RaiseEvent(e);
-    }
+    virtual void OnActiveEditingModeChanged(RoutedEventArgs& e);
 
     /// <summary>
     /// Private helper that raises ActiveEditingModeChanged
@@ -989,8 +852,7 @@ protected:
     /// <summary>
     ///     Event corresponds to EditingModeChanged
     /// </summary>
-    //public static readonly RoutedEvent EditingModeChangedEvent =
-    //    EventManager.RegisterRoutedEvent("EditingModeChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(InkCanvas));
+    static RoutedEvent EditingModeChangedEvent;
 
     /// <summary>
     ///     Add / Remove EditingModeChanged handler
@@ -1014,17 +876,8 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnEditingModeChanged(RoutedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
+    virtual void OnEditingModeChanged(RoutedEventArgs& e);
 
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-
-        RaiseEvent(e);
-    }
     /// <summary>
     /// Private helper that raises EditingModeChanged but first
     /// talks to the InkEditor about it
@@ -1039,8 +892,7 @@ protected:
     /// <summary>
     ///     Event corresponds to EditingModeInvertedChanged
     /// </summary>
-    //public static readonly RoutedEvent EditingModeInvertedChangedEvent =
-    //    EventManager.RegisterRoutedEvent("EditingModeInvertedChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(InkCanvas));
+    static RoutedEvent EditingModeInvertedChangedEvent;
 
     /// <summary>
     ///     Add / Remove EditingModeChanged handler
@@ -1064,17 +916,8 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnEditingModeInvertedChanged(RoutedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
+    virtual void OnEditingModeInvertedChanged(RoutedEventArgs& e);
 
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-
-        RaiseEvent(e);
-    }
     /// <summary>
     /// Private helper that raises EditingModeInvertedChanged but first
     /// talks to the InkEditor about it
@@ -1096,29 +939,13 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e"> InkCanvasSelectionEditingEventArgs& to raise the event with</param>
-    virtual void OnSelectionMoving( InkCanvasSelectionEditingEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionMoving)
-        //{
-            SelectionMoving(e);
-        //}
-    }
+    virtual void OnSelectionMoving( InkCanvasSelectionEditingEventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionMoving event via the protected virtual
     /// </summary>
     /// <param name="e"> InkCanvasSelectionEditingEventArgs& to raise the event with</param>
-    void RaiseSelectionMoving( InkCanvasSelectionEditingEventArgs& e)
-    {
-        //Debug.Assert(e != null, "EventArg can not be null");
-        OnSelectionMoving(e);
-    }
+    void RaiseSelectionMoving( InkCanvasSelectionEditingEventArgs& e);
 
     /// <summary>
     /// Occurs when the user has moved the selection, after they lift their stylus to commit the change.
@@ -1134,19 +961,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnSelectionMoved(EventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionMoved)
-        //{
-            SelectionMoved(e);
-        //}
-    }
+    virtual void OnSelectionMoved(EventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionMoved event via the protected virtual
@@ -1170,35 +985,18 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">InkCanvasStrokeErasingEventArgs& to raise the event with</param>
-    virtual void OnStrokeErasing(InkCanvasStrokeErasingEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != StrokeErasing)
-        //{
-            StrokeErasing(e);
-        //}
-    }
+    virtual void OnStrokeErasing(InkCanvasStrokeErasingEventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the InkErasing event via the protected virtual
     /// </summary>
     /// <param name="e">InkCanvasStrokeErasingEventArgs& to raise the event with</param>
-    void RaiseStrokeErasing(InkCanvasStrokeErasingEventArgs& e)
-    {
-        //Debug.Assert(e != null, "EventArg can not be null");
-        OnStrokeErasing(e);
-    }
+    void RaiseStrokeErasing(InkCanvasStrokeErasingEventArgs& e);
 
     /// <summary>
     ///     The StrokeErased Routed Event
     /// </summary>
-    //public static readonly RoutedEvent StrokeErasedEvent =
-    //    EventManager.RegisterRoutedEvent("StrokeErased", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(InkCanvas));
+    static RoutedEvent StrokeErasedEvent;
 
     /// <summary>
     ///     Add / Remove EditingModeChanged handler
@@ -1217,21 +1015,16 @@ protected:
     //    }
     //}
 
+signals:
+    void StrokeErased(RoutedEventArgs& e);
+
+protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnStrokeErased(RoutedEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        RaiseEvent(e);
-    }
+    virtual void OnStrokeErased(RoutedEventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the InkErasing event via the protected virtual
@@ -1252,29 +1045,13 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e"> InkCanvasSelectionEditingEventArgs& to raise the event with</param>
-    virtual void OnSelectionResizing( InkCanvasSelectionEditingEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionResizing)
-        //{
-            SelectionResizing(e);
-        //}
-    }
+    virtual void OnSelectionResizing( InkCanvasSelectionEditingEventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionResizing event via the protected virtual
     /// </summary>
     /// <param name="e"> InkCanvasSelectionEditingEventArgs& to raise the event with</param>
-    void RaiseSelectionResizing( InkCanvasSelectionEditingEventArgs& e)
-    {
-        //Debug.Assert(e != null, "EventArg can not be null");
-        OnSelectionResizing(e);
-    }
+    void RaiseSelectionResizing( InkCanvasSelectionEditingEventArgs& e);
 
     /// <summary>
     /// Occurs when the selection has been resized via UI interaction.
@@ -1289,19 +1066,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnSelectionResized(EventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionResized)
-        //{
-            SelectionResized(e);
-        //}
-    }
+    virtual void OnSelectionResized(EventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionResized event via the protected virtual
@@ -1323,29 +1088,13 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">InkCanvasSelectionChangingEventArgs& to raise the event with</param>
-    virtual void OnSelectionChanging(InkCanvasSelectionChangingEventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionChanging)
-        //{
-            SelectionChanging(e);
-        //}
-    }
+    virtual void OnSelectionChanging(InkCanvasSelectionChangingEventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionChanging event via the protected virtual
     /// </summary>
     /// <param name="e">InkCanvasSelectionChangingEventArgs& to raise the event with</param>
-    void RaiseSelectionChanging(InkCanvasSelectionChangingEventArgs& e)
-    {
-        //Debug.Assert(e != null, "EventArg can not be null");
-        OnSelectionChanging(e);
-    }
+    void RaiseSelectionChanging(InkCanvasSelectionChangingEventArgs& e);
 
     /// <summary>
     /// Occurs when the selection has been changed
@@ -1360,19 +1109,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnSelectionChanged(EventArgs& e)
-    {
-        // No need to invoke VerifyAccess since this method is thread free.
-
-        //if ( e == null )
-        //{
-        //    throw new std::exception("e");
-        //}
-        //if (nullptr != SelectionChanged)
-        //{
-            SelectionChanged(e);
-        //}
-    }
+    virtual void OnSelectionChanged(EventArgs& e);
 
     /// <summary>
     /// Allows the EditingBehaviors to raise the SelectionChanged event via the protected virtual
@@ -1385,10 +1122,10 @@ protected:
     /// are changed, we need to call the protected virtual OnVisualChildrenChanged on the InkCanvas
     /// so that subclasses can be notified
     /// </summary>
-    //void RaiseOnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
-    //{
-    //    OnVisualChildrenChanged(visualAdded, visualRemoved);
-    //}
+    void RaiseOnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved)
+    {
+        OnVisualChildrenChanged(visualAdded, visualRemoved);
+    }
 
 
 public:
@@ -1415,7 +1152,7 @@ public:
     /// <summary>
     /// provides access to the currently selected elements which are children of this InkCanvas
     /// </summary>
-    //QList<QWidget*> GetSelectedElements()
+    QList<UIElement*> GetSelectedElements();
     //{
     //    VerifyAccess();
     //    return InkCanvasSelection.SelectedElements;
@@ -1427,23 +1164,23 @@ public:
     QSharedPointer<StrokeCollection> GetSelectedStrokes();
 
     /// <summary>
-    /// Overload which calls the more complex version, passing null for selectedElements
+    /// Overload which calls the more complex version, passing nullptr for selectedElements
     /// </summary>
     /// <param name="selectedStrokes">The strokes to select</param>
     void Select(QSharedPointer<StrokeCollection> selectedStrokes);
 
     /// <summary>
-    /// Overload which calls the more complex version, passing null for selectedStrokes
+    /// Overload which calls the more complex version, passing nullptr for selectedStrokes
     /// </summary>
     /// <param name="selectedElements">The elements to select</param>
-    void Select(QList<QWidget*> selectedElements);
+    void Select(QList<UIElement*> selectedElements);
 
     /// <summary>
-    /// Overload which calls the more complex version, passing null for selectedStrokes
+    /// Overload which calls the more complex version, passing nullptr for selectedStrokes
     /// </summary>
     /// <param name="selectedStrokes">The strokes to select</param>
     /// <param name="selectedElements">The elements to select</param>
-    void Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<QWidget*> selectedElements);
+    void Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<UIElement*> selectedElements);
 
     /// <summary>
     /// Hit test on the selection
@@ -1455,11 +1192,7 @@ public:
     /// <summary>
     /// Copy the current selection in the InkCanvas to the clipboard
     /// </summary>
-    void CopySelection()
-    {
-        VerifyAccess();
-        PrivateCopySelection();
-    }
+    void CopySelection();
 
     /// <summary>
     /// Copy the current selection in the InkCanvas to the clipboard and then delete it
@@ -1499,7 +1232,7 @@ public:
     //{
         //             VerifyAccess();
 
-   //     if ( value == null )
+   //     if ( value == nullptr )
    //     {
     //        throw new std::exception("value");
     //    }
@@ -1545,11 +1278,7 @@ public:
     /// <summary>
     /// Protected DynamicRenderer* property.
     /// </summary>
-    DynamicRenderer* GetDynamicRenderer()
-    {
-        VerifyAccess();
-        return &InternalDynamicRenderer();
-    }
+    DynamicRenderer* GetDynamicRenderer();
     void SetDynamicRenderer(DynamicRenderer* value);
 
     /// <summary>
@@ -1562,7 +1291,7 @@ public:
     /// <summary>
     /// Deselect the current selection
     /// </summary>
-    //internal static readonly RoutedCommand DeselectCommand = new RoutedCommand("Deselect", typeof(InkCanvas));
+    static RoutedCommand DeselectCommand;
 
 private:
     /// <summary>
@@ -1583,13 +1312,13 @@ private:
 
 public:
     /// <summary>
-    /// This method pastes data from an IDataObject object
+    /// This method pastes data from an DataObject object
     /// </summary>
-    //void PasteFromDataObject(IDataObject dataObj, Point point);
+    void PasteFromDataObject(DataObject const * dataObj, QPointF const & point);
 
     /// <summary>
     /// Copies the InkCanvas contents to a DataObject and returns it to the caller.
-    ///  Can return NULL for DataObject.
+    ///  Can return nullptr for DataObject.
     /// </summary>
     /// <SecurityNote>
     ///     Critical: Clipboard.SetDataObject will invoke DataObject.DataStore.GetFormats.
@@ -1598,7 +1327,7 @@ public:
     ///     TreatAsSafe: There is no input here. The ISF data are safe to being put in the clipboard.
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    //InkCanvasClipboardDataFormats CopyToDataObject();
+    InkCanvasClipboardDataFormats CopyToDataObject();
 
     /// <summary>
     /// Read-only property of the associated EditingCoordinator.
@@ -1609,7 +1338,7 @@ public:
     }
 
     /// <summary>
-    /// Internal access to the protected DynamicRenderer.  Can be null.
+    /// Internal access to the protected DynamicRenderer.  Can be nullptr.
     /// </summary>
     DynamicRenderer* InternalDynamicRenderer()
     {
@@ -1629,7 +1358,7 @@ public:
     /// <summary>
     /// Internal helper called by the LassoSelectionBehavior
     /// </summary>
-    //void BeginDynamicSelection(Visual visual);
+    void BeginDynamicSelection(UIElement* visual);
 
     /// <summary>
     /// Internal helper called by LassoSelectionBehavior to update the display
@@ -1641,7 +1370,7 @@ public:
     /// <summary>
     /// Internal helper used by LassoSelectionBehavior
     /// </summary>
-    QSharedPointer<StrokeCollection> EndDynamicSelection(Visual* visual);
+    QSharedPointer<StrokeCollection> EndDynamicSelection(UIElement* visual);
 
     /// <summary>
     /// Clears the selection in the ink canvas
@@ -1669,7 +1398,7 @@ public:
     /// Helper that creates selection for an InkCanvas.  Used by the SelectedStrokes and
     /// SelectedElements properties
     /// </summary>
-    void ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> strokes, QVector<QWidget*> elements);
+    void ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements);
 
 
     /// <summary>
@@ -1678,7 +1407,7 @@ public:
     /// <param name="validStrokes">validStrokes</param>
     /// <param name="validElements">validElements</param>
     /// <param name="raiseSelectionChanged">raiseSelectionChanged</param>
-    void CoreChangeSelection(QSharedPointer<StrokeCollection> validStrokes, QList<QWidget*> validElements, bool raiseSelectionChanged);
+    void CoreChangeSelection(QSharedPointer<StrokeCollection> validStrokes, QList<UIElement*> validElements, bool raiseSelectionChanged);
 
 #if DEBUG_LASSO_FEEDBACK
     ContainerVisual RendererRootContainer()
@@ -1715,16 +1444,16 @@ private:
     QSharedPointer<StrokeCollection> ValidateSelectedStrokes(QSharedPointer<StrokeCollection> strokes);
 
     /// <summary>
-    /// Private helper used to ensure that a QWidget* argument passed in
+    /// Private helper used to ensure that a UIElement* argument passed in
     /// is valid.
     /// </summary>
-    QVector<QWidget*> ValidateSelectedElements(QList<QWidget*> selectedElements);
+    QList<UIElement*> ValidateSelectedElements(QList<UIElement*> selectedElements);
 
     /// <summary>
     /// Helper method used by DesignActivation to see if an element
     /// has this InkCanvas as an Ancestor
     /// </summary>
-    bool InkCanvasIsAncestorOf(QWidget* element);
+    bool InkCanvasIsAncestorOf(UIElement* element);
 
     /// <summary>
     /// Handler called whenever changes are made to properties of the DefaultDrawingAttributes
@@ -1742,10 +1471,7 @@ public:
     /// <summary>
     /// Helper method used to set up the DynamicRenderer.
     /// </summary>
-    void UpdateDynamicRenderer()
-    {
-        UpdateDynamicRenderer(DefaultDrawingAttributes());
-    }
+    void UpdateDynamicRenderer();
 
 private:
     /// <summary>
@@ -1771,74 +1497,7 @@ private:
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    /*
-    static void _OnCommandExecuted(object sender, ExecutedRoutedEventArgs& args)
-    {
-        ICommand command = args.Command;
-        InkCanvas inkCanvas = sender as InkCanvas;
-
-        //Debug.Assert(inkCanvas != nullptr);
-
-        if ( inkCanvas.IsEnabled && !inkCanvas.EditingCoordinator.UserIsEditing )
-        {
-            if ( command == ApplicationCommands.Delete )
-            {
-                inkCanvas.DeleteCurrentSelection(true, true);
-            }
-            else if ( command == ApplicationCommands.Cut )
-            {
-                inkCanvas.CutSelection();
-            }
-            else if ( command == ApplicationCommands.Copy )
-            {
-                inkCanvas.CopySelection();
-            }
-            else if ( command == ApplicationCommands.SelectAll )
-            {
-                if ( inkCanvas.ActiveEditingMode == InkCanvasEditingMode.Select )
-                {
-                    QList<QWidget*> children = nullptr;
-                    QWidget*Collection QWidget*Collection = inkCanvas.Children;
-                    if ( QWidget*Collection.Count > 0 )
-                    {
-                        //QWidget*Collection doesn't implement QList<QWidget*>
-                        //for some reason
-                        QWidget*[] QWidget*Array = new QWidget*[QWidget*Collection.Count];
-                        for ( int i = 0; i < QWidget*Collection.Count; i++ )
-                        {
-                            QWidget*Array[i] = QWidget*Collection[i];
-                        }
-                        children = QWidget*Array;
-                    }
-                    inkCanvas.Select(inkCanvas.Strokes, children);
-                }
-            }
-            else if ( command == ApplicationCommands.Paste )
-            {
-                try
-                {
-                    inkCanvas.Paste();
-                }
-                // Eat it and do nothing if one of the following exceptions is caught.
-                catch ( System.Runtime.InteropServices.COMException )
-                {
-                    // The window may be destroyed which could cause the opening failed..
-                }
-                catch ( XamlParseException )
-                {
-                    // The Xaml parser fails
-                }
-                catch ( ArgumentException )
-                {
-                    // The ISF decoder fails
-                }
-            }
-            else if ( command == InkCanvas.DeselectCommand )
-            {
-                inkCanvas.ClearSelectionRaiseSelectionChanging();
-            }
-        }
-    }*/
+    static void _OnCommandExecuted(DependencyObject& sender, ExecutedRoutedEventArgs& args);
 
     /// <summary>
     /// A class handler for querying the enabled status of the commands.
@@ -1864,14 +1523,14 @@ private:
             // If user is editing, we should disable all commands.
             && !inkCanvas.EditingCoordinator.UserIsEditing )
         {
-            if ( command == ApplicationCommands.Delete
-                || command == ApplicationCommands.Cut
-                || command == ApplicationCommands.Copy
+            if ( command == ApplicationCommands::Delete
+                || command == ApplicationCommands::Cut
+                || command == ApplicationCommands::Copy
                 || command == InkCanvas.DeselectCommand )
             {
                 args.CanExecute = inkCanvas.InkCanvasSelection.HasSelection;
             }
-            else if ( command == ApplicationCommands.Paste )
+            else if ( command == ApplicationCommands::Paste )
             {
                 try
                 {
@@ -1886,10 +1545,10 @@ private:
                     args.CanExecute = false;
                 }
             }
-            else if ( command == ApplicationCommands.SelectAll )
+            else if ( command == ApplicationCommands::SelectAll )
             {
                 //anything to select?
-                args.CanExecute = ( inkCanvas.ActiveEditingMode == InkCanvasEditingMode.Select
+                args.CanExecute = ( inkCanvas.ActiveEditingMode() == InkCanvasEditingMode.Select
                                         && (inkCanvas.Strokes.Count > 0 || inkCanvas.Children.Count > 0));
             }
         }
@@ -1902,8 +1561,8 @@ private:
 
         // NTRAID#WINDOWS-1371659-2005/11/08-waynezen,
         // Mark Handled as true so that the clipboard commands stops routing to InkCanvas' ancestors.
-        if ( command == ApplicationCommands.Cut || command == ApplicationCommands.Copy
-            || command == ApplicationCommands.Paste )
+        if ( command == ApplicationCommands::Cut || command == ApplicationCommands::Copy
+            || command == ApplicationCommands::Paste )
         {
             args.Handled = true;
         }
@@ -1919,7 +1578,7 @@ private:
     /// <typeparam name="TEventArgs"></typeparam>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnDeviceDown(EventArgs& e);
+    static void _OnDeviceDown(DependencyObject&sender, EventArgs& e);
 
     /// <summary>
     /// _OnDeviceUp
@@ -1927,14 +1586,14 @@ private:
     /// <typeparam name="TEventArgs"></typeparam>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnDeviceUp(EventArgs& e);
+    static void _OnDeviceUp(DependencyObject&sender, EventArgs& e);
 
     /// <summary>
     /// _OnQueryCursor
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnQueryCursor(QueryCursorEventArgs& e);
+    static void _OnQueryCursor(DependencyObject&sender, QueryCursorEventArgs& e);
 
 public:
     /// <summary>
@@ -1961,7 +1620,7 @@ public:
 
     /*
     /// <summary>
-    /// This is a binding converter which translates the InkCanvas.ActiveEditingMode to QWidget*.Visibility.
+    /// This is a binding converter which translates the InkCanvas.ActiveEditingMode() to UIElement*.Visibility.
     /// </summary>
     class ActiveEditingMode2VisibilityConverter : IValueConverter
     {
@@ -1983,16 +1642,22 @@ public:
         public object ConvertBack(object o, Type type, object parameter, System.Globalization.CultureInfo culture)
         {
             // Non-reversed convertion
-            return null;
+            return nullptr;
         }
     };
     */
 
 
     /// <summary>
-    /// The element that represents the selected ink strokes, if any exist.  Will frequently be null.
+    /// The element that represents the selected ink strokes, if any exist.  Will frequently be nullptr.
     /// </summary>
 private:
+    friend class EditingCoordinator;
+    friend class InkCollectionBehavior;
+    friend class EraserBehavior;
+    friend class InkCanvasSelection;
+    friend class InkCanvasInnerCanvas;
+
     InkCanvasSelection*          _selection = nullptr;
     InkCanvasSelectionAdorner*   _selectionAdorner = nullptr;
     InkCanvasFeedbackAdorner*    _feedbackAdorner = nullptr;

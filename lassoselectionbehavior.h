@@ -6,7 +6,9 @@
 class LassoHelper;
 class IncrementalLassoHitTester;
 class LassoSelectionChangedEventArgs;
-class ElementCornerPoints;
+class InkCanvasInnerCanvas;
+class Stroke;
+class UIElement;
 
 class LassoSelectionBehavior : public StylusEditingBehavior
 {
@@ -16,6 +18,7 @@ class LassoSelectionBehavior : public StylusEditingBehavior
     //
     //-------------------------------------------------------------------------------
 
+    struct ElementCornerPoints;
     ////#region Constructors
 public:
     LassoSelectionBehavior(EditingCoordinator& editingCoordinator, InkCanvas& inkCanvas);
@@ -103,19 +106,19 @@ protected:
     /// <summary>
     /// Private helper that will hit test for elements
     /// </summary>
-    QList<QWidget*> HitTestForElements();
+    QList<UIElement*> HitTestForElements();
 
     /// <summary>
     /// Private helper that will turn an element in any nesting level into a stroke
     /// in the InkCanvas's coordinate space.  This method calls itself recursively
     /// </summary>
-    void HitTestElement(InkCanvasInnerCanvas* parent, QWidget* uiElement, QList<QWidget*> elementsToSelect);
+    void HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, QList<UIElement*> elementsToSelect);
 
     /// <summary>
     /// Private helper that takes an element and transforms it's 4 points
     /// into the InkCanvas's space
     /// </summary>
-    static ElementCornerPoints GetTransformedElementCornerPoints(InkCanvasInnerCanvas* canvas, QWidget* childElement);
+    static ElementCornerPoints GetTransformedElementCornerPoints(InkCanvasInnerCanvas& canvas, UIElement* childElement);
 
     /// <summary>
     /// Private helper that will generate a grid of points 5 px apart given the elements bounding points
@@ -166,7 +169,7 @@ protected:
     /// <param name="point"></param>
     /// <param name="tappedStroke"></param>
     /// <param name="tappedElement"></param>
-    void TapSelectObject(QPointF const & point, QSharedPointer<Stroke>& tappedStroke, QWidget*& tappedElement);
+    void TapSelectObject(QPointF const & point, QSharedPointer<Stroke>& tappedStroke, UIElement*& tappedElement);
 
     //#endregion Private Methods
 
@@ -190,7 +193,6 @@ private:
     const double            _minThreshold = 15;
     const int               _percentIntersectForInk = 80;
     const int               _percentIntersectForElements = 60;
-
 
 #if DEBUG_LASSO_FEEDBACK
     ContainerVisual _tempVisual;

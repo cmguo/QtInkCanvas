@@ -143,7 +143,7 @@ void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
         QPointF edge = vertex - prevVertex;
 
         // Verify that the next vertex is on the right side off the edge vector.
-        double det = StylusPoint::Determinant(edge, vertices[(i + 1) % vertices.size()] - vertex);
+        double det = Determinant(edge, vertices[(i + 1) % vertices.size()] - vertex);
         if (0 > det)
         {
             counterClockIndex++;

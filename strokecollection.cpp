@@ -8,6 +8,8 @@
 #include "styluspoint.h"
 #include "strokerenderer.h"
 #include "drawingcontext.h"
+#include "finallyhelper.h"
+#include "notifycollectionchangedeventargs.h"
 
 #include <QIODevice>
 #include <QBuffer>
@@ -239,9 +241,9 @@ void StrokeCollection::Transform(QMatrix const & transformMatrix, bool applyToSt
 /// <summary>
 /// Performs a deep copy of the StrokeCollection.
 /// </summary>
-StrokeCollection * StrokeCollection::Clone()
+QSharedPointer<StrokeCollection> StrokeCollection::Clone()
 {
-    StrokeCollection * clone = new StrokeCollection();
+   QSharedPointer<StrokeCollection> clone(new StrokeCollection());
     for ( QSharedPointer<Stroke> s : (*this) )
     {
         // samgeo - Presharp issue
@@ -549,6 +551,8 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
             //Replace
             args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Replace, *e.Added(), *e.Removed(), e.Index());
         }
+        _collectionChanged(*args);
+        delete  args;
     }
 }
 
@@ -799,35 +803,36 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
         }
         else
         {
-            StrokeInfo* strokeInfo = nullptr;
-            try
-            {
-                strokeInfo = new StrokeInfo(stroke);
 
-                QSharedPointer<StylusPointCollection> stylusPoints = strokeInfo->StylusPoints();
-                double target = strokeInfo->TotalWeight() * percentageWithinLasso / 100.0 - Stroke::PercentageTolerance;
+
+            //try
+            {
+                StrokeInfo strokeInfo(stroke);
+
+                QSharedPointer<StylusPointCollection> stylusPoints = strokeInfo.StylusPoints();
+                double target = strokeInfo.TotalWeight() * percentageWithinLasso / 100.0 - Stroke::PercentageTolerance;
 
                 for (int i = 0; i < stylusPoints->size(); i++)
                 {
                     if (true == lasso->Contains((*stylusPoints)[i]))
                     {
-                        target -= strokeInfo->GetPointWeight(i);
+                        target -= strokeInfo.GetPointWeight(i);
                         if (DoubleUtil::LessThanOrClose(target, 0))
                         {
-                            lassoedStrokes->Add(stroke);
+                            lassoedStrokes->append(stroke);
                             break;
                         }
                     }
                 }
             }
-            finally
-            {
-                if (strokeInfo != nullptr)
-                {
+            //finally
+            //{
+            //    if (strokeInfo != nullptr)
+            //    {
                     //detach from event handlers, or else we leak.
-                    strokeInfo->Detach();
-                }
-            }
+            //        strokeInfo->Detach();
+            //    }
+            //}
         }
     }
 
@@ -867,7 +872,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QRectF const & bounds
 #pragma warning suppress 6506
         if (true == stroke->HitTest(bounds, percentageWithinBounds))
         {
-            hits->Add(stroke);
+            hits->append(stroke);
         }
 #pragma warning restore 1634, 1691
     }
@@ -1059,6 +1064,11 @@ void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& e
     }
 }
 
+static bool operator<(QColor l, QColor r)
+{
+    return l.rgba() < r.rgba();
+}
+
 /// <summary>
 /// Render the StrokeCollection under the specified DrawingContext.
 /// </summary>
@@ -1100,7 +1110,11 @@ void StrokeCollection::Draw(DrawingContext& context)
     for (QList<QSharedPointer<Stroke>> strokes : highLighters.values())
     {
         context.PushOpacity(StrokeRenderer::HighlighterOpacity);
-        try
+        FinallyHelper final([&context](){
+            context.Pop();
+        });
+
+        //try
         {
             for (QSharedPointer<Stroke> stroke : strokes)
             {
@@ -1108,10 +1122,10 @@ void StrokeCollection::Draw(DrawingContext& context)
                                     false /*Don't draw selected stroke as hollow*/);
             }
         }
-        finally
-        {
-            context.Pop();
-        }
+        //finally
+        //{
+        //    context.Pop();
+        //}
     }
 
     for (QSharedPointer<Stroke> stroke : solidStrokes)
@@ -1163,7 +1177,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::PointHitTest(QPointF const & 
         QSharedPointer<Stroke> stroke = (*this)[i];
         if (stroke->HitTest(QVector<QPointF>({ point }), shape))
         {
-            hits->Add(stroke);
+            hits->append(stroke);
         }
     }
 
@@ -1176,7 +1190,7 @@ void StrokeCollection::UpdateStrokeCollection(QSharedPointer<Stroke> original, Q
     //System.Diagnostics.Debug.Assert(index >= 0 && index < this.Count);
     if (toReplace->size() == 0)
     {
-        Remove(original);
+        removeOne(original);
         index--;
     }
     else if (!(toReplace->size() == 1 && (*toReplace)[0] == original))

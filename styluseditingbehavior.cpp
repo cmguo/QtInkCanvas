@@ -1,4 +1,5 @@
 #include "styluseditingbehavior.h"
+#include "finallyhelper.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -40,14 +41,17 @@ void StylusEditingBehavior::SwitchToMode(InkCanvasEditingMode mode)
     // the user input could kick in AddStylusPoints. So GetEditingCoordinator().UserIsEditing() flag may be messed up.
     // Now we use _disableInput to disable the input during changing the mode in mid-stroke.
     _disableInput = true;
-    try
+    FinallyHelper final([this](){
+        _disableInput = false;
+    });
+    //try
     {
         OnSwitchToMode(mode);
     }
-    finally
-    {
-        _disableInput = false;
-    }
+    //finally
+    //{
+    //    _disableInput = false;
+    //}
 }
 
 //#endregion Methods

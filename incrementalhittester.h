@@ -16,6 +16,10 @@ class StrokeIntersection;
 class StrokeCollectionChangedEventArgs;
 class StylusShape;
 
+/// <summary>
+/// This class serves as both the base class and public interface for
+/// incremental hit-testing implementaions.
+/// </summary>
 class IncrementalHitTester : public QObject
 {
     Q_OBJECT
@@ -28,42 +32,19 @@ public:
     /// Adds a point representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="point">a point that represents an incremental move of the hitting tool</param>
-    void AddPoint(QPointF const & point)
-    {
-        AddPoints({ point });
-    }
+    void AddPoint(QPointF const & point);
 
     /// <summary>
     /// Adds an array of points representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="points">points representing an incremental move of the hitting tool</param>
-    void AddPoints(QVector<QPointF> const & points)
-    {
-        //if (points == nullptr)
-        //{
-        //    throw new System.ArgumentNullException("points");
-        //}
-
-        if (points.size() == 0)
-        {
-            throw std::exception("points");
-        }
-
-        if (false == _fValid)
-        {
-            throw std::exception("SR.Get(SRID.EndHitTestingCalled");
-        }
-
-        //System.Diagnostics.Debug.Assert(_strokes != nullptr);
-
-        AddPointsCore(points);
-    }
+    void AddPoints(QVector<QPointF> const & points);
 
     /// <summary>
     /// Adds a StylusPacket representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
-    void AddPoints(StylusPointCollection const & stylusPoints);
+    void AddPoints(QSharedPointer<StylusPointCollection> const & stylusPoints);
 
 
     /// <summary>

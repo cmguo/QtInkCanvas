@@ -1,5 +1,10 @@
 #include "selectioneditor.h"
 #include "inkcanvas.h"
+#include "mousebuttoneventargs.h"
+#include "selectioneditingbehavior.h"
+#include "lassoselectionbehavior.h"
+#include "inkcanvasselection.h"
+#include "inkcanvasselectionadorner.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -32,7 +37,7 @@ SelectionEditor::SelectionEditor(EditingCoordinator& editingCoordinator, InkCanv
 /// </summary>
 void SelectionEditor::OnInkCanvasSelectionChanged()
 {
-    QPointF currentPosition = Mouse.PrimaryDevice.GetPosition(GetInkCanvas().SelectionAdorner());
+    QPointF currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(currentPosition);
 }
 
@@ -52,12 +57,16 @@ void SelectionEditor::OnInkCanvasSelectionChanged()
 void SelectionEditor::OnActivate()
 {
     // Add mouse event handles to GetInkCanvas().SelectionAdorner()
-    //GetInkCanvas().SelectionAdorner().AddHandler(Mouse.MouseDownEvent, new MouseButtonEventHandler(OnAdornerMouseButtonDownEvent));
-    //GetInkCanvas().SelectionAdorner().AddHandler(Mouse.MouseMoveEvent, new MouseEventHandler(OnAdornerMouseMoveEvent));
-    //GetInkCanvas().SelectionAdorner().AddHandler(Mouse.MouseEnterEvent, new MouseEventHandler(OnAdornerMouseMoveEvent));
-    //GetInkCanvas().SelectionAdorner().AddHandler(Mouse.MouseLeaveEvent, new MouseEventHandler(OnAdornerMouseLeaveEvent));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseDownEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseButtonEventArgs, &SelectionEditor::OnAdornerMouseButtonDownEvent>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseMoveEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseEnterEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseLeaveEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseLeaveEvent>(this));
 
-    Point currentPosition = Mouse.PrimaryDevice.GetPosition(GetInkCanvas().SelectionAdorner());
+    QPointF currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(currentPosition);
 }
 
@@ -67,10 +76,14 @@ void SelectionEditor::OnActivate()
 void SelectionEditor::OnDeactivate()
 {
     // Remove all event hanlders.
-    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse.MouseDownEvent, new MouseButtonEventHandler(OnAdornerMouseButtonDownEvent));
-    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse.MouseMoveEvent, new MouseEventHandler(OnAdornerMouseMoveEvent));
-    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse.MouseEnterEvent, new MouseEventHandler(OnAdornerMouseMoveEvent));
-    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse.MouseLeaveEvent, new MouseEventHandler(OnAdornerMouseLeaveEvent));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseDownEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseButtonEventArgs, &SelectionEditor::OnAdornerMouseButtonDownEvent>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseMoveEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseEnterEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseLeaveEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseLeaveEvent>(this));
 
 }
 
@@ -80,6 +93,7 @@ void SelectionEditor::OnDeactivate()
 /// <param name="commit"></param>
 void SelectionEditor::OnCommit(bool commit)
 {
+    (void)commit;
     // Nothing to do.
 }
 
@@ -95,11 +109,11 @@ QCursor SelectionEditor::GetCurrentCursor()
     if ( GetInkCanvas().SelectionAdorner().IsMouseOver() )
     {
         return PenCursorManager.GetSelectionCursor(_hitResult,
-            (this.GetInkCanvas().FlowDirection == FlowDirection.RightToLeft));
+            (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft));
     }
     else
     {
-        return nullptr;
+        return QCursor();
     }
 }
 
@@ -128,12 +142,12 @@ QCursor SelectionEditor::GetCurrentCursor()
 void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
 {
     // If the ButtonDown is raised by RightMouse, we should just bail out.
-    if ( (args.StylusDevice == nullptr && args.LeftButton != MouseButtonState.Pressed) )
+    if ( (args.GetStylusDevice() == nullptr && args.LeftButton() != MouseButtonState::Pressed) )
     {
         return;
     }
 
-    QPointF pointOnSelectionAdorner = args.GetPosition(GetInkCanvas().SelectionAdorner());
+    QPointF pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
 
     InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::None;
 
@@ -142,7 +156,7 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
     if ( hitResult != InkCanvasSelectionHitResult::None )
     {
         // We always use MouseDevice for the selection editing.
-        GetEditingCoordinator().ActivateDynamicBehavior(GetEditingCoordinator().GetSelectionEditingBehavior(), args.Device);
+        GetEditingCoordinator().ActivateDynamicBehavior(GetEditingCoordinator().GetSelectionEditingBehavior(), args.Device());
     }
     else
     {
@@ -150,9 +164,9 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
         //push selection and we're done
         //
         // If the current captured device is Stylus, we should activate the LassoSelectionBehavior with
-        // the Stylus. Otherwise, use mouse.
+        // the Stylus. Otherwise, use Mouse::
         GetEditingCoordinator().ActivateDynamicBehavior(GetEditingCoordinator().GetLassoSelectionBehavior(),
-            args.StylusDevice != nullptr ? args.StylusDevice : args.Device);
+            args.GetStylusDevice() != nullptr ? args.GetStylusDevice() : args.Device());
     }
 }
 
@@ -170,7 +184,7 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
 //[SecurityCritical, SecurityTreatAsSafe]
 void SelectionEditor::OnAdornerMouseMoveEvent(MouseEventArgs& args)
 {
-    Point pointOnSelectionAdorner = args.GetPosition(GetInkCanvas().SelectionAdorner());
+    QPointF pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(pointOnSelectionAdorner);
 }
 
@@ -181,6 +195,7 @@ void SelectionEditor::OnAdornerMouseMoveEvent(MouseEventArgs& args)
 /// <param name="args"></param>
 void SelectionEditor::OnAdornerMouseLeaveEvent(MouseEventArgs& args)
 {
+    (void) args;
     // We are leaving the adorner, update our cursor.
     GetEditingCoordinator().InvalidateBehaviorCursor(this);
 }
@@ -203,11 +218,11 @@ InkCanvasSelectionHitResult SelectionEditor::HitTestOnSelectionAdorner(QPointF c
         // If so, reset the grab handle.
         if ( hitResult >= InkCanvasSelectionHitResult::TopLeft && hitResult <= InkCanvasSelectionHitResult::Left )
         {
-            hitResult = GetInkCanvas().ResizeEnabled ? hitResult : InkCanvasSelectionHitResult::None;
+            hitResult = GetInkCanvas().ResizeEnabled() ? hitResult : InkCanvasSelectionHitResult::None;
         }
         else if ( hitResult == InkCanvasSelectionHitResult::Selection )
         {
-            hitResult = GetInkCanvas().MoveEnabled ? hitResult : InkCanvasSelectionHitResult::None;
+            hitResult = GetInkCanvas().MoveEnabled() ? hitResult : InkCanvasSelectionHitResult::None;
         }
     }
 
