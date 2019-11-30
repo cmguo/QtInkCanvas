@@ -62,7 +62,7 @@ void DrawingAttributes::SetColor(QColor value)
 /// <summary>
 /// The StylusTip used to draw the stroke
 /// </summary>
-StylusTip DrawingAttributes::StylusTip() const
+StylusTip DrawingAttributes::GetStylusTip() const
 {
     //prevent boxing / unboxing if possible
     if (!_extendedProperties.contains(KnownIds::StylusTip))
@@ -78,12 +78,12 @@ StylusTip DrawingAttributes::StylusTip() const
     }
 }
 
-void DrawingAttributes::SetStylusTip(enum StylusTip value)
+void DrawingAttributes::SetStylusTip(StylusTip value)
 {
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
     // Validation of value is done in EPC
-    SetExtendedPropertyBackedProperty(KnownIds::StylusTip, value);
+    SetExtendedPropertyBackedProperty(KnownIds::StylusTip, QVariant::fromValue(value));
 }
 
 /// <summary>
@@ -95,7 +95,7 @@ QMatrix DrawingAttributes::StylusTipTransform() const
     if (!_extendedProperties.contains(KnownIds::StylusTipTransform))
     {
         //Debug.Assert(Matrix.Identity == (Matrix)GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform));
-        return QMatrix(1, 0, 0, 1, 0, 0);
+        return QMatrix();
     }
     return GetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform).value<QMatrix>();
 }
@@ -185,7 +185,7 @@ void DrawingAttributes::SetFitToCurve(bool value)
     else
     {
         //turn off the bit
-        flags &= ~DrawingFlag::FitToCurve;
+        flags.setFlag(DrawingFlag::FitToCurve, false);
     }
     SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, QVariant::fromValue(flags));
 }
@@ -211,7 +211,7 @@ void DrawingAttributes::SetIgnorePressure(bool value)
     else
     {
         //turn off the bit
-        flags &= ~DrawingFlag::IgnorePressure;
+        flags.setFlag(DrawingFlag::IgnorePressure, false);
     }
     SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, QVariant::fromValue(flags));
 }
@@ -321,7 +321,7 @@ QMap<QUuid, QVariant> DrawingAttributes::CopyPropertyData()
 StylusShape * DrawingAttributes::GetStylusShape()
 {
     StylusShape * s;
-    if (StylusTip() == StylusTip::Rectangle)
+    if (GetStylusTip() == StylusTip::Rectangle)
     {
         s =  new RectangleStylusShape(Width(), Height());
     }
@@ -450,12 +450,12 @@ QVariant DrawingAttributes::GetDefaultDrawingAttributeValue(QUuid const & id)
     }
     if (KnownIds::StylusTip == id)
     {
-        return StylusTip::Ellipse;
+        return QVariant::fromValue(StylusTip::Ellipse);
     }
     if (KnownIds::DrawingFlags == id)
     {
         //note that in this implementation, FitToCurve is false by default
-        return DrawingFlag(DrawingFlag::AntiAliased);
+        return QVariant::fromValue(DrawingFlags({DrawingFlag::AntiAliased}));
     }
     if (KnownIds::StylusHeight == id)
     {
@@ -463,7 +463,7 @@ QVariant DrawingAttributes::GetDefaultDrawingAttributeValue(QUuid const & id)
     }
     if (KnownIds::StylusTipTransform == id)
     {
-        return QMatrix(1, 0, 0, 1, 0, 0);
+        return QMatrix();
     }
     if (KnownIds::IsHighlighter == id)
     {
@@ -530,7 +530,7 @@ bool DrawingAttributes::GeometricallyEqual(DrawingAttributes const & left, Drawi
         return true;
     }
 
-    if (left.StylusTip() == right.StylusTip() &&
+    if (left.GetStylusTip() == right.GetStylusTip() &&
         left.StylusTipTransform() == right.StylusTipTransform() &&
         DoubleUtil::AreClose(left.Width(), right.Width()) &&
         DoubleUtil::AreClose(left.Height(), right.Height()) &&

@@ -1,22 +1,18 @@
 #ifndef UIELEMENT_H
 #define UIELEMENT_H
 
-#include "dependencyobject.h"
+#include "visual.h"
 #include "routedeventargs.h"
-#include "pointhittestparameters.h"
-
-#include <QWidget>
 
 #include <functional>
 
 class RoutedEvent;
 class RoutedEventArgs;
 class Geometry;
-class HitTestResult;
 
 class StylusPlugIn;
 
-class UIElement : public QWidget, public DependencyObject
+class UIElement : public Visual
 {
     Q_OBJECT
 public:
@@ -24,7 +20,8 @@ public:
 
     static RoutedEvent LostStylusCaptureEvent;
 
-    static RoutedEvent LayoutUpdated;
+signals:
+    void LayoutUpdated(EventArgs&);
 
 public:
     UIElement();
@@ -33,12 +30,15 @@ public:
 
     QList<UIElement*> Children();
 
-    void AddVisualChild(UIElement *);
+    UIElement* Parent();
 
     void InvalidateVisual();
 
     template<typename T>
-    bool InstanceOf();
+    bool InstanceOf()
+    {
+        return metaObject() == &T::staticMetaObject;
+    }
 
     QTransform LayoutTransform();
 
@@ -72,8 +72,6 @@ public:
 
     bool IsStylusOver();
 
-    void SetOpacity(double opacity);
-
     bool Focus();
 
     void CaptureMouse();
@@ -106,13 +104,9 @@ public:
 
     void SetHeight(double);
 
-    QList<StylusPlugIn*> StylusPlugIns();
-
-    UIElement* GetParent();
+    QList<StylusPlugIn*>& StylusPlugIns();
 
 protected:
-    virtual void OnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved);
-
     virtual void OnChildDesiredSizeChanged(UIElement* child);
 
     virtual QList<UIElement*> CreateUIElementCollection(UIElement* logicalParent);
@@ -127,8 +121,6 @@ protected:
 
     virtual QSizeF MeasureOverride(QSizeF availableSize);
 
-    virtual HitTestResult HitTestCore(PointHitTestParameters hitTestParams);
-
 protected:
 
 private:
@@ -137,6 +129,7 @@ private:
 private:
     static QMap<RoutedEvent*, int> events_;
     QMap<int, QList<RoutedEventHandler>> handlers_;
+    QList<StylusPlugIn*> stylusPlugIns_;
 };
 
 enum class FlowDirection
@@ -171,6 +164,11 @@ public:
     void BringIntoView(QRectF);
 
     FlowDirection GetFlowDirection();
+
+private:
+    virtual int VisualChildrenCount();
+
+    virtual Visual* GetVisualChild(int index);
 };
 
 class Adorner : public FrameworkElement

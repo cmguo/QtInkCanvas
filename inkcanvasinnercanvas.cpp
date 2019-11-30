@@ -65,7 +65,7 @@ void InkCanvasInnerCanvas::OnVisualChildrenChanged(DependencyObject* visualAdded
 /// <returns>Computed desired size.</returns>
 QSizeF InkCanvasInnerCanvas::MeasureOverride(QSizeF constraint)
 {
-    QSizeF childConstraint = QSizeF(Double.PositiveInfinity, Double.PositiveInfinity);
+    QSizeF childConstraint = QSizeF(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
 
     QSizeF newSize;
     for ( UIElement* child : InternalChildren() )
@@ -245,7 +245,7 @@ UIElement* InkCanvasInnerCanvas::HitTestOnElements(QPointF point)
         UIElement*visual = static_cast<UIElement*>(hitTestResult.VisualHit());
         //System.Windows.Media.Media3D.Visual3D visual3D = hitTestResult.VisualHit as System.Windows.Media.Media3D.Visual3D;
 
-        DependencyObject* currentObject = nullptr;
+        UIElement* currentObject = nullptr;
         if ( visual != nullptr )
         {
             currentObject = visual;
@@ -257,11 +257,11 @@ UIElement* InkCanvasInnerCanvas::HitTestOnElements(QPointF point)
 
         while ( currentObject != nullptr )
         {
-            DependencyObject* parent = currentObject->parent();
+            UIElement* parent = currentObject->Parent();
             if ( parent == &GetInkCanvas().InnerCanvas() )
             {
                 // Break when we hit the inner canvas in the visual tree.
-                hitElement = static_cast<UIElement*>(currentObject);
+                hitElement = currentObject;
                 Debug::Assert(Children().contains(hitElement), "The hit element should be a child of InnerCanvas.");
                 break;
             }

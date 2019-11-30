@@ -174,7 +174,7 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
             }
             if (_delayRaiseInvalidated)
             {
-                OnInvalidated();
+                OnInvalidated(EventArgs::Empty);
             }
             //else OnInvalidated was already raised
         }
@@ -461,7 +461,7 @@ void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
 
     //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
     OnDrawingAttributesReplaced(e);
-    OnInvalidated();
+    OnInvalidated(EventArgs::Empty);
     OnPropertyChanged(DrawingAttributesName);
 }
 
@@ -495,7 +495,7 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
 
     // fire notification
     OnStylusPointsReplaced(e);
-    OnInvalidated();
+    OnInvalidated(EventArgs::Empty);
     OnPropertyChanged("StylusPoints");
 }
 
@@ -840,7 +840,7 @@ void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
     {
         //when Stroke.Transform(Matrix, bool) is called, we don't raise invalidated from
         //here, but rather from the Stroke.Transform method.
-        OnInvalidated();
+        OnInvalidated(EventArgs::Empty);
     }
 }
 
@@ -861,7 +861,7 @@ void Stroke::StylusPoints_Changed()
     {
         //when Stroke.Transform(Matrix, bool) is called, we don't raise invalidated from
         //here, but rather from the Stroke.Transform method.
-        OnInvalidated();
+        OnInvalidated(EventArgs::Empty);
     }
 }
 
@@ -1235,13 +1235,13 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
         selectedDA->SetStylusTipTransform(outerTransform);
         QBrush brush(drawingAttributes->Color());
         //brush.Freeze();
-        drawingContext.DrawGeometry(brush, Qt::NoPen, *GetGeometry(selectedDA));
+        drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(selectedDA));
 
         //Second pass drawing with a white color brush. The stroke will be drawn as
         // 1 avalon-unit shorter and narrower (HollowLineSize = 1.0f) if the actual-width/height (considering StylusTipTransform)
         // is larger than HollowLineSize. Otherwise the same size stroke is drawn.
         selectedDA->SetStylusTipTransform(innerTransform);
-        drawingContext.DrawGeometry(QBrush(Qt::white), Qt::NoPen, *GetGeometry(selectedDA));
+        drawingContext.DrawGeometry(QBrush(Qt::white), Qt::NoPen, GetGeometry(selectedDA));
     }
     else
     {
@@ -1273,7 +1273,7 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
 #endif
         QBrush brush(drawingAttributes->Color());
         //brush.Freeze();
-        drawingContext.DrawGeometry(brush, Qt::NoPen, *GetGeometry(drawingAttributes));
+        drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(drawingAttributes));
 #if DEBUG_RENDERING_FEEDBACK
         }
 #endif
@@ -1362,6 +1362,18 @@ void Stroke::DrawInternal(DrawingContext& dc, QSharedPointer<DrawingAttributes> 
         // IsSelected can be true or false, but _drawAsHollow must be false
         //System.Diagnostics.Debug.Assert(false == _drawAsHollow);
         DrawCore(dc, DrawingAttributes);
+    }
+}
+
+
+void Stroke::SetIsSelected(bool value)
+{
+    if (value != _isSelected)
+    {
+        _isSelected = value;
+
+        // Raise Invalidated event. This will cause Renderer to repaint and call back DrawCore
+        OnInvalidated(EventArgs::Empty);
     }
 }
 
@@ -1470,7 +1482,7 @@ void Stroke::CalcHollowTransforms(QSharedPointer<DrawingAttributes>  originalDa,
 
     //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(originalDa->StylusTipTransform.OffsetX) && DoubleUtil::IsZero(originalDa->StylusTipTransform.OffsetY));
 
-    innerTransform = outerTransform = QMatrix(1, 0, 0, 1, 0, 0);
+    innerTransform = outerTransform = QMatrix();
     QPointF w = originalDa->StylusTipTransform().map(QPointF(originalDa->Width(), 0));
     QPointF h = originalDa->StylusTipTransform().map(QPoint(0, originalDa->Height()));
 

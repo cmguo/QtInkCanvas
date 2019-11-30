@@ -1,9 +1,12 @@
 #include "lassohelper.h"
-
+#include "drawingvisual.h"
+#include "drawingcontext.h"
+#include "finallyhelper.h"
+#include "doubleutil.h"
 
 const QColor LassoHelper::DotColor(Qt::yellow);     //FromArgb(1, 0.89f, 0.3607f, 0.1843f);
 const QColor LassoHelper::DotCircumferenceColor(Qt::white);
-/*
+
 Visual* LassoHelper::GetVisual()
 {
     EnsureVisual();
@@ -29,9 +32,9 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
         {
             AddLassoPoint(point);
 
-            justAdded.Add(point);
-            _lasso.Add(point);
-            _boundingBox.Union(point);
+            justAdded.append(point);
+            _lasso.append(point);
+            _boundingBox |= QRectF(point, point);
 
             _firstLassoPoint = point;
             _lastLassoPoint = point;
@@ -39,16 +42,16 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
         }
         else
         {
-            Vector last2next = QPointF - _lastLassoPoint;
-            double distanceSquared = last2next.LengthSquared;
+            QPointF last2next = point - _lastLassoPoint;
+            double distanceSquared = LengthSquared(last2next);
 
             // Avoid using Sqrt when the distance is equal to the step.
-            if (DoubleUtil.AreClose(MinDistanceSquared, distanceSquared))
+            if (DoubleUtil::AreClose(MinDistanceSquared, distanceSquared))
             {
                 AddLassoPoint(point);
-                justAdded.Add(point);
-                _lasso.Add(point);
-                _boundingBox.Union(point);
+                justAdded.append(point);
+                _lasso.append(point);
+                _boundingBox |= QRectF(point, point);
 
                 _lastLassoPoint = point;
                 _count++;
@@ -56,15 +59,15 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
             }
             else if (MinDistanceSquared < distanceSquared)
             {
-                double step = Math.Sqrt(MinDistanceSquared / distanceSquared);
+                double step = sqrt(MinDistanceSquared / distanceSquared);
                 QPointF last = _lastLassoPoint;
-                for (double findex = step; findex < 1.0f; findex += step)
+                for (double findex = step; findex < 1.0; findex += step)
                 {
                     QPointF lassoPoint = last + (last2next * findex);
                     AddLassoPoint(lassoPoint);
-                    justAdded.Add(lassoPoint);
-                    _lasso.Add(lassoPoint);
-                    _boundingBox.Union(lassoPoint);
+                    justAdded.append(lassoPoint);
+                    _lasso.append(lassoPoint);
+                    _boundingBox |= QRectF(lassoPoint, lassoPoint);
 
                     _lastLassoPoint = lassoPoint;
                     _count++;
@@ -83,7 +86,7 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
     //    dc.Close();
     //}
 
-    return justAdded.ToArray();
+    return justAdded.toVector();
 }
 
 ///// <summary>
@@ -91,23 +94,29 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
 ///// </summary>
 void LassoHelper::AddLassoPoint(QPointF const & lassoPoint)
 {
-    DrawingVisual dv = new DrawingVisual();
-    DrawingContext dc = null;
-    try
+    DrawingVisual* dv = new DrawingVisual;
+    std::unique_ptr<DrawingContext> dc;
+    //try
     {
-        dc = dv.RenderOpen();
-        dc.DrawEllipse(_brush, _pen, lassoPoint, DotRadius, DotRadius);
+        FinallyHelper final([&dc](){
+            if (dc != nullptr)
+            {
+                dc->Close();
+            }
+        });
+        dc.reset(dv->RenderOpen());
+        dc->DrawEllipse(_brush, _pen, lassoPoint, DotRadius, DotRadius);
     }
-    finally
-    {
-        if (dc != null)
-        {
-            dc.Close();
-        }
-    }
+    //finally
+    //{
+    //    if (dc != nullptr)
+    //    {
+    //        dc.Close();
+    //    }
+    //}
 
     // Add the new visual to the container.
-    _containerVisual.Children.Add(dv);
+    _containerVisual->Children().append(dv);
 }
 
 //#endregion
@@ -120,9 +129,9 @@ bool LassoHelper::ArePointsInLasso(QVector<QPointF> points, int percentIntersect
     //System.Diagnostics.Debug.Assert((0 <= percentIntersect) && (100 >= percentIntersect));
 
     // Find out how many of the points need to be inside the lasso to satisfy the percentIntersect.
-    int marginCount = (points.Length * percentIntersect) / 100;
+    int marginCount = (points.size() * percentIntersect) / 100;
 
-    if ((0 == marginCount) || (50 <= ((points.Length * percentIntersect) % 100)))
+    if ((0 == marginCount) || (50 <= ((points.size() * percentIntersect) % 100)))
     {
         marginCount++;
     }
@@ -132,7 +141,7 @@ bool LassoHelper::ArePointsInLasso(QVector<QPointF> points, int percentIntersect
     // If the no of such segments is odd then the QPointF is within the lasso otherwise not.
     int countPointsInLasso = 0;
 
-    foreach (Point QPointF in points)
+    for (QPointF point : points)
     {
         if (true == Contains(point))
         {
@@ -148,71 +157,71 @@ bool LassoHelper::ArePointsInLasso(QVector<QPointF> points, int percentIntersect
 /// <summary>TBS</summary>
 bool LassoHelper::Contains(QPointF const & point)
 {
-    if (false == _boundingBox.Contains(point))
+    if (false == _boundingBox.contains(point))
     {
         return false;
     }
 
     bool isHigher = false;
-    int last = _lasso.Count;
+    int last = _lasso.size();
 
     while (--last >= 0)
     {
-        if (false == DoubleUtil.AreClose(_lasso[last].Y, point.Y))
+        if (false == DoubleUtil::AreClose(_lasso[last].y(), point.y()))
         {
-            isHigher = point.Y < _lasso[last].Y;
+            isHigher = point.y() < _lasso[last].y();
             break;
         }
     }
 
     bool isInside = false, isOnClosingSegment = false;
-    QPointF prevLassoPoint = _lasso[_lasso.Count - 1];
+    QPointF prevLassoPoint = _lasso[_lasso.size() - 1];
 
-    for (int i = 0; i < _lasso.Count; i++)
+    for (int i = 0; i < _lasso.size(); i++)
     {
         QPointF lassoPoint = _lasso[i];
 
-        if (DoubleUtil.AreClose(lassoPoint.Y, point.Y))
+        if (DoubleUtil::AreClose(lassoPoint.y(), point.y()))
         {
-            if (DoubleUtil.AreClose(lassoPoint.X, point.X))
+            if (DoubleUtil::AreClose(lassoPoint.x(), point.x()))
             {
                 isInside = true;
                 break;
             }
 
-            if ((0 != i) && DoubleUtil.AreClose(prevLassoPoint.Y, point.Y)
-                && DoubleUtil.GreaterThanOrClose(point.X, Math.Min(prevLassoPoint.X, lassoPoint.X))
-                && DoubleUtil.LessThanOrClose(point.X, Math.Max(prevLassoPoint.X, lassoPoint.X)))
+            if ((0 != i) && DoubleUtil::AreClose(prevLassoPoint.y(), point.y())
+                && DoubleUtil::GreaterThanOrClose(point.x(), qMin(prevLassoPoint.x(), lassoPoint.x()))
+                && DoubleUtil::LessThanOrClose(point.x(), qMax(prevLassoPoint.x(), lassoPoint.x())))
             {
                 isInside = true;
                 break;
             }
         }
-        else if (isHigher != (point.Y < lassoPoint.Y))
+        else if (isHigher != (point.y() < lassoPoint.y()))
         {
             isHigher = !isHigher;
-            if (DoubleUtil.GreaterThanOrClose(point.X, Math.Max(prevLassoPoint.X, lassoPoint.X)))
+            if (DoubleUtil::GreaterThanOrClose(point.x(), qMax(prevLassoPoint.x(), lassoPoint.x())))
             {
                 // there certainly is an intersection on the left
                 isInside = !isInside;
 
                 // The closing segment is the only exclusive one. Special case it.
-                if ((0 == i) && DoubleUtil.AreClose(point.X, Math.Max(prevLassoPoint.X, lassoPoint.X)))
+                if ((0 == i) && DoubleUtil::AreClose(point.x(), qMax(prevLassoPoint.x(), lassoPoint.x())))
                 {
                     isOnClosingSegment = true;
                 }
             }
-            else if (DoubleUtil.GreaterThanOrClose(point.X, Math.Min(prevLassoPoint.X, lassoPoint.X)))
+            else if (DoubleUtil::GreaterThanOrClose(point.x(), qMin(prevLassoPoint.x(), lassoPoint.x())))
             {
                 // The X of the QPointF lies within the x ranges for the segment.
                 // Calculate the x value of the QPointF where the segment intersects with the line.
-                Vector lassoSegment = lassoPoint - prevLassoPoint;
-                double x = prevLassoPoint.X + (lassoSegment.X / lassoSegment.Y) * (point.Y - prevLassoPoint.Y);
+                QPointF lassoSegment = lassoPoint - prevLassoPoint;
+                double x = prevLassoPoint.x() + (lassoSegment.x() / lassoSegment.y()) * (point.y() - prevLassoPoint.y());
 
-                if (DoubleUtil.GreaterThanOrClose(point.X, x))
+                if (DoubleUtil::GreaterThanOrClose(point.x(), x))
                 {
                     isInside = !isInside;
-                    if ((0 == i) && DoubleUtil.AreClose(point.X, x))
+                    if ((0 == i) && DoubleUtil::AreClose(point.x(), x))
                     {
                         isOnClosingSegment = true;
                     }
@@ -231,7 +240,7 @@ bool LassoHelper::Contains(QPointF const & point)
 /// <summary> Creates the container visual when needed.</summary>
 void LassoHelper::EnsureVisual()
 {
-    if (null == _containerVisual)
+    if (nullptr == _containerVisual)
     {
         _containerVisual = new DrawingVisual();
     }
@@ -248,21 +257,21 @@ void LassoHelper::EnsureReady()
 
         EnsureVisual();
 
-        _brush = new SolidColorBrush(DotColor);
-        _brush.Freeze();
+        _brush = QBrush(DotColor);
+        //_brush.Freeze();
 
         //_linePen = new Pen(new SolidColorBrush(Colors.DarkGray), ConnectLineThickness);
         //_linePen.Brush.Opacity = ConnectLineOpacity;
         //_linePen.LineJoin = PenLineJoin.Round;
 
-        _pen = new Pen(new SolidColorBrush(DotCircumferenceColor), DotCircumferenceThickness);
-        _pen.LineJoin = PenLineJoin.Round;
-        _pen.Freeze();
+        _pen = QPen(DotCircumferenceColor, DotCircumferenceThickness);
+        _pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+        //_pen.Freeze();
 
-        _lasso = new List<Point>(100);
-        _boundingBox = Rect.Empty;
+        _lasso.reserve(100);
+        //_boundingBox = Rect.Empty;
 
         _count = 0;
     }
 }
-*/
+

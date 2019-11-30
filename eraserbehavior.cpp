@@ -5,7 +5,10 @@
 #include "incrementalhittester.h"
 #include "inkevents.h"
 #include "finallyhelper.h"
+#include "pencursormanager.h"
 
+#include <QApplication>
+#include <QScreen>
 
 //-------------------------------------------------------------------------------
 //
@@ -277,23 +280,25 @@ QCursor EraserBehavior::GetCurrentCursor()
                 // Otherwise fallback the matrix to the identity.
                 if ( xf.isInvertible() )
                 {
-                    xf.OffsetX = 0;
-                    xf.OffsetY = 0;
+                    //xf.OffsetX = 0;
+                    //xf.OffsetY = 0;
+                    xf = QMatrix(xf.m11(), xf.m12(), xf.m21(), xf.m22(), 0, 0);
                 }
                 else
                 {
-                    xf = QMatrix(1, 0, 0, 1, 0, 0);
+                    xf = QMatrix();
                 }
             }
             //DpiScale dpi = GetInkCanvas().GetDpi();
-            _cachedPointEraserCursor = PenCursorManager.GetPointEraserCursor(_cachedStylusShape, xf, dpi.DpiScaleX, dpi.DpiScaleY);
+            QScreen * screen = QApplication::primaryScreen();
+            _cachedPointEraserCursor = PenCursorManager::GetPointEraserCursor(*_cachedStylusShape, xf, screen->physicalDotsPerInchX(), screen->physicalDotsPerInchY());
         }
 
         return _cachedPointEraserCursor;
     }
     else
     {
-        return PenCursorManager.GetStrokeEraserCursor();
+        return PenCursorManager::GetStrokeEraserCursor();
     }
 }
 
@@ -355,7 +360,7 @@ void EraserBehavior::OnStrokeEraseResultChanged(StrokeHitEventArgs& e)
         if ( !args.Cancel() )
         {
             // Erase only if the event wasn't cancelled
-            GetInkCanvas().Strokes()->Remove(e.HitStroke());
+            GetInkCanvas().Strokes()->removeOne(e.HitStroke());
             GetInkCanvas().RaiseInkErased();
         }
 
@@ -405,7 +410,7 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
             //Debug.Assert(eraseResult != nullptr, "eraseResult cannot be nullptr");
 
             QSharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection());
-            strokesToReplace->Add(e.HitStroke());
+            strokesToReplace->append(e.HitStroke());
 
             try
             {

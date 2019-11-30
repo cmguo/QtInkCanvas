@@ -21,6 +21,7 @@ SOURCES += \
     bezier.cpp \
     clipboarddata.cpp \
     clipboardprocessor.cpp \
+    containervisual.cpp \
     contoursegment.cpp \
     cuspdata.cpp \
     debug.cpp \
@@ -28,10 +29,13 @@ SOURCES += \
     dependencyproperty.cpp \
     dependencypropertychangedeventargs.cpp \
     doubleutil.cpp \
+    drawing.cpp \
     drawingattributes.cpp \
     drawingattributeserializer.cpp \
     drawingcontext.cpp \
+    drawingdrawingcontext.cpp \
     drawingflags.cpp \
+    drawingvisual.cpp \
     dynamicrenderer.cpp \
     editingbehavior.cpp \
     editingcoordinator.cpp \
@@ -46,6 +50,7 @@ SOURCES += \
     finallyhelper.cpp \
     geometry.cpp \
     gesturerecognitionresult.cpp \
+    gesturerecognizer.cpp \
     hittestparameters.cpp \
     hittestresult.cpp \
     incrementalhittester.cpp \
@@ -70,7 +75,9 @@ SOURCES += \
     lassoselectionbehavior.cpp \
     mousebuttoneventargs.cpp \
     mouseeventargs.cpp \
+    nativerecognizer.cpp \
     notifycollectionchangedeventargs.cpp \
+    pencursormanager.cpp \
     pointhittestparameters.cpp \
     pointhittestresult.cpp \
     propertymetadata.cpp \
@@ -105,7 +112,8 @@ SOURCES += \
     stylusshape.cpp \
     stylustip.cpp \
     textclipboarddata.cpp \
-    uielement.cpp
+    uielement.cpp \
+    visual.cpp
 
 HEADERS += \
     InkCanvas_global.h \
@@ -113,6 +121,7 @@ HEADERS += \
     bezier.h \
     clipboarddata.h \
     clipboardprocessor.h \
+    containervisual.h \
     contoursegment.h \
     cuspdata.h \
     debug.h \
@@ -120,10 +129,13 @@ HEADERS += \
     dependencyproperty.h \
     dependencypropertychangedeventargs.h \
     doubleutil.h \
+    drawing.h \
     drawingattributes.h \
     drawingattributeserializer.h \
     drawingcontext.h \
+    drawingdrawingcontext.h \
     drawingflags.h \
+    drawingvisual.h \
     dynamicrenderer.h \
     editingbehavior.h \
     editingcoordinator.h \
@@ -139,6 +151,7 @@ HEADERS += \
     finallyhelper.h \
     geometry.h \
     gesturerecognitionresult.h \
+    gesturerecognizer.h \
     hittestparameters.h \
     hittestresult.h \
     incrementalhittester.h \
@@ -163,7 +176,9 @@ HEADERS += \
     lassoselectionbehavior.h \
     mousebuttoneventargs.h \
     mouseeventargs.h \
+    nativerecognizer.h \
     notifycollectionchangedeventargs.h \
+    pencursormanager.h \
     pointhittestparameters.h \
     pointhittestresult.h \
     propertymetadata.h \
@@ -198,10 +213,16 @@ HEADERS += \
     stylusshape.h \
     stylustip.h \
     textclipboarddata.h \
-    uielement.h
+    uielement.h \
+    visual.h
 
 # Default rules for deployment.
 unix {
     target.path = /usr/lib
 }
 !isEmpty(target.path): INSTALLS += target
+
+win32 {
+    INCLUDEPATH += "C:\Program Files (x86)\Microsoft Tablet PC Platform SDK\Include"
+    LIBS += -ladvapi32 -L$$PWD -lmshwgst
+}

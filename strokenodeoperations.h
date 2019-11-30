@@ -39,11 +39,9 @@ public:
     /// Constructor
     /// </summary>
     /// <param name="nodeShape">shape of the nodes</param>
-    StrokeNodeOperations(StylusShape & nodeShape)
-    {
-        ////System.Diagnostics.Debug.Assert(nodeShape != null);
-        _vertices = nodeShape.GetVerticesAsVectors();
-    }
+    StrokeNodeOperations(StylusShape & nodeShape);
+
+    virtual ~StrokeNodeOperations();
 
     /// <summary>
     /// This is probably not the best (design-wise) but the cheapest way to tell

@@ -6,7 +6,7 @@
 class FinallyHelper
 {
 public:
-    FinallyHelper(std::function<void(void)> finalize_);
+    FinallyHelper(std::function<void(void)> finalize) : finalize_(finalize) {}
 
     ~FinallyHelper() {
         finalize_();

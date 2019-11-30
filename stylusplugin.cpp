@@ -4,3 +4,8 @@ StylusPlugIn::StylusPlugIn()
 {
 
 }
+
+StylusPlugIn::~StylusPlugIn()
+{
+
+}

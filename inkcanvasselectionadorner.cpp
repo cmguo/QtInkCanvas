@@ -4,6 +4,8 @@
 #include "debug.h"
 #include "inkcanvas.h"
 #include "geometry.h"
+#include "drawing.h"
+#include "finallyhelper.h"
 
 #include <QPainterPath>
 
@@ -44,11 +46,19 @@ InkCanvasSelectionAdorner::InkCanvasSelectionAdorner(UIElement* adornedElement)
 
     // Create a hatch pen
     DrawingGroup hatchDG;
-    DrawingContext* dc = nullptr;
+    std::unique_ptr<DrawingContext> dc = nullptr;
+
 
     //try
     {
-        dc = hatchDG.Open( );
+        FinallyHelper final([&dc]() {
+            if ( dc != nullptr )
+            {
+                dc->Close( );
+            }
+        });
+
+        dc.reset(hatchDG.Open( ));
 
         dc->DrawRectangle(
             QBrush(Qt::transparent),
@@ -290,7 +300,7 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
                 rectGeometry = new RectangleGeometry(hatchRect);
                 //rectGeometry.Freeze();
 
-                hatchGeometry = hatchGeometry->Combine(rectGeometry, GeometryCombineMode.Union, nullptr);
+                hatchGeometry = hatchGeometry->Combine(rectGeometry);
             }
         }
     }
@@ -320,7 +330,7 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
     }
 
     //geometryCollection.Freeze();
-    backgroundGeometry->Children = geometryCollection;
+    backgroundGeometry->Children() = geometryCollection;
     //backgroundGeometry.Freeze();
 
     // Then, draw the region which may contain holes so that the elements cannot be covered.
@@ -329,13 +339,13 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
     // Draw the debug feedback
     drawingContext.DrawGeometry(new SolidColorBrush(Color.FromArgb(128, 255, 255, 0)), QPen(Qt::NoPen), *backgroundGeometry);
 #else
-    drawingContext.DrawGeometry(QBrush(Qt::transparent), QPen(Qt::NoPen), *backgroundGeometry);
+    drawingContext.DrawGeometry(QBrush(Qt::transparent), QPen(Qt::NoPen), backgroundGeometry);
 #endif
 
     // At last, draw the hatch borders
     if ( outlineGeometry != nullptr )
     {
-        drawingContext.DrawGeometry(QBrush(), _hatchPen, *outlineGeometry);
+        drawingContext.DrawGeometry(QBrush(), _hatchPen, outlineGeometry);
     }
 }
 

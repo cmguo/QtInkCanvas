@@ -110,7 +110,7 @@ void InkCanvasSelection::StartFeedbackAdorner(QRectF const & feedbackRect, InkCa
     InkCanvasFeedbackAdorner& feedbackAdorner = _inkCanvas.FeedbackAdorner();
 
     // The feedback adorner shouldn't have been connected to the adorner layer yet.
-    Debug::Assert(feedbackAdorner.GetParent() == nullptr,
+    Debug::Assert(feedbackAdorner.Parent() == nullptr,
         "feedbackAdorner shouldn't be added to tree.");
 
     // Now, attach the feedback adorner to the adorner layer. Then update its bounds
@@ -361,7 +361,7 @@ void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIEleme
         }
         else
         {
-            size = QSizeF(frameworkElement->ActualWidth(), frameworkElement->ActualHeight();
+            size = QSizeF(frameworkElement->ActualWidth(), frameworkElement->ActualHeight());
             thickness = frameworkElement->Margin();
         }
 
@@ -785,7 +785,7 @@ void InkCanvasSelection::OnStrokeCollectionChanged(StrokeCollectionChangedEventA
             s->SetIsSelected(false);
 
             // Now remove the stroke from our collection.
-            SelectedStrokes()->Remove(s);
+            SelectedStrokes()->removeOne(s);
         }
     }
 
@@ -947,7 +947,8 @@ void InkCanvasSelection::UpdateCanvasLayoutUpdatedHandler()
         if ( _layoutUpdatedHandler == nullptr )
         {
             _layoutUpdatedHandler = EventHandlerT<InkCanvasSelection, EventArgs, &InkCanvasSelection::OnCanvasLayoutUpdated>(this);
-            _inkCanvas.InnerCanvas().AddHandler(UIElement::LayoutUpdated, _layoutUpdatedHandler);
+            QObject::connect(&_inkCanvas.InnerCanvas(), &UIElement::LayoutUpdated,
+                             this, &InkCanvasSelection::OnCanvasLayoutUpdated);
         }
     }
     else
@@ -955,7 +956,8 @@ void InkCanvasSelection::UpdateCanvasLayoutUpdatedHandler()
         // Remove the handler if there is one.
         if ( _layoutUpdatedHandler != nullptr )
         {
-            _inkCanvas.InnerCanvas().RemoveHandler(UIElement::LayoutUpdated, _layoutUpdatedHandler);
+            QObject::disconnect(&_inkCanvas.InnerCanvas(), &UIElement::LayoutUpdated,
+                             this, &InkCanvasSelection::OnCanvasLayoutUpdated);
             _layoutUpdatedHandler = nullptr;
         }
     }

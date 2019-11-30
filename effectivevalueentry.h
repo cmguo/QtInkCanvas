@@ -24,6 +24,36 @@ enum class FullValueSource
     IsCoercedWithCurrentValue = 0x200,
 };
 
+inline FullValueSource operator ~ (FullValueSource hs)
+{
+    using T = std::underlying_type_t <FullValueSource>;
+    return static_cast<FullValueSource>(~static_cast<T>(hs));
+}
+
+inline FullValueSource operator & (FullValueSource lhs, FullValueSource rhs)
+{
+    using T = std::underlying_type_t <FullValueSource>;
+    return static_cast<FullValueSource>(static_cast<T>(lhs) & static_cast<T>(rhs));
+}
+
+inline FullValueSource& operator &= (FullValueSource& lhs, FullValueSource rhs)
+{
+    lhs = lhs & rhs;
+    return lhs;
+}
+
+inline FullValueSource operator | (FullValueSource lhs, FullValueSource rhs)
+{
+    using T = std::underlying_type_t <FullValueSource>;
+    return static_cast<FullValueSource>(static_cast<T>(lhs) | static_cast<T>(rhs));
+}
+
+inline FullValueSource& operator |= (FullValueSource& lhs, FullValueSource rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
+}
+
 // Note that these enum values are arranged in the reverse order of
 // precendence for these sources. Local value has highest
 // precedence and Default value has the least. Note that we do not
@@ -79,7 +109,7 @@ public:
 private:
     // Computes and set the IsDeferred hint flag.
     // This take into account all flags and should only be used sparingly.
-    void ComputeIsDeferred();
+    void ComputeIsDeferred() const;
 
 
 
@@ -104,23 +134,19 @@ public:
     void SetBaseValueSourceInternal(BaseValueSourceInternal value);
 
     bool IsDeferredReference() const;
+    void SetIsDeferredReference(bool value);
 
     //set { WritePrivateFlag(FullValueSource::IsPotentiallyADeferredReference, value); }
 
-    bool IsExpression();
-    void SetIsExpression();
+    bool IsExpression() const;
+    void SetIsExpression(bool value);
 
-    //bool IsAnimated()
-    //{
-    //    get { return ReadPrivateFlag(FullValueSource::IsAnimated); }
-    //    set { WritePrivateFlag(FullValueSource::IsAnimated, value); }
-    //}
+    bool IsAnimated() const;
+    void SetIsAnimated(bool value);
 
-    //bool IsCoerced()
-    //{
-    //    get { return ReadPrivateFlag(FullValueSource::IsCoerced); }
-    //    set { WritePrivateFlag(FullValueSource::IsCoerced, value); }
-    //}
+
+    bool IsCoerced() const;
+    void SetIsCoerced(bool value);
 
     bool HasModifiers() const;
 
@@ -130,17 +156,11 @@ public:
     }
 
 
-    //bool HasExpressionMarker
-    //{
-    //    get { return ReadPrivateFlag(FullValueSource::HasExpressionMarker); }
-    //    set { WritePrivateFlag(FullValueSource::HasExpressionMarker, value); }
-    //}
+    bool HasExpressionMarker() const;
+    void SetHasExpressionMarker(bool value);
 
-    //bool IsCoercedWithCurrentValue
-    //{
-    //    get { return ReadPrivateFlag(FullValueSource::IsCoercedWithCurrentValue); }
-    //    set { WritePrivateFlag(FullValueSource::IsCoercedWithCurrentValue, value); }
-    //}
+    bool IsCoercedWithCurrentValue() const;
+    void SetIsCoercedWithCurrentValue(bool value);
 
     EffectiveValueEntry GetFlattenedEntry(RequestFlags requests);
 
@@ -150,7 +170,7 @@ public:
 
     QVariant LocalValue();
 
-    void SetLocalValue();
+    void SetLocalValue(QVariant value);
 
 
     ModifiedValue GetModifiedValue();
@@ -161,7 +181,7 @@ public:
 
     void WritePrivateFlag(FullValueSource bit, bool value);
 
-    bool ReadPrivateFlag(FullValueSource bit);
+    bool ReadPrivateFlag(FullValueSource bit) const;
 
 
 private:
@@ -176,6 +196,8 @@ private:
 class ModifiedValue
 {
     //#region InternalProperties
+public:
+    ModifiedValue() {}
 
     QVariant BaseValue();
 

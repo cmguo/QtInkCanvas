@@ -6,7 +6,7 @@
 #include <QMap>
 #include <QObject>
 
-class UIElement;
+class Visual;
 class StrokeCollection;
 class Stroke;
 class DrawingAttributes;
@@ -61,7 +61,7 @@ public:
     /// this property for the first time. If no strokes are set then an empty
     /// visual is returned.
     /// </summary>
-    UIElement* RootVisual();
+    Visual* RootVisual();
 
     /// <summary>
     /// Set the strokes property to the collection of strokes to be rendered.
@@ -77,24 +77,24 @@ public:
     /// </summary>
     /// <param name="visual">visual to attach</param>
     /// <param name="drawingAttributes">drawing attributes that used in the incremental rendering</param>
-    void AttachIncrementalRendering(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    void AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>
     /// Detaches a visual previously attached via AttachIncrementalRendering
     /// </summary>
     /// <param name="visual">the visual to detach</param>
-    void DetachIncrementalRendering(UIElement* visual);
+    void DetachIncrementalRendering(Visual* visual);
 
     /// <summary>
     /// helper used to indicate if a visual was previously attached
     /// via a call to AttachIncrementalRendering
     /// </summary>
-    bool ContainsAttachedIncrementalRenderingVisual(UIElement* visual);
+    bool ContainsAttachedIncrementalRenderingVisual(Visual* visual);
 
     /// <summary>
     /// helper used to determine if a visual is in the right spot in the visual tree
     /// </summary>
-    bool AttachedVisualIsPositionedCorrectly(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    bool AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
 
 
 
@@ -161,7 +161,7 @@ private:
     /// Detaches a visual from the tree, also removes highligher parents if empty
     /// when true is passed
     /// </summary>
-    void DetachVisual(UIElement* visual);
+    void DetachVisual(Visual* visual);
 
     /// <summary>
     /// Attaches event handlers to stroke events
@@ -201,7 +201,7 @@ private:
     QSharedPointer<StrokeCollection> _strokes;
 
     // List of visuals attached via AttachIncrementalRendering
-    QList<UIElement*> _attachedVisuals;
+    QList<Visual*> _attachedVisuals;
 
     // Whhen true, will render in high contrast mode
     bool _highContrast;
@@ -209,5 +209,29 @@ private:
 
     //#endregion
 };
+
+#include "containervisual.h"
+
+class InkRenderer::HighlighterContainerVisual : public ContainerVisual
+{
+    Q_OBJECT
+public:
+    HighlighterContainerVisual(QColor color)
+    {
+        _color = color;
+    }
+
+    /// <summary>
+    /// The Color of the strokes in this highlighter container visual
+    /// </summary>
+    QColor Color()
+    {
+        return _color;
+    }
+private:
+    QColor _color;
+};
+
+
 
 #endif // INKRENDERER_H

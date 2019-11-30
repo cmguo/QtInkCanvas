@@ -27,6 +27,7 @@
 #include "inputdevice.h"
 #include "clipboardprocessor.h"
 #include "inkpresenter.h"
+#include "gesturerecognizer.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -49,7 +50,7 @@ void InkCanvas::Initialize()
     //
     // instance the DynamicRenderer* and add it to the StylusPlugIns
     //
-    _dynamicRenderer = new DynamicRenderer();
+    //_dynamicRenderer = new DynamicRenderer();
     _dynamicRenderer->SetEnabled(false);
     //StylusPlugIns().Add(_dynamicRenderer);
 
@@ -137,32 +138,32 @@ QSizeF InkCanvas::ArrangeOverride(QSizeF arrangeSize)
 /// <summary>
 ///     The DependencyProperty for the Background property.
 /// </summary>
-DependencyProperty const * InkCanvas::BackgroundProperty = nullptr;
+DependencyProperty const * const InkCanvas::BackgroundProperty = nullptr;
 
 
 
 /// <summary>
 /// Top DependencyProperty
 /// </summary>
-DependencyProperty const * InkCanvas::TopProperty = nullptr;
+DependencyProperty const * const InkCanvas::TopProperty = nullptr;
 
 
 /// <summary>
 /// The Bottom DependencyProperty
 /// </summary>
-DependencyProperty const * InkCanvas::BottomProperty = nullptr;
+DependencyProperty const * const InkCanvas::BottomProperty = nullptr;
 
 
 /// <summary>
 /// The Left DependencyProperty
 /// </summary>
-DependencyProperty const * InkCanvas::LeftProperty = nullptr;
+DependencyProperty const * const InkCanvas::LeftProperty = nullptr;
 
 
 /// <summary>
 /// The Right DependencyProperty
 /// </summary>
-DependencyProperty const * InkCanvas::RightProperty = nullptr;
+DependencyProperty const * const InkCanvas::RightProperty = nullptr;
 
 
 
@@ -177,7 +178,7 @@ void InkCanvas::OnPositioningChanged(DependencyObject* d, DependencyPropertyChan
     if ( uie != nullptr )
     {
         // Make sure the UIElement* is a child of InkCanvasInnerCanvas.
-        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie->parentWidget());
+        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie->Parent());
         if ( p != nullptr )
         {
             if ( e.Property() == InkCanvas::LeftProperty
@@ -219,7 +220,7 @@ HitTestResult InkCanvas::HitTestCore(PointHitTestParameters& hitTestParams)
 /// <summary>
 ///     The DependencyProperty for the Strokes property.
 /// </summary>
-//DependencyProperty const * StrokesProperty =
+DependencyProperty const * const InkCanvas::StrokesProperty = InkPresenter::StrokesProperty;
 //        GetInkPresenter().StrokesProperty.AddOwner(
 //                typeof(InkCanvas),
 //                new FrameworkPropertyMetadata(
@@ -322,7 +323,7 @@ InkCanvasFeedbackAdorner& InkCanvas::FeedbackAdorner()
 /// <summary>
 /// The DependencyProperty for the DefaultDrawingAttributes property.
 /// </summary>
-//DependencyProperty const * DefaultDrawingAttributesProperty =
+DependencyProperty const * const InkCanvas::DefaultDrawingAttributesProperty = nullptr;
 //        DependencyProperty.Register(
 //                "DefaultDrawingAttributes",
 //                typeof(DrawingAttributes),
@@ -408,12 +409,18 @@ void InkCanvas::SetEraserShape(StylusShape * value)
 }
 
 
+DependencyProperty const * const InkCanvas::ActiveEditingModeProperty = nullptr;
+
+DependencyProperty const * const InkCanvas::EditingModeProperty = nullptr;
+
 void InkCanvas::OnEditingModeChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e)
 {
     (void) e;
     RoutedEventArgs e1(InkCanvas::EditingModeChangedEvent, &d);
     static_cast<InkCanvas&>( d ).RaiseEditingModeChanged(e1);
 }
+
+DependencyProperty const * const InkCanvas::EditingModeInvertedProperty = nullptr;
 
 void InkCanvas::OnEditingModeInvertedChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e)
 {
@@ -601,7 +608,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
     FinallyHelper final([this, &addStrokeToInkCanvas, &e](){
         if ( addStrokeToInkCanvas )
         {
-            Strokes()->Add(e.GetStroke());
+            Strokes()->append(e.GetStroke());
         }
     });
     //try
@@ -615,23 +622,23 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
         {
             if ((ActiveEditingMode() == InkCanvasEditingMode::InkAndGesture ||
                   ActiveEditingMode() == InkCanvasEditingMode::GestureOnly) &&
-                  GetGestureRecognizer().IsRecognizerAvailable)
+                  GetGestureRecognizer().IsRecognizerAvailable())
             {
                 QSharedPointer<StrokeCollection> strokes(new StrokeCollection());
-                strokes->Add(e.GetStroke());
+                strokes->append(e.GetStroke());
 
                 //
                 // GestureRecognizer.Recognize demands unmanaged code, we assert it here
                 // as this codepath is only called in response to user input
                 //
                 QList<GestureRecognitionResult> results =
-                    GestureRecognizer::CriticalRecognize(strokes);
+                    GetGestureRecognizer().CriticalRecognize(strokes);
 
                 if (results.size() > 0)
                 {
                     InkCanvasGestureEventArgs args(strokes, results);
 
-                    if (results[0].ApplicationGesture == ApplicationGesture::NoGesture)
+                    if (results[0].GetApplicationGesture() == ApplicationGesture::NoGesture)
                     {
                         //
                         // we set Cancel=true if we didn't detect a gesture
@@ -670,7 +677,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
             ActiveEditingMode() == InkCanvasEditingMode::InkAndGesture )
         {
             //add the stroke to the StrokeCollection and raise this event
-            Strokes()->Add(e.GetStroke());
+            Strokes()->append(e.GetStroke());
             OnStrokeCollected(e);
         }
     }
@@ -792,7 +799,7 @@ void InkCanvas::RaiseActiveEditingModeChanged(RoutedEventArgs& e)
     if (mode != _editingCoordinator->ActiveEditingMode())
     {
         //change our DP, then raise the event via our protected override
-        SetValue(ActiveEditingModePropertyKey, _editingCoordinator->ActiveEditingMode());
+        SetValue(ActiveEditingModeProperty, _editingCoordinator->ActiveEditingMode());
 
         OnActiveEditingModeChanged(e);
     }
@@ -1160,7 +1167,7 @@ QList<ApplicationGesture> InkCanvas::GetEnabledGestures()
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
-    return QList<ApplicationGesture>(GestureRecognizer::GetEnabledGestures());
+    return QList<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
 }
 
 /// <summary>
@@ -1190,11 +1197,11 @@ QRectF InkCanvas::GetSelectionBounds()
 /// <summary>
 /// provides access to the currently selected elements which are children of this InkCanvas
 /// </summary>
-//ReadOnlyCollection<UIElement*> GetSelectedElements()
-//{
-//    VerifyAccess();
-//    return GetInkCanvasSelection().SelectedElements;
-//}
+QList<UIElement*> InkCanvas::GetSelectedElements()
+{
+    VerifyAccess();
+    return GetInkCanvasSelection().SelectedElements();
+}
 
 /// <summary>
 /// provides read access to the currently selected strokes
@@ -1734,13 +1741,13 @@ InkCanvasSelection& InkCanvas::GetInkCanvasSelection()
 /// <summary>
 /// Internal helper called by the LassoSelectionBehavior
 /// </summary>
-void InkCanvas::BeginDynamicSelection(UIElement* visual)
+void InkCanvas::BeginDynamicSelection(Visual* visual)
 {
     GetEditingCoordinator().DebugCheckActiveBehavior(GetEditingCoordinator().GetLassoSelectionBehavior());
 
     _dynamicallySelectedStrokes.reset(new StrokeCollection());
 
-    GetInkPresenter().AttachVisuals(visual, new DrawingAttributes());
+    GetInkPresenter().AttachVisuals(visual, QSharedPointer<DrawingAttributes>(new DrawingAttributes()));
 }
 
 /// <summary>
@@ -1759,7 +1766,7 @@ void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strok
     {
         for (QSharedPointer<Stroke> s : *strokesToDynamicallySelect)
         {
-            _dynamicallySelectedStrokes->Add(s);
+            _dynamicallySelectedStrokes->append(s);
             s->SetIsSelected(true);
         }
     }
@@ -1769,7 +1776,7 @@ void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strok
         for (QSharedPointer<Stroke> s : *strokesToDynamicallyUnselect)
         {
             //System.Diagnostics.//Debug.Assert(_dynamicallySelectedStrokes.Contains(s));
-            _dynamicallySelectedStrokes->Remove(s);
+            _dynamicallySelectedStrokes->removeOne(s);
             s->SetIsSelected(false);
         }
     }
@@ -1778,7 +1785,7 @@ void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strok
 /// <summary>
 /// Internal helper used by LassoSelectionBehavior
 /// </summary>
-QSharedPointer<StrokeCollection> InkCanvas::EndDynamicSelection(UIElement* visual)
+QSharedPointer<StrokeCollection> InkCanvas::EndDynamicSelection(Visual* visual)
 {
     GetEditingCoordinator().DebugCheckActiveBehavior(GetEditingCoordinator().GetLassoSelectionBehavior());
 
@@ -1956,7 +1963,7 @@ QSharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(QSharedPointer<Strok
         QSharedPointer<Stroke> stroke = (*subset)[i];
         if ( superset->contains(stroke) )
         {
-            validStrokes->Add(stroke);
+            validStrokes->append(stroke);
         }
     }
 

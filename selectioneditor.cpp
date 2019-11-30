@@ -5,6 +5,7 @@
 #include "lassoselectionbehavior.h"
 #include "inkcanvasselection.h"
 #include "inkcanvasselectionadorner.h"
+#include "pencursormanager.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -108,7 +109,7 @@ QCursor SelectionEditor::GetCurrentCursor()
     // If mouse is outside of the SelectionAdorner, we let the system to pick up the default cursor.
     if ( GetInkCanvas().SelectionAdorner().IsMouseOver() )
     {
-        return PenCursorManager.GetSelectionCursor(_hitResult,
+        return PenCursorManager::GetSelectionCursor(_hitResult,
             (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft));
     }
     else

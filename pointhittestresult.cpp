@@ -2,6 +2,12 @@
 
 #include "uielement.h"
 
+PointHitTestResult::PointHitTestResult()
+    : HitTestResult(nullptr)
+{
+
+}
+
 PointHitTestResult::PointHitTestResult(UIElement * visualHit, QPointF const & pointHit)
     : HitTestResult(visualHit)
 {

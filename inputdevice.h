@@ -5,7 +5,7 @@
 #include <QSharedPointer>
 #include <QObject>
 
-class QWidget;
+class Visual;
 class PresentationSource;
 class RoutedEvent;
 
@@ -29,7 +29,7 @@ public:
     /// <summary>
     ///     Returns the element that input from this device is sent to.
     /// </summary>
-    virtual QWidget* Target() = 0;
+    virtual Visual* Target() = 0;
 
     /// <summary>
     ///     Returns the PresentationSource that is reporting input for this device.
@@ -58,9 +58,9 @@ public:
 
     bool Inverted();
 
-    QSharedPointer<StylusPointCollection> GetStylusPoints(QWidget * widget, QSharedPointer<StylusPointDescription> description);
+    QSharedPointer<StylusPointCollection> GetStylusPoints(Visual * widget, QSharedPointer<StylusPointDescription> description);
 
-    QWidget* Captured();
+    Visual* Captured();
 
 };
 
@@ -130,7 +130,7 @@ public:
 
     MouseButtonState XButton2();
 
-    QWidget* Captured();
+    Visual* Captured();
 
 };
 

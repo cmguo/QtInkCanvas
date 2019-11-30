@@ -8,7 +8,7 @@
 #include <QList>
 
 class DrawingVisual;
-class UIElement;
+class Visual;
 
 /// <summary>
 /// An internal helper class to draw lasso as a sequence of dots
@@ -55,7 +55,7 @@ public:
     /// Read-only access to the container visual for dynamic drawing a lasso
     /// </summary>
 public:
-    UIElement* GetVisual();
+    Visual* GetVisual();
 
     /// <summary>TBS</summary>
     QVector<QPointF> AddPoints(QList<QPointF> const & points);

@@ -15,8 +15,9 @@ class StrokeCollectionChangedEventArgs;
 /// <summary>
 /// InkCanvasSelection
 /// </summary>
-class InkCanvasSelection
+class InkCanvasSelection : public QObject
 {
+    Q_OBJECT
 public:
     //-------------------------------------------------------------------------------
     //

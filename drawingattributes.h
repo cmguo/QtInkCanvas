@@ -50,9 +50,9 @@ public:
     /// <summary>
     /// The StylusTip used to draw the stroke
     /// </summary>
-    StylusTip StylusTip() const;
+    StylusTip GetStylusTip() const;
 
-    void SetStylusTip(enum StylusTip value);
+    void SetStylusTip(StylusTip value);
 
     /// <summary>
     /// The StylusTip used to draw the stroke

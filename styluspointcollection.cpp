@@ -292,7 +292,7 @@ void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
 /// </summary>
 QSharedPointer<StylusPointCollection> StylusPointCollection::Clone()
 {
-    return Clone(QMatrix(1, 0, 0, 1, 0, 0), Description(), size());
+    return Clone(QMatrix(), Description(), size());
 }
 
 /// <summary>
@@ -321,7 +321,7 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(int count)
         throw std::exception("count");
     }
 
-    return Clone(QMatrix(1, 0, 0, 1, 0, 0), Description(), count);
+    return Clone(QMatrix(), Description(), count);
 
 }
 
@@ -404,7 +404,7 @@ void StylusPointCollection::Transform(QMatrix const & transform)
 /// <param name="subsetToReformatTo">subsetToReformatTo
 QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo)
 {
-    return Reformat(subsetToReformatTo, QMatrix(1, 0, 0, 1, 0, 0));
+    return Reformat(subsetToReformatTo, QMatrix());
 }
 
 /// <summary>

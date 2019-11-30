@@ -33,7 +33,7 @@ class GestureRecognitionResult
     // Constructors
     //
     //-------------------------------------------------------------------------------
-
+public:
     //#region Constructors
 
     GestureRecognitionResult(RecognitionConfidence confidence, ApplicationGesture gesture)

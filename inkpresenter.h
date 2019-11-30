@@ -19,9 +19,12 @@ class AutomationPeer;
 class Decorator : public UIElement
 {
 protected:
-    UIElement* Child();
+    UIElement* Child() { return child_; }
 
-    void SetChild(UIElement *);
+    void SetChild(UIElement * value) { child_ = value; }
+
+private:
+    UIElement * child_;
 };
 
 /// <summary>
@@ -58,13 +61,13 @@ public:
     /// </summary>
     /// <param name="visual">The stroke visual which needs to be attached</param>
     /// <param name="drawingAttributes">The DrawingAttributes of the stroke</param>
-    void AttachVisuals(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    void AttachVisuals(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>
     /// DetachVisual method
     /// </summary>
     /// <param name="visual">The stroke visual which needs to be detached</param>
-    void DetachVisuals(UIElement* visual);
+    void DetachVisuals(Visual* visual);
 
     //#endregion Methods
 
@@ -125,7 +128,7 @@ protected:
     /// <summary>
     /// Returns the child at the specified index.
     /// </summary>
-    virtual UIElement* GetVisualChild(int index);
+    virtual Visual* GetVisualChild(int index);
 
 
     /// <summary>
@@ -154,12 +157,12 @@ public:
     /// Internal helper used to indicate if a visual was previously attached
     /// via a call to AttachIncrementalRendering
     /// </summary>
-    bool ContainsAttachedVisual(UIElement* visual);
+    bool ContainsAttachedVisual(Visual* visual);
 
     /// <summary>
     /// Internal helper used to determine if a visual is in the right spot in the visual tree
     /// </summary>
-    bool AttachedVisualIsPositionedCorrectly(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    bool AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
 
     //#endregion Internal Methods
     //------------------------------------------------------

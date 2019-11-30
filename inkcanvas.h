@@ -324,7 +324,7 @@ protected:
     /// <summary>
     ///     The DependencyProperty for the Background property.
     /// </summary>
-    static DependencyProperty const * BackgroundProperty;
+    static DependencyProperty const * const BackgroundProperty;
 
     /// <summary>
     ///     An object that describes the background.
@@ -343,7 +343,7 @@ protected:
     /// <summary>
     /// Top DependencyProperty
     /// </summary>
-    static DependencyProperty const * TopProperty;
+    static DependencyProperty const * const TopProperty;
 
     /// <summary>
     /// Reads the attached property Top from the given element.
@@ -374,7 +374,7 @@ protected:
     /// <summary>
     /// The Bottom DependencyProperty
     /// </summary>
-    static DependencyProperty const * BottomProperty;
+    static DependencyProperty const * const BottomProperty;
 
     /// <summary>
     /// Reads the attached property Bottom from the given element.
@@ -405,7 +405,7 @@ protected:
     /// <summary>
     /// The Left DependencyProperty
     /// </summary>
-    static DependencyProperty const * LeftProperty;
+    static DependencyProperty const * const LeftProperty;
 
     /// <summary>
     /// Reads the attached property Left from the given element.
@@ -436,7 +436,7 @@ protected:
     /// <summary>
     /// The Right DependencyProperty
     /// </summary>
-    static DependencyProperty const * RightProperty;
+    static DependencyProperty const * const RightProperty;
 
     /// <summary>
     /// Reads the attached property Right from the given element.
@@ -482,7 +482,7 @@ public:
     //                        new StrokeCollectionDefaultValueFactory(),
     //                        new PropertyChangedCallback(OnStrokesChanged)));
 
-    static DependencyProperty * const StrokesProperty;
+    static DependencyProperty const * const StrokesProperty;
 
     /// <summary>
     /// Gets/Sets the Strokes property.
@@ -551,7 +551,7 @@ public:
     //                (ValidateValueCallback)delegate(object value)
     //                    { return value != nullptr; });
 
-    static DependencyProperty * const DefaultDrawingAttributesProperty;
+    static DependencyProperty const * const DefaultDrawingAttributesProperty;
 
     /// <summary>
     /// Gets/Sets the DefaultDrawingAttributes property.
@@ -583,7 +583,7 @@ public:
     /// ActiveEditingModeProperty Dependency Property
     /// </summary>
     //static DependencyProperty ActiveEditingModeProperty = ActiveEditingModePropertyKey.DependencyProperty;
-    static DependencyProperty * const ActiveEditingModeProperty;
+    static DependencyProperty const * const ActiveEditingModeProperty;
 
     /// <summary>
     /// Gets the ActiveEditingMode
@@ -605,7 +605,7 @@ public:
     //                        InkCanvasEditingMode.Ink,
     //                      new PropertyChangedCallback(OnEditingModeChanged)),
     //                  new ValidateValueCallback(ValidateEditingMode));
-    static DependencyProperty * const EditingModeProperty;
+    static DependencyProperty const * const EditingModeProperty;
 
 
     /// <summary>
@@ -635,7 +635,7 @@ public:
     //                        InkCanvasEditingMode.EraseByStroke,
     //                        new PropertyChangedCallback(OnEditingModeInvertedChanged)),
     //                new ValidateValueCallback(ValidateEditingMode));
-    static DependencyProperty * const EditingModeInvertedProperty;
+    static DependencyProperty const * const EditingModeInvertedProperty;
 
     /// <summary>
     /// Gets/Sets EditingMode
@@ -1358,7 +1358,7 @@ public:
     /// <summary>
     /// Internal helper called by the LassoSelectionBehavior
     /// </summary>
-    void BeginDynamicSelection(UIElement* visual);
+    void BeginDynamicSelection(Visual* visual);
 
     /// <summary>
     /// Internal helper called by LassoSelectionBehavior to update the display
@@ -1370,7 +1370,7 @@ public:
     /// <summary>
     /// Internal helper used by LassoSelectionBehavior
     /// </summary>
-    QSharedPointer<StrokeCollection> EndDynamicSelection(UIElement* visual);
+    QSharedPointer<StrokeCollection> EndDynamicSelection(Visual* visual);
 
     /// <summary>
     /// Clears the selection in the ink canvas

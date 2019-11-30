@@ -107,11 +107,11 @@ void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF rect)
         {
             InvalidateMeasure();
             InvalidateVisual(); //ensure re-rendering
-            UIElement* parent = GetParent();
+            UIElement* parent = Parent();
 
             if ( parent != nullptr   )
             {
-                GetParent()->InvalidateArrange( );
+               Parent()->InvalidateArrange( );
             }
         }
 

@@ -180,31 +180,31 @@ void EffectiveValueEntry::RestoreExpressionMarker()
     }
 
 }
-
+*/
 // Computes and set the IsDeferred hint flag.
 // This take into account all flags and should only be used sparingly.
-void EffectiveValueEntry::ComputeIsDeferred()
+void EffectiveValueEntry::ComputeIsDeferred() const
 {
     bool isDeferredReference = false;
-    if (!HasModifiers)
+    if (!HasModifiers())
     {
-        isDeferredReference = Value is DeferredReference;
+        //isDeferredReference = Value is DeferredReference;
     }
-    else if (ModifiedValue != null)
+    //else if (ModifiedValue() != null)
     {
-        if (IsCoercedWithCurrentValue)
+        if (IsCoercedWithCurrentValue())
         {
-            isDeferredReference = ModifiedValue.CoercedValue is DeferredReference;
+            //isDeferredReference = ModifiedValue().CoercedValue is DeferredReference;
         }
-        else if (IsExpression)
+        else if (IsExpression())
         {
-            isDeferredReference = ModifiedValue.ExpressionValue is DeferredReference;
+            //isDeferredReference = ModifiedValue.ExpressionValue is DeferredReference;
         }
 
         // For animated values isDeferred will always be false.
     }
 
-    IsDeferredReference = isDeferredReference;
+    //IsDeferredReference = isDeferredReference;
 }
 
 
@@ -251,58 +251,74 @@ bool EffectiveValueEntry::IsDeferredReference() const
     return isDeferredReference;
 }
 
-//set { WritePrivateFlag(FullValueSource::IsPotentiallyADeferredReference, value); }
+void EffectiveValueEntry::SetIsDeferredReference(bool value)
+{
+    WritePrivateFlag(FullValueSource::IsPotentiallyADeferredReference, value);
+}
 
-bool EffectiveValueEntry::IsExpression()
+bool EffectiveValueEntry::IsExpression() const
 {
     return ReadPrivateFlag(FullValueSource::IsExpression);
 }
-void EffectiveValueEntry::SetIsExpression()
+void EffectiveValueEntry::SetIsExpression(bool value)
 {
     WritePrivateFlag(FullValueSource::IsExpression, value);
 }
 
-//bool IsAnimated()
-//{
-//    get { return ReadPrivateFlag(FullValueSource::IsAnimated); }
-//    set { WritePrivateFlag(FullValueSource::IsAnimated, value); }
-//}
+bool EffectiveValueEntry::IsAnimated() const
+{
+    return ReadPrivateFlag(FullValueSource::IsAnimated);
+}
+void EffectiveValueEntry::SetIsAnimated(bool value)
+{
+    WritePrivateFlag(FullValueSource::IsAnimated, value);
+}
 
-//bool IsCoerced()
-//{
-//    get { return ReadPrivateFlag(FullValueSource::IsCoerced); }
-//    set { WritePrivateFlag(FullValueSource::IsCoerced, value); }
-//}
+bool EffectiveValueEntry::IsCoerced() const
+{
+    return ReadPrivateFlag(FullValueSource::IsCoerced);
+}
+void EffectiveValueEntry::SetIsCoerced(bool value)
+{
+    WritePrivateFlag(FullValueSource::IsCoerced, value);
+}
 
 bool EffectiveValueEntry::HasModifiers() const
 {
-    return (_source & FullValueSource::ModifiersMask) != 0;
+    return (_source & FullValueSource::ModifiersMask) != FullValueSource(0);
 }
 
 
 
-//bool HasExpressionMarker
-//{
-//    get { return ReadPrivateFlag(FullValueSource::HasExpressionMarker); }
-//    set { WritePrivateFlag(FullValueSource::HasExpressionMarker, value); }
-//}
+bool EffectiveValueEntry::HasExpressionMarker() const
+{
+    return ReadPrivateFlag(FullValueSource::HasExpressionMarker);
+}
+void EffectiveValueEntry::SetHasExpressionMarker(bool value)
+{
+    WritePrivateFlag(FullValueSource::HasExpressionMarker, value);
+}
 
-//bool IsCoercedWithCurrentValue
-//{
-//    get { return ReadPrivateFlag(FullValueSource::IsCoercedWithCurrentValue); }
-//    set { WritePrivateFlag(FullValueSource::IsCoercedWithCurrentValue, value); }
-//}
+bool EffectiveValueEntry::IsCoercedWithCurrentValue() const
+{
+    return ReadPrivateFlag(FullValueSource::IsCoercedWithCurrentValue);
+}
+void EffectiveValueEntry::SetIsCoercedWithCurrentValue(bool value)
+{
+    WritePrivateFlag(FullValueSource::IsCoercedWithCurrentValue, value);
+}
+
 
 EffectiveValueEntry EffectiveValueEntry::GetFlattenedEntry(RequestFlags requests)
 {
-    if ((_source & (FullValueSource::ModifiersMask | FullValueSource::HasExpressionMarker)) == 0)
+    if ((_source & (FullValueSource::ModifiersMask | FullValueSource::HasExpressionMarker)) == FullValueSource(0))
     {
         // If the property does not have any modifiers
         // then just return the base value.
         return *this;
     }
 
-    if (!HasModifiers)
+    if (!HasModifiers())
     {
         //Debug.Asert(HasExpressionMarker);
 
@@ -311,23 +327,23 @@ EffectiveValueEntry EffectiveValueEntry::GetFlattenedEntry(RequestFlags requests
         // new value for the expression has not been evaluated yet.
         // In the intermediate we need to return the default value
         // for the property. This problem was manifested in DRTDocumentViewer.
-        EffectiveValueEntry unsetEntry = new EffectiveValueEntry();
-        unsetEntry.BaseValueSource= BaseValueSourceInternal;
-        unsetEntry.PropertyIndex = PropertyIndex;
+        EffectiveValueEntry unsetEntry(nullptr);
+        unsetEntry.SetBaseValueSourceInternal(GetBaseValueSourceInternal());
+        unsetEntry.SetPropertyIndex(PropertyIndex());
         return unsetEntry;
     }
 
     // else entry has modifiers
-    EffectiveValueEntry entry = new EffectiveValueEntry();
-    entry.BaseValueSource= BaseValueSourceInternal;
-    entry.PropertyIndex = PropertyIndex;
-    entry.IsDeferredReference = IsDeferredReference;
+    EffectiveValueEntry entry(nullptr);
+    entry.SetBaseValueSourceInternal(GetBaseValueSourceInternal());
+    entry.SetPropertyIndex(PropertyIndex());
+    entry.SetIsDeferredReference(IsDeferredReference());
 
     // If the property has a modifier return the modified value
     //Debug.Asert(ModifiedValue != null);
 
     // outside of DO, we flatten modified value
-    ModifiedValue modifiedValue = ModifiedValue;
+    ModifiedValue modifiedValue = ModifiedValue();
 
     // Note that the modified values have an order of precedence
     // 1. Coerced Value (including Current value)
@@ -335,51 +351,51 @@ EffectiveValueEntry EffectiveValueEntry::GetFlattenedEntry(RequestFlags requests
     // 3. Expression Value
     // Also note that we support any arbitrary combinations of these
     // modifiers and will yet the precedence metioned above.
-    if (IsCoerced)
+    if (IsCoerced())
     {
-        if ((requests & RequestFlags.CoercionBaseValue) == 0)
+        if ((requests & RequestFlags::CoercionBaseValue) == 0)
         {
-            entry.Value = modifiedValue.CoercedValue;
+            entry.SetValue(modifiedValue.CoercedValue());
         }
         else
         {
             // This is the case when CoerceValue tries to query
             // the old base value for the property
-            if (IsCoercedWithCurrentValue)
+            if (IsCoercedWithCurrentValue())
             {
-                entry.Value = modifiedValue.CoercedValue;
+                entry.SetValue(modifiedValue.CoercedValue());
             }
-            else if (IsAnimated && ((requests & RequestFlags.AnimationBaseValue) == 0))
+            else if (IsAnimated() && ((requests & RequestFlags::AnimationBaseValue) == 0))
             {
-                entry.Value = modifiedValue.AnimatedValue;
+                entry.SetValue(modifiedValue.AnimatedValue());
             }
-            else if (IsExpression)
+            else if (IsExpression())
             {
-                entry.Value = modifiedValue.ExpressionValue;
+                entry.SetValue(modifiedValue.ExpressionValue());
             }
             else
             {
-                entry.Value = modifiedValue.BaseValue;
+                entry.SetValue(modifiedValue.BaseValue());
             }
         }
     }
-    else if (IsAnimated)
+    else if (IsAnimated())
     {
-        if ((requests & RequestFlags.AnimationBaseValue) == 0)
+        if ((requests & RequestFlags::AnimationBaseValue) == 0)
         {
-            entry.Value = modifiedValue.AnimatedValue;
+            entry.SetValue(modifiedValue.AnimatedValue());
         }
         else
         {
             // This is the case when [UI/Content]Element are
             // requesting the base value of an animation.
-            if (IsExpression)
+            if (IsExpression())
             {
-                entry.Value = modifiedValue.ExpressionValue;
+                entry.SetValue(modifiedValue.ExpressionValue());
             }
             else
             {
-                entry.Value = modifiedValue.BaseValue;
+                entry.SetValue(modifiedValue.BaseValue());
              }
         }
     }
@@ -387,9 +403,9 @@ EffectiveValueEntry EffectiveValueEntry::GetFlattenedEntry(RequestFlags requests
     {
         //Debug.Asert(IsExpression == true);
 
-        QVariant expressionValue = modifiedValue.ExpressionValue;
+        QVariant expressionValue = modifiedValue.ExpressionValue();
 
-        entry.Value = expressionValue;
+        entry.SetValue(expressionValue);
     }
 
     //Debug.Asert(entry.IsDeferredReference == (entry.Value is DeferredReference), "Value and DeferredReference flag should be in sync; hitting this may mean that it's time to divide the DeferredReference flag into a set of flags, one for each modifier");
@@ -399,21 +415,21 @@ EffectiveValueEntry EffectiveValueEntry::GetFlattenedEntry(RequestFlags requests
 
 void EffectiveValueEntry::SetAnimationBaseValue(QVariant animationBaseValue)
 {
-    if (!HasModifiers)
+    if (!HasModifiers())
     {
-        Value = animationBaseValue;
+        SetValue(animationBaseValue);
     }
     else
     {
-        ModifiedValue modifiedValue = ModifiedValue;
+        ModifiedValue modifiedValue = ModifiedValue();
 
-        if (IsExpression)
+        if (IsExpression())
         {
-            modifiedValue.ExpressionValue = animationBaseValue;
+            modifiedValue.SetExpressionValue(animationBaseValue);
         }
         else
         {
-            modifiedValue.BaseValue = animationBaseValue;
+            modifiedValue.SetBaseValue(animationBaseValue);
         }
 
         //the modified value may be a deferred reference so recompute this flag.
@@ -423,25 +439,25 @@ void EffectiveValueEntry::SetAnimationBaseValue(QVariant animationBaseValue)
 
 void EffectiveValueEntry::SetCoersionBaseValue(QVariant coersionBaseValue)
 {
-    if (!HasModifiers)
+    if (!HasModifiers())
     {
-        Value = coersionBaseValue;
+        SetValue(coersionBaseValue);
     }
     else
     {
-        ModifiedValue modifiedValue = ModifiedValue;
+        ModifiedValue modifiedValue = ModifiedValue();
 
-        if (IsAnimated)
+        if (IsAnimated())
         {
-            modifiedValue.AnimatedValue = coersionBaseValue;
+            modifiedValue.SetAnimatedValue(coersionBaseValue);
         }
-        else if (IsExpression)
+        else if (IsExpression())
         {
-            modifiedValue.ExpressionValue = coersionBaseValue;
+            modifiedValue.SetExpressionValue(coersionBaseValue);
         }
         else
         {
-            modifiedValue.BaseValue = coersionBaseValue;
+            modifiedValue.SetBaseValue(coersionBaseValue);
         }
         //the modified value may be a deferred reference so recompute this flag.
         ComputeIsDeferred();
@@ -450,17 +466,17 @@ void EffectiveValueEntry::SetCoersionBaseValue(QVariant coersionBaseValue)
 
 QVariant EffectiveValueEntry::LocalValue()
 {
-    if (BaseValueSource== BaseValueSourceInternal::Local)
+    if (GetBaseValueSourceInternal() == BaseValueSourceInternal::Local)
     {
-        if (!HasModifiers)
+        if (!HasModifiers())
         {
             //Debug.Asert(Value != DependencyProperty::UnsetValue);
-            return Value;
+            return Value();
         }
         else
         {
             //Debug.Asert(ModifiedValue != null && ModifiedValue.BaseValue != DependencyProperty::UnsetValue);
-            return ModifiedValue.BaseValue;
+            return ModifiedValue().BaseValue();
         }
     }
     else
@@ -469,48 +485,48 @@ QVariant EffectiveValueEntry::LocalValue()
     }
 }
 
-void EffectiveValueEntry::SetLocalValue()
+void EffectiveValueEntry::SetLocalValue(QVariant value)
 {
     //Debug.Asert(BaseValueSource== BaseValueSourceInternal::Local, "This can happen only on an entry already having a local value");
 
-    if (!HasModifiers)
+    if (!HasModifiers())
     {
         //Debug.Asert(Value != DependencyProperty::UnsetValue);
-        Value = value;
+        SetValue(value);
     }
     else
     {
         //Debug.Asert(ModifiedValue != null && ModifiedValue.BaseValue != DependencyProperty::UnsetValue);
-        ModifiedValue.BaseValue = value;
+        //ModifiedValue.BaseValue = value;
     }
 }
 
 
-ModifiedValue EffectiveValueEntry::ModifiedValue()
+ModifiedValue EffectiveValueEntry::GetModifiedValue()
 {
-    if (_value != null)
-    {
-        return _value as ModifiedValue;
-    }
-    return null;
+    //if (_value != null)
+    //{
+    //    return _value as ModifiedValue;
+    //}
+    return ModifiedValue();
 }
 
-ModifiedValue EffectiveValueEntry::EnsureModifiedValue(bool useWeakReferenceForBaseValue=false)
+ModifiedValue EffectiveValueEntry::EnsureModifiedValue(bool useWeakReferenceForBaseValue)
 {
-    ModifiedValue modifiedValue = null;
-    if (_value == null)
+    ModifiedValue modifiedValue;
+    //if (_value == null)
     {
-        _value = modifiedValue = new ModifiedValue();
+        //_value = modifiedValue = ModifiedValue();
     }
-    else
+    //else
     {
-        modifiedValue = _value as ModifiedValue;
-        if (modifiedValue == null)
-        {
-            modifiedValue = new ModifiedValue();
-            modifiedValue.SetBaseValue(_value, useWeakReferenceForBaseValue);
-            _value = modifiedValue;
-        }
+        //modifiedValue = _value as ModifiedValue;
+        //if (modifiedValue == null)
+        //{
+        //    modifiedValue = new ModifiedValue();
+        //    modifiedValue.SetBaseValue(_value, useWeakReferenceForBaseValue);
+        //    _value = modifiedValue;
+        //}
     }
     return modifiedValue;
 }
@@ -518,8 +534,8 @@ ModifiedValue EffectiveValueEntry::EnsureModifiedValue(bool useWeakReferenceForB
 void EffectiveValueEntry::Clear()
 {
     _propertyIndex = -1;
-    _value = null;
-    _source = 0;
+    _value.clear();
+    _source = static_cast<FullValueSource>(0);
 }
 
 
@@ -535,24 +551,24 @@ void EffectiveValueEntry::WritePrivateFlag(FullValueSource bit, bool value)
     }
 }
 
-bool EffectiveValueEntry::ReadPrivateFlag(FullValueSource bit)
+bool EffectiveValueEntry::ReadPrivateFlag(FullValueSource bit) const
 {
-    return (_source & bit) != 0;
+    return (_source & bit) != static_cast<FullValueSource>(0);
 }
 
 
 
 QVariant ModifiedValue::BaseValue()
 {
-     BaseValueWeakReference wr = _baseValue as BaseValueWeakReference;
-     return (wr != null) ? wr.Target : _baseValue;
+     //BaseValueWeakReference wr = _baseValue as BaseValueWeakReference;
+     return /*(wr != null) ? wr.Target : */_baseValue;
 }
 
 
 void ModifiedValue::SetBaseValue(QVariant value, bool useWeakReference)
 {
-    _baseValue = (useWeakReference && !value.GetType().IsValueType)
+    _baseValue = /*(useWeakReference && !value.GetType().IsValueType)
                 ? new BaseValueWeakReference(value)
-                : value;
+                : */value;
 }
-*/
+

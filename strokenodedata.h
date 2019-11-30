@@ -7,7 +7,7 @@
 
 /// <summary>
 /// This structure represents a node on a stroke spine.
-/// </summary>、
+/// </summary>
 class StrokeNodeData
 {
 private:

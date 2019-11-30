@@ -46,7 +46,7 @@ InkPresenter::InkPresenter()
 /// </summary>
 /// <param name="visual">The stroke visual which needs to be attached</param>
 /// <param name="drawingAttributes">The DrawingAttributes of the stroke</param>
-void InkPresenter::AttachVisuals(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+void InkPresenter::AttachVisuals(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     VerifyAccess();
 
@@ -58,7 +58,7 @@ void InkPresenter::AttachVisuals(UIElement* visual, QSharedPointer<DrawingAttrib
 /// DetachVisual method
 /// </summary>
 /// <param name="visual">The stroke visual which needs to be detached</param>
-void InkPresenter::DetachVisuals(UIElement* visual)
+void InkPresenter::DetachVisuals(Visual* visual)
 {
     VerifyAccess();
 
@@ -214,7 +214,7 @@ Geometry* InkPresenter::GetLayoutClip(QSizeF layoutSlotSize)
 /// <summary>
 /// Returns the child at the specified index.
 /// </summary>
-UIElement* InkPresenter::GetVisualChild(int index)
+Visual* InkPresenter::GetVisualChild(int index)
 {
     int count = VisualChildrenCount();
 
@@ -300,7 +300,7 @@ AutomationPeer* InkPresenter::OnCreateAutomationPeer()
 /// Internal helper used to indicate if a visual was previously attached
 /// via a call to AttachIncrementalRendering
 /// </summary>
-bool InkPresenter::ContainsAttachedVisual(UIElement* visual)
+bool InkPresenter::ContainsAttachedVisual(Visual* visual)
 {
     VerifyAccess();
     return _renderer->ContainsAttachedIncrementalRenderingVisual(visual);
@@ -310,7 +310,7 @@ bool InkPresenter::ContainsAttachedVisual(UIElement* visual)
 /// <summary>
 /// Internal helper used to determine if a visual is in the right spot in the visual tree
 /// </summary>
-bool InkPresenter::AttachedVisualIsPositionedCorrectly(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+bool InkPresenter::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     VerifyAccess();
     return _renderer->AttachedVisualIsPositionedCorrectly(visual, drawingAttributes);

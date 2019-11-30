@@ -10,6 +10,7 @@ class InkCanvas;
 /// </summary>
 class InkCanvasInnerCanvas : public UIElement
 {
+    Q_OBJECT
 public:
     //------------------------------------------------------
     //

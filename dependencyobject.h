@@ -2,6 +2,7 @@
 #define DEPENDENCYOBJECT_H
 
 #include <QVariant>
+#include <QMap>
 
 class Dispatcher;
 class DependencyProperty;
@@ -49,7 +50,10 @@ protected:
     void VerifyAccess() const;
 
     template<typename TEventArgs>
-    void RaiseEvent(TEventArgs & e);
+    void RaiseEvent(TEventArgs & e) {}
+
+private:
+    QMap<DependencyProperty const *, QVariant> props_;
 };
 
 #endif // DEPENDENCYOBJECT_H

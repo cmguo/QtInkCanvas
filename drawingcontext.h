@@ -2,10 +2,14 @@
 #define DRAWINGCONTEXT_H
 
 #include <QPointF>
+#include <QRectF>
 #include <QPen>
+#include <QBrush>
+#include <QTransform>
 
 class AnimationClock;
 class Geometry;
+class Drawing;
 
 class DrawingContext
 {
@@ -33,15 +37,15 @@ public:
     /// </summary>
     /// <param name="pen"> The QPen with which to stroke the line. </param>
     /// <param name="point0"> The start QPointF const &for the line. </param>
-    /// <param name="point0Animations"> Optional AnimationClock & for point0. </param>
+    /// <param name="point0Animations"> Optional AnimationClock * for point0. </param>
     /// <param name="point1"> The end QPointF const &for the line. </param>
-    /// <param name="point1Animations"> Optional AnimationClock & for point1. </param>
+    /// <param name="point1Animations"> Optional AnimationClock * for point1. </param>
     virtual void DrawLine(
         QPen pen,
         QPointF const &point0,
-        AnimationClock & point0Animations,
+        AnimationClock * point0Animations,
         QPointF const &point1,
-        AnimationClock & point1Animations);
+        AnimationClock * point1Animations) = 0;
 
     /// <summary>
     ///     DrawRectangle -
@@ -56,11 +60,11 @@ public:
     ///     The QPen with which to stroke the rectangle.
     ///     This is optional, and can be null, in which case no stroke is performed.
     /// </param>
-    /// <param name="rectangle"> The QRect const & to fill and/or stroke. </param>
+    /// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
     virtual void DrawRectangle(
         QBrush brush,
         QPen pen,
-        QRectF const& rectangle);
+        QRectF const& rectangle) = 0;
 
     /// <summary>
     ///     DrawRectangle -
@@ -75,13 +79,13 @@ public:
     ///     The QPen with which to stroke the rectangle.
     ///     This is optional, and can be null, in which case no stroke is performed.
     /// </param>
-    /// <param name="rectangle"> The QRect const & to fill and/or stroke. </param>
-    /// <param name="rectangleAnimations"> Optional AnimationClock & for rectangle. </param>
+    /// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+    /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
     virtual void DrawRectangle(
         QBrush brush,
         QPen pen,
-        QRect const rectangle,
-        AnimationClock & rectangleAnimations);
+        QRectF const & rectangle,
+        AnimationClock * rectangleAnimations) = 0;
 
     /// <summary>
     ///     DrawRoundedRectangle -
@@ -96,7 +100,7 @@ public:
     ///     The QPen with which to stroke the rectangle.
     ///     This is optional, and can be null, in which case no stroke is performed.
     /// </param>
-    /// <param name="rectangle"> The QRect const & to fill and/or stroke. </param>
+    /// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
     /// <param name="radiusX">
     ///     The radius in the X dimension of the rounded corners of this
     ///     rounded Rect.  This value will be clamped to the range [0..rectangle.Width/2]
@@ -108,9 +112,9 @@ public:
     virtual void DrawRoundedRectangle(
         QBrush brush,
         QPen pen,
-        QRect const & rectangle,
+        QRectF const & rectangle,
         double radiusX,
-        double radiusY);
+        double radiusY) = 0;
 
     /// <summary>
     ///     DrawRoundedRectangle -
@@ -125,27 +129,27 @@ public:
     ///     The QPen with which to stroke the rectangle.
     ///     This is optional, and can be null, in which case no stroke is performed.
     /// </param>
-    /// <param name="rectangle"> The QRect const & to fill and/or stroke. </param>
-    /// <param name="rectangleAnimations"> Optional AnimationClock & for rectangle. </param>
+    /// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+    /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
     /// <param name="radiusX">
     ///     The radius in the X dimension of the rounded corners of this
     ///     rounded Rect.  This value will be clamped to the range [0..rectangle.Width/2]
     /// </param>
-    /// <param name="radiusXAnimations"> Optional AnimationClock & for radiusX. </param>
+    /// <param name="radiusXAnimations"> Optional AnimationClock * for radiusX. </param>
     /// <param name="radiusY">
     ///     The radius in the Y dimension of the rounded corners of this
     ///     rounded Rect.  This value will be clamped to the range [0..rectangle.Height/2].
     /// </param>
-    /// <param name="radiusYAnimations"> Optional AnimationClock & for radiusY. </param>
+    /// <param name="radiusYAnimations"> Optional AnimationClock * for radiusY. </param>
     virtual void DrawRoundedRectangle(
         QBrush brush,
         QPen pen,
-        QRect const & rectangle,
-        AnimationClock & rectangleAnimations,
+        QRectF const & rectangle,
+        AnimationClock * rectangleAnimations,
         double radiusX,
-        AnimationClock & radiusXAnimations,
+        AnimationClock * radiusXAnimations,
         double radiusY,
-        AnimationClock & radiusYAnimations);
+        AnimationClock * radiusYAnimations) = 0;
 
     /// <summary>
     ///     DrawEllipse -
@@ -176,7 +180,7 @@ public:
         QPen pen,
         QPointF const &center,
         double radiusX,
-        double radiusY);
+        double radiusY) = 0;
 
     /// <summary>
     ///     DrawEllipse -
@@ -194,26 +198,26 @@ public:
     /// <param name="center">
     ///     The center of the ellipse to fill and/or stroke.
     /// </param>
-    /// <param name="centerAnimations"> Optional AnimationClock & for center. </param>
+    /// <param name="centerAnimations"> Optional AnimationClock * for center. </param>
     /// <param name="radiusX">
     ///     The radius in the X dimension of the ellipse.
     ///     The absolute value of the radius provided will be used.
     /// </param>
-    /// <param name="radiusXAnimations"> Optional AnimationClock & for radiusX. </param>
+    /// <param name="radiusXAnimations"> Optional AnimationClock * for radiusX. </param>
     /// <param name="radiusY">
     ///     The radius in the Y dimension of the ellipse.
     ///     The absolute value of the radius provided will be used.
     /// </param>
-    /// <param name="radiusYAnimations"> Optional AnimationClock & for radiusY. </param>
+    /// <param name="radiusYAnimations"> Optional AnimationClock * for radiusY. </param>
     virtual void DrawEllipse(
         QBrush brush,
         QPen pen,
         QPointF const &center,
-        AnimationClock & centerAnimations,
+        AnimationClock * centerAnimations,
         double radiusX,
-        AnimationClock & radiusXAnimations,
+        AnimationClock * radiusXAnimations,
         double radiusY,
-        AnimationClock & radiusYAnimations);
+        AnimationClock * radiusYAnimations) = 0;
 
     /// <summary>
     ///     DrawGeometry -
@@ -232,39 +236,39 @@ public:
     virtual void DrawGeometry(
         QBrush brush,
         QPen pen,
-        Geometry& geometry);
+        Geometry * geometry) = 0;
 
     /// <summary>
     ///     DrawImage -
     ///     Draw an Image into the region specified by the Rect.
     ///     The Image will potentially be stretched and distorted to fit the Rect.
-    ///     For more fine grained control, consider filling a QRect const & with an ImageQBrush via
+    ///     For more fine grained control, consider filling a QRectF const & with an ImageQBrush via
     ///     DrawRectangle.
     /// </summary>
     /// <param name="imageSource"> The ImageSource to draw. </param>
     /// <param name="rectangle">
-    ///     The QRect const & into which the ImageSource will be fit.
+    ///     The QRectF const & into which the ImageSource will be fit.
     /// </param>
     virtual void DrawImage(
         QPixmap imageSource,
-        QRect const & rectangle);
+        QRectF const & rectangle) = 0;
 
     /// <summary>
     ///     DrawImage -
     ///     Draw an Image into the region specified by the Rect.
     ///     The Image will potentially be stretched and distorted to fit the Rect.
-    ///     For more fine grained control, consider filling a QRect const & with an ImageQBrush via
+    ///     For more fine grained control, consider filling a QRectF const & with an ImageQBrush via
     ///     DrawRectangle.
     /// </summary>
     /// <param name="imageSource"> The ImageSource to draw. </param>
     /// <param name="rectangle">
-    ///     The QRect const & into which the ImageSource will be fit.
+    ///     The QRectF const & into which the ImageSource will be fit.
     /// </param>
-    /// <param name="rectangleAnimations"> Optional AnimationClock & for rectangle. </param>
+    /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
     virtual void DrawImage(
         QPixmap imageSource,
-        QRect const & rectangle,
-        AnimationClock & rectangleAnimations);
+        QRectF const & rectangle,
+        AnimationClock * rectangleAnimations) = 0;
 
     /// <summary>
     ///     DrawGlyphRun -
@@ -276,43 +280,43 @@ public:
     /// <param name="glyphRun"> The GlyphRun to draw.  </param>
     //virtual void DrawGlyphRun(
     //    QBrush foregroundBrush,
-    //    GlyphRun glyphRun);
+    //    GlyphRun glyphRun) = 0;
 
     /// <summary>
     ///     DrawDrawing -
     ///     Draw a Drawing by appending a sub-Drawing to the current Drawing.
     /// </summary>
     /// <param name="drawing"> The drawing to draw. </param>
-    //virtual void DrawDrawing(
-    //    Drawing drawing);
+    virtual void DrawDrawing(
+        Drawing * drawing) = 0;
 
     /// <summary>
     ///     DrawVideo -
     ///     Draw a Video into the region specified by the Rect.
     ///     The Video will potentially be stretched and distorted to fit the Rect.
-    ///     For more fine grained control, consider filling a QRect const & with an VideoQBrush via
+    ///     For more fine grained control, consider filling a QRectF const & with an VideoQBrush via
     ///     DrawRectangle.
     /// </summary>
     /// <param name="player"> The MediaPlayer to draw. </param>
-    /// <param name="rectangle"> The QRect const & into which the media will be fit. </param>
+    /// <param name="rectangle"> The QRectF const & into which the media will be fit. </param>
     //virtual void DrawVideo(
     //    MediaPlayer player,
-    //    QRect const & rectangle);
+    //    QRectF const & rectangle) = 0;
 
     /// <summary>
     ///     DrawVideo -
     ///     Draw a Video into the region specified by the Rect.
     ///     The Video will potentially be stretched and distorted to fit the Rect.
-    ///     For more fine grained control, consider filling a QRect const & with an VideoQBrush via
+    ///     For more fine grained control, consider filling a QRectF const & with an VideoQBrush via
     ///     DrawRectangle.
     /// </summary>
     /// <param name="player"> The MediaPlayer to draw. </param>
-    /// <param name="rectangle"> The QRect const & into which the media will be fit. </param>
-    /// <param name="rectangleAnimations"> Optional AnimationClock & for rectangle. </param>
+    /// <param name="rectangle"> The QRectF const & into which the media will be fit. </param>
+    /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
     //virtual void DrawVideo(
     //    MediaPlayer player,
-    //    QRect const & rectangle,
-    //    AnimationClock & rectangleAnimations);
+    //    QRectF const & rectangle,
+    //    AnimationClock * rectangleAnimations) = 0;
 
     /// <summary>
     ///     PushClip -
@@ -321,7 +325,7 @@ public:
     /// </summary>
     /// <param name="clipGeometry"> The Geometry to which we will clip. </param>
     virtual void PushClip(
-        Geometry& clipGeometry);
+        Geometry * clipGeometry) = 0;
 
     /// <summary>
     ///     PushOpacityMask -
@@ -330,7 +334,7 @@ public:
     /// </summary>
     /// <param name="opacityMask"> The opacity mask </param>
     virtual void PushOpacityMask(
-        QBrush opacityMask);
+        QBrush opacityMask) = 0;
 
     /// <summary>
     ///     PushOpacity -
@@ -341,7 +345,7 @@ public:
     ///     The opacity with which to blend - 0 is transparent, 1 is opaque.
     /// </param>
     virtual void PushOpacity(
-        double opacity);
+        double opacity) = 0;
 
     /// <summary>
     ///     PushOpacity -
@@ -351,10 +355,10 @@ public:
     /// <param name="opacity">
     ///     The opacity with which to blend - 0 is transparent, 1 is opaque.
     /// </param>
-    /// <param name="opacityAnimations"> Optional AnimationClock & for opacity. </param>
+    /// <param name="opacityAnimations"> Optional AnimationClock * for opacity. </param>
     virtual void PushOpacity(
         double opacity,
-        AnimationClock & opacityAnimations);
+        AnimationClock * opacityAnimations) = 0;
 
     /// <summary>
     ///     PushTransform -
@@ -363,7 +367,7 @@ public:
     /// </summary>
     /// <param name="transform"> The Transform to push. </param>
     virtual void PushTransform(
-        QTransform transform);
+        QTransform transform) = 0;
 
     /// <summary>
     ///     PushGuidelineSet -
@@ -372,15 +376,15 @@ public:
     /// </summary>
     /// <param name="guidelines"> The GuidelineSet to push. </param>
     //virtual void PushGuidelineSet(
-    //    GuidelineSet guidelines);
+    //    GuidelineSet guidelines) = 0;
 
     /// <summary>
     ///     PushGuidelineY1 -
     ///     Explicitly push one horizontal guideline.
     /// </summary>
     /// <param name="coordinate"> The coordinate of leading guideline. </param>
-    virtual void PushGuidelineY1(
-        double coordinate);
+    //virtual void PushGuidelineY1(
+    //    double coordinate) = 0;
 
     /// <summary>
     ///     PushGuidelineY2 -
@@ -392,9 +396,9 @@ public:
     /// <param name="offsetToDrivenCoordinate">
     ///     The offset from leading guideline to driven guideline.
     /// </param>
-    virtual void PushGuidelineY2(
-        double leadingCoordinate,
-        double offsetToDrivenCoordinate);
+    //virtual void PushGuidelineY2(
+    //    double leadingCoordinate,
+    //    double offsetToDrivenCoordinate) = 0;
 
     /// <summary>
     ///     PushEffect -
@@ -406,13 +410,23 @@ public:
     //[Obsolete(MS.Internal.Media.VisualTreeUtils.BitmapEffectObsoleteMessage)]
     //virtual void PushEffect(
     //    BitmapEffect effect,
-    //    BitmapEffectInput effectInput);
+    //    BitmapEffectInput effectInput) = 0;
 
     /// <summary>
     /// Pop
     /// </summary>
     virtual void Pop(
-        );
+        ) = 0;
+
+    /// <summary>
+    /// Closes the DrawingContext and flushes the content.
+    /// Afterwards the DrawingContext can not be used anymore.
+    /// This call does not require all Push calls to have been Popped.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">
+    /// This call is illegal if this object has already been closed or disposed.
+    /// </exception>
+    virtual void Close() = 0;
 };
 
 #endif // DRAWINGCONTEXT_H

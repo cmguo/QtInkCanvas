@@ -3,7 +3,13 @@
 #include <QMimeData>
 
 TextClipboardData::TextClipboardData()
- : TextClipboardData(nullptr)
+    : TextClipboardData(nullptr)
+{
+
+}
+
+TextClipboardData::TextClipboardData(QString text)
+    : _text(text)
 {
 
 }

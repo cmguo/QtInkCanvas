@@ -4,7 +4,7 @@
 #include <QFlags>
 #include <QMetaType>
 
-enum DrawingFlag
+enum class DrawingFlag
 {
     /// <summary>The stroke should be drawn as a polyline</summary>
     Polyline = 0x00000000,

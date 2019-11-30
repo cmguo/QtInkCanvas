@@ -120,7 +120,7 @@ void StylusShape::ComputeRectangleVertices()
                                 topLeft + QPointF(0, m_height)});
     if (false == DoubleUtil::IsZero(m_rotation))
     {
-        QMatrix rotationTransform(1, 0, 0, 1, 0, 0);
+        QMatrix rotationTransform;
         rotationTransform.rotate(m_rotation);
         for (QPointF & p : m_vertices)
             p = rotationTransform.map(p);
@@ -201,7 +201,7 @@ QVector<QPointF> StylusShape::GetBezierControlPoints()
 
     //
 
-    QMatrix transform(1, 0, 0, 1, 0, 0);
+    QMatrix transform;
     if (!qIsNull(m_rotation))
     {
         transform.rotate(m_rotation);

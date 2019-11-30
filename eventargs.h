@@ -28,7 +28,7 @@ public:
     }
 
 protected:
-    EventHandler(void (*handle)(void*, EventArgs & e), void * data) : data_(data), handle_(handle) {}
+    EventHandler(void * data, void (*handle)(void*, EventArgs & e)) : data_(data), handle_(handle) {}
 
 private:
     void * data_ = nullptr;
@@ -43,7 +43,7 @@ public:
 private:
     static void handle(void* obj, EventArgs & e)
     {
-        reinterpret_cast<T*>(obj)->H(static_cast<E&>(e));
+        (reinterpret_cast<T*>(obj)->*H)(static_cast<E&>(e));
     }
 };
 

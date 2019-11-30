@@ -16,6 +16,21 @@ StrokeNodeOperations * StrokeNodeOperations::CreateInstance(StylusShape & nodeSh
 }
 
 /// <summary>
+/// Constructor
+/// </summary>
+/// <param name="nodeShape">shape of the nodes</param>
+StrokeNodeOperations::StrokeNodeOperations(StylusShape & nodeShape)
+{
+    ////System.Diagnostics.Debug.Assert(nodeShape != null);
+    _vertices = nodeShape.GetVerticesAsVectors();
+}
+
+StrokeNodeOperations::~StrokeNodeOperations()
+{
+
+}
+
+/// <summary>
 /// Computes the bounds of a node
 /// </summary>
 /// <param name="node">node to compute bounds of</param>

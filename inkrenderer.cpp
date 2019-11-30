@@ -4,13 +4,14 @@
 #include "strokecollection.h"
 #include "eventargs.h"
 #include "debug.h"
-#include "uielement.h"
+#include "visual.h"
 #include "drawingcontext.h"
 #include "strokerenderer.h"
 #include "events.h"
 #include "hittestresult.h"
+#include "drawingvisual.h"
 
-class InkRenderer::StrokeVisual : public UIElement
+class InkRenderer::StrokeVisual : public DrawingVisual
 {
 public:
     /// <summary>
@@ -54,7 +55,7 @@ public:
     /// </summary>
     void Update()
     {
-        DrawingContext drawingContext = RenderOpen();
+        std::unique_ptr<DrawingContext> drawingContext(RenderOpen());
         {
             bool highContrast = _renderer.IsHighContrast();
 
@@ -83,7 +84,7 @@ public:
             }
 
             // Draw selected stroke as hollow
-            _stroke->DrawInternal (drawingContext, da, _stroke->IsSelected() );
+            _stroke->DrawInternal (*drawingContext, da, _stroke->IsSelected() );
         }
     }
 
@@ -132,31 +133,6 @@ private:
 
 };
 
-class ContainerVisual : public UIElement
-{
-
-};
-
-class InkRenderer::HighlighterContainerVisual : public ContainerVisual
-{
-public:
-    HighlighterContainerVisual(QColor color)
-    {
-        _color = color;
-    }
-
-    /// <summary>
-    /// The Color of the strokes in this highlighter container visual
-    /// </summary>
-    QColor Color()
-    {
-        return _color;
-    }
-private:
-    QColor _color;
-};
-
-
 
 
 /// <summary>
@@ -180,7 +156,7 @@ InkRenderer::InkRenderer()
 
     // Highlighters go to the bottom, then regular ink, and regular
     // ink' incremental rendering in on top.
-    QList<UIElement*> rootChildren = _rootVisual->Children();
+    QList<Visual*> rootChildren = _rootVisual->Children();
     rootChildren.append(_highlightersRoot);
     rootChildren.append(_regularInkVisuals);
     rootChildren.append(_incrementalRenderingVisuals);
@@ -201,7 +177,7 @@ InkRenderer::InkRenderer()
 /// this property for the first time. If no strokes are set then an empty
 /// visual is returned.
 /// </summary>
-UIElement* InkRenderer::RootVisual() { return _rootVisual; }
+Visual* InkRenderer::RootVisual() { return _rootVisual; }
 
 /// <summary>
 /// Set the strokes property to the collection of strokes to be rendered.
@@ -281,7 +257,7 @@ void InkRenderer::SetStrokes(QSharedPointer<StrokeCollection> value)
 /// </summary>
 /// <param name="visual">visual to attach</param>
 /// <param name="drawingAttributes">drawing attributes that used in the incremental rendering</param>
-void InkRenderer::AttachIncrementalRendering(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+void InkRenderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     // Check the input parameters
     if (visual == nullptr)
@@ -299,7 +275,7 @@ void InkRenderer::AttachIncrementalRendering(UIElement* visual, QSharedPointer<D
     // Verify that the visual hasn't been attached already
     //if (_attachedVisuals != nullptr)
     {
-        for(UIElement* alreadyAttachedVisual : _attachedVisuals)
+        for(Visual* alreadyAttachedVisual : _attachedVisuals)
         {
             if (visual == alreadyAttachedVisual)
             {
@@ -311,7 +287,7 @@ void InkRenderer::AttachIncrementalRendering(UIElement* visual, QSharedPointer<D
     //else
     {
         // Create the list to register attached visuals in
-    //    _attachedVisuals = new QList<UIElement*>();
+    //    _attachedVisuals = new QList<Visual*>();
     }
 
 
@@ -333,7 +309,7 @@ void InkRenderer::AttachIncrementalRendering(UIElement* visual, QSharedPointer<D
 /// Detaches a visual previously attached via AttachIncrementalRendering
 /// </summary>
 /// <param name="visual">the visual to detach</param>
-void InkRenderer::DetachIncrementalRendering(UIElement* visual)
+void InkRenderer::DetachIncrementalRendering(Visual* visual)
 {
     if (visual == nullptr)
     {
@@ -354,7 +330,7 @@ void InkRenderer::DetachIncrementalRendering(UIElement* visual)
 /// helper used to indicate if a visual was previously attached
 /// via a call to AttachIncrementalRendering
 /// </summary>
-bool InkRenderer::ContainsAttachedIncrementalRenderingVisual(UIElement* visual)
+bool InkRenderer::ContainsAttachedIncrementalRenderingVisual(Visual* visual)
 {
     if (visual == nullptr)
     {
@@ -367,7 +343,7 @@ bool InkRenderer::ContainsAttachedIncrementalRenderingVisual(UIElement* visual)
 /// <summary>
 /// helper used to determine if a visual is in the right spot in the visual tree
 /// </summary>
-bool InkRenderer::AttachedVisualIsPositionedCorrectly(UIElement* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+bool InkRenderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     if (visual == nullptr || drawingAttributes == nullptr || !_attachedVisuals.contains(visual))
     {
@@ -582,7 +558,7 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
                 && (_visuals.contains(stroke) == true)
                 && ((precedingVisual = _visuals.value(stroke))->parentWidget() != nullptr))
             {
-                QList<UIElement*> children = static_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
+                QList<Visual*> children = static_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
                 int index = children.indexOf(precedingVisual);
                 children.insert(index + 1, visual);
                 break;
@@ -602,12 +578,12 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
 /// Detaches a visual from the tree, also removes highligher parents if empty
 /// when true is passed
 /// </summary>
-void InkRenderer::DetachVisual(UIElement* visual)
+void InkRenderer::DetachVisual(Visual* visual)
 {
     ContainerVisual* parent = qobject_cast<ContainerVisual*>(visual->parentWidget());
     if (parent != nullptr)
     {
-        QList<UIElement*> children = parent->Children();
+        QList<Visual*> children = parent->Children();
         children.removeOne(visual);
 
         // If the parent is a childless highlighter, detach it too.
@@ -643,6 +619,11 @@ void InkRenderer::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
     //stroke.Invalidated -= new EventHandler(OnStrokeInvalidated);
     QObject::disconnect(stroke.get(), &Stroke::Invalidated,
                      this, &InkRenderer::OnStrokeInvalidated);
+}
+
+static bool operator<(QColor const & l, QColor const & r)
+{
+    return l.rgba() < r.rgba();
 }
 
 /// <summary>

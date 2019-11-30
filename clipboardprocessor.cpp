@@ -289,17 +289,17 @@ void ClipboardProcessor::SetPreferredFormats(QList<InkCanvasClipboardFormat> val
 ///     TreatAsSafe: We only execute this code if the application has UnmanagedCode permission
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
-/*
+
 bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements, QMatrix transform, QSizeF size)
 {
     //NOTE: after meeting with the partial trust team, we have
     //collectively decided to only allow copy / cut of XAML if the caller
     //has unmanagedcode permission, else we silently ignore the XAML
-    if (!SecurityHelper.CheckUnmanagedCodePermission())
-    {
-        return false;
-    }
-    else
+    //if (!SecurityHelper.CheckUnmanagedCodePermission())
+    //{
+    //    return false;
+    //}
+    //else
     {
 
         QSharedPointer<InkCanvas> inkCanvas(new InkCanvas());
@@ -325,6 +325,7 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                 //      1. Presist the elements to Xaml
                 //      2. Load the xaml to create the new instances of the elements.
                 //      3. Add the new instances to the new container.
+/*
                 string xml;
 
                 try
@@ -344,6 +345,7 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                     inkCanvas = nullptr;
                     break;
                 }
+                */
             }
         }
 
@@ -351,7 +353,7 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
         {
             GetInkCanvas().SetWidth(size.width());
             GetInkCanvas().SetHeight(size.height());
-
+/*
             ClipboardData* data = new XamlClipboardData(new UIElement[] { inkCanvas });
 
             try
@@ -364,12 +366,12 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                 // operation.
                 inkCanvas = nullptr;
             }
+            */
         }
 
         return inkCanvas != nullptr;
     }
 }
-*/
 
 void ClipboardProcessor::TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements)
 {
@@ -403,6 +405,7 @@ void ClipboardProcessor::TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, QS
 //
 //-------------------------------------------------------------------------------
 
+DependencyObjectType*     ClipboardProcessor::s_InkCanvasDType = nullptr;
 
 /// <summary>
 /// A static DependencyObjectType of the GrabHandleAdorner which can be used for quick type checking.

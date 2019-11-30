@@ -7,6 +7,7 @@
 #include "inkcanvasselectionadorner.h"
 #include "mouseeventargs.h"
 #include "mousebuttoneventargs.h"
+#include "pencursormanager.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -95,8 +96,8 @@ void SelectionEditingBehavior::OnCommit(bool commit)
 
 QCursor SelectionEditingBehavior::GetCurrentCursor()
 {
-    return PenCursorManager.GetSelectionCursor(_hitResult,
-        (this.GetInkCanvas().FlowDirection == FlowDirection.RightToLeft));
+    return PenCursorManager::GetSelectionCursor(_hitResult,
+        (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft));
 }
 
 //#endregion Protected Methods

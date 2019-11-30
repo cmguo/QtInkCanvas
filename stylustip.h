@@ -1,7 +1,9 @@
 #ifndef STYLUSTIP_H
 #define STYLUSTIP_H
 
-enum StylusTip
+#include <QMetaType>
+
+enum class StylusTip
 {
     /// <summary>
     /// Rectangle
@@ -14,6 +16,7 @@ enum StylusTip
     Ellipse
 };
 
+Q_DECLARE_METATYPE(StylusTip)
 
 class StylusTipHelper
 {

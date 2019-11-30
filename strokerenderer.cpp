@@ -249,7 +249,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 
             double prevAngle = DBL_MIN;
             bool isStartOfSegment = true;
-            bool isEllipse = drawingAttributes.StylusTip() == StylusTip::Ellipse;
+            bool isEllipse = drawingAttributes.GetStylusTip() == StylusTip::Ellipse;
             bool ignorePressure = drawingAttributes.IgnorePressure();
             //
             // Two QList<QPointF>'s that get reused for adding figures

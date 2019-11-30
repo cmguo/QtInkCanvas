@@ -14,6 +14,7 @@ class DrawingContext;
 class StrokeCollection;
 class StrokeIntersection;
 class Lasso;
+class EventArgs;
 class StylusPointsReplacedEventArgs;
 class DrawingAttributesReplacedEventArgs;
 
@@ -178,7 +179,7 @@ signals:
     /// Renderer would simply listen to this. Stroke developer can raise this event by calling OnInvalidated when
     /// he wants the renderer to repaint.
     /// </summary>
-    void Invalidated();
+    void Invalidated(EventArgs& e);
 
     /// <summary>
     /// INotifyPropertyChanged.PropertyChanged event, explicitly implemented
@@ -234,9 +235,9 @@ protected:
     /// Method called on derived classes whenever a stroke needs repaint. Developers who
     /// subclass Stroke and need a repaint could raise Invalidated through this virtual
     /// </summary>
-    virtual void OnInvalidated()
+    virtual void OnInvalidated(EventArgs& e)
     {
-        emit Invalidated();
+        emit Invalidated(e);
     }
 
     /// <summary>
@@ -476,16 +477,7 @@ public:
     {
         return _isSelected;
     }
-    void SetIsSelected(bool value)
-    {
-        if (value != _isSelected)
-        {
-            _isSelected = value;
-
-            // Raise Invalidated event. This will cause Renderer to repaint and call back DrawCore
-            OnInvalidated();
-        }
-    }
+    void SetIsSelected(bool value);
 
     /// <summary>
     /// Set the path geometry

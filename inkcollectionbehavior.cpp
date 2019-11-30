@@ -378,8 +378,9 @@ QCursor InkCollectionBehavior::PenCursor()
         {
             //scale the DA, zero the offsets.
             xf *= da->StylusTipTransform();
-            xf.OffsetX = 0;
-            xf.OffsetY = 0;
+            //xf.OffsetX = 0;
+            //xf.OffsetY = 0;
+            xf = QMatrix(xf.m11(), xf.m12(), xf.m21(), xf.m22(), 0, 0);
             if ( xf.isInvertible() )
             {
                 da = da->Clone();

@@ -22,6 +22,11 @@ EditingBehavior::EditingBehavior(EditingCoordinator& editingCoordinator, InkCanv
     //_editingCoordinator = editingCoordinator;
 }
 
+EditingBehavior::~EditingBehavior()
+{
+
+}
+
 //#endregion Constructors
 
 //-------------------------------------------------------------------------------
