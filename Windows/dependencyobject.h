@@ -48,9 +48,9 @@ public:
 
     Dispatcher* GetDispatcher();
 
-protected:
     void VerifyAccess() const;
 
+protected:
     template<typename TEventArgs>
     void RaiseEvent(TEventArgs & e) {}
 
