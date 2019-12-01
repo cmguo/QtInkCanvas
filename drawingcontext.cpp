@@ -1,2 +1,0 @@
-#include "drawingcontext.h"
-

@@ -1,6 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+// namespace System.Diagnostics
+
 class Debug
 {
 public:

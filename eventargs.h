@@ -47,6 +47,8 @@ private:
     }
 };
 
+// namespace System
+
 class EventArgs : public QEvent
 {
 public:

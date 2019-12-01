@@ -1,7 +1,7 @@
 #ifndef QTSTREAMGEOMETRYCONTEXT_H
 #define QTSTREAMGEOMETRYCONTEXT_H
 
-#include "streamgeometrycontext.h"
+#include "Windows/Media/streamgeometrycontext.h"
 
 class QtStreamGeometryContext : public StreamGeometryContext
 {

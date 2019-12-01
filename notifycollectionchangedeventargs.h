@@ -18,6 +18,8 @@ enum NotifyCollectionChangedAction
     Reset,
 };
 
+// namespace System.Collections.Specialized
+
 class NotifyCollectionChangedEventArgs : public EventArgs
 {
 public:
