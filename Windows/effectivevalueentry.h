@@ -84,13 +84,13 @@ class ModifiedValue;
 class EffectiveValueEntry
 {
 public:
-    static EffectiveValueEntry CreateDefaultValueEntry(DependencyProperty* dp, QVariant value);
+    static EffectiveValueEntry CreateDefaultValueEntry(DependencyProperty const * dp, QVariant value);
 
-    EffectiveValueEntry(DependencyProperty* dp);
+    EffectiveValueEntry(DependencyProperty const * dp);
 
-    EffectiveValueEntry(DependencyProperty* dp, BaseValueSourceInternal valueSource);
+    EffectiveValueEntry(DependencyProperty const * dp, BaseValueSourceInternal valueSource);
 
-    EffectiveValueEntry(DependencyProperty* dp, FullValueSource fullValueSource);
+    EffectiveValueEntry(DependencyProperty const * dp, FullValueSource fullValueSource);
 
     void SetExpressionValue(QVariant value, QVariant baseValue);
 

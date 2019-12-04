@@ -11,6 +11,7 @@
 #include <QUuid>
 #include <QColor>
 #include <QVariant>
+#include <QSharedPointer>
 
 class StylusShape;
 class PropertyChangedEventArgs;
@@ -374,5 +375,17 @@ public:
     /// <remarks>corresponds to 4294967 in V1 (4294967 / (2540/96))</remarks>
     static constexpr double MaxWidth = 162329.4614173230;
 };
+
+#include "Windows/dependencyproperty.h"
+
+class DrawingAttributesDefaultValueFactory : public DefaultValueFactory
+{
+private:
+    virtual QVariant DefaultValue() override
+    {
+        return QVariant::fromValue(QSharedPointer<DrawingAttributes>(new DrawingAttributes));
+    }
+};
+
 
 #endif // DRAWINGATTRIBUTES_H

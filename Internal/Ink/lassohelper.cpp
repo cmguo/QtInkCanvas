@@ -116,7 +116,7 @@ void LassoHelper::AddLassoPoint(QPointF const & lassoPoint)
     //}
 
     // Add the new visual to the container.
-    _containerVisual->Children().append(dv);
+    _containerVisual->Children().Add(dv);
 }
 
 //#endregion

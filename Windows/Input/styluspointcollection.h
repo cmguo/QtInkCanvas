@@ -72,7 +72,7 @@ public:
     /// <param name="tabletToView">tabletToView
     /// <param name="tabletToViewMatrix">tabletToView
     StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData,
-                          QMatrix & tabletToView, QMatrix & tabletToViewMatrix);
+                          QMatrix const & tabletToView, QMatrix const & tabletToViewMatrix);
 
     /// <summary>
     /// Adds the StylusPoints in the StylusPointCollection to this StylusPointCollection

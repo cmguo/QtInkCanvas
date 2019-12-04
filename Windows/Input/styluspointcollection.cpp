@@ -111,7 +111,7 @@ StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
 /// <param name="rawPacketData">rawPacketData
 /// <param name="tabletToView">tabletToView
 /// <param name="tabletToViewMatrix">tabletToView
-StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData, QMatrix & tabletToView, QMatrix & tabletToViewMatrix)
+StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData, QMatrix const & tabletToView, QMatrix const & tabletToViewMatrix)
 {
     if (nullptr == stylusPointDescription)
     {
@@ -133,9 +133,9 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
         //first, determine the x, y values by xf-ing them
         QPointF p(rawPacketData[i], rawPacketData[i + 1]);
         //if (tabletToView != nullptr)
-        {
-            p = tabletToView.map(p);
-        }
+        //{
+        //    p = tabletToView.map(p);
+        //}
         //else
         {
             p = tabletToViewMatrix.map(p);

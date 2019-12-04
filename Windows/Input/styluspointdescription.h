@@ -1,7 +1,7 @@
 #ifndef STYLUSPOINTDESCRIPTION_H
 #define STYLUSPOINTDESCRIPTION_H
 
-#include "styluspointpropertyinfo.h"
+#include "Windows/Input/styluspointpropertyinfo.h"
 
 #include <QVector>
 #include <QSharedPointer>

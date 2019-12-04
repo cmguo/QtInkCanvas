@@ -4,28 +4,106 @@
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Media/geometry.h"
+#include "Windows/Media/drawingcontext.h"
+#include "Windows/Media/drawingvisual.h"
 #include "Windows/Media/containervisual.h"
-#include "Windows/Input/inputdevice.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/mousedevice.h"
+#include "Windows/uielement.h"
+#include "Windows/dispatcher.h"
+#include "finallyhelper.h"
 #include "debug.h"
 
 #include <QBrush>
+#include <QThread>
 
-class VisualTarget;
+#include <Windows.h>
+#include <sysinfoapi.h>
+
+class HostVisual;
+
+class VisualTarget
+{
+public:
+    VisualTarget(HostVisual* host)
+        : host_(host)
+        , root_(nullptr)
+    {
+    }
+
+    Visual* RootVisual()
+    {
+        return root_;
+    }
+
+    void SetRootVisual(Visual* root)
+    {
+        root_ = root;
+    }
+
+private:
+    HostVisual* host_;
+    Visual * root_;
+};
+
+class HostVisual : public ContainerVisual
+{
+public:
+    Visual* GetVisualTarget();
+};
+
+class DynamicRenderer::DynamicRendererHostVisual : public HostVisual
+{
+public:
+    bool InUse()
+    {
+        return _strokeInfoList.size() > 0;
+    }
+    bool HasSingleReference()
+    {
+        return _strokeInfoList.size() == 1;
+    }
+    void AddStrokeInfoRef(StrokeInfo* si)
+    {
+        _strokeInfoList.append(si);
+    }
+    void RemoveStrokeInfoRef(StrokeInfo* si)
+    {
+        _strokeInfoList.removeOne(si);
+    }
+    /// <securitynote>
+    /// Critical - Calls SecurityCritical method with LinkDemand (CompositionTarget.RootVisual).
+    /// TreatAsSafe: You can't set the RootVisual to an arbitrary value.
+    /// </securitynote>
+    VisualTarget* GetVisualTarget()
+    {
+         if (_visualTarget == nullptr)
+         {
+             _visualTarget = new VisualTarget(this);
+             _visualTarget->SetRootVisual(new ContainerVisual());
+         }
+         return _visualTarget;
+    }
+
+private:
+    VisualTarget*       _visualTarget = nullptr;
+    QList<StrokeInfo*>   _strokeInfoList;
+};
 
 class DynamicRenderer::StrokeInfo
 {
     int _stylusId;
     int _startTime;
     int _lastTime;
-    ContainerVisual* _strokeCV;  // App thread rendering CV
-    ContainerVisual* _strokeRTICV; // real time input CV
-    bool _seenUp; // Have we seen the stylusUp event yet?
-    bool _isReset; // Was reset used to create this StrokeInfo?
+    ContainerVisual* _strokeCV = nullptr;  // App thread rendering CV
+    ContainerVisual* _strokeRTICV = nullptr; // real time input CV
+    bool _seenUp = false; // Have we seen the stylusUp event yet?
+    bool _isReset = false; // Was reset used to create this StrokeInfo?
     QBrush _fillBrush; // app thread based brushed
     QSharedPointer<DrawingAttributes> _drawingAttributes;
     StrokeNodeIterator _strokeNodeIterator;
     double _opacity;
-    DynamicRendererHostVisual*   _strokeHV;  // App thread rendering HostVisual
+    DynamicRendererHostVisual*   _strokeHV = nullptr;  // App thread rendering HostVisual
 
 public:
     StrokeInfo(QSharedPointer<DrawingAttributes> drawingAttributes, int stylusDeviceId, int startTimestamp, DynamicRendererHostVisual* hostVisual)
@@ -38,7 +116,7 @@ public:
         //_drawingAttributes = drawingAttributes.Clone(); // stroke copy for duration of stroke.
         //_strokeNodeIterator = new StrokeNodeIterator(_drawingAttributes);
         QColor color = _drawingAttributes->Color();
-        _opacity = _drawingAttributes->IsHighlighter() ? 0 : (double)color.alpha() / (double)StrokeRenderer::SolidStrokeAlpha;
+        _opacity = _drawingAttributes->IsHighlighter() ? 0 : color.alpha() / StrokeRenderer::SolidStrokeAlpha;
         color.setAlpha(StrokeRenderer::SolidStrokeAlpha);
 
         // Set the brush to be used with this new stroke too (since frozen can be shared by threads)
@@ -77,6 +155,12 @@ public:
     }
     void SetStrokeCV(ContainerVisual* value)
     {
+        if (value == nullptr) {
+            if (_strokeCV)
+                delete _strokeCV;
+        } else {
+            value->setObjectName("StrokeInfo::StrokeCV");
+        }
         _strokeCV = value;
     }
     ContainerVisual* StrokeRTICV()
@@ -85,6 +169,7 @@ public:
     }
     void SetStrokeRTICV(ContainerVisual* value)
     {
+        value->setObjectName("StrokeInfo::StrokeRTICV");
         _strokeRTICV = value;
     }
     bool SeenUp()
@@ -103,7 +188,7 @@ public:
     {
         _isReset = value;
     }
-    StrokeNodeIterator GetStrokeNodeIterator()
+    StrokeNodeIterator& GetStrokeNodeIterator()
     {
         return _strokeNodeIterator;
     }
@@ -123,7 +208,7 @@ public:
     {
         _fillBrush = value;
     }
-    QSharedPointer<DrawingAttributes> DrawingAttributes()
+    QSharedPointer<DrawingAttributes> GetDrawingAttributes()
     {
         return _drawingAttributes;
     }
@@ -137,74 +222,59 @@ public:
     }
     bool IsTimestampWithin(int timestamp)
     {
-         if (StartTime() < LastTime()) // wrapping check
-         {
-             return ((timestamp >= StartTime()) && (timestamp <= LastTime()));
-         }
-         else // The timestamp wrapped back to zero
-         {
-             return ((timestamp >= StartTime()) || (timestamp <= LastTime()));
-         }
-         return true; // everything is consider part of an open StrokeInfo.
+        // If we've seen up use the start and end to figure out if timestamp
+        // is between start and last.  Note that we need to deal with the
+        // times wrapping back to 0.
+        if (SeenUp())
+        {
+            if (StartTime() < LastTime()) // wrapping check
+            {
+                return ((timestamp >= StartTime()) && (timestamp <= LastTime()));
+            }
+            else // The timestamp wrapped back to zero
+            {
+                return ((timestamp >= StartTime()) || (timestamp <= LastTime()));
+            }
+        }
+        else
+        {
+            return true; // everything is consider part of an open StrokeInfo.
+        }
     }
     bool IsTimestampAfter(int timestamp)
     {
-         if (LastTime() >= StartTime())
-         {
-             if (timestamp >= LastTime())
-             {
-                 return true;
-             }
-             else
-             {
-                 return ((LastTime() > 0) && (timestamp < 0));  // true if we wrapped
-             }
-         }
-         else // The timestamp may have wrapped, see if greater than last time and less than start time
-         {
-             return timestamp >= LastTime() && timestamp <= StartTime();
-         }
-         return false; // Nothing can be after a closed StrokeInfo (see up).
+        // If we've seen up then timestamp can't be after, otherwise do the check.
+        // Note that we need to deal with the times wrapping (goes negative).
+        if (!SeenUp())
+        {
+            if (LastTime() >= StartTime())
+            {
+                if (timestamp >= LastTime())
+                {
+                    return true;
+                }
+                else
+                {
+                    return ((LastTime() > 0) && (timestamp < 0));  // true if we wrapped
+                }
+            }
+            else // The timestamp may have wrapped, see if greater than last time and less than start time
+            {
+                return timestamp >= LastTime() && timestamp <= StartTime();
+            }
+        }
+        else
+        {
+            return false; // Nothing can be after a closed StrokeInfo (see up).
+        }
     }
-
 };
 
-class DynamicRenderer::DynamicRendererHostVisual : HostVisual
-{
-    bool InUse()
-    {
-        return _strokeInfoList.size() > 0;
-    }
-    bool HasSingleReference()
-    {
-        return _strokeInfoList.size() == 1;
-    }
-    void AddStrokeInfoRef(StrokeInfo* si)
-    {
-    }
-    void RemoveStrokeInfoRef(StrokeInfo* si)
-    {
-    }
-    /// <securitynote>
-    /// Critical - Calls SecurityCritical method with LinkDemand (CompositionTarget.RootVisual).
-    /// TreatAsSafe: You can't set the RootVisual to an arbitrary value.
-    /// </securitynote>
-    VisualTarget* VisualTarget()
-    {
-         if (_visualTarget == nullptr)
-         {
-             _visualTarget = new VisualTarget(this);
-             _visualTarget->SetRootVisual(new ContainerVisual());
-         }
-         return _visualTarget;
-    }
-
-    VisualTarget*       _visualTarget;
-    QList<StrokeInfo>   _strokeInfoList;
-};
+class VisualTarget;
 
 DynamicRenderer::DynamicRenderer()
     : StylusPlugIn()
+    , __siLock(QMutex::Recursive)
 {
     _zeroSizedFrozenRect = new RectangleGeometry(QRectF(0,0,0,0));
     //_zeroSizedFrozenRect.Freeze();
@@ -242,16 +312,16 @@ void DynamicRenderer::Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPoi
     }
 
     // Avoid reentrancy due to lock() call.
-    _applicationDispatcher->DisableProcessing();
+    //using(_applicationDispatcher->DisableProcessing())
     {
-        //lock(__siLock)
+        //QMutexLocker l(&__siLock)
         {
             AbortAllStrokes(); // stop any current inking strokes
 
             // Now create new si and insert it in the list.
             StrokeInfo* si = new StrokeInfo(GetDrawingAttributes(),
                                            (stylusDevice != nullptr) ? stylusDevice->Id() : 0,
-                                           Environment::TickCount, GetCurrentHostVisual());
+                                           ::GetTickCount(), GetCurrentHostVisual());
             _strokeInfoList.append(si);
             si->SetIsReset(true);
 
@@ -287,7 +357,7 @@ Visual* DynamicRenderer::RootVisual()
 void DynamicRenderer::OnAdded()
 {
     // Grab the dispatcher we're hookup up to.
-    _applicationDispatcher = Element::GetDispatcher();
+    _applicationDispatcher = GetElement()->GetDispatcher();
 
     // If we are active for input, make sure we create the real time inking thread
     // and visuals if needed.
@@ -464,16 +534,19 @@ void DynamicRenderer::OnStylusUp(RawStylusInput& rawStylusInput)
 
 bool DynamicRenderer::IsStylusUp(int stylusId)
 {
-    TabletDeviceCollection tabletDevices = Tablet.TabletDevices;
-    for (int i= 0; i< tabletdevices.count; i++)
-    {
-        TabletDevice tabletdevice = tabletdevices[i];
-         for (int j = 0; j < tabletdevice.stylusdevices.count; j++)
-            if (stylusid == stylusDevice->id)
-                return stylusDevice->InAir();
-    }
-    // not found so must be up. <summary>
-    return true;
+    //TabletDeviceCollection tabletDevices = Tablet.TabletDevices;
+    //for (int i=0; i<tabletDevices.Count; i++)
+    //{
+    //    TabletDevice tabletDevice = tabletDevices[i];
+    //    for (int j=0; j<tabletDevice.StylusDevices.Count; j++)
+    //    {
+    //        StylusDevice stylusDevice = tabletDevice.StylusDevices[j];
+    //        if (stylusId == stylusDevice.Id)
+    //            return stylusDevice.InAir;
+    //    }
+    //}
+
+    return true; // not found so must be up.
 }
 
 /// [TBS]
@@ -486,7 +559,7 @@ void DynamicRenderer::OnRenderComplete()
     if (si != nullptr)
     {
         // See if we are done transitioning this stroke!!
-        if (si->StrokeHV().Clip() == nullptr)
+        if (si->StrokeHV()->Clip() == nullptr)
         {
             TransitionComplete(si);
             _renderCompleteStrokeInfo = nullptr;
@@ -503,35 +576,34 @@ void DynamicRenderer::RemoveDynamicRendererVisualAndNotifyWhenDone(StrokeInfo* s
 {
     if (si != nullptr)
     {
-        DynamicRendererThreadManager* renderingThread = _renderingThread; // Keep it alive
+        QThread * renderingThread = _renderingThread; // Keep it alive
         if (renderingThread != nullptr)
         {
             // We are being called by the main UI thread, so marshal over to
             // the inking thread before cleaning up the stroke visual.
-            renderingThread->ThreadDispatcher.BeginInvoke(DispatcherPriority.Send,
-            (DispatcherOperationCallback)delegate(object unused)
+            Dispatcher::from(renderingThread)->BeginInvoke([this, si](void* unused)
             {
-                if (si->StrokeRTICV != nullptr)
+                if (si->StrokeRTICV ()!= nullptr)
                 {
                     // Now wait till this is rendered and then notify UI thread.
-                    if (_onDRThreadRenderComplete == nullptr)
-                    {
-                        _onDRThreadRenderComplete = new EventHandler(OnDRThreadRenderComplete);
-                    }
+                    //if (_onDRThreadRenderComplete == nullptr)
+                    //{
+                    //    _onDRThreadRenderComplete = new EventHandler(OnDRThreadRenderComplete);
+                    //}
 
                     // Add to list to transact.
-                    _renderCompleteDRThreadStrokeInfoList.Enqueue(si);
+                    _renderCompleteDRThreadStrokeInfoList.enqueue(si);
 
                     // See if we are already waiting for a removed stroke to be rendered.
                     // If we aren't then remove visuals and wait for it to be rendered.
                     // Otherwise we'll do the work when the current stroke has been removed.
                     if (!_waitingForDRThreadRenderComplete)
                     {
-                        ((ContainerVisual)si->StrokeHV.VisualTarget.RootVisual).Children.Remove(si->StrokeRTICV);
-                        si->StrokeRTICV = nullptr;
+                        ((ContainerVisual*)si->StrokeHV()->GetVisualTarget()->RootVisual())->Children().Remove(si->StrokeRTICV());
+                        si->SetStrokeRTICV(nullptr);
 
                         // hook up render complete notification for one time then unhook.
-                        MediaContext.From(renderingThread->ThreadDispatcher).RenderComplete += _onDRThreadRenderComplete;
+                        //MediaContext.From(renderingThread->ThreadDispatcher).RenderComplete += _onDRThreadRenderComplete;
                         _waitingForDRThreadRenderComplete = true;
                     }
                 }
@@ -556,15 +628,14 @@ void DynamicRenderer::NotifyAppOfDRThreadRenderComplete(StrokeInfo* si)
     {
         // We are being called by the inking thread, so marshal over to
         // the UI thread before handling the StrokeInfos that are done rendering.
-        dispatcher.BeginInvoke(DispatcherPriority.Send,
-        (DispatcherOperationCallback)delegate(object unused)
+        dispatcher->BeginInvoke([this, si](void* unused)
         {
             // See if this is the one we are doing a full transition for.
             if (si == _renderCompleteStrokeInfo)
             {
-                if (si->StrokeHV.Clip != nullptr)
+                if (si->StrokeHV()->Clip() != nullptr)
                 {
-                    si->StrokeHV.Clip = nullptr;
+                    si->StrokeHV()->SetClip(nullptr);
                     NotifyOnNextRenderComplete();
                 }
                 else
@@ -586,13 +657,13 @@ void DynamicRenderer::NotifyAppOfDRThreadRenderComplete(StrokeInfo* si)
 
 void DynamicRenderer::OnDRThreadRenderComplete(EventArgs& e)
 {
-    DynamicRendererThreadManager* drThread = _renderingThread;
+    QThread * drThread = _renderingThread;
     Dispatcher* drDispatcher = nullptr;
 
     // Remove RenderComplete hook.
     if (drThread != nullptr)
     {
-        drDispatcher = drThread->ThreadDispatcher;
+        drDispatcher = Dispatcher::from(drThread);
 
         if (drDispatcher != nullptr)
         {
@@ -606,7 +677,7 @@ void DynamicRenderer::OnDRThreadRenderComplete(EventArgs& e)
             if (_renderCompleteDRThreadStrokeInfoList.size() == 0)
             {
                 // First unhook event handler
-                MediaContext::From(drDispatcher).RenderComplete -= _onDRThreadRenderComplete;
+                //MediaContext::From(drDispatcher).RenderComplete -= _onDRThreadRenderComplete;
                 _waitingForDRThreadRenderComplete = false;
             }
             else
@@ -617,9 +688,8 @@ void DynamicRenderer::OnDRThreadRenderComplete(EventArgs& e)
                 {
                     // Post this back to our thread to make sure we return from the
                     // this render complete call first before queuing up the next.
-                    drDispatcher.BeginInvoke(DispatcherPriority.Send,
-                        [siNext](void* unused) {
-                            ((ContainerVisual)siNext->StrokeHV().VisualTarget().RootVisual()).Children.Remove(siNext->StrokeRTICV());
+                    drDispatcher->BeginInvoke([siNext](void* unused) {
+                            ((ContainerVisual*)siNext->StrokeHV()->GetVisualTarget()->RootVisual())->Children().Remove(siNext->StrokeRTICV());
                             siNext->SetStrokeRTICV(nullptr);
                             return nullptr;
                     },
@@ -664,14 +734,14 @@ void DynamicRenderer::OnStylusUpProcessed(void* callbackData, bool targetVerifie
     TransitionStrokeVisuals(si, !targetVerified);
 }
 
-void OnInternalRenderComplete(EventArgs& e)
+void DynamicRenderer::OnInternalRenderComplete(EventArgs& e)
 {
     // First unhook event handler
-    MediaContext.From(_applicationDispatcher).RenderComplete -= _onRenderComplete;
+    //MediaContext.From(_applicationDispatcher).RenderComplete -= _onRenderComplete;
     _waitingForRenderComplete = false;
 
     // Make sure lock() doesn't cause reentrancy.
-    using(_applicationDispatcher->DisableProcessing())
+    //using(_applicationDispatcher->DisableProcessing())
     {
         // Now notify event happened.
         OnRenderComplete();
@@ -683,7 +753,7 @@ void OnInternalRenderComplete(EventArgs& e)
 /// <summary>
 /// [TBS]
 /// </summary>
-void NotifyOnNextRenderComplete()
+void DynamicRenderer::NotifyOnNextRenderComplete()
 {
     // Nothing to do if not hooked up to plugin collection.
     if (_applicationDispatcher == nullptr)
@@ -692,15 +762,15 @@ void NotifyOnNextRenderComplete()
     // Ensure on application Dispatcher.
     _applicationDispatcher->VerifyAccess();
 
-    if (_onRenderComplete == nullptr)
-    {
-        _onRenderComplete = new EventHandler(OnInternalRenderComplete);
-    }
+    //if (_onRenderComplete == nullptr)
+    //{
+    //    _onRenderComplete = new EventHandler(OnInternalRenderComplete);
+    //}
 
     if (!_waitingForRenderComplete)
     {
         // hook up render complete notification for one time then unhook.
-        MediaContext.From(_applicationDispatcher).RenderComplete += _onRenderComplete;
+        //MediaContext.From(_applicationDispatcher).RenderComplete += _onRenderComplete;
         _waitingForRenderComplete = true;
     }
 }
@@ -711,14 +781,16 @@ void NotifyOnNextRenderComplete()
 /// </summary>
 void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
                                 QSharedPointer<StylusPointCollection> stylusPoints,
-                                Geometry& geometry,
+                                Geometry* geometry,
                                 QBrush fillBrush)
 {
-    if (drawingContext == nullptr)
-    {
-        throw std::exception("drawingContext");
-    }
-    drawingContext.DrawGeometry(fillBrush, nullptr, geometry);
+    //if (drawingContext == nullptr)
+    //{
+    //    throw std::exception("drawingContext");
+    //}
+    QPen pen;
+    pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+    drawingContext.DrawGeometry(fillBrush, pen, geometry);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -734,82 +806,86 @@ void DynamicRenderer::OnDrawingAttributesReplaced()
 /// Retrieves the Dispatcher for the thread used for rendering dynamic strokes
 /// when receiving data from the stylus input thread(s).
 /// </summary>
-Dispatcher* GetDispatcher()
+Dispatcher* DynamicRenderer::GetDispatcher()
 {
-    return _renderingThread != nullptr ? _renderingThread->ThreadDispatcher : nullptr;
+    return _renderingThread != nullptr ? Dispatcher::from(_renderingThread) : nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
 
-void RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
+void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
 {
     // If no points or not hooked up to element then do nothing.
-    if (stylusPoints.Count == 0 || _applicationDispatcher == nullptr)
+    if (stylusPoints->size() == 0 || _applicationDispatcher == nullptr)
         return;
 
     // Get a collection of ink nodes built from the new stylusPoints.
-    si->StrokeNodeIterator = si->StrokeNodeIterator.GetIteratorForNextSegment(stylusPoints);
-    if (si->StrokeNodeIterator != nullptr)
+    si->SetStrokeNodeIterator(si->GetStrokeNodeIterator().GetIteratorForNextSegment(stylusPoints));
+    if (si->GetStrokeNodeIterator() != nullptr)
     {
         // Create a PathGeometry representing the contour of the ink increment
-        Geometry strokeGeometry;
-        Rect bounds;
-        StrokeRenderer::CalcGeometryAndBounds(si->StrokeNodeIterator,
-                                             si->DrawingAttributes,
+        Geometry* strokeGeometry = nullptr;
+        QRectF bounds;
+        StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator(),
+                                             *si->GetDrawingAttributes(),
 #if DEBUG_RENDERING_FEEDBACK
                                              nullptr, //debug dc
                                              0d,   //debug feedback size
                                              false,//render debug feedback
 #endif
                                              false, //calc bounds
-                                             out strokeGeometry,
-                                             out bounds);
+                                             strokeGeometry,
+                                             bounds);
 
         // If we are called from the app thread we can just stay on it and render to that
         // visual tree.  Otherwise we need to marshal over to our inking thread to do our work.
         if (_applicationDispatcher->CheckAccess())
         {
             // See if we need to create a new container visual for the stroke.
-            if (si->StrokeCV == nullptr)
+            if (si->StrokeCV() == nullptr)
             {
                 // Create new container visual for this stroke and add our incremental rendering visual to it.
-                si->StrokeCV = new ContainerVisual();
+                si->SetStrokeCV(new ContainerVisual());
 
                 //
 
 
 
 
-                if (!si->DrawingAttributes.IsHighlighter)
+                if (!si->GetDrawingAttributes()->IsHighlighter())
                 {
-                    si->StrokeCV.Opacity = si->Opacity;
+                    si->StrokeCV()->SetOpacity(si->Opacity());
                 }
-                _mainRawInkContainerVisual.Children.Add(si->StrokeCV);
+                _mainRawInkContainerVisual->Children().Add(si->StrokeCV());
             }
 
             // Create new visual and render the geometry into it
-            DrawingVisual visual = new DrawingVisual();
-            DrawingContext drawingContext = visual.RenderOpen();
-            try
+            DrawingVisual* visual = new DrawingVisual();
+            std::unique_ptr<DrawingContext> drawingContext(visual->RenderOpen());
+            //try
             {
-                OnDraw(drawingContext, stylusPoints, strokeGeometry, si->FillBrush);
+                FinallyHelper final([&drawingContext]() {
+                    drawingContext->Close();
+                });
+                OnDraw(*drawingContext, stylusPoints, strokeGeometry, si->FillBrush());
             }
-            finally
-            {
-                drawingContext.Close();
-            }
+            //finally
+            //{
+            //    drawingContext.Close();
+            //}
 
             // Now add it to the visual tree (making sure we still have StrokeCV after
             // onDraw called above).
-            if (si->StrokeCV != nullptr)
+            if (si->StrokeCV() != nullptr)
             {
-                si->StrokeCV.Children.Add(visual);
+                si->StrokeCV()->Children().Add(visual);
             }
         }
         else
         {
-            DynamicRendererThreadManager renderingThread = _renderingThread; // keep it alive
-            Dispatcher drDispatcher = renderingThread != nullptr ? renderingThread->ThreadDispatcher : nullptr;
+            /*
+            QThread* renderingThread = _renderingThread; // keep it alive
+            Dispatcher* drDispatcher = renderingThread != nullptr ? renderingThread->ThreadDispatcher() : nullptr;
 
             // Only try to render if we get a ref on the rendering thread.
             if (drDispatcher != nullptr)
@@ -859,18 +935,18 @@ void RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeIn
                     return nullptr;
                 },
                 nullptr);
-            }
+            }*/
         }
     }
 }
 
 /////////////////////////////////////////////////////////////////////
 
-void AbortAllStrokes()
+void DynamicRenderer::AbortAllStrokes()
 {
-    lock(__siLock)
     {
-        while (_strokeInfoList.Count > 0)
+        QMutexLocker l(&__siLock);
+        while (_strokeInfoList.size() > 0)
         {
             TransitionStrokeVisuals(_strokeInfoList[0], true);
         }
@@ -899,22 +975,22 @@ void AbortAllStrokes()
 // then basically instead of starting with step 1 we jump to step 2 and when then on step 5
 // we mark the HostVisual free and we are done.
 //
-void TransitionStrokeVisuals(StrokeInfo* si, bool abortStroke)
+void DynamicRenderer::TransitionStrokeVisuals(StrokeInfo* si, bool abortStroke)
 {
     // Make sure we don't get any more input for this stroke.
     RemoveStrokeInfo(si);
 
     // remove si visuals and this si
-    if (si->StrokeCV != nullptr)
+    if (si->StrokeCV() != nullptr)
     {
         if (_mainRawInkContainerVisual != nullptr)
         {
-            _mainRawInkContainerVisual.Children.Remove(si->StrokeCV);
+            _mainRawInkContainerVisual->Children().Remove(si->StrokeCV());
         }
-        si->StrokeCV = nullptr;
+        si->SetStrokeCV(nullptr);
     }
 
-    si->FillBrush = nullptr;
+    si->SetFillBrush(QBrush());
 
     // Nothing to do if we've destroyed our host visuals.
     if (_rawInkHostVisual1 == nullptr)
@@ -926,15 +1002,15 @@ void TransitionStrokeVisuals(StrokeInfo* si, bool abortStroke)
     if (!abortStroke && _renderCompleteStrokeInfo == nullptr)
     {
         // make sure lock does not cause reentrancy on application thread!
-        using (_applicationDispatcher->DisableProcessing())
+        //using (_applicationDispatcher->DisableProcessing())
         {
-            lock (__siLock)
             {
+                QMutexLocker l(&__siLock);
                 // We can transition the host visual only if a single reference is on it.
-                if (si->StrokeHV.HasSingleReference)
+                if (si->StrokeHV()->HasSingleReference())
                 {
-                    Debug::Assert(si->StrokeHV.Clip == nullptr);
-                    si->StrokeHV.Clip = _zeroSizedFrozenRect;
+                    Debug::Assert(si->StrokeHV()->Clip() == nullptr);
+                    si->StrokeHV()->SetClip(_zeroSizedFrozenRect);
                     Debug::Assert(_renderCompleteStrokeInfo == nullptr);
                     _renderCompleteStrokeInfo = si;
                     doRenderComplete = true;
@@ -954,9 +1030,8 @@ void TransitionStrokeVisuals(StrokeInfo* si, bool abortStroke)
     }
 }
 
-private:
 // Figures out the correct DynamicRenderHostVisual to use.
-DynamicRendererHostVisual* GetCurrentHostVisual()
+DynamicRenderer::DynamicRendererHostVisual* DynamicRenderer::GetCurrentHostVisual()
 {
     // Find which of the two host visuals to use as current.
     if (_currentHostVisual == nullptr)
@@ -965,21 +1040,21 @@ DynamicRendererHostVisual* GetCurrentHostVisual()
     }
     else
     {
-        HostVisual transitioningHostVisual = _renderCompleteStrokeInfo != nullptr ?
-                                                _renderCompleteStrokeInfo.StrokeHV : nullptr;
+        HostVisual* transitioningHostVisual = _renderCompleteStrokeInfo != nullptr ?
+                                                _renderCompleteStrokeInfo->StrokeHV() : nullptr;
 
-        if (_currentHostVisual.InUse)
+        if (_currentHostVisual->InUse())
         {
             if (_currentHostVisual == _rawInkHostVisual1)
             {
-                if (!_rawInkHostVisual2.InUse || _rawInkHostVisual1 == transitioningHostVisual)
+                if (!_rawInkHostVisual2->InUse() || _rawInkHostVisual1 == transitioningHostVisual)
                 {
                     _currentHostVisual = _rawInkHostVisual2;
                 }
             }
             else
             {
-                if (!_rawInkHostVisual1.InUse || _rawInkHostVisual2 == transitioningHostVisual)
+                if (!_rawInkHostVisual1->InUse() || _rawInkHostVisual2 == transitioningHostVisual)
                 {
                     _currentHostVisual = _rawInkHostVisual1;
                 }
@@ -991,35 +1066,35 @@ DynamicRendererHostVisual* GetCurrentHostVisual()
 
 
 // Removes ref from DynamicRendererHostVisual.
-void TransitionComplete(StrokeInfo* si)
+void DynamicRenderer::TransitionComplete(StrokeInfo* si)
 {
     // make sure lock does not cause reentrancy on application thread!
-    using(_applicationDispatcher->DisableProcessing())
+    //using(_applicationDispatcher->DisableProcessing())
     {
-        lock(__siLock)
         {
-            si->StrokeHV.RemoveStrokeInfoRef(si);
+            QMutexLocker l(&__siLock);
+            si->StrokeHV()->RemoveStrokeInfoRef(si);
         }
     }
 }
 
-void RemoveStrokeInfo(StrokeInfo* si)
+void DynamicRenderer::RemoveStrokeInfo(StrokeInfo* si)
 {
-    lock(__siLock)
     {
-        _strokeInfoList.Remove(si);
+        QMutexLocker l(&__siLock);
+        _strokeInfoList.removeOne(si);
     }
 }
 
-StrokeInfo FindStrokeInfo(int timestamp)
+DynamicRenderer::StrokeInfo* DynamicRenderer::FindStrokeInfo(int timestamp)
 {
-    lock(__siLock)
     {
-        for (int i=0; i < _strokeInfoList.Count; i++)
+        QMutexLocker l(&__siLock);
+        for (int i=0; i < _strokeInfoList.size(); i++)
         {
             StrokeInfo* siCur = _strokeInfoList[i];
 
-            if (siCur.IsTimestampWithin(timestamp))
+            if (siCur->IsTimestampWithin(timestamp))
             {
                 return siCur;
             }
@@ -1031,41 +1106,37 @@ StrokeInfo FindStrokeInfo(int timestamp)
 
 /////////////////////////////////////////////////////////////////////
 
-public:
 /////////////////////////////////////////////////////////////////////
 /// <summary>
 /// [TBS] - On UIContext
 /// </summary>
-QSharedPointer<DrawingAttributes> DrawingAttributes
+QSharedPointer<DrawingAttributes> DynamicRenderer::GetDrawingAttributes()
 {
-    get // called from two UIContexts
-    {
-        return _drawAttrsSource;
-    }
-    set // (called in UIContext)
-    {
-        if (value == nullptr)
-            throw std::exception("value");
-
-        _drawAttrsSource = value;
-
-        OnDrawingAttributesReplaced();
-    }
+     return _drawAttrsSource;
+}
+void DynamicRenderer::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
+{
+     if (value == nullptr)
+         throw std::exception("value");
+     _drawAttrsSource = value;
+     OnDrawingAttributesReplaced();
 }
 
-void CreateInkingVisuals()
+void DynamicRenderer::CreateInkingVisuals()
 {
     if (_mainContainerVisual == nullptr)
     {
         _mainContainerVisual = new ContainerVisual();
+        _mainContainerVisual->setObjectName("DynamicRenderer::MainContainerVisual");
         _mainRawInkContainerVisual = new ContainerVisual();
-        _mainContainerVisual.Children.Add(_mainRawInkContainerVisual);
+        _mainRawInkContainerVisual->setObjectName("DynamicRenderer::MainRawInkContainerVisual");
+        _mainContainerVisual->Children().Add(_mainRawInkContainerVisual);
     }
 
     if (IsActiveForInput())
     {
         // Make sure lock() doesn't cause reentrancy.
-        using (Element.Dispatcher.DisableProcessing())
+        //using (Element.Dispatcher.DisableProcessing())
         {
             CreateRealTimeVisuals();
         }
@@ -1076,7 +1147,7 @@ void CreateInkingVisuals()
 /// Create the visual target
 /// This method is called from the application context
 /// </summary>
-void CreateRealTimeVisuals()
+void DynamicRenderer::CreateRealTimeVisuals()
 {
     // Only create if we have a root visual and have not already created them.
     if (_mainContainerVisual != nullptr && _rawInkHostVisual1 == nullptr)
@@ -1085,8 +1156,8 @@ void CreateRealTimeVisuals()
         _rawInkHostVisual1 = new DynamicRendererHostVisual();
         _rawInkHostVisual2 = new DynamicRendererHostVisual();
         _currentHostVisual = nullptr;  // Pick a new current HostVisual on first stylus input.
-        _mainContainerVisual.Children.Add(_rawInkHostVisual1);
-        _mainContainerVisual.Children.Add(_rawInkHostVisual2);
+        _mainContainerVisual->Children().Add(_rawInkHostVisual1);
+        _mainContainerVisual->Children().Add(_rawInkHostVisual2);
         // NOTE: Do the work later if perf is bad hooking up VisualTargets on StylusDown...
 
         // Guarentee that objects are valid when on the DR thread below.
@@ -1095,7 +1166,7 @@ void CreateRealTimeVisuals()
         // Do this last since we can be reentrant on this call and we want to set
         // things up so we are all set except for the real time thread visuals which
         // we set up on first usage.
-        _renderingThread = DynamicRendererThreadManager.GetCurrentThreadInstance();
+        _renderingThread = QThread::currentThread();
 
         /*
         // We are being called by the main UI thread, so invoke a call over to
@@ -1122,7 +1193,7 @@ void CreateRealTimeVisuals()
 /// Unhoot the visual target.
 /// This method is called from the application Dispatcher
 /// </summary>
-void DestroyRealTimeVisuals()
+void DynamicRenderer::DestroyRealTimeVisuals()
 {
     // Only need to handle if already created visuals.
     if (_mainContainerVisual != nullptr && _rawInkHostVisual1 != nullptr)
@@ -1130,30 +1201,29 @@ void DestroyRealTimeVisuals()
         // Make sure we unhook the rendercomplete event.
         if (_waitingForRenderComplete)
         {
-            MediaContext.From(_applicationDispatcher).RenderComplete -= _onRenderComplete;
+            //MediaContext.From(_applicationDispatcher).RenderComplete -= _onRenderComplete;
             _waitingForRenderComplete = false;
         }
 
-        _mainContainerVisual.Children.Remove(_rawInkHostVisual1);
-        _mainContainerVisual.Children.Remove(_rawInkHostVisual2);
+        _mainContainerVisual->Children().Remove(_rawInkHostVisual1);
+        _mainContainerVisual->Children().Remove(_rawInkHostVisual2);
 
         _renderCompleteStrokeInfo = nullptr;
 
-        DynamicRendererThreadManager renderingThread = _renderingThread; // keep ref to keep it alive in this routine
-        Dispatcher drDispatcher = renderingThread != nullptr ? renderingThread->ThreadDispatcher : nullptr;
+        QThread* renderingThread = _renderingThread; // keep ref to keep it alive in this routine
+        Dispatcher* drDispatcher = renderingThread != nullptr ? Dispatcher::from(renderingThread) : nullptr;
 
         if (drDispatcher != nullptr)
         {
-            drDispatcher.BeginInvoke(DispatcherPriority.Send,
-            (DispatcherOperationCallback)delegate(object unused)
+            drDispatcher->BeginInvoke([this, renderingThread](void* unused)
             {
-                _renderCompleteDRThreadStrokeInfoList.Clear();
+                _renderCompleteDRThreadStrokeInfoList.clear();
 
-                drDispatcher = renderingThread->ThreadDispatcher;
+                Dispatcher* drDispatcher = Dispatcher::from(renderingThread);
 
                 if (drDispatcher != nullptr && _waitingForDRThreadRenderComplete)
                 {
-                    MediaContext.From(drDispatcher).RenderComplete -= _onDRThreadRenderComplete;
+                    //MediaContext.From(drDispatcher).RenderComplete -= _onDRThreadRenderComplete;
                 }
                 _waitingForDRThreadRenderComplete = false;
 
@@ -1171,30 +1241,4 @@ void DestroyRealTimeVisuals()
 
         AbortAllStrokes(); // Doing this here avoids doing a begininvoke to enter the rendering thread (avoid reentrancy).
     }
-}
-DynamicRenderer::DynamicRenderer()
-{
-
-}
-
-bool DynamicRenderer::Enabled()
-{
-    return false;
-}
-
-void DynamicRenderer::SetEnabled(bool value)
-{
-}
-
-void DynamicRenderer::Reset(StylusDevice*, QSharedPointer<StylusPointCollection>)
-{
-}
-
-void DynamicRenderer::SetDrawingAttributes(QSharedPointer<DrawingAttributes>)
-{
-}
-
-UIElement* DynamicRenderer::RootVisual()
-{
-    return nullptrptr;
 }

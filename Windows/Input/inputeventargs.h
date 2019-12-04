@@ -65,14 +65,5 @@ private:
     static int _timestamp;
  };
 
-class StylusDevice;
-
-class StylusEventArgs : public InputEventArgs
-{
-public:
-    StylusDevice* GetStylusDevice();
-
-    bool Inverted();
-};
 
 #endif // INPUTEVENTARGS_H

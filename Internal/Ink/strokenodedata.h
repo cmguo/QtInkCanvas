@@ -54,17 +54,17 @@ public:
     }
 
     /// <summary> Position of the node </summary>
-    QPointF & Position()
+    QPointF const & Position() const
     {
         return _position;
     }
 
     /// <summary> Pressure scaling factor at the node </summary>
-    double PressureFactor() { return _pressure; }
+    double PressureFactor() const { return _pressure; }
 
 private:
     QPointF   _position;
-    double _pressure;
+    double _pressure = 0.0;
 };
 
 #endif // STROKENODEDATA_H

@@ -24,8 +24,9 @@ class SourceChangedEventArgs;
 /// but some of them are supposed to be called from one thread only. Please look at the
 /// comments of each method for such an information.
 /// </remarks>
-class StylusPlugInCollection : QList<StylusPlugIn*>
+class StylusPlugInCollection : public QObject, public QList<StylusPlugIn*>
 {
+    Q_OBJECT
 public:
    //#region Protected APIs
    /// <summary>
@@ -63,7 +64,7 @@ public:
    /// Constructor
    /// </summary>
    /// <param name="element">
-   StylusPlugInCollection(UIElement* element);
+   StylusPlugInCollection(UIElement* element = nullptr);
 
    /// <summary>
    /// Get the UIElement
@@ -136,7 +137,7 @@ public:
    /// <securitynote>
    ///     Critical:  Accesses critical member _penContexts.
    /// </securitynote>
-   PenContexts GetPenContexts();
+   PenContexts* GetPenContexts();
 
    //#endregion
 
@@ -161,11 +162,11 @@ private:
    /// </summary>
    void EnsureEventsAndPenContextsUnhooked();
 
-   void OnIsEnabledChanged(DependencyPropertyChangedEventArgs& e);
+   void OnIsEnabledChanged();
 
-   void OnIsVisibleChanged(DependencyPropertyChangedEventArgs& e);
+   void OnIsVisibleChanged();
 
-   void OnIsHitTestVisibleChanged(DependencyPropertyChangedEventArgs& e);
+   void OnIsHitTestVisibleChanged();
 
    void OnRenderTransformChanged(EventArgs& e);
 
@@ -203,7 +204,7 @@ private:
    /// <securitynote>
    ///     Critical to prevent accidental spread to transparent code
    /// </securitynote>
-   PenContexts* _penContexts;
+   PenContexts* _penContexts = nullptr;
 
    //DependencyPropertyChangedEventHandler _isEnabledChangedEventHandler;
    //DependencyPropertyChangedEventHandler _isVisibleChangedEventHandler;
@@ -213,5 +214,7 @@ private:
    //EventHandler _layoutChangedEventHandler;
    //#endregion
 };
+
+Q_DECLARE_METATYPE(StylusPlugInCollection*)
 
 #endif // STYLUSPLUGINCOLLECTION_H

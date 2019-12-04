@@ -7,6 +7,7 @@ HEADERS += \
     $$PWD/dependencyobject.h \
     $$PWD/dependencyproperty.h \
     $$PWD/dependencypropertychangedeventargs.h \
+    $$PWD/dispatcher.h \
     $$PWD/effectivevalueentry.h \
     $$PWD/propertymetadata.h \
     $$PWD/routedeventargs.h \
@@ -16,6 +17,7 @@ SOURCES += \
     $$PWD/dependencyobject.cpp \
     $$PWD/dependencyproperty.cpp \
     $$PWD/dependencypropertychangedeventargs.cpp \
+    $$PWD/dispatcher.cpp \
     $$PWD/effectivevalueentry.cpp \
     $$PWD/propertymetadata.cpp \
     $$PWD/routedeventargs.cpp \

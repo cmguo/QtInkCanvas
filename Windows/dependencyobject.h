@@ -6,6 +6,7 @@
 
 class Dispatcher;
 class DependencyProperty;
+class DependencyPropertyChangedEventArgs;
 
 enum RequestFlags
 {
@@ -49,10 +50,6 @@ public:
     Dispatcher* GetDispatcher();
 
     void VerifyAccess() const;
-
-protected:
-    template<typename TEventArgs>
-    void RaiseEvent(TEventArgs & e) {}
 
 private:
     QMap<DependencyProperty const *, QVariant> props_;

@@ -1,31 +1,30 @@
 #include "Windows/Media/drawing.h"
-#include "Windows/Media/drawingdrawingcontext.h"
+
+#include <QPainter>
 
 Drawing::Drawing()
 {
-
 }
 
 DrawingGroup::DrawingGroup()
 {
 }
 
-class DrawingGroupDrawingContext : public DrawingDrawingContext
+DrawingGroup::~DrawingGroup()
 {
-public:
-    DrawingGroupDrawingContext(DrawingGroup* drawingGroup)
-    {
+}
 
-    }
-protected:
-    void CloseCore(QVector<Drawing*> rootDrawingGroupChildren)
-    {
-        drawingGroup_->Close(rootDrawingGroupChildren);
-    }
 
-private:
-    DrawingGroup* drawingGroup_;
-};
+DrawingGroupDrawingContext::DrawingGroupDrawingContext(DrawingGroup* drawingGroup)
+    : drawingGroup_(drawingGroup)
+{
+}
+
+void DrawingGroupDrawingContext::CloseCore(QList<Drawing*> rootDrawingGroupChildren)
+{
+    drawingGroup_->Close(rootDrawingGroupChildren);
+}
+
 
 DrawingContext* DrawingGroup::Open()
 {
@@ -42,14 +41,23 @@ QRectF DrawingGroup::Bounds()
     return QRectF();
 }
 
-void DrawingGroup::Close(QVector<Drawing*> rootDrawingGroupChildren)
+void DrawingGroup::Draw(QPainter &painer)
 {
+    for (Drawing * d : children_)
+        d->Draw(painer);
+}
 
+void DrawingGroup::Close(QList<Drawing*> rootDrawingGroupChildren)
+{
+    children_.append(rootDrawingGroupChildren);
 }
 
 GeometryDrawing::GeometryDrawing()
 {
+}
 
+GeometryDrawing::~GeometryDrawing()
+{
 }
 
 void GeometryDrawing::SetBrush(QBrush brush)
@@ -72,9 +80,21 @@ QRectF GeometryDrawing::Bounds()
     return QRectF();
 }
 
+void GeometryDrawing::Draw(QPainter &painer)
+{
+    painer.save();
+    painer.setPen(pen_);
+    painer.setBrush(brush_);
+    geometry_->Draw(painer);
+    painer.restore();
+}
+
 ImageDrawing::ImageDrawing()
 {
+}
 
+ImageDrawing::~ImageDrawing()
+{
 }
 
 void ImageDrawing::SetImageSource(QPixmap pixmap)
@@ -90,5 +110,10 @@ void ImageDrawing::SetRect(QRectF r)
 QRectF ImageDrawing::Bounds()
 {
     return QRectF();
+}
+
+void ImageDrawing::Draw(QPainter &painer)
+{
+
 }
 

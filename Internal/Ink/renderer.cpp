@@ -1,16 +1,17 @@
-#include "Windows/Ink/inkrenderer.h"
+#include "Internal/Ink/renderer.h"
 #include "Windows/Ink/stroke.h"
 #include "Windows/Ink/strokecollection.h"
-#include "eventargs.h"
-#include "debug.h"
 #include "Windows/Media/visual.h"
 #include "Windows/Media/drawingcontext.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/events.h"
 #include "Windows/Media/hittestresult.h"
 #include "Windows/Media/drawingvisual.h"
+#include "eventargs.h"
+#include "debug.h"
+#include "finallyhelper.h"
 
-class InkRenderer::StrokeVisual : public DrawingVisual
+class Renderer::StrokeVisual : public DrawingVisual
 {
 public:
     /// <summary>
@@ -18,7 +19,7 @@ public:
     /// </summary>
     /// <param name="stroke">a stroke to render into this visual</param>
     /// <param name="renderer">a renderer associated to this visual</param>
-    StrokeVisual(QSharedPointer<Stroke> stroke, InkRenderer& renderer)
+    StrokeVisual(QSharedPointer<Stroke> stroke, Renderer& renderer)
         : _renderer(renderer)
     {
         //Debug::Assert(renderer != nullptr);
@@ -30,6 +31,8 @@ public:
 
         _stroke = stroke;
         //_renderer = renderer;
+
+        setObjectName("StrokeVisual");
 
         // The original value of the color and IsHighlighter are cached so
         // when Stroke.Invalidated is fired, Renderer knows whether re-arranging
@@ -56,6 +59,9 @@ public:
     {
         std::unique_ptr<DrawingContext> drawingContext(RenderOpen());
         {
+            FinallyHelper final([&drawingContext](){
+               drawingContext->Close();
+            });
             bool highContrast = _renderer.IsHighContrast();
 
             if (highContrast == true && _stroke->GetDrawingAttributes()->IsHighlighter())
@@ -97,6 +103,11 @@ protected:
         return nullptr;
     }
 
+    virtual void paintEvent(QPaintEvent *event) override
+    {
+        DrawingVisual::paintEvent(event);
+    }
+
 public:
     /// <summary>
     /// The previous value of IsHighlighter
@@ -128,7 +139,7 @@ private:
     QSharedPointer<Stroke>                      _stroke;
     bool                        _cachedIsHighlighter;
     QColor                       _cachedColor;
-    InkRenderer&                    _renderer;
+    Renderer&                    _renderer;
 
 };
 
@@ -137,7 +148,7 @@ private:
 /// <summary>
 /// Public Constructor
 /// </summary>
-InkRenderer::InkRenderer()
+Renderer::Renderer()
 {
     // Initialize the data members.
     // We intentionally don't use lazy initialization for the core members to avoid
@@ -149,16 +160,20 @@ InkRenderer::InkRenderer()
     // created by the Renderer. This visuals are created once and are
     // not supposed to be replaced nor destroyed while the Renderer is alive.
     _rootVisual = new ContainerVisual();
+    _rootVisual->setObjectName("Renderer::RootVisual");
     _highlightersRoot = new ContainerVisual();
+    _highlightersRoot->setObjectName("Renderer::HighlightersRoot");
     _regularInkVisuals = new ContainerVisual();
+    _regularInkVisuals->setObjectName("Renderer::RegularInkVisuals");
     _incrementalRenderingVisuals = new ContainerVisual();
+    _incrementalRenderingVisuals->setObjectName("Renderer::IncrementalRenderingVisuals");
 
     // Highlighters go to the bottom, then regular ink, and regular
     // ink' incremental rendering in on top.
-    QList<Visual*> rootChildren = _rootVisual->Children();
-    rootChildren.append(_highlightersRoot);
-    rootChildren.append(_regularInkVisuals);
-    rootChildren.append(_incrementalRenderingVisuals);
+    VisualCollection & rootChildren = _rootVisual->Children();
+    rootChildren.Add(_highlightersRoot);
+    rootChildren.Add(_regularInkVisuals);
+    rootChildren.Add(_incrementalRenderingVisuals);
 
     // Set the default value of highcontrast to be false.
     _highContrast = false;
@@ -176,14 +191,14 @@ InkRenderer::InkRenderer()
 /// this property for the first time. If no strokes are set then an empty
 /// visual is returned.
 /// </summary>
-Visual* InkRenderer::RootVisual() { return _rootVisual; }
+Visual* Renderer::RootVisual() { return _rootVisual; }
 
 /// <summary>
 /// Set the strokes property to the collection of strokes to be rendered.
 /// The Renderer will then listen to changes to the StrokeCollection
 /// and update its state to reflect the changes.
 /// </summary>
-QSharedPointer<StrokeCollection> InkRenderer::Strokes()
+QSharedPointer<StrokeCollection> Renderer::Strokes()
 {
     // We should never return a nullptr value.
     if ( _strokes == nullptr )
@@ -193,12 +208,12 @@ QSharedPointer<StrokeCollection> InkRenderer::Strokes()
         // Start listening on events from the stroke collection.
         //_strokes->GetStroke()sChanged+= new StrokeCollectionChangedEventHandler(OnStrokesChanged);
         QObject::connect(_strokes.get(), &StrokeCollection::StrokesChanged,
-                         this, &InkRenderer::OnStrokesChanged);
+                         this, &Renderer::OnStrokesChanged);
     }
 
     return _strokes;
 }
-void InkRenderer::SetStrokes(QSharedPointer<StrokeCollection> value)
+void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
 {
     if (value == nullptr)
     {
@@ -215,7 +230,7 @@ void InkRenderer::SetStrokes(QSharedPointer<StrokeCollection> value)
         // Stop listening on events from the stroke collection.
         //_strokes->GetStroke()sChanged-= new StrokeCollectionChangedEventHandler(OnStrokesChanged);
         QObject::disconnect(_strokes.get(), &StrokeCollection::StrokesChanged,
-                         this, &InkRenderer::OnStrokesChanged);
+                         this, &Renderer::OnStrokesChanged);
 
         for (StrokeVisual* visual : _visuals.values())
         {
@@ -247,7 +262,7 @@ void InkRenderer::SetStrokes(QSharedPointer<StrokeCollection> value)
     // Start listening on events from the stroke collection.
     //_strokes->GetStroke()sChanged+= new StrokeCollectionChangedEventHandler(OnStrokesChanged);
     QObject::connect(_strokes.get(), &StrokeCollection::StrokesChanged,
-                     this, &InkRenderer::OnStrokesChanged);
+                     this, &Renderer::OnStrokesChanged);
 }
 
 /// <summary>
@@ -256,7 +271,7 @@ void InkRenderer::SetStrokes(QSharedPointer<StrokeCollection> value)
 /// </summary>
 /// <param name="visual">visual to attach</param>
 /// <param name="drawingAttributes">drawing attributes that used in the incremental rendering</param>
-void InkRenderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     // Check the input parameters
     if (visual == nullptr)
@@ -297,7 +312,7 @@ void InkRenderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Draw
         ContainerVisual* parent = drawingAttributes->IsHighlighter() ? GetContainerVisual(drawingAttributes) : _incrementalRenderingVisuals;
 
         // Attach the visual to the tree
-        parent->Children().append(visual);
+        parent->Children().Add(visual);
 
         // Put the visual into the list of visuals attached via this method
         _attachedVisuals.append(visual);
@@ -308,7 +323,7 @@ void InkRenderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Draw
 /// Detaches a visual previously attached via AttachIncrementalRendering
 /// </summary>
 /// <param name="visual">the visual to detach</param>
-void InkRenderer::DetachIncrementalRendering(Visual* visual)
+void Renderer::DetachIncrementalRendering(Visual* visual)
 {
     if (visual == nullptr)
     {
@@ -329,7 +344,7 @@ void InkRenderer::DetachIncrementalRendering(Visual* visual)
 /// helper used to indicate if a visual was previously attached
 /// via a call to AttachIncrementalRendering
 /// </summary>
-bool InkRenderer::ContainsAttachedIncrementalRenderingVisual(Visual* visual)
+bool Renderer::ContainsAttachedIncrementalRenderingVisual(Visual* visual)
 {
     if (visual == nullptr)
     {
@@ -342,7 +357,7 @@ bool InkRenderer::ContainsAttachedIncrementalRenderingVisual(Visual* visual)
 /// <summary>
 /// helper used to determine if a visual is in the right spot in the visual tree
 /// </summary>
-bool InkRenderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+bool Renderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     if (visual == nullptr || drawingAttributes == nullptr || !_attachedVisuals.contains(visual))
     {
@@ -368,7 +383,7 @@ bool InkRenderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPoi
 /// TurnOnHighContrast turns on the HighContrast rendering mode
 /// </summary>
 /// <param name="strokeColor">The stroke color under high contrast</param>
-void InkRenderer::TurnHighContrastOn(QColor strokeColor)
+void Renderer::TurnHighContrastOn(QColor strokeColor)
 {
     if ( !_highContrast || strokeColor != _highContrastColor )
     {
@@ -381,7 +396,7 @@ void InkRenderer::TurnHighContrastOn(QColor strokeColor)
 /// <summary>
 /// ResetHighContrast turns off the HighContrast mode
 /// </summary>
-void InkRenderer::TurnHighContrastOff()
+void Renderer::TurnHighContrastOff()
 {
     if ( _highContrast )
     {
@@ -398,7 +413,7 @@ void InkRenderer::TurnHighContrastOff()
 /// <summary>
 /// StrokeCollectionChanged event handler
 /// </summary>
-void InkRenderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
+void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
 {
     ////System.Diagnostics.Debug::Assert(sender == _strokes);
 
@@ -449,7 +464,7 @@ void InkRenderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
 /// <summary>
 /// Stroke Invalidated event handler
 /// </summary>
-void InkRenderer::OnStrokeInvalidated(EventArgs& eventArgs)
+void Renderer::OnStrokeInvalidated(EventArgs& eventArgs)
 {
     (void) eventArgs;
     //System.Diagnostics.Debug::Assert(_strokes.IndexOf(sender as Stroke) != -1);
@@ -489,7 +504,7 @@ void InkRenderer::OnStrokeInvalidated(EventArgs& eventArgs)
 /// <summary>
 /// Update the stroke visuals
 /// </summary>
-void InkRenderer::UpdateStrokeVisuals()
+void Renderer::UpdateStrokeVisuals()
 {
     for ( StrokeVisual* strokeVisual : _visuals.values() )
     {
@@ -501,7 +516,7 @@ void InkRenderer::UpdateStrokeVisuals()
 /// Attaches a stroke visual to the tree based on the stroke's
 /// drawing attributes and/or its z-order (index in the collection).
 /// </summary>
-void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
+void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
 {
     //System.Diagnostics.Debug::Assert(_strokes != nullptr);
 
@@ -521,7 +536,7 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
                 break;
             }
         }
-        parent->Children().insert(i, visual);
+        parent->Children().Insert(i, visual);
     }
     else
     {
@@ -537,7 +552,7 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
         {
             QSharedPointer<Stroke> visualStroke = visual->GetStroke();
             //we're building up a stroke collection, no need to start at IndexOf,
-            i = qMin(_visuals.size(), _strokes->size()); //not -1, we're about to decrement
+            i = qMin(_visuals.size(), _strokes->Count()); //not -1, we're about to decrement
             while (--i >= 0)
             {
                 if ((*_strokes)[i] == visualStroke)
@@ -548,7 +563,7 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
         }
         else
         {
-            i = _strokes->indexOf(visual->GetStroke());
+            i = _strokes->IndexOf(visual->GetStroke());
         }
         while (--i >= 0)
         {
@@ -557,9 +572,9 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
                 && (_visuals.contains(stroke) == true)
                 && ((precedingVisual = _visuals.value(stroke))->parentWidget() != nullptr))
             {
-                QList<Visual*> children = static_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
+                VisualCollection & children = static_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
                 int index = children.indexOf(precedingVisual);
-                children.insert(index + 1, visual);
+                children.Insert(index + 1, visual);
                 break;
             }
         }
@@ -568,7 +583,7 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
         if (i < 0)
         {
             ContainerVisual* parent = GetContainerVisual(visual->GetStroke()->GetDrawingAttributes());
-            parent->Children().insert(0, visual);
+            parent->Children().Insert(0, visual);
         }
     }
 }
@@ -577,13 +592,13 @@ void InkRenderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollecti
 /// Detaches a visual from the tree, also removes highligher parents if empty
 /// when true is passed
 /// </summary>
-void InkRenderer::DetachVisual(Visual* visual)
+void Renderer::DetachVisual(Visual* visual)
 {
     ContainerVisual* parent = qobject_cast<ContainerVisual*>(visual->parentWidget());
     if (parent != nullptr)
     {
-        QList<Visual*> children = parent->Children();
-        children.removeOne(visual);
+        VisualCollection & children = parent->Children();
+        children.Remove(visual);
 
         // If the parent is a childless highlighter, detach it too.
         HighlighterContainerVisual* hcVisual = qobject_cast<HighlighterContainerVisual*>(parent);
@@ -601,23 +616,23 @@ void InkRenderer::DetachVisual(Visual* visual)
 /// <summary>
 /// Attaches event handlers to stroke events
 /// </summary>
-void InkRenderer::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void Renderer::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
 {
     ////System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated += new EventHandler(OnStrokeInvalidated);
     QObject::connect(stroke.get(), &Stroke::Invalidated,
-                     this, &InkRenderer::OnStrokeInvalidated);
+                     this, &Renderer::OnStrokeInvalidated);
 }
 
 /// <summary>
 /// Detaches event handlers from stroke
 /// </summary>
-void InkRenderer::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void Renderer::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
 {
     ////System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated -= new EventHandler(OnStrokeInvalidated);
     QObject::disconnect(stroke.get(), &Stroke::Invalidated,
-                     this, &InkRenderer::OnStrokeInvalidated);
+                     this, &Renderer::OnStrokeInvalidated);
 }
 
 static bool operator<(QColor const & l, QColor const & r)
@@ -631,16 +646,16 @@ static bool operator<(QColor const & l, QColor const & r)
 /// </summary>
 /// <param name="drawingAttributes">drawing attributes</param>
 /// <returns>visual</returns>
-ContainerVisual* InkRenderer::GetContainerVisual(QSharedPointer<DrawingAttributes> drawingAttributes)
+ContainerVisual* Renderer::GetContainerVisual(QSharedPointer<DrawingAttributes> drawingAttributes)
 {
     ////System.Diagnostics.Debug::Assert(drawingAttributes != nullptr);
 
-    HighlighterContainerVisual* hcVisual;
     if (drawingAttributes->IsHighlighter())
     {
         // For a highlighter stroke, the color.A is neglected.
         QColor color = StrokeRenderer::GetHighlighterColor(drawingAttributes->Color());
-        if (_highlighters.contains(color) == false)
+        HighlighterContainerVisual* hcVisual = _highlighters.value(color, nullptr);
+        if (hcVisual == nullptr)
         {
             //if (_highlighters == nullptr)
             //{
@@ -649,13 +664,13 @@ ContainerVisual* InkRenderer::GetContainerVisual(QSharedPointer<DrawingAttribute
 
             hcVisual = new HighlighterContainerVisual(color);
             hcVisual->SetOpacity(StrokeRenderer::HighlighterOpacity);
-            _highlightersRoot->Children().append(hcVisual);
+            _highlightersRoot->Children().Add(hcVisual);
 
             _highlighters.insert(color, hcVisual);
         }
         else if (hcVisual->parentWidget() == nullptr)
         {
-            _highlightersRoot->Children().append(hcVisual);
+            _highlightersRoot->Children().Add(hcVisual);
         }
         return hcVisual;
     }

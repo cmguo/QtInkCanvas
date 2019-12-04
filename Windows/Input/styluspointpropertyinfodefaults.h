@@ -1,7 +1,7 @@
 #ifndef STYLUSPOINTPROPERTYINFODEFAULTS_H
 #define STYLUSPOINTPROPERTYINFODEFAULTS_H
 
-#include "styluspointpropertyinfo.h"
+#include "Windows/Input/styluspointpropertyinfo.h"
 
 // namespace System.Windows.Input
 

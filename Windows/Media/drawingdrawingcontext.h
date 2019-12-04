@@ -23,6 +23,8 @@ public:
     /// </summary>
     DrawingDrawingContext();
 
+    virtual ~DrawingDrawingContext() override;
+
     //#endregion Constructors
 
     //#region Public Methods
@@ -465,7 +467,7 @@ protected:
     /// <remarks>
     ///     This will only be called once (at most) per instance.
     /// </remarks>
-    virtual void CloseCore(QVector<Drawing*> rootDrawingGroupChildren);
+    virtual void CloseCore(QList<Drawing*> rootDrawingGroupChildren);
 
     /// <summary>
     /// Verifies that the DrawingContext is being referenced from the
@@ -550,17 +552,17 @@ protected:
     // root DrawingGroup, and be the same value as the root _currentDrawingGroup.
     //
     // Either way, _rootDrawing always references the root drawing.
-    Drawing* _rootDrawing;
+    Drawing* _rootDrawing = nullptr;
 
     // Current DrawingGroup that new children are added to
-    DrawingGroup* _currentDrawingGroup;
+    DrawingGroup* _currentDrawingGroup = nullptr;
 
 private:
     // Previous values of _currentDrawingGroup
     QVector<DrawingGroup*> _previousDrawingGroupStack;
 
     // Has Dispose() or Close() been called?
-    bool _disposed;
+    bool _disposed = false;
 
     // Determines whether this DrawingContext should connect inheritance contexts
     // to DependencyObjects which are passed to its methods.

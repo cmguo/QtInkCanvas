@@ -18,13 +18,3 @@ InputEventArgs::InputEventArgs(InputDevice* inputDevice, int timestamp)
 }
 
 int InputEventArgs::_timestamp = 0;
-
-StylusDevice* StylusEventArgs::GetStylusDevice()
-{
-    return (StylusDevice*) Device();
-}
-
-bool StylusEventArgs::Inverted()
-{
-    return false;
-}

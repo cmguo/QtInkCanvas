@@ -9,6 +9,37 @@ StrokeNode::StrokeNode()
 
 }
 
+/// <summary>
+/// Constructor.
+/// </summary>
+/// <param name="operations">StrokeNodeOperations object created for particular rendering</param>
+/// <param name="index">Index of the node on the stroke spine</param>
+/// <param name="nodeData">StrokeNodeData for this node</param>
+/// <param name="lastNodeData">StrokeNodeData for the precedeng node</param>
+/// <param name="isLastNode">Whether the current node is the last node</param>
+StrokeNode::StrokeNode(
+    StrokeNodeOperations* operations,
+    int index,
+    StrokeNodeData& nodeData,
+    StrokeNodeData& lastNodeData,
+    bool isLastNode)
+    : valid_(true)
+    , _operations(operations)
+    , _connectingQuad(Quad::Empty())
+{
+    //System.Diagnostics.//Debug.Assert(operations != null);
+    //System.Diagnostics.//Debug.Assert((nodeData.IsEmpty == false) && (index >= 0));
+
+
+    //_operations = operations;
+    _index = index;
+    _thisNode = nodeData;
+    _lastNode = lastNodeData;
+    //_isQuadCached = lastNodeData.IsEmpty;
+    //_connectingQuad = Quad.Empty;
+    _isLastNode = isLastNode;
+}
+
 void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                                         QList<QPointF> & dcPoints
 #if DEBUG_RENDERING_FEEDBACK
@@ -238,10 +269,10 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 /// <summary>
 /// GetPointsAtMiddleSegment
 /// </summary>
-void StrokeNode::GetPointsAtMiddleSegment( StrokeNode previous,
+void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                                         double angleBetweenNodes,
-                                        QList<QPointF> abPoints,
-                                        QList<QPointF> dcPoints,
+                                        QList<QPointF> & abPoints,
+                                        QList<QPointF> & dcPoints,
                                         bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
                                         , DrawingContext debugDC, double feedbackSize, bool showFeedback

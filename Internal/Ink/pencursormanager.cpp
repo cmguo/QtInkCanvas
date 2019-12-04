@@ -48,7 +48,7 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
 
     // Create a DA with IsHollow being set. A point eraser will be rendered to a hollow stroke.
     QSharedPointer<DrawingAttributes> da(new DrawingAttributes);
-    if (stylusShape.metaObject() == &RectangleStylusShape::staticMetaObject)
+    if (stylusShape.metaObject()->inherits(&RectangleStylusShape::staticMetaObject))
     {
         da->SetStylusTip(StylusTip::Rectangle);
     }

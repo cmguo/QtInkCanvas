@@ -1,4 +1,31 @@
 #include "Windows/Input/mousebuttoneventargs.h"
+#include "Windows/Input/mousedevice.h"
+
+MouseButtonEventArgs::MouseButtonEventArgs(QMouseEvent &event)
+    : MouseEventArgs(event)
+{
+    switch (event.button()) {
+    case Qt::MouseButton::LeftButton:
+        _button = MouseButton::Left;
+        break;
+    case Qt::MouseButton::RightButton:
+        _button = MouseButton::Right;
+        break;
+    case Qt::MouseButton::MidButton:
+        _button = MouseButton::Middle;
+        break;
+    case Qt::MouseButton::XButton1:
+        _button = MouseButton::XButton1;
+        break;
+    case Qt::MouseButton::XButton2:
+        _button = MouseButton::XButton2;
+        break;
+    default:
+        break;
+    }
+    _count = 1;
+    Mouse::PrimaryDevice->SetLastPosition(event.pos());
+}
 
 /// <summary>
 ///     Initializes a new instance of the MouseButtonEventArgs class.

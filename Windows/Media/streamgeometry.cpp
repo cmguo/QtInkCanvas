@@ -1,6 +1,8 @@
 #include "Windows/Media/streamgeometry.h"
 #include "qtstreamgeometrycontext.h"
 
+#include <QPainter>
+
 StreamGeometry::StreamGeometry()
     : context_(nullptr)
 {
@@ -19,6 +21,18 @@ void StreamGeometry::SetFillRule(FillRule value)
 
 StreamGeometryContext &StreamGeometry::Open()
 {
-    context_ = new QtStreamGeometryContext;
+    if (context_ == nullptr)
+        context_ = new QtStreamGeometryContext(this);
     return *context_;
 }
+
+void StreamGeometry::Close(QPainterPath &path)
+{
+    path_.swap(path);
+}
+
+void StreamGeometry::Draw(QPainter &painter)
+{
+    painter.drawPath(path_);
+}
+

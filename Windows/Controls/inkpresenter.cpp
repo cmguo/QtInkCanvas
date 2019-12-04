@@ -4,7 +4,7 @@
 #include "Windows/Controls/inkevents.h"
 #include "Windows/dependencypropertychangedeventargs.h"
 #include "eventargs.h"
-#include "Windows/Ink/inkrenderer.h"
+#include "Internal/Ink/renderer.h"
 #include "debug.h"
 
 //#region Constructors
@@ -15,9 +15,9 @@
 InkPresenter::InkPresenter()
 {
     // Create the internal Renderer object.
-    _renderer = new InkRenderer();
+    _renderer = new Renderer();
 
-    SetStrokesChangedHandlers(Strokes(), nullptr);
+    StrokesChangedHandlers(Strokes(), nullptr);
 
     //_contrastCallback = new InkPresenterHighContrastCallback(this);
 
@@ -79,7 +79,9 @@ void InkPresenter::DetachVisuals(Visual* visual)
 /// <summary>
 /// The DependencyProperty for the Strokes property.
 /// </summary>
-DependencyProperty const * InkPresenter::StrokesProperty;
+DependencyProperty const * const InkPresenter::StrokesProperty =
+        new DependencyProperty(new StrokeCollectionDefaultValueFactory,
+                               &InkPresenter::OnStrokesChanged);
 
 /// <summary>
 /// Gets/Sets the Strokes property.
@@ -93,15 +95,15 @@ void InkPresenter::SetStrokes(QSharedPointer<StrokeCollection> value)
     SetValue(StrokesProperty, value);
 }
 
-void InkPresenter::OnStrokesChanged(DependencyObject* d, DependencyPropertyChangedEventArgs& e)
+void InkPresenter::OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e)
 {
-    InkPresenter* inkPresenter = static_cast<InkPresenter*>(d);
+    InkPresenter& inkPresenter = static_cast<InkPresenter&>(d);
 
     QSharedPointer<StrokeCollection> oldValue = e.OldValue().value<QSharedPointer<StrokeCollection>>();
     QSharedPointer<StrokeCollection> newValue = e.NewValue().value<QSharedPointer<StrokeCollection>>();
 
-    inkPresenter->SetStrokesChangedHandlers(newValue, oldValue);
-    inkPresenter->OnStrokeChanged(EventArgs::Empty);
+    inkPresenter.StrokesChangedHandlers(newValue, oldValue);
+    inkPresenter.OnStrokeChanged(EventArgs::Empty);
 }
 
 
@@ -421,7 +423,7 @@ private:
 
 //#region Methods
 
-void InkPresenter::SetStrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes)
+void InkPresenter::StrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes)
 {
     Debug::Assert(newStrokes != nullptr, "Cannot set a nullptr to InkPresenter");
 

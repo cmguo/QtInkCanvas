@@ -1,6 +1,8 @@
 #include "Internal/Ink/selectioneditor.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/Input/mousebuttoneventargs.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/mousedevice.h"
 #include "Internal/Ink/selectioneditingbehavior.h"
 #include "Internal/Ink/lassoselectionbehavior.h"
 #include "Internal/Ink/inkcanvasselection.h"

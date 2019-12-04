@@ -1,4 +1,5 @@
 HEADERS += \
+    $$PWD/decorator.h \
     $$PWD/editingmode.h \
     $$PWD/inkcanvas.h \
     $$PWD/inkcanvasselectionhitresult.h \
@@ -6,6 +7,7 @@ HEADERS += \
     $$PWD/inkpresenter.h
 
 SOURCES += \
+    $$PWD/decorator.cpp \
     $$PWD/editingmode.cpp \
     $$PWD/inkcanvas.cpp \
     $$PWD/inkcanvasselectionhitresult.cpp \

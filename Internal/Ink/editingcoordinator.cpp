@@ -6,13 +6,15 @@
 #include "Internal/Ink/lassoselectionbehavior.h"
 #include "Internal/Ink/selectioneditingbehavior.h"
 #include "Internal/Ink/eraserbehavior.h"
-#include "finallyhelper.h"
 #include "Windows/Controls/editingmode.h"
 #include "Windows/routedeventargs.h"
-#include "Windows/Input/inputdevice.h"
-#include "dynamicrenderer.h"
-#include "Windows/Input/inputeventargs.h"
+#include "Windows/Input/mousedevice.h"
+#include "Windows/Input/StylusPlugIns/dynamicrenderer.h"
+#include "Windows/Input/stylusdevice.h"
 #include "Windows/Input/mousebuttoneventargs.h"
+#include "Windows/Input/styluseventargs.h"
+#include "finallyhelper.h"
+#include "debug.h"
 
 /// <summary>
 /// Constructors
@@ -20,7 +22,6 @@
 /// <param name="inkCanvas">InkCanvas instance</param>
 EditingCoordinator::EditingCoordinator(InkCanvas& inkCanvas)
     : _inkCanvas(inkCanvas)
-    , _activationStack(2)
 {
     //if (inkCanvas == nullptr)
     //{
@@ -30,7 +31,8 @@ EditingCoordinator::EditingCoordinator(InkCanvas& inkCanvas)
     //_inkCanvas = inkCanvas;
 
     // Create a stack for tracking the behavior
-    //_activationStack = new QVector<EditingBehavior>(2);
+    //_activationStack = new QStack<EditingBehavior>(2);
+    _activationStack.reserve(2);
 
     // NTRAID#WINDOWS-1104477-2005/02/26-waynezen,
     // listen to in-air move so that we could get notified when Stylus is inverted.
@@ -64,8 +66,8 @@ EditingCoordinator::EditingCoordinator(InkCanvas& inkCanvas)
 void EditingCoordinator::ActivateDynamicBehavior(EditingBehavior* dynamicBehavior, InputDevice* inputDevice)
 {
     // Only SelectionEditor should be enable to initiate dynamic behavior
-    //Debug.Asse<rt(ActiveEditingBehavior() == SelectionEditor,
-    //                "Only SelectionEditor should be able to initiate dynamic behavior");
+    Debug::Assert(ActiveEditingBehavior() == GetSelectionEditor(),
+                    "Only SelectionEditor should be able to initiate dynamic behavior");
 
     DebugCheckDynamicBehavior(dynamicBehavior);
 
@@ -77,27 +79,27 @@ void EditingCoordinator::ActivateDynamicBehavior(EditingBehavior* dynamicBehavio
     {
         bool fSucceeded = false;
 
-        FinallyHelper final([this, &fSucceeded] () {
-            if ( !fSucceeded )
-            {
-                // Abort the current editing.
-                ActiveEditingBehavior()->Commit(false);
-
-                // Release capture and do clean-up.
-                ReleaseCapture(true);
-            }
-        });
         // The below code might call out StrokeErasing or StrokeErased event.
         // The out-side code could throw exception.
         // We use try/finally block to protect our status.
         //try
-        //{
+        {
+            FinallyHelper final([this, &fSucceeded] () {
+                if ( !fSucceeded )
+                {
+                    // Abort the current editing.
+                    ActiveEditingBehavior()->Commit(false);
+
+                    // Release capture and do clean-up.
+                    ReleaseCapture(true);
+                }
+            });
             //we pass true for userInitiated because we've simply consulted the InputDevice
             //(and only StylusDevice or MouseDevice) for the current position of the device
             InitializeCapture(inputDevice, static_cast<StylusEditingBehavior*>(dynamicBehavior),
                 true /*userInitiated*/, false/*Don't reset the RTI*/);
             fSucceeded = true;
-        //}
+        }
         //finally
         //{
         //    if ( !fSucceeded )
@@ -168,8 +170,8 @@ void EditingCoordinator::UpdateEditingState(bool inverted)
         {
             // We are in mid-stroke now.
 
-            //Debug.Asse<rt(currentBehavior is StylusEditingBehavior,
-            //                "The current behavoir has to be one of StylusEditingBehaviors");
+            Debug::Assert(currentBehavior->metaObject()->inherits(&StylusEditingBehavior::staticMetaObject),
+                            "The current behavoir has to be one of StylusEditingBehaviors");
             static_cast<StylusEditingBehavior*>( currentBehavior )->SwitchToMode(ActiveEditingMode());
         }
         else
@@ -190,8 +192,8 @@ void EditingCoordinator::UpdateEditingState(bool inverted)
         {
             // We are in mid-stroke now.
 
-            //Debug.Asse<rt(currentBehavior is StylusEditingBehavior,
-            //                "The current behavoir has to be one of StylusEditingBehaviors");
+            Debug::Assert(currentBehavior->metaObject()->inherits(&StylusEditingBehavior::staticMetaObject),
+                            "The current behavoir has to be one of StylusEditingBehaviors");
             static_cast<StylusEditingBehavior*>( currentBehavior )->SwitchToMode(ActiveEditingMode());
         }
         else
@@ -246,7 +248,7 @@ void EditingCoordinator::InvalidateTransform()
 void EditingCoordinator::InvalidateBehaviorCursor(EditingBehavior* behavior)
 {
     // Should never be null
-    //Debug.Asse<rt(behavior != nullptr);
+    Debug::Assert(behavior != nullptr);
 
     // InvalidateCursor first
     SetCursorValid(behavior, false);
@@ -304,7 +306,7 @@ IStylusEditing* EditingCoordinator::ChangeStylusEditingMode(StylusEditingBehavio
             // GetLassoSelectionBehavior() will be deactivated once it gets committed.
             || ( sourceBehavior == GetLassoSelectionBehavior() && GetSelectionEditor() == ActiveEditingBehavior() ) ) )
     {
-        //Debug.Asse<rt(_activationStack.Count == 1, "The behavior stack has to contain one behavior.");
+        Debug::Assert(_activationStack.size() == 1, "The behavior stack has to contain one behavior.");
 
         // Pop up the old behavior
         PopEditingBehavior();
@@ -352,7 +354,7 @@ IStylusEditing* EditingCoordinator::ChangeStylusEditingMode(StylusEditingBehavio
 void EditingCoordinator::DebugCheckActiveBehavior(EditingBehavior* behavior)
 {
     (void) behavior;
-    //Debug.Asse<rt(behavior == ActiveEditingBehavior());
+    Debug::Assert(behavior == ActiveEditingBehavior());
 }
 
 /// <summary>
@@ -363,8 +365,8 @@ void EditingCoordinator::DebugCheckActiveBehavior(EditingBehavior* behavior)
 void EditingCoordinator::DebugCheckDynamicBehavior(EditingBehavior* behavior)
 {
     (void) behavior;
-    //Debug.Asse<rt(behavior == GetLassoSelectionBehavior() || behavior == SelectionEditingBehavior,
-    //    "Only GetLassoSelectionBehavior() or GetSelectionEditingBehavior() is dynamic behavior");
+    Debug::Assert(behavior == GetLassoSelectionBehavior() || behavior == GetSelectionEditingBehavior(),
+        "Only GetLassoSelectionBehavior() or GetSelectionEditingBehavior() is dynamic behavior");
 }
 
 /// <summary>
@@ -375,8 +377,8 @@ void EditingCoordinator::DebugCheckDynamicBehavior(EditingBehavior* behavior)
 void EditingCoordinator::DebugCheckNonDynamicBehavior(EditingBehavior* behavior)
 {
     (void) behavior;
-    //Debug.Asse<rt(behavior != GetLassoSelectionBehavior() && behavior != SelectionEditingBehavior,
-    //    "behavior cannot be GetLassoSelectionBehavior() or SelectionEditingBehavior");
+    Debug::Assert(behavior != GetLassoSelectionBehavior() && behavior != GetSelectionEditingBehavior(),
+        "behavior cannot be GetLassoSelectionBehavior() or SelectionEditingBehavior");
 }
 
 //#endregion Methods
@@ -417,9 +419,9 @@ bool EditingCoordinator::StylusOrMouseIsDown()
 /// <returns></returns>
 InputDevice* EditingCoordinator::GetInputDeviceForReset()
 {
-    //Debug.Asse<rt((_capturedStylus != nullptr && _capturedMouse == nullptr)
-    //                || (_capturedStylus == nullptr && _capturedMouse != nullptr),
-    //                "There must be one and at most one device being captured.");
+    Debug::Assert((_capturedStylus != nullptr && _capturedMouse == nullptr)
+                    || (_capturedStylus == nullptr && _capturedMouse != nullptr),
+                    "There must be one and at most one device being captured.");
 
     if ( _capturedStylus != nullptr && !_capturedStylus->InAir() )
     {
@@ -545,7 +547,7 @@ EditingBehavior* EditingCoordinator::GetBehavior(InkCanvasEditingMode editingMod
 /// <param name="newEditingBehavior">The EditingBehavior to activate</param>
 void EditingCoordinator::PushEditingBehavior(EditingBehavior* newEditingBehavior)
 {
-    //Debug.Asse<rt(newEditingBehavior != nullptr);
+    Debug::Assert(newEditingBehavior != nullptr);
 
     EditingBehavior* behavior = ActiveEditingBehavior();
 
@@ -643,7 +645,7 @@ void EditingCoordinator::OnInkCanvasDeviceDown(InputEventArgs& args)
     MouseButtonEventArgs& mouseButtonEventArgs = static_cast<MouseButtonEventArgs&>(args);
     bool resetDynamicRenderer = false;
     //if ( mouseButtonEventArgs != nullptr )
-    if (args.type() == QEvent::MouseButtonPress)
+    if (args.Device() == Mouse::PrimaryDevice)
     {
         // NTRADI:WINDOWSOS#1563896-2006/03/20-WAYNEZEN,
         // Note we don't mark Handled for the None EditingMode.
@@ -688,21 +690,21 @@ void EditingCoordinator::OnInkCanvasDeviceDown(InputEventArgs& args)
 
         bool fSucceeded = false;
 
-        FinallyHelper final([this, &fSucceeded](){
-            if ( !fSucceeded )
-            {
-                // Abort the current editing.
-                ActiveEditingBehavior()->Commit(false);
-
-                // Release capture and do clean-up.
-                ReleaseCapture(IsInMidStroke());
-            }
-        });
         //try
         {
+            FinallyHelper final([this, &fSucceeded](){
+                if ( !fSucceeded )
+                {
+                    // Abort the current editing.
+                    ActiveEditingBehavior()->Commit(false);
+
+                    // Release capture and do clean-up.
+                    ReleaseCapture(IsInMidStroke());
+                }
+            });
             InputDevice* capturedDevice = nullptr;
             // Capture the stylus (if mouse event make sure to use stylus if generated by a stylus)
-            if ( args.type() == QEvent::MouseButtonPress && mouseButtonEventArgs.GetStylusDevice() != nullptr )
+            if ( args.Device() == Mouse::PrimaryDevice && mouseButtonEventArgs.GetStylusDevice() != nullptr )
             {
                 capturedDevice = mouseButtonEventArgs.GetStylusDevice();
                 resetDynamicRenderer = true;
@@ -756,8 +758,8 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
     if ( IsInputDeviceCaptured(args.Device()) )
     {
         IStylusEditing* stylusEditingBehavior = qobject_cast<StylusEditingBehavior*>(ActiveEditingBehavior());
-        //Debug.Asse<rt(stylusEditingBehavior != nullptr || ActiveEditingBehavior() == null,
-        //    "The ActiveEditingBehavior() should be either nullptr (The None mode) or type of IStylusEditing.");
+        Debug::Assert(stylusEditingBehavior != nullptr || ActiveEditingBehavior() == nullptr,
+            "The ActiveEditingBehavior() should be either nullptr (The None mode) or type of IStylusEditing.");
 
         if ( stylusEditingBehavior != nullptr )
         {
@@ -770,7 +772,7 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
             {
                 // Make sure we ignore stylus generated mouse events.
                 MouseEventArgs& mouseEventArgs = static_cast<MouseEventArgs&>(args);
-                if ( args.type() == QEvent::MouseMove && mouseEventArgs.GetStylusDevice() != nullptr )
+                if ( args.Device() == Mouse::PrimaryDevice && mouseEventArgs.GetStylusDevice() != nullptr )
                 {
                     return;
                 }
@@ -780,24 +782,24 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
 
             bool fSucceeded = false;
 
-            FinallyHelper final([this, &fSucceeded](){
-                if ( !fSucceeded )
-                {
-                    // Abort the current editing.
-                    ActiveEditingBehavior()->Commit(false);
-
-                    // Release capture and do clean-up.
-                    ReleaseCapture(true);
-                }
-            });
             // The below code might call out StrokeErasing or StrokeErased event.
             // The out-side code could throw exception.
             // We use try/finally block to protect our status.
             //try
-            //{
-            //    stylusEditingBehavior->AddStylusPoints(stylusPoints, args.UserInitiated);
+            {
+                FinallyHelper final([this, &fSucceeded](){
+                    if ( !fSucceeded )
+                    {
+                        // Abort the current editing.
+                        ActiveEditingBehavior()->Commit(false);
+
+                        // Release capture and do clean-up.
+                        ReleaseCapture(true);
+                    }
+                });
+                stylusEditingBehavior->AddStylusPoints(stylusPoints, args.UserInitiated());
                 fSucceeded = true;
-            //}
+            }
             //finally
             //{
             //    if ( !fSucceeded )
@@ -826,7 +828,7 @@ void EditingCoordinator::OnInkCanvasDeviceUp(InputEventArgs& args)
 
     // If this is a mouse event, store the StylusDevice
     //if(mouseButtonEventArgs != nullptr)
-    if (args.type() == QEvent::MouseButtonRelease)
+    if (args.Device() == Mouse::PrimaryDevice)
     {
         stylusDevice = mouseButtonEventArgs.GetStylusDevice();
     }
@@ -850,13 +852,13 @@ void EditingCoordinator::OnInkCanvasDeviceUp(InputEventArgs& args)
     if (IsInputDeviceCaptured(args.Device())
         || (stylusDevice != nullptr && IsInputDeviceCaptured(stylusDevice)))
     {
-        //Debug.Asse<rt(ActiveEditingBehavior() == nullptr || ActiveEditingBehavior() is IStylusEditing,
-        //    "The ActiveEditingBehavior() should be either nullptr (The None mode) or type of IStylusEditing.");
+        Debug::Assert(ActiveEditingBehavior() == nullptr || ActiveEditingBehavior()->metaObject() == &StylusEditingBehavior::staticMetaObject,
+            "The ActiveEditingBehavior() should be either nullptr (The None mode) or type of IStylusEditing.");
 
         // Make sure we only look at mouse left button events if watching mouse events.
         if ( _capturedMouse != nullptr )
         {
-            if ( args.type() == QEvent::MouseButtonRelease )
+            if ( args.Device() == Mouse::PrimaryDevice )
             {
                 if ( mouseButtonEventArgs.ChangedButton() != MouseButton::Left )
                 {
@@ -864,11 +866,11 @@ void EditingCoordinator::OnInkCanvasDeviceUp(InputEventArgs& args)
                 }
             }
         }
-        FinallyHelper final([this]() {
-            ReleaseCapture(true);
-        });
         //try
-        //{
+        {
+            FinallyHelper final([this]() {
+                ReleaseCapture(true);
+            });
             // The follow code raises variety editing events.
             // The out-side code could throw exception in the their handlers. We use try/finally block to protect our status.
             if ( ActiveEditingBehavior() != nullptr )
@@ -876,12 +878,12 @@ void EditingCoordinator::OnInkCanvasDeviceUp(InputEventArgs& args)
                 // Commit the current editing.
                 ActiveEditingBehavior()->Commit(true);
             }
-        //}
+        }
         //finally
         //{
             // Call ReleaseCapture(true) at the end of the routine. The method will cause an external event fired.
             // So it should be invoked after we set up our states.
-            ReleaseCapture(true);
+        //    ReleaseCapture(true);
         //}
 
     }
@@ -929,9 +931,9 @@ void EditingCoordinator::OnInkCanvasLostDeviceCapture(EventArgs& args)
 //[SecurityCritical]
 void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEditing* stylusEditingBehavior, bool userInitiated, bool resetDynamicRenderer)
 {
-    //Debug.Asse<rt(inputDevice != null, "A nullptr device is passed in.");
-    //Debug.Asse<rt(stylusEditingBehavior != null, "stylusEditingBehavior cannot be null.");
-    //Debug.Asse<rt(!IsInMidStroke, "The previous device hasn't been released yet.");
+    Debug::Assert(inputDevice != nullptr, "A nullptr device is passed in.");
+    Debug::Assert(stylusEditingBehavior != nullptr, "stylusEditingBehavior cannot be null.");
+    Debug::Assert(!IsInMidStroke(), "The previous device hasn't been released yet.");
 
     QSharedPointer<StylusPointCollection> stylusPoints;
 
@@ -983,7 +985,7 @@ void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEdit
     }
     else
     {
-        //Debug.Asse<rt(!resetDynamicRenderer, "The dynamic renderer shouldn't be reset for Mouse");
+        Debug::Assert(!resetDynamicRenderer, "The dynamic renderer shouldn't be reset for Mouse");
 
         _commonDescription = nullptr;
 
@@ -1021,7 +1023,7 @@ void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEdit
 /// <param name="releaseDevice"></param>
 void EditingCoordinator::ReleaseCapture(bool releaseDevice)
 {
-    //Debug.Asse<rt(IsInMidStroke() || !releaseDevice, "The captured device has been release unexpectly.");
+    Debug::Assert(IsInMidStroke() || !releaseDevice, "The captured device has been release unexpectly.");
 
     if ( _capturedStylus != nullptr )
     {
@@ -1067,7 +1069,7 @@ void EditingCoordinator::ReleaseCapture(bool releaseDevice)
 /// <returns></returns>
 bool EditingCoordinator::IsInputDeviceCaptured(InputDevice* inputDevice)
 {
-    //Debug.Asse<rt(_capturedStylus == nullptr || _capturedMouse == null, "InkCanvas cannot capture both stylus and mouse at the same time.");
+    Debug::Assert(_capturedStylus == nullptr || _capturedMouse == nullptr, "InkCanvas cannot capture both stylus and mouse at the same time.");
     return (inputDevice == _capturedStylus && _capturedStylus->Captured() == &_inkCanvas)
         || (inputDevice == _capturedMouse && _capturedMouse->Captured() == &_inkCanvas);
 }
@@ -1201,7 +1203,7 @@ EditingCoordinator::BehaviorValidFlag EditingCoordinator::GetBehaviorCursorFlag(
     }
     else
     {
-        //Debug.Asse<rt(false, "Unknown behavior");
+        Debug::Assert(false, "Unknown behavior");
     }
 
     return flag;
@@ -1238,7 +1240,7 @@ EditingCoordinator::BehaviorValidFlag EditingCoordinator::GetBehaviorTransformFl
     }
     else
     {
-        //Debug.Asse<rt(false, "Unknown behavior");
+        Debug::Assert(false, "Unknown behavior");
     }
 
     return flag;
@@ -1246,29 +1248,29 @@ EditingCoordinator::BehaviorValidFlag EditingCoordinator::GetBehaviorTransformFl
 
 void EditingCoordinator::ChangeEditingBehavior(EditingBehavior* newBehavior)
 {
-    //Debug.Asse<rt(!IsInMidStroke, "ChangeEditingBehavior cannot be called in a mid-stroke");
-    //Debug.Asse<rt(_activationStack.Count <= 1, "The behavior stack has to contain at most one behavior when user is not editing.");
+    Debug::Assert(!IsInMidStroke(), "ChangeEditingBehavior cannot be called in a mid-stroke");
+    Debug::Assert(_activationStack.size() <= 1, "The behavior stack has to contain at most one behavior when user is not editing.");
 
-    FinallyHelper final([this, newBehavior]() {
-        if ( ActiveEditingBehavior() != nullptr )
-        {
-            // Pop the old behavior.
-            PopEditingBehavior();
-        }
-
-        // Push the new behavior
-        if ( newBehavior != nullptr )
-        {
-            PushEditingBehavior(newBehavior);
-        }
-
-        RoutedEventArgs e(InkCanvas::ActiveEditingModeChangedEvent, &_inkCanvas);
-        _inkCanvas.RaiseActiveEditingModeChanged(e);
-    });
     //try
-    //{
+    {
+        FinallyHelper final([this, newBehavior]() {
+            if ( ActiveEditingBehavior() != nullptr )
+            {
+                // Pop the old behavior.
+                PopEditingBehavior();
+            }
+
+            // Push the new behavior
+            if ( newBehavior != nullptr )
+            {
+                PushEditingBehavior(newBehavior);
+            }
+
+            RoutedEventArgs e(InkCanvas::ActiveEditingModeChangedEvent, &_inkCanvas);
+            _inkCanvas.RaiseActiveEditingModeChanged(e);
+        });
         _inkCanvas.ClearSelection(true);
-    //}
+    }
     //finally
     //{
     //    if ( ActiveEditingBehavior() != nullptr )

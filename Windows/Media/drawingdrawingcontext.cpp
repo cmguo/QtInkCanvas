@@ -9,6 +9,12 @@ DrawingDrawingContext::DrawingDrawingContext()
 {
 }
 
+DrawingDrawingContext::~DrawingDrawingContext()
+{
+    if (_currentDrawingGroup)
+        delete _currentDrawingGroup;
+}
+
 //#endregion Constructors
 
 //#region Public Methods
@@ -1261,14 +1267,14 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
         // Call CloseCore with the root DrawingGroup's children
         //
 
-        QVector<Drawing*> rootChildren;
+        QList<Drawing*> rootChildren;
 
         if (_currentDrawingGroup != nullptr)
          {
             // If we created a root DrawingGroup because multiple elements
             // exist at the root level, provide it's Children collection
             // directly.
-            rootChildren = _currentDrawingGroup->Children().toVector();
+            rootChildren.swap(_currentDrawingGroup->Children());
         }
         else
         {
@@ -1318,7 +1324,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
 /// <remarks>
 ///     This will only be called once (at most) per instance.
 /// </remarks>
-void DrawingDrawingContext::DrawingDrawingContext::CloseCore(QVector<Drawing*> rootDrawingGroupChildren)
+void DrawingDrawingContext::DrawingDrawingContext::CloseCore(QList<Drawing*> rootDrawingGroupChildren)
 {
     // Default implementation is a no-op
 }

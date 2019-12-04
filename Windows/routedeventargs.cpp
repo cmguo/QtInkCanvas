@@ -17,6 +17,7 @@
 ///     <para/>
 /// </remarks>
 RoutedEventArgs::RoutedEventArgs()
+    : _flags(32)
 {
 }
 
@@ -35,6 +36,7 @@ RoutedEventArgs::RoutedEventArgs(RoutedEvent& routedEvent)
 /// <param name="source">The new value that the SourceProperty is being set to </param>
 /// <param name="routedEvent">The new value that the RoutedEvent Property is being set to </param>
 RoutedEventArgs::RoutedEventArgs(RoutedEvent& routedEvent, DependencyObject* source)
+    : _flags(32)
 {
     _routedEvent = &routedEvent;
     _source = _originalSource = source;
@@ -353,3 +355,21 @@ void RoutedEventArgs::SetInvokingHandler(bool value)
 
 
 //#region Data
+
+void RoutedEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
+{
+    RoutedEventArgs args;
+    handle(event, args, handlers);
+}
+
+void RoutedEvent::handle(QEvent &event, RoutedEventArgs &args, QList<RoutedEventHandler> handlers)
+{
+    for (RoutedEventHandler & h : handlers) {
+        h(args);
+        if (args.Handled()) {
+            event.accept();
+            return;
+        }
+    }
+    event.ignore();
+}

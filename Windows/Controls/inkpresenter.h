@@ -2,12 +2,13 @@
 #define INKPRESENTER_H
 
 #include "Windows/uielement.h"
+#include "Windows/Controls/decorator.h"
 
 #include <QSharedPointer>
 
 #include <utility>
 
-class InkRenderer;
+class Renderer;
 class Stroke;
 class StrokeCollection;
 class StrokeCollectionChangedEventArgs;
@@ -16,17 +17,6 @@ class DrawingAttributes;
 class DependencyPropertyChangedEventArgs;
 class AutomationPeer;
 
-class Decorator : public UIElement
-{
-protected:
-    UIElement* Child() { return child_; }
-
-    void SetChild(UIElement * value) { child_ = value; }
-
-private:
-    UIElement * child_;
-};
-
 // namespace System.Windows.Controls
 
 /// <summary>
@@ -34,7 +24,7 @@ private:
 /// </summary>
 class InkPresenter : public Decorator
 {
-
+    Q_OBJECT
     //-------------------------------------------------------------------------------
     //
     // Constructors
@@ -84,7 +74,7 @@ public:
     /// <summary>
     /// The DependencyProperty for the Strokes property.
     /// </summary>
-    static DependencyProperty const * StrokesProperty;
+    static DependencyProperty const * const StrokesProperty;
 
     /// <summary>
     /// Gets/Sets the Strokes property.
@@ -93,7 +83,7 @@ public:
     void SetStrokes(QSharedPointer<StrokeCollection> value);
 
 private:
-    static void OnStrokesChanged(DependencyObject* d, DependencyPropertyChangedEventArgs& e);
+    static void OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e);
 
 
     //#endregion Properties
@@ -192,7 +182,7 @@ private:
     //#region Methods
 
 private:
-    void SetStrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes);
+    void StrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes);
 
     /// <summary>
     /// StrokeCollectionChanged event handler
@@ -247,13 +237,13 @@ private:
     //-------------------------------------------------------------------------------
 private:
     //#region Fields
-    InkRenderer*    _renderer;
+    Renderer*    _renderer = nullptr;
     std::pair<QRectF, bool>  _cachedBounds;
-    bool            _hasAddedRoot;
+    bool            _hasAddedRoot = false;
     //
     // HighContrast support
     //
-    InkPresenterHighContrastCallback*    _contrastCallback;
+    InkPresenterHighContrastCallback*    _contrastCallback = nullptr;
 
     QSizeF                                _constraintSize;
 

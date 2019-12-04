@@ -21,6 +21,7 @@ HEADERS += \
     $$PWD/lassoselectionbehavior.h \
     $$PWD/pencursormanager.h \
     $$PWD/quad.h \
+    $$PWD/renderer.h \
     $$PWD/selectioneditingbehavior.h \
     $$PWD/selectioneditor.h \
     $$PWD/strokefindices.h \
@@ -52,6 +53,7 @@ SOURCES += \
     $$PWD/lassoselectionbehavior.cpp \
     $$PWD/pencursormanager.cpp \
     $$PWD/quad.cpp \
+    $$PWD/renderer.cpp \
     $$PWD/selectioneditingbehavior.cpp \
     $$PWD/selectioneditor.cpp \
     $$PWD/strokefindices.cpp \

@@ -1,8 +1,8 @@
 #ifndef STYLUSPOINT_H
 #define STYLUSPOINT_H
 
-#include "styluspointdescription.h"
-#include "styluspointproperties.h"
+#include "Windows/Input/styluspointdescription.h"
+#include "Windows/Input/styluspointproperties.h"
 
 #include <QPointF>
 #include <QVector>

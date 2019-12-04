@@ -17,7 +17,7 @@ class DrawingContext;
 class Geometry;
 class Dispatcher;
 class ContainerVisual;
-class DynamicRendererThreadManager;
+class QThread;
 
 /////////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -138,13 +138,13 @@ private:
     /// <summary>
     /// [TBS]
     /// </summary>
-    void OnStylusDownProcessed(bool targetVerified);
+    void OnStylusDownProcessed(void* callbackData, bool targetVerified);
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS]
     /// </summary>
-    virtual void OnStylusUpProcessed(bool targetVerified);
+    virtual void OnStylusUpProcessed(void* callbackData, bool targetVerified);
 
     void OnInternalRenderComplete(EventArgs& e);
 
@@ -162,7 +162,7 @@ protected:
     /// </summary>
     virtual void OnDraw(  DrawingContext& drawingContext,
                                     QSharedPointer<StylusPointCollection> stylusPoints,
-                                    Geometry& geometry,
+                                    Geometry* geometry,
                                     QBrush fillBrush);
 
     /////////////////////////////////////////////////////////////////////
@@ -267,21 +267,21 @@ private:
     //                |
     //                +-- VisualTarget ([on RealTimeInkingDispatcher thread])
     //
-    ContainerVisual*              _mainContainerVisual;
-    ContainerVisual*              _mainRawInkContainerVisual;
-    DynamicRendererHostVisual*    _rawInkHostVisual1;
-    DynamicRendererHostVisual*    _rawInkHostVisual2;
+    ContainerVisual*              _mainContainerVisual = nullptr;
+    ContainerVisual*              _mainRawInkContainerVisual = nullptr;
+    DynamicRendererHostVisual*    _rawInkHostVisual1 = nullptr;
+    DynamicRendererHostVisual*    _rawInkHostVisual2 = nullptr;
 
-    DynamicRendererHostVisual*            _currentHostVisual; // Current HV.
+    DynamicRendererHostVisual*            _currentHostVisual = nullptr; // Current HV.
 
     // For OnRenderComplete support (for UI Thread)
     EventHandler  _onRenderComplete;
     bool          _waitingForRenderComplete;
     QMutex        __siLock;
-    StrokeInfo*  _renderCompleteStrokeInfo;
+    StrokeInfo*  _renderCompleteStrokeInfo = nullptr;
 
     // On internal real time ink rendering thread.
-    DynamicRendererThreadManager* _renderingThread;
+    QThread* _renderingThread = nullptr;
 
     // For OnRenderComplete support (for DynamicRenderer Thread)
     EventHandler  _onDRThreadRenderComplete;

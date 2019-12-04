@@ -90,7 +90,7 @@ public:
     /// <summary>
     /// The count of strokenodes that can be iterated across
     /// </summary>
-    int Count()
+    int Count() const
     {
         if (_stylusPoints == nullptr)
         {
@@ -112,6 +112,11 @@ public:
     /// </summary>
     /// <returns></returns>
     StrokeNode GetNode(int index, int previousIndex);
+
+    friend bool operator!=(StrokeNodeIterator const & l, nullptr_t r)
+    {
+        return l._stylusPoints != nullptr;
+    }
 
 private:
     QSharedPointer<StylusPointCollection>  _stylusPoints;

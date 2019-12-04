@@ -4,6 +4,7 @@
 #include "Internal/Ink/lasso.h"
 #include "Windows/Input/styluspoint.h"
 #include "Windows/Ink/events.h"
+#include "debug.h"
 
 IncrementalHitTester::IncrementalHitTester()
 {
@@ -46,7 +47,7 @@ void IncrementalHitTester::AddPoints(QVector<QPointF> const & points)
         throw std::exception("SR.Get(SRID.EndHitTestingCalled");
     }
 
-    //System.Diagnostics.Debug.Assert(_strokes != nullptr);
+    Debug::Assert(_strokes != nullptr);
 
     AddPointsCore(points);
 }
@@ -72,7 +73,7 @@ void IncrementalHitTester::AddPoints(QSharedPointer<StylusPointCollection> const
         throw std::exception("SR.Get(SRID.EndHitTestingCalled)");
     }
 
-    //System.Diagnostics.Debug.Assert(_strokes != nullptr);
+    Debug::Assert(_strokes != nullptr);
 
     QVector<QPointF> points(stylusPoints->size());
     for (int x = 0; x < stylusPoints->size(); x++)
@@ -113,11 +114,11 @@ void IncrementalHitTester::EndHitTesting()
 /// <param name="strokes">strokes to hit-test</param>
 IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> strokes)
 {
-    //System.Diagnostics.Debug.Assert(strokes != nullptr);
+    Debug::Assert(strokes != nullptr);
 
     // Create a StrokeInfo object for each stroke.
-    _strokeInfos.reserve(strokes->count());
-    for (int x = 0; x < strokes->count(); x++)
+    _strokeInfos.reserve(strokes->Count());
+    for (int x = 0; x < strokes->Count(); x++)
     {
         QSharedPointer<Stroke> stroke = (*strokes)[x];
         _strokeInfos.append(new StrokeInfo(stroke));
@@ -127,6 +128,8 @@ IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> stro
 
     // Attach an event handler to the strokes' changed event
     //_strokes.StrokesChangedInternal += new StrokeCollectionChangedEventHandler(OnStrokesChanged);
+    QObject::connect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
+                        this, &IncrementalHitTester::OnStrokesChanged);
 }
 
 
@@ -141,36 +144,38 @@ IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> stro
 /// </remarks>
 void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& args)
 {
-    //System.Diagnostics.Debug.Assert((_strokes != nullptr) && (_strokeInfos != nullptr) && (_strokes == sender));
+    Debug::Assert((_strokes != nullptr)/* && (_strokeInfos != nullptr) && (_strokes == sender)*/);
 
     QSharedPointer<StrokeCollection> added = args.Added();
     QSharedPointer<StrokeCollection> removed = args.Removed();
 
-    if (added->count() > 0)
+    if (added->Count() > 0)
     {
         int firstIndex = _strokes->indexOf((*added)[0]);
-        for (int i = 0; i < added->count(); i++)
+        Debug::Assert(firstIndex + added->Count() == args.Index());
+        for (int i = 0; i < added->Count(); i++)
         {
             _strokeInfos.insert(firstIndex, new StrokeInfo((*added)[i]));
             firstIndex++;
         }
     }
 
-    if (removed->count() > 0)
+    if (removed->Count() > 0)
     {
         QSharedPointer<StrokeCollection> localRemoved(new StrokeCollection(*removed));
         //we have to assume that removed strokes can be in any order in _strokes
-        for (int i = 0; i < _strokeInfos.size() && localRemoved->count() > 0; )
+        for (int i = 0; i < _strokeInfos.size() && localRemoved->Count() > 0; )
         {
             bool found = false;
-            for (int j = 0; j < localRemoved->count(); j++)
+            for (int j = 0; j < localRemoved->Count(); j++)
             {
                 if ((*localRemoved)[j] == _strokeInfos[i]->GetStroke())
                 {
                     _strokeInfos.removeAt(i);
-                    localRemoved->removeAt(j);
+                    localRemoved->RemoveItem(j);
 
                     found = true;
+                    break;
                 }
             }
             //we didn't find a removed stroke at index i in _strokeInfos, so advance i
@@ -179,12 +184,14 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
                 i++;
             }
         }
+
+        Debug::Assert(localRemoved->Count() == 0);
     }
 
     //validate our cache
-    if (_strokes->count() != _strokeInfos.size())
+    if (_strokes->Count() != _strokeInfos.size())
     {
-        //Debug.Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
+        Debug::Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
         RebuildStrokeInfoCache();
         return;
     }
@@ -192,7 +199,7 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
     {
         if (_strokeInfos[i]->GetStroke() != (*_strokes)[i])
         {
-            //Debug.Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
+            Debug::Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
             RebuildStrokeInfoCache();
             return;
         }
@@ -252,7 +259,7 @@ void IncrementalHitTester::RebuildStrokeInfoCache()
 IncrementalLassoHitTester::IncrementalLassoHitTester(QSharedPointer<StrokeCollection> strokes, int percentageWithinLasso)
     : IncrementalHitTester(strokes)
 {
-    //System.Diagnostics.Debug.Assert((percentageWithinLasso >= 0) && (percentageWithinLasso <= 100));
+    Debug::Assert((percentageWithinLasso >= 0) && (percentageWithinLasso <= 100));
     _lasso = new SingleLoopLasso();
     _percentIntersect = percentageWithinLasso;
 }
@@ -263,7 +270,7 @@ IncrementalLassoHitTester::IncrementalLassoHitTester(QSharedPointer<StrokeCollec
 /// <param name="points">new points to add to the lasso</param>
 void IncrementalLassoHitTester::AddPointsCore(QVector<QPointF> const & points)
 {
-    //System.Diagnostics.Debug.Assert((points != nullptr) && (IEnumerablePointHelper.GetCount(points)!= 0));
+    Debug::Assert(points.size() != 0);
 
     // Add the new points to the lasso
     int lastPointIndex = (0 != _lasso->PointCount()) ? (_lasso->PointCount() - 1) : 0;
@@ -369,7 +376,7 @@ void IncrementalLassoHitTester::AddPointsCore(QVector<QPointF> const & points)
                     {
                         strokesHit.reset(new StrokeCollection());
                     }
-                    strokesHit->append(strokeInfo->GetStroke());
+                    strokesHit->AddItem(strokeInfo->GetStroke());
                 }
                 else
                 {
@@ -379,7 +386,7 @@ void IncrementalLassoHitTester::AddPointsCore(QVector<QPointF> const & points)
                     {
                         strokesUnhit.reset(new StrokeCollection());
                     }
-                    strokesUnhit->append(strokeInfo->GetStroke());
+                    strokesUnhit->AddItem(strokeInfo->GetStroke());
                 }
             }
         }
@@ -401,7 +408,7 @@ void IncrementalLassoHitTester::AddPointsCore(QVector<QPointF> const & points)
 /// <param name="eventArgs"></param>
 void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArgs&  eventArgs)
 {
-    //System.Diagnostics.Debug.Assert(eventArgs != nullptr);
+    //Debug::Assert(eventArgs != nullptr);
     //if (SelectionChanged != nullptr)
     //{
         emit SelectionChanged(eventArgs);
@@ -419,7 +426,7 @@ IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeColl
     : IncrementalHitTester(strokes)
     , _erasingStroke(eraserShape)
 {
-    //System.Diagnostics.Debug.Assert(eraserShape != nullptr);
+    //Debug::Assert(eraserShape != nullptr);
 
     // Create an ErasingStroke objects that implements the actual hit-testing
     //_erasingStroke = new ErasingStroke(eraserShape);
@@ -432,8 +439,8 @@ IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeColl
 /// in the moving of the erasing shape</param>
 void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
 {
-    //System.Diagnostics.Debug.Assert((points != nullptr) && (IEnumerablePointHelper.GetCount(points) != 0));
-    //System.Diagnostics.Debug.Assert(_erasingStroke != nullptr);
+    Debug::Assert((points.size() != 0));
+    //Debug::Assert(_erasingStroke != nullptr);
 
     // Move the shape through the new points and build the contour of the move.
     _erasingStroke.MoveTo(points);
@@ -478,12 +485,12 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
     // Raise StrokeHit event if needed.
     //if (strokeHitEventArgCollection != nullptr)
     //{
-        //System.Diagnostics.Debug.Assert(strokeHitEventArgCollection->count() != 0);
+        //Debug::Assert(strokeHitEventArgCollection.size() != 0);
         for (int x = 0; x < strokeHitEventArgCollection.count(); x++)
         {
             StrokeHitEventArgs& eventArgs = strokeHitEventArgCollection[x];
 
-            //System.Diagnostics.Debug.Assert(eventArgs.HitStroke != nullptr);
+            Debug::Assert(eventArgs.HitStroke() != nullptr);
             OnStrokeHit(eventArgs);
         }
     //}
@@ -494,7 +501,7 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
 /// </summary>
 void IncrementalStrokeHitTester::OnStrokeHit(StrokeHitEventArgs& eventArgs)
 {
-    //System.Diagnostics.Debug.Assert(eventArgs != nullptr);
+    //Debug::Assert(eventArgs != nullptr);
     //if (StrokeHit != nullptr)
     //{
         emit StrokeHit(eventArgs);
@@ -508,7 +515,7 @@ void IncrementalStrokeHitTester::OnStrokeHit(StrokeHitEventArgs& eventArgs)
 StrokeInfo::StrokeInfo(QSharedPointer<Stroke> stroke)
     :_stroke(stroke)
 {
-    //System.Diagnostics.Debug.Assert(stroke != nullptr);
+    Debug::Assert(stroke != nullptr);
     //_stroke = stroke;
     _bounds = stroke->GetBounds();
 
@@ -586,7 +593,7 @@ double StrokeInfo::GetPointWeight(int index)
 {
     QSharedPointer<StylusPointCollection> stylusPoints = StylusPoints();
     QSharedPointer<DrawingAttributes> da = Stroke().GetDrawingAttributes();
-    //System.Diagnostics.Debug.Assert(stylusPoints != nullptr && index >= 0 && index < stylusPoints->count());
+    Debug::Assert(stylusPoints != nullptr && index >= 0 && index < stylusPoints->count());
 
     double weight = 0;
     if (index == 0)

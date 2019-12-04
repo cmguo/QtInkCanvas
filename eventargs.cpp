@@ -3,7 +3,6 @@
 EventArgs EventArgs::Empty;
 
 EventArgs::EventArgs()
-    : QEvent(QEvent::User)
 {
 
 }

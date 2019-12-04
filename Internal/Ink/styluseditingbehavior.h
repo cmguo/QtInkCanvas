@@ -198,7 +198,7 @@ public:
     //#region Private Fields
 
 private:
-    bool    _disableInput;  // No need for initializing. The default value is false.
+    bool    _disableInput = false;  // No need for initializing. The default value is false.
 
     //#endregion Private Fields
 };

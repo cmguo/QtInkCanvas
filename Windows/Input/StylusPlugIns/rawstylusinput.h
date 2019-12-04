@@ -1,14 +1,26 @@
 #ifndef RAWSTYLUSINPUT_H
 #define RAWSTYLUSINPUT_H
 
+#include "Windows/Input/StylusPlugIns/rawstylusactions.h"
+
 #include <QTransform>
 #include <QSharedPointer>
 
+class QInputEvent;
+class QTouchEvent;
+class QMouseEvent;
 class RawStylusInputReport;
 class StylusPlugInCollection;
-class RawStylusInputCustomDataList;
 class StylusPointCollection;
 class StylusPlugIn;
+class InputDevice;
+
+class RawStylusInputCustomData
+{
+public:
+    StylusPlugIn* Owner;
+    void* Data;
+};
 
 /////////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -25,7 +37,7 @@ public:
     /// <param name="tabletToElementTransform">[TBS]
     /// <param name="targetPlugInCollection">[TBS]
     RawStylusInput(
-        RawStylusInputReport*    report,
+        QInputEvent&    event,
         QTransform        tabletToElementTransform,
         StylusPlugInCollection* targetPlugInCollection);
 
@@ -43,6 +55,8 @@ public:
     ///
     /// </summary>
     int Timestamp();
+
+    RawStylusActions Actions();
 
     /// <summary>
     /// Returns a copy of the StylusPoints
@@ -100,7 +114,7 @@ public:
     /// <summary>
     /// Retrieves the RawStylusInputCustomDataList associated with this input.
     /// </summary>
-    RawStylusInputCustomDataList* CustomDataList();
+    QList<RawStylusInputCustomData> CustomDataList();
     /// <summary>
     /// StylusPlugIn that is adding a notify event.
     /// </summary>
@@ -108,12 +122,18 @@ public:
     void SetCurrentNotifyPlugIn(StylusPlugIn* value);
     /////////////////////////////////////////////////////////////////////
 
-    RawStylusInputReport*    _report;
+private:
+    QInputEvent& inputEvent_;
+    QTouchEvent* touchEvent_;
+    QMouseEvent* mouseEvent_;
+
+    //RawStylusInputReport*    _report;
+    InputDevice* device_;
     QTransform        _tabletToElementTransform;
     StylusPlugInCollection*  _targetPlugInCollection;
     QSharedPointer<StylusPointCollection>   _stylusPoints;
     StylusPlugIn*            _currentNotifyPlugIn;
-    RawStylusInputCustomDataList*    _customData;
+    QList<RawStylusInputCustomData>    _customData;
 
 };
 

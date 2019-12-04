@@ -105,7 +105,7 @@ bool ErasingStroke::HitTest(StrokeNodeIterator iterator)
 /// <param name="iterator"></param>
 /// <param name="intersections"></param>
 /// <returns></returns>
-bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersection> intersections)
+bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersection> & intersections)
 {
     //System.Diagnostics.Debug.Assert(iterator != null);
     //System.Diagnostics.Debug.Assert(intersections != null);
@@ -226,7 +226,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
 }
 
 
-QVector<QPointF> ErasingStroke::FilterPoints(QVector<QPointF> & path)
+QVector<QPointF> ErasingStroke::FilterPoints(QVector<QPointF> const & path)
 {
     //System.Diagnostics.Debug.Assert(path.Length > 1);
     QPointF back2, back1;

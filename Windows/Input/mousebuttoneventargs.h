@@ -1,7 +1,7 @@
 #ifndef MOUSEBUTTONEVENTARGS_H
 #define MOUSEBUTTONEVENTARGS_H
 
-#include "mouseeventargs.h"
+#include "Windows/Input/mouseeventargs.h"
 
 enum class MouseButton
 {
@@ -80,6 +80,7 @@ public:
 class MouseButtonEventArgs : public MouseEventArgs
 {
 public:
+    MouseButtonEventArgs(QMouseEvent& event);
     /// <summary>
     ///     Initializes a new instance of the MouseButtonEventArgs class.
     /// </summary>

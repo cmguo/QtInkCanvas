@@ -90,7 +90,7 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
             {
                 if ((*inkCanvasStrokes)[i] == (*strokes)[j])
                 {
-                    orderedStrokes->append((*strokes)[j]);
+                    orderedStrokes->AddItem((*strokes)[j]);
                     break;
                 }
             }

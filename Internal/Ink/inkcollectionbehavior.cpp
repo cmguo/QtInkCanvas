@@ -2,8 +2,8 @@
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/routedeventargs.h"
 #include "Windows/Ink/drawingattributes.h"
-#include "Windows/Input/inputdevice.h"
-#include "dynamicrenderer.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/StylusPlugIns/dynamicrenderer.h"
 #include "Windows/Ink/stroke.h"
 #include "Windows/Controls/inkevents.h"
 #include "finallyhelper.h"
@@ -310,14 +310,15 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
     // The follow code raises Gesture and/or StrokeCollected event
     // The out-side code could throw exception in the their handlers. We use try/finally block to protect our status.
 
-    FinallyHelper final([this](){
-        _stylusPoints = nullptr ;
-        _strokeDrawingAttributes = nullptr ;
-        _userInitiated = false;
-        GetEditingCoordinator().InvalidateBehaviorCursor(this);
-    });
     //try
     {
+        FinallyHelper final([this](){
+            _stylusPoints = nullptr ;
+            _strokeDrawingAttributes = nullptr ;
+            _userInitiated = false;
+            GetEditingCoordinator().InvalidateBehaviorCursor(this);
+        });
+
         if ( commit )
         {
             // NTRAID:WINDOWS#1613731-2006/04/27-WAYNEZEN,

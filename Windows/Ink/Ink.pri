@@ -7,7 +7,6 @@ HEADERS += \
     $$PWD/gesturerecognitionresult.h \
     $$PWD/gesturerecognizer.h \
     $$PWD/incrementalhittester.h \
-    $$PWD/inkrenderer.h \
     $$PWD/knownids.h \
     $$PWD/stroke.h \
     $$PWD/strokecollection.h \
@@ -23,7 +22,6 @@ SOURCES += \
     $$PWD/gesturerecognitionresult.cpp \
     $$PWD/gesturerecognizer.cpp \
     $$PWD/incrementalhittester.cpp \
-    $$PWD/inkrenderer.cpp \
     $$PWD/knownids.cpp \
     $$PWD/stroke.cpp \
     $$PWD/strokecollection.cpp \

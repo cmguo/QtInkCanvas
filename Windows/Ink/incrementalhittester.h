@@ -224,7 +224,7 @@ public:
         if (_selectedStrokes != nullptr)
         {
             QSharedPointer<StrokeCollection> sc;
-            sc->append(*_selectedStrokes);
+            sc->Add(_selectedStrokes);
             return sc;
         }
         else
@@ -241,7 +241,7 @@ public:
         if (_deselectedStrokes != nullptr)
         {
             QSharedPointer<StrokeCollection> sc;
-            sc->append(*_deselectedStrokes);
+            sc->Add(_deselectedStrokes);
             return sc;
         }
         else

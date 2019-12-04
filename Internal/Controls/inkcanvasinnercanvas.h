@@ -10,7 +10,7 @@ class InkCanvas;
 /// <summary>
 /// A subclass of Panel which does layout for GetInkCanvas().
 /// </summary>
-class InkCanvasInnerCanvas : public UIElement
+class InkCanvasInnerCanvas : public FrameworkElement
 {
     Q_OBJECT
 public:

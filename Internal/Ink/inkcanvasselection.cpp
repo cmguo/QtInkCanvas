@@ -785,7 +785,7 @@ void InkCanvasSelection::OnStrokeCollectionChanged(StrokeCollectionChangedEventA
             s->SetIsSelected(false);
 
             // Now remove the stroke from our collection.
-            SelectedStrokes()->removeOne(s);
+            SelectedStrokes()->RemoveItem(s);
         }
     }
 

@@ -1,10 +1,12 @@
 #ifndef MOUSEEVENTARGS_H
 #define MOUSEEVENTARGS_H
 
-#include "inputeventargs.h"
-#include "inputdevice.h"
+#include "Windows/Input/inputeventargs.h"
+#include "Windows/Input/mousebuttonstate.h"
 
-class UIElement;
+class Visual;
+class MouseDevice;
+class StylusDevice;
 
 // namespace System.Windows.Input
 
@@ -15,6 +17,8 @@ class UIElement;
 class MouseEventArgs : public InputEventArgs
 {
 public:
+    MouseEventArgs(QMouseEvent &event);
+
     /// <summary>
     ///     Initializes a new instance of the MouseEventArgs class.
     /// </summary>
@@ -44,10 +48,7 @@ public:
     ///     Read-only access to the mouse device associated with this
     ///     event.
     /// </summary>
-    MouseDevice* GetMouseDevice()
-    {
-        return (MouseDevice*) Device();
-    }
+    MouseDevice* GetMouseDevice();
 
     /// <summary>
     ///     Read-only access to the stylus Mouse associated with this event.
@@ -61,7 +62,7 @@ public:
     ///     Calculates the position of the mouse relative to
     ///     a particular element.
     /// </summary>
-    QPointF GetPosition(UIElement* relativeTo);
+    QPointF GetPosition(Visual* relativeTo);
 
     /// <summary>
     ///     The state of the left button.

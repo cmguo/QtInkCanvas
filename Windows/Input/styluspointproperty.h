@@ -1,7 +1,7 @@
 #ifndef STYLUSPOINTPROPERTY_H
 #define STYLUSPOINTPROPERTY_H
 
-#include "styluspointpropertyids.h"
+#include "Windows/Input/styluspointpropertyids.h"
 
 #include <QString>
 

@@ -1,6 +1,6 @@
 #include "Internal/Ink/selectioneditingbehavior.h"
 #include "Internal/doubleutil.h"
-#include "Windows/Input/inputdevice.h"
+#include "Windows/Input/mousedevice.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Internal/Ink/editingcoordinator.h"
 #include "Internal/Ink/inkcanvasselection.h"

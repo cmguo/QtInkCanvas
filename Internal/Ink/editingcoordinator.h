@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QCursor>
 #include <QSharedPointer>
+#include <QStack>
 
 class InkCanvas;
 class EventArgs;
@@ -521,12 +522,12 @@ public:
     /// </summary>
 private:
     InkCanvas& _inkCanvas;
-    QVector<EditingBehavior*> _activationStack;
-    InkCollectionBehavior* _inkCollectionBehavior;
-    EraserBehavior* _eraserBehavior;
-    LassoSelectionBehavior* _lassoSelectionBehavior;
-    SelectionEditingBehavior* _selectionEditingBehavior;
-    SelectionEditor* _selectionEditor;
+    QStack<EditingBehavior*> _activationStack;
+    InkCollectionBehavior* _inkCollectionBehavior = nullptr;
+    EraserBehavior* _eraserBehavior = nullptr;
+    LassoSelectionBehavior* _lassoSelectionBehavior = nullptr;
+    SelectionEditingBehavior* _selectionEditingBehavior = nullptr;
+    SelectionEditor* _selectionEditor = nullptr;
     bool _moveEnabled = true;
     bool _resizeEnabled = true;
     bool _userIsEditing = false;
@@ -537,8 +538,8 @@ private:
     bool _stylusIsInverted = false;
 
     QSharedPointer<StylusPointDescription>  _commonDescription;
-    StylusDevice*            _capturedStylus;
-    MouseDevice*             _capturedMouse;
+    StylusDevice*            _capturedStylus = nullptr;
+    MouseDevice*             _capturedMouse = nullptr;
 
     // Fields related to cursor and transform.
     BehaviorValidFlags       _behaviorValidFlag;

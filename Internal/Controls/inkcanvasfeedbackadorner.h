@@ -1,7 +1,7 @@
 #ifndef INKCANVASFEEDBACKADORNER_H
 #define INKCANVASFEEDBACKADORNER_H
 
-#include "Windows/uielement.h"
+#include "Windows/Controls/decorator.h"
 
 class InkCanvas;
 class DrawingContext;

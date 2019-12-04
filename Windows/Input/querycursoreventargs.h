@@ -1,7 +1,7 @@
 #ifndef QUERYCURSOREVENTARGS_H
 #define QUERYCURSOREVENTARGS_H
 
-#include "mouseeventargs.h"
+#include "Windows/Input/mouseeventargs.h"
 
 #include <QCursor>
 

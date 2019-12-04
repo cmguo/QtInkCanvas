@@ -18,7 +18,7 @@ class UIElement;
 /// <summary>
 ///    InkCanvasStrokeCollectedEventArgs
 /// </summary>
-class InkCanvasStrokeCollectedEventArgs : RoutedEventArgs
+class InkCanvasStrokeCollectedEventArgs : public RoutedEventArgs
 {
 public:
     /// <summary>

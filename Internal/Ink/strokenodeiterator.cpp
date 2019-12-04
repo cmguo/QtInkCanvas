@@ -7,13 +7,13 @@
 /// </summary>
 StrokeNodeIterator StrokeNodeIterator::GetIterator(Stroke & stroke, DrawingAttributes& drawingAttributes)
 {
-    //if (stroke == null)
+    //if (stroke == nullptr)
     //{
-    //    throw new System.ArgumentNullException("stroke");
+    //    throw std::exception("stroke");
     //}
-    //if (drawingAttributes == null)
+    //if (drawingAttributes == nullptr)
     //{
-    //    throw new System.ArgumentNullException("drawingAttributes");
+    //    throw std::exception("drawingAttributes");
     //}
 
     QSharedPointer<StylusPointCollection> stylusPoints =
@@ -28,13 +28,13 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(Stroke & stroke, DrawingAttri
 /// </summary>
 StrokeNodeIterator StrokeNodeIterator::GetIterator(QSharedPointer<StylusPointCollection> stylusPoints, DrawingAttributes& drawingAttributes)
 {
-    //if (stylusPoints == null)
+    if (stylusPoints == nullptr)
+    {
+        throw std::exception("stylusPoints");
+    }
+    //if (drawingAttributes == nullptr)
     //{
-    //    throw new System.ArgumentNullException("stylusPoints");
-    //}
-    //if (drawingAttributes == null)
-    //{
-    //    throw new System.ArgumentNullException("drawingAttributes");
+    //    throw std::exception("drawingAttributes");
     //}
 
     StrokeNodeOperations * operations =
@@ -85,12 +85,12 @@ StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> sty
     , _operations(operations)
     , _usePressure(usePressure)
 {
-    //Note, StylusPointCollection can be null
+    //Note, StylusPointCollection can be nullptr
     //_stylusPoints = stylusPoints;
-    //if (operations == null)
-    //{
-    //    throw new ArgumentNullException("operations");
-    //}
+    if (operations == nullptr)
+    {
+        throw std::exception("operations");
+    }
     //_operations = operations;
     //_usePressure = usePressure;
 }
@@ -103,12 +103,12 @@ StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> sty
 /// <returns>yields StrokeNode objects one by one</returns>
 StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<StylusPointCollection> stylusPoints)
 {
-    //if (stylusPoints == null)
-    //{
-    //    throw new System.ArgumentNullException("stylusPoints");
-    //}
+    if (stylusPoints == nullptr)
+    {
+        throw std::exception("stylusPoints");
+    }
 
-    if (/*_stylusPoints != null && */_stylusPoints->size() > 0 && stylusPoints->size() > 0)
+    if (_stylusPoints != nullptr && _stylusPoints->size() > 0 && stylusPoints->size() > 0)
     {
         //insert the previous last point, but we need insert a compatible
         //previous point.  The easiest way to do this is to clone a point
@@ -135,12 +135,12 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<
 /// <returns>yields StrokeNode objects one by one</returns>
 StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QVector<QPointF> const & points)
 {
-    //if (points == null)
+    //if (points == nullptr)
     //{
-    //    throw new System.ArgumentNullException("points");
+    //    throw std::exception("points");
     //}
     QSharedPointer<StylusPointCollection> newStylusPoints(new StylusPointCollection(points));
-    if (/*_stylusPoints != null && */_stylusPoints->size() > 0)
+    if (_stylusPoints != nullptr && _stylusPoints->size() > 0)
     {
         //insert the previous last point
         newStylusPoints->insert(0, (*_stylusPoints)[_stylusPoints->size() - 1]);
@@ -168,7 +168,7 @@ StrokeNode StrokeNodeIterator::operator[](int index)
 /// <returns></returns>
 StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex)
 {
-    if (/*_stylusPoints == null||  */index < 0 || index >= _stylusPoints->size() || previousIndex < -1 || previousIndex >= index)
+    if (_stylusPoints == nullptr||  index < 0 || index >= _stylusPoints->size() || previousIndex < -1 || previousIndex >= index)
     {
         throw new std::exception();
     }

@@ -1,6 +1,9 @@
 #ifndef STROKECOLLECTION_H
 #define STROKECOLLECTION_H
 
+#include "InkCanvas_global.h"
+#include "collection.h"
+
 #include <QVector>
 #include <QList>
 #include <QMap>
@@ -18,7 +21,7 @@ class DrawingContext;
 
 // namespace System.Windows.Ink
 
-class StrokeCollection : public QObject, public QList<QSharedPointer<Stroke>>, public QEnableSharedFromThis<StrokeCollection>
+class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<QSharedPointer<Stroke>>, public QEnableSharedFromThis<StrokeCollection>
 {
     Q_OBJECT
 public:
@@ -117,10 +120,14 @@ public:
     /// </summary>
     void ClearItems();
 
+    void AddItem(QSharedPointer<Stroke> stroke);
+
     /// <summary>
     /// called by base class RemoveAt or Remove methods
     /// </summary>
     void RemoveItem(int index);
+
+    bool RemoveItem(QSharedPointer<Stroke> stroke);
 
     /// <summary>
     /// called by base class Insert, Add methods
@@ -138,6 +145,8 @@ public:
     /// <param name="stroke">stroke</param>
     /// <returns></returns>
     int IndexOf(QSharedPointer<Stroke> stroke);
+
+    int Count();
 
     /// <summary>
     /// Remove a set of Stroke objects to the collection
@@ -413,8 +422,17 @@ private:
     //
     // Nested types...
     //
+};
 
+#include "Windows/dependencyproperty.h"
 
+class StrokeCollectionDefaultValueFactory : public DefaultValueFactory
+{
+private:
+    virtual QVariant DefaultValue() override
+    {
+        return QVariant::fromValue(QSharedPointer<StrokeCollection>(new StrokeCollection));
+    }
 };
 
 #endif // STROKECOLLECTION_H

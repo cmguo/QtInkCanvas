@@ -56,11 +56,11 @@ public:
     /// <param name="iterator"></param>
     /// <param name="intersections"></param>
     /// <returns></returns>
-    bool EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersection> intersections);
+    bool EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersection>& intersections);
 
 
 private:
-    QVector<QPointF> FilterPoints(QVector<QPointF> & path);
+    QVector<QPointF> FilterPoints(QVector<QPointF> const & path);
 
 private:
     StrokeNodeIterator      _nodeIterator;

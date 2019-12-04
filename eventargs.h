@@ -49,7 +49,7 @@ private:
 
 // namespace System
 
-class EventArgs : public QEvent
+class EventArgs
 {
 public:
     static EventArgs Empty;

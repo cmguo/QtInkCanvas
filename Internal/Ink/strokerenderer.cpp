@@ -9,6 +9,8 @@
 #include <QtMath>
 #include <QTransform>
 
+#define DEBUG_RENDERING_FEEDBACK 0
+
 QPointF StrokeRenderer::ArcToMarker(DBL_MIN, DBL_MIN);
 
 
@@ -29,6 +31,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
 {
     //Debug::Assert(iterator != nullptr);
     //Debug::Assert(drawingAttributes != nullptr);
+    (void) drawingAttributes;
 
     StreamGeometry* streamGeometry= new StreamGeometry;
     streamGeometry->SetFillRule(FillRule::Nonzero);
@@ -37,13 +40,13 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
     geometry = streamGeometry;
     bounds = QRectF();
 
-    FinallyHelper final([&context](){
-        context.Close();
-        //geometry->Freeze();
-    });
-
     //try
-    //{
+    {
+        FinallyHelper final([&context](){
+            context.Close();
+            //geometry.Freeze();
+        });
+
         QList<QPointF> connectingQuadPoints; connectingQuadPoints.reserve(iterator.Count() * 4);
 
         //the index that the cb quad points are copied to
@@ -65,7 +68,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
         for (int index = 0; index < iterator.Count(); index++)
         {
             StrokeNode strokeNode = iterator[index];
-            //System.Diagnostics.//Debug.Assert(true == strokeNode.IsValid());
+            //System.Diagnostics.Debug::Assert(true == strokeNode.IsValid());
 
             //the only code that calls this with !calculateBounds
             //is dynamic rendering, which already draws enough strokeNodes
@@ -147,7 +150,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
 
             if (strokeNode.IsLastNode())
             {
-                //Debug.Assert(index == iterator.Count - 1);
+                Debug::Assert(index == iterator.Count() - 1);
                 if (abIndex > 0)
                 {
                     //we added something to the connecting quad points.
@@ -177,7 +180,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
                 }
             }
         }
-    //}
+    }
     //finally
     //{
     //    context.Close();
@@ -207,7 +210,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                                            QRectF &bounds)
 {
 
-    //Debug.Assert(iterator != nullptr && drawingAttributes != nullptr);
+    Debug::Assert(iterator != nullptr /*&& drawingAttributes != nullptr*/);
 
     //we can use our new algorithm for identity only.
     QTransform stylusTipTransform(drawingAttributes.StylusTipTransform());
@@ -227,7 +230,11 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
         QRectF empty;
         bounds = empty;
         //try
-        //{
+        {
+            FinallyHelper final([&context](){
+                context.Close();
+                //geometry.Freeze();
+            });
             //
             // We keep track of three StrokeNodes as we iterate across
             // the Stroke. Since these are structs, the default ctor will
@@ -343,7 +350,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                             continue;
                         }
 
-                        //Debug.Assert(!prevStrokeNode.GetConnectingQuad().IsEmpty, "prevStrokeNode.GetConnectingQuad() is Empty!");
+                        Debug::Assert(!prevStrokeNode.GetConnectingQuad().IsEmpty(), "prevStrokeNode.GetConnectingQuad() is Empty!");
 
                         // if neither was true, we now have two of our three nodes required to
                         // start our computation, we need to update previousIndex to point
@@ -450,7 +457,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                         continue;
                     }
 
-                    //Debug.Assert(!strokeNode.GetConnectingQuad().IsEmpty, "strokeNode.GetConnectingQuad was empty, this is unexpected");
+                    Debug::Assert(!strokeNode.GetConnectingQuad().IsEmpty(), "strokeNode.GetConnectingQuad was empty, this is unexpected");
 
                     //
                     // NOTE: we do not check if C contains PP, or PP contains C because
@@ -479,7 +486,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 // from prevPrevStrokeNode
                 if (pathFigureABSide.size() == 0)
                 {
-                    //Debug.Assert(pathFigureDCSide.Count == 0);
+                    Debug::Assert(pathFigureDCSide.size() == 0);
                     if (calculateBounds)
                     {
                         bounds |= (prevPrevStrokeNodeBounds);
@@ -623,7 +630,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                         bounds |= (prevPrevStrokeNodeBounds);
                         bounds |= (prevStrokeNodeBounds);
                     }
-                    //Debug.Assert(!strokeNode.IsValid());
+                    Debug::Assert(!strokeNode.IsValid());
                     //
                     // we never made it to strokeNode, render two points, OR
                     // strokeNode was a dupe
@@ -645,7 +652,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                     else
                     {
                         // we've only seen two points to render
-                        //Debug.Assert(pathFigureDCSide.Count == 0);
+                        Debug::Assert(pathFigureDCSide.size() == 0);
                         //contains all the logic to render two stroke nodes
                         RenderTwoStrokeNodes(   context,
                                                 prevPrevStrokeNode,
@@ -672,7 +679,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                     }
 
                     // we only have a single point to render
-                    //Debug.Assert(pathFigureABSide.Count == 0);
+                    Debug::Assert(pathFigureABSide.size() == 0);
                     prevPrevStrokeNode.GetContourPoints(pathFigureABSide);
                     AddFigureToStreamGeometryContext(context, pathFigureABSide, prevPrevStrokeNode.IsEllipse()/*isBezierFigure*/);
 
@@ -708,7 +715,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 }
                 else
                 {
-                    //Debug.Assert(pathFigureDCSide.Count == 0);
+                    Debug::Assert(pathFigureDCSide.size() == 0);
                     //contains all the logic to render two stroke nodes
                     RenderTwoStrokeNodes(   context,
                                             prevStrokeNode,
@@ -727,7 +734,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 
                 }
             }
-        //}
+        }
         //finally
         //{
         //    context.Close();
@@ -755,10 +762,10 @@ void StrokeRenderer::RenderTwoStrokeNodes(   StreamGeometryContext& context,
 #endif
                                             )
 {
-    //Debug.Assert(pointBuffer1 != nullptr);
-    //Debug.Assert(pointBuffer2 != nullptr);
-    //Debug.Assert(pointBuffer3 != nullptr);
-    //Debug.Assert(context != nullptr);
+    //Debug::Assert(pointBuffer1 != nullptr);
+    //Debug::Assert(pointBuffer2 != nullptr);
+    //Debug::Assert(pointBuffer3 != nullptr);
+    //Debug::Assert(context != nullptr);
 
 
     //see if we need to render a quad - if there is not at least a 70% overlap
@@ -831,7 +838,7 @@ void StrokeRenderer::ReverseDCPointsRenderAndClear(StreamGeometryContext& contex
 /// </summary>
 StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QRectF rect2, double percentIntersect)
 {
-    //Debug.Assert(percentIntersect >= 0.0 && percentIntersect <= 100.0);
+    Debug::Assert(percentIntersect >= 0.0 && percentIntersect <= 100.0);
 
 
     double intersectLeft = qMax(rect1.left(), rect2.left());
@@ -867,9 +874,9 @@ StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QR
 /// </summary>
 void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> points, bool isBezierFigure)
 {
-    //Debug.Assert(context != nullptr);
-    //Debug.Assert(points != nullptr);
-    //Debug.Assert(Points.size() > 0);
+    //Debug::Assert(context != nullptr);
+    //Debug::Assert(points != nullptr);
+    Debug::Assert(points.size() > 0);
 
     context.BeginFigure(points[points.size() - 1], //start point
                                 true,   //isFilled
@@ -895,9 +902,9 @@ void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& con
 /// </summary>
 void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints)
 {
-    //Debug.Assert(context != nullptr);
-    //Debug.Assert(abPoints != nullptr && dcPoints != nullptr);
-    //Debug.Assert(abPoints.size() > 0 && dcPoints.size() > 0);
+    //Debug::Assert(context != nullptr);
+    //Debug::Assert(abPoints != nullptr && dcPoints != nullptr);
+    Debug::Assert(abPoints.size() > 0 && dcPoints.size() > 0);
 
     context.BeginFigure(abPoints[0], //start point
                                 true,   //isFilled
@@ -918,9 +925,9 @@ void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryCont
 /// </summary>
 void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints)
 {
-    //Debug.Assert(context != nullptr);
-    //Debug.Assert(abPoints != nullptr && dcPoints != nullptr);
-    //Debug.Assert(polyLinePoints != nullptr);
+    //Debug::Assert(context != nullptr);
+    //Debug::Assert(abPoints != nullptr && dcPoints != nullptr);
+    //Debug::Assert(polyLinePoints != nullptr);
     Debug::Assert(abPoints.size() > 0 && dcPoints.size() > 0);
     if (abPoints.size() == 0 || dcPoints.size() == 0)
     {
@@ -949,7 +956,7 @@ void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext
                     polyLinePoints.clear();
                 }
                 //we're arcing, pull out height, width and the arc to point
-                //Debug.Assert(i + 2 < points.size());
+                Debug::Assert(i + 2 < points.size());
                 if (i + 2 < points.size())
                 {
                     QPointF sizePoint = points[i + 1];
@@ -997,7 +1004,7 @@ double StrokeRenderer::GetAngleDeltaFromLast(QPointF previousPosition, QPointF c
     //input points typically come in very close to each other
     double dx = (currentPosition.x() * 1000) - (previousPosition.x() * 1000);
     double dy = (currentPosition.y() * 1000) - (previousPosition.y() * 1000);
-    if (qIsNull(dx) == 0 && qIsNull(dy) == 0)
+    if (static_cast<int64_t>(dx) == 0 && static_cast<int64_t>(dy) == 0)
     {
         //the points are close enough not to matter
         //don't update lastAngle
@@ -1036,7 +1043,7 @@ double StrokeRenderer::GetAngleBetween(QPointF previousPosition, QPointF current
     //input points typically come in very close to each other
     double dx = (currentPosition.x() * 1000) - (previousPosition.x() * 1000);
     double dy = (currentPosition.y() * 1000) - (previousPosition.y() * 1000);
-    if (floor(dx) == 0 && floor(dy) == 0)
+    if (static_cast<int64_t>(dx) == 0 && static_cast<int64_t>(dy) == 0)
     {
         //the points are close enough not to matter
         return angle;
@@ -1099,7 +1106,7 @@ double StrokeRenderer::GetAngleBetween(QPointF previousPosition, QPointF current
 /// </summary>
 QSharedPointer<DrawingAttributes> StrokeRenderer::GetHighlighterAttributes(Stroke& stroke, QSharedPointer<DrawingAttributes> da)
 {
-    //System.Diagnostics.//Debug.Assert(da.IsHighlighter = true);
+    //System.Diagnostics.Debug::Assert(da.IsHighlighter = true);
     if (da->Color().alpha() != SolidStrokeAlpha)
     {
         QSharedPointer<DrawingAttributes> copy(stroke.GetDrawingAttributes()->Clone());

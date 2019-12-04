@@ -41,14 +41,11 @@ class ExecutedRoutedEventArgs;
 
 class RoutedCommand {};
 
-class AdornerDecorator : public UIElement
-{
-
-};
+class AdornerDecorator;
 
 // namespace System.Windows.Controls
 
-class InkCanvas : public FrameworkElement
+class INKCANVAS_EXPORT InkCanvas : public FrameworkElement
 {
     Q_OBJECT
 public:
@@ -153,7 +150,7 @@ public:
     /// <summary>
     /// Public constructor.
     /// </summary>
-    InkCanvas();
+    InkCanvas(QWidget* parent = nullptr);
 
 private:
     /// <summary>
@@ -255,44 +252,9 @@ protected:
     /// <summary>
     /// Called when the Template's tree is about to be generated
     /// </summary>
+    virtual void OnPreApplyTemplate() override;
+
     /*
-    internal override void OnPreApplyTemplate()
-    {
-        // No need for calling VerifyAccess since we call the method on the base here.
-
-        base.OnPreApplyTemplate();
-
-        // Build our visual tree here.
-        // <InkCanvas>
-        //     <AdornerDecorator>
-        //         <InkPresenter>
-        //             <InnerCanvas />
-        //             <ContainerVisual />              <!-- Ink Renderer static visual -->
-        //             <HostVisual />                   <!-- Ink Dynamic Renderer -->
-        //         </InkPresenter>
-        //         <AdornerLayer>                       <!-- Create by AdornerDecorator automatically -->
-        //             <InkCanvasSelectionAdorner />
-        //             <InkCanvasFeedbackAdorner* />     <!-- Dynamically hooked up when moving/sizing the selection -->
-        //         </AdornerLayer>
-        //     </AdornerDecorator>
-        //  </InkCanvas>
-
-        if ( _localAdornerDecorator == nullptr )
-        {
-            //
-            _localAdornerDecorator = new AdornerDecorator();
-            InkPresenter* inkPresenter = InkPresenter;
-
-            // Build the visual tree top-down
-            AddVisualChild(_localAdornerDecorator);
-            _localAdornerDecorator.Child = inkPresenter;
-            InkPresenter().Child = InnerCanvas;
-
-            // Add the SelectionAdorner after Canvas is added.
-            _localAdornerDecorator.AdornerLayer.Add(SelectionAdorner);
-        }
-    }
-
     /// <summary>
     /// Returns the Visual children count.
     /// </summary>
@@ -471,7 +433,7 @@ protected:
     /// </summary>
     /// <param name="d"></param>
     /// <param name="e"></param>
-    static void OnPositioningChanged(DependencyObject* d, DependencyPropertyChangedEventArgs& e);
+    static void OnPositioningChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e);
 
 public:
     /// <summary>
@@ -878,7 +840,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnEditingModeChanged(RoutedEventArgs& e);
+    virtual void OnEditingModeChanged2(RoutedEventArgs& e);
 
     /// <summary>
     /// Private helper that raises EditingModeChanged but first
@@ -918,7 +880,7 @@ protected:
     /// This method is what actually throws the event.
     /// </summary>
     /// <param name="e">EventArgs& to raise the event with</param>
-    virtual void OnEditingModeInvertedChanged(RoutedEventArgs& e);
+    virtual void OnEditingModeInvertedChanged2(RoutedEventArgs& e);
 
     /// <summary>
     /// Private helper that raises EditingModeInvertedChanged but first
@@ -1580,7 +1542,7 @@ private:
     /// <typeparam name="TEventArgs"></typeparam>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnDeviceDown(DependencyObject&sender, EventArgs& e);
+    void _OnDeviceDown(EventArgs& e);
 
     /// <summary>
     /// _OnDeviceUp
@@ -1588,14 +1550,14 @@ private:
     /// <typeparam name="TEventArgs"></typeparam>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnDeviceUp(DependencyObject&sender, EventArgs& e);
+    void _OnDeviceUp(EventArgs& e);
 
     /// <summary>
     /// _OnQueryCursor
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    static void _OnQueryCursor(DependencyObject&sender, QueryCursorEventArgs& e);
+    void _OnQueryCursor(QueryCursorEventArgs& e);
 
 public:
     /// <summary>
@@ -1682,7 +1644,7 @@ private:
     /// <summary>
     /// Our editing logic
     /// </summary>
-    EditingCoordinator*          _editingCoordinator;
+    EditingCoordinator*          _editingCoordinator = nullptr;
 
     /// <summary>
     /// Defines the default StylusPointDescription
@@ -1693,7 +1655,7 @@ private:
     /// <summary>
     /// Defines the shape of the eraser tip
     /// </summary>
-    StylusShape*                 _eraserShape;
+    StylusShape*                 _eraserShape = nullptr;
 
     /// <summary>
     /// Determines if EditingBehaviors should use their own cursor or a custom one specified.
@@ -1704,27 +1666,27 @@ private:
     //
     // Rendering support.
     //
-    InkPresenter*                _inkPresenter;
+    InkPresenter*                _inkPresenter = nullptr;
 
     //
     // The RealTimeInking PlugIn that handles our off UIContext rendering.
     //
-    DynamicRenderer*             _dynamicRenderer;
+    DynamicRenderer*             _dynamicRenderer = nullptr;
 
     //
     // Clipboard Helper
     //
-    ClipboardProcessor*          _clipboardProcessor;
+    ClipboardProcessor*          _clipboardProcessor = nullptr;
 
     //
     // Gesture support
     //
-    GestureRecognizer*           _gestureRecognizer;
+    GestureRecognizer*           _gestureRecognizer = nullptr;
 
     //
     // HighContrast support
     //
-    RTIHighContrastCallback*     _rtiHighContrastCallback;
+    RTIHighContrastCallback*     _rtiHighContrastCallback = nullptr;
 
     static constexpr double                    c_pasteDefaultLocation = 0.0;
 };

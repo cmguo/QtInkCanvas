@@ -3,14 +3,24 @@
 
 #include "eventargs.h"
 
-#include <QVector>
+#include <QBitArray>
+#include <QList>
 
 class DependencyObject;
 class RoutedEventArgs;
 
+class RoutedEventHandler;
+
 class RoutedEvent
 {
-
+public:
+    RoutedEvent(int type) : type_(type) {}
+    virtual ~RoutedEvent() {}
+    int type() {return type_; }
+    virtual void handle(QEvent& event, QList<RoutedEventHandler> handlers);
+    void handle(QEvent &event, RoutedEventArgs& args, QList<RoutedEventHandler> handlers);
+private:
+    int type_;
 };
 
 class RoutedEventHandler
@@ -80,6 +90,8 @@ public:
     /// <param name="source">The new value that the SourceProperty is being set to </param>
     /// <param name="routedEvent">The new value that the RoutedEvent Property is being set to </param>
     RoutedEventArgs(RoutedEvent& routedEvent, DependencyObject* source);
+
+    virtual ~RoutedEventArgs() {}
 
     //#endregion Construction
 
@@ -246,7 +258,7 @@ private:
     /// Critical - the UserInitiated flag value is critical.
     ///</SecurityNote>
     //[SecurityCritical]
-    QVector<bool>          _flags;
+    QBitArray          _flags;
 
     static constexpr int HandledIndex                          = 1;
     static constexpr int UserInitiatedIndex                    = 2;

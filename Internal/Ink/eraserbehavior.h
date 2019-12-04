@@ -141,9 +141,9 @@ private:
 
 private:
     InkCanvasEditingMode            _cachedEraseMode;
-    IncrementalStrokeHitTester*      _incrementalStrokeHitTester;
+    std::unique_ptr<IncrementalStrokeHitTester>      _incrementalStrokeHitTester = nullptr;
     QCursor                          _cachedPointEraserCursor;
-    StylusShape*                     _cachedStylusShape;
+    StylusShape*                     _cachedStylusShape = nullptr;
     QSharedPointer<StylusPointCollection>           _stylusPoints = nullptr;
 
     //#endregion Fields

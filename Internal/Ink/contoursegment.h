@@ -15,7 +15,7 @@ public:
     /// </summary>
     /// <param name="begin">segment's begin point</param>
     /// <param name="end">segment's end point</param>
-    ContourSegment(QPointF &begin, QPointF &end)
+    ContourSegment(QPointF const &begin, QPointF const &end)
     {
         _begin = begin;
         _vector = DoubleUtil::AreClose(begin, end) ? QPointF(0, 0) : (end - begin);
@@ -28,7 +28,7 @@ public:
     /// <param name="begin">arc's begin point</param>
     /// <param name="end">arc's end point</param>
     /// <param name="center">arc's center</param>
-    ContourSegment(QPointF &begin, QPointF &end, QPointF &center)
+    ContourSegment(QPointF const &begin, QPointF const &end, QPointF const &center)
     {
         _begin = begin;
         _vector = end - begin;
@@ -36,20 +36,20 @@ public:
     }
 
     /// <summary> Tells whether the segment is arc or straight </summary>
-    bool IsArc() { return (_radius.x() != 0) || (_radius.y() != 0); }
+    bool IsArc() const { return (_radius.x() != 0) || (_radius.y() != 0); }
 
     /// <summary> Returns the begin QPointF &of the segment </summary>
-    QPointF & Begin() { return _begin; }
+    QPointF const & Begin() const { return _begin; }
 
     /// <summary> Returns the end QPointF &of the segment </summary>
-    QPointF End() { return _begin + _vector; }
+    QPointF End() const { return _begin + _vector; }
 
     /// <summary> Returns the QPointF from Begin to End </summary>
-    QPointF & Vector() { return _vector; }
+    QPointF const & Vector() const { return _vector; }
 
     /// <summary> Returns the QPointF from Begin to the center of the circle
     /// (zero QPointF for linear segments </summary>
-    QPointF Radius() { return _radius; }
+    QPointF Radius() const { return _radius; }
 
 private:
     QPointF  _begin;

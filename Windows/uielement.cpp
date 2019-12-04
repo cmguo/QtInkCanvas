@@ -1,43 +1,76 @@
 #include "Windows/uielement.h"
-#include "Windows/Input/inputdevice.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/mousedevice.h"
+#include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
+#include "Windows/Input/pencontexts.h"
+#include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
 
 #include <QEvent>
+#include <QDebug>
 
-RoutedEvent UIElement::LostMouseCaptureEvent;
+RoutedEvent UIElement::LostMouseCaptureEvent(QEvent::UngrabMouse);
 
-RoutedEvent UIElement::LostStylusCaptureEvent;
-
-QMap<RoutedEvent*, int> UIElement::events_;
+RoutedEvent UIElement::LostStylusCaptureEvent(QEvent::TouchCancel);
 
 UIElement::UIElement()
 {
-    if (events_.empty()) {
-        events_[&Mouse::MouseMoveEvent] = QEvent::MouseMove;
-        events_[&Stylus::StylusMoveEvent] = QEvent::TouchUpdate;
-        events_[&LostMouseCaptureEvent] = QEvent::UngrabMouse;
-        events_[&LostStylusCaptureEvent] = QEvent::TouchCancel;
-    }
 }
+
+struct RoutedEventAndHandlers
+{
+    RoutedEvent* route;
+    QList<RoutedEventHandler> handlers;
+};
+
+struct RoutedEventStore
+{
+    QMap<RoutedEvent*, RoutedEventAndHandlers*> byroute;
+    QMap<int, RoutedEventAndHandlers*> bytype;
+};
+
+Q_DECLARE_METATYPE(RoutedEventStore*)
 
 void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler)
 {
-    if (events_.contains(&event)) {
-        QList<RoutedEventHandler>& handlers = handlers_[events_[&event]];
-        if (!handlers.contains(handler))
-            handlers.append(handler);
+    RoutedEventStore * store;
+    if (privateFlags_.testFlag(HasRoutedEventStore)) {
+        store = property("RoutedEventStore").value<RoutedEventStore*>();
+    } else {
+        store = new RoutedEventStore;
+        setProperty("RoutedEventStore", QVariant::fromValue(store));
+        privateFlags_ |= HasRoutedEventStore;
     }
+    RoutedEventAndHandlers* rh = store->byroute.value(&event, nullptr);
+    if (rh == nullptr) {
+        rh = new RoutedEventAndHandlers;
+        rh->route = &event;
+        store->byroute.insert(&event, rh);
+        if (event.type())
+            store->bytype.insert(event.type(), rh);
+    }
+    if (!rh->handlers.contains(handler))
+        rh->handlers.append(handler);
 }
 
 void UIElement::RemoveHandler(RoutedEvent &event, const RoutedEventHandler &handler)
 {
-    if (events_.contains(&event)) {
-        QList<RoutedEventHandler>& handlers = handlers_[events_[&event]];
-        handlers.removeOne(handler);
+    RoutedEventStore * store;
+    if (privateFlags_.testFlag(HasRoutedEventStore)) {
+        store = property("RoutedEventStore").value<RoutedEventStore*>();
+    } else {
+        store = new RoutedEventStore;
+        setProperty("RoutedEventStore", QVariant::fromValue(store));
+        privateFlags_ |= HasRoutedEventStore;
+    }
+    RoutedEventAndHandlers* rh = store->byroute.value(&event, nullptr);
+    if (rh) {
+        rh->handlers.removeOne(handler);
     }
 }
 
 void UIElement::ApplyTemplate()
 {
+    OnPreApplyTemplate();
 }
 
 QList<UIElement*> UIElement::Children()
@@ -72,16 +105,6 @@ QTransform UIElement::RenderTransform()
 }
 
 QTransform UIElement::TransformToVisual(UIElement* visual)
-{
-    return QTransform();
-}
-
-QTransform UIElement::TransformToAncestor(UIElement* visual)
-{
-    return QTransform();
-}
-
-QTransform UIElement::TransformToDescendant(UIElement* visual)
 {
     return QTransform();
 }
@@ -138,21 +161,38 @@ bool UIElement::IsStylusOver()
 
 bool UIElement::Focus()
 {
-    return false;
+    setFocus();
+    return true;
 }
 
 void UIElement::CaptureMouse()
 {
+    grabMouse();
 }
 
 bool UIElement::IsMouseCaptured()
 {
-    return false;
+    return Mouse::PrimaryDevice->Captured() == this;
+}
+
+void UIElement::ReleaseMouseCapture()
+{
+    releaseMouse();
+}
+
+bool UIElement::IsVisible()
+{
+    return isVisible();
+}
+
+bool UIElement::IsHitTestVisible()
+{
+    return isVisible();
 }
 
 bool UIElement::IsEnabled()
 {
-    return false;
+    return isEnabled();
 }
 
 bool UIElement::ForceCursor()
@@ -163,10 +203,6 @@ bool UIElement::ForceCursor()
 bool UIElement::ClipToBounds()
 {
     return false;
-}
-
-void UIElement::ReleaseMouseCapture()
-{
 }
 
 void UIElement::CaptureStylus()
@@ -200,9 +236,42 @@ void UIElement::SetHeight(double)
 {
 }
 
-QList<StylusPlugIn*>& UIElement::StylusPlugIns()
+StylusPlugInCollection& UIElement::StylusPlugIns()
 {
-    return stylusPlugIns_;
+    QVariant p = property("StylusPlugIns");
+    if (p.isValid())
+        return *p.value<StylusPlugInCollection*>();
+    StylusPlugInCollection* c = new StylusPlugInCollection(this);
+    setProperty("StylusPlugIns", QVariant::fromValue(c));
+    return *c;
+}
+
+PenContexts* UIElement::GetPenContexts()
+{
+    QVariant p = property("PenContexts");
+    if (p.isValid())
+        return p.value<PenContexts*>();
+    PenContexts* c = new PenContexts(this);
+    setProperty("PenContexts", QVariant::fromValue(c));
+    privateFlags_.setFlag(HasPenContexts);
+    return c;
+}
+
+void UIElement::RaiseEvent(RoutedEventArgs &args)
+{
+    if (privateFlags_.testFlag(HasRoutedEventStore)) {
+        RoutedEventStore* store = property("RoutedEventStore").value<RoutedEventStore*>();
+        RoutedEventAndHandlers* rh = store->byroute.value(&args.GetRoutedEvent(), nullptr);
+        if (rh) {
+            QEvent e(QEvent::None);
+            rh->route->handle(e, args, rh->handlers);
+            if (e.isAccepted())
+                return;
+        }
+    }
+    UIElement * parent = qobject_cast<UIElement*>(parentWidget());
+    if (parent)
+        parent->RaiseEvent(args);
 }
 
 void UIElement::OnChildDesiredSizeChanged(UIElement* child)
@@ -239,8 +308,37 @@ QSizeF UIElement::MeasureOverride(QSizeF availableSize)
     return QSizeF();
 }
 
+void UIElement::OnPreApplyTemplate()
+{
+}
+
 bool UIElement::event(QEvent *event)
 {
+    switch (event->type()) {
+    case QEvent::Show:
+        //qDebug() << "event " << event;
+        emit IsVisibleChanged();
+        break;
+    case QEvent::EnabledChange:
+        //qDebug() << "event " << event;
+        emit IsEnabledChanged();
+        break;
+    default:
+        break;
+    }
+    if (privateFlags_.testFlag(HasRoutedEventStore)) {
+        RoutedEventStore* store = property("RoutedEventStore").value<RoutedEventStore*>();
+        RoutedEventAndHandlers* rh = store->bytype.value(event->type(), nullptr);
+        if (rh) {
+            //qDebug() << "event " << event;
+            rh->route->handle(*event, rh->handlers);
+            if (event->isAccepted())
+                return true;
+        }
+    }
+    if (privateFlags_.testFlag(HasPenContexts)) {
+        GetPenContexts()->FireCustomData();
+    }
     return QWidget::event(event);
 }
 
@@ -274,16 +372,6 @@ int FrameworkElement::VisualChildrenCount()
 }
 
 Visual* FrameworkElement::GetVisualChild(int index)
-{
-    return nullptr;
-}
-
-Adorner::Adorner(UIElement* adornedElement)
-{
-
-}
-
-UIElement* Adorner::AdornedElement()
 {
     return nullptr;
 }

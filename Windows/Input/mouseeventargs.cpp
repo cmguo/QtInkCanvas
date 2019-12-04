@@ -1,4 +1,11 @@
 #include "Windows/Input/mouseeventargs.h"
+#include "Windows/Input/mousedevice.h"
+
+MouseEventArgs::MouseEventArgs(QMouseEvent &event)
+    : MouseEventArgs(Mouse::PrimaryDevice, static_cast<int>(event.timestamp()))
+{
+    _stylusDevice = nullptr;
+}
 
 /// <summary>
 ///     Initializes a new instance of the MouseEventArgs class.
@@ -43,10 +50,19 @@ MouseEventArgs::MouseEventArgs(MouseDevice* mouse, int timestamp, StylusDevice* 
 
 
 /// <summary>
+///     Read-only access to the mouse device associated with this
+///     event.
+/// </summary>
+MouseDevice* MouseEventArgs::GetMouseDevice()
+{
+    return (MouseDevice*) Device();
+}
+
+/// <summary>
 ///     Calculates the position of the mouse relative to
 ///     a particular element.
 /// </summary>
-QPointF MouseEventArgs::GetPosition(UIElement* relativeTo)
+QPointF MouseEventArgs::GetPosition(Visual* relativeTo)
 {
     return GetMouseDevice()->GetPosition(relativeTo);
 }

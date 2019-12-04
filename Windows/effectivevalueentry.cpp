@@ -1,6 +1,6 @@
 #include "Windows/effectivevalueentry.h"
 
-EffectiveValueEntry EffectiveValueEntry::CreateDefaultValueEntry(DependencyProperty* dp, QVariant value)
+EffectiveValueEntry EffectiveValueEntry::CreateDefaultValueEntry(DependencyProperty const * dp, QVariant value)
 {
     EffectiveValueEntry entry(dp, BaseValueSourceInternal::Default);
     entry.SetValue(value);
@@ -8,21 +8,21 @@ EffectiveValueEntry EffectiveValueEntry::CreateDefaultValueEntry(DependencyPrope
 
 }
 
-EffectiveValueEntry::EffectiveValueEntry(DependencyProperty* dp)
+EffectiveValueEntry::EffectiveValueEntry(DependencyProperty const * dp)
 {
     _propertyIndex = static_cast<short>(dp->GlobalIndex());
     //_value = null;
     _source = (FullValueSource) BaseValueSourceInternal::Unknown;
 }
 
-EffectiveValueEntry::EffectiveValueEntry(DependencyProperty* dp, BaseValueSourceInternal valueSource)
+EffectiveValueEntry::EffectiveValueEntry(DependencyProperty const * dp, BaseValueSourceInternal valueSource)
 {
     _propertyIndex = static_cast<short>(dp->GlobalIndex());
     _value = DependencyProperty::UnsetValue;
     _source = (FullValueSource) valueSource;
 }
 
-EffectiveValueEntry::EffectiveValueEntry(DependencyProperty* dp, FullValueSource fullValueSource)
+EffectiveValueEntry::EffectiveValueEntry(DependencyProperty const * dp, FullValueSource fullValueSource)
 {
     _propertyIndex = static_cast<short>(dp->GlobalIndex());
     _value = DependencyProperty::UnsetValue;

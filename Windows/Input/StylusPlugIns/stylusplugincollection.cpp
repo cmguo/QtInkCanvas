@@ -1,6 +1,11 @@
 #include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
 #include "Windows/Input/StylusPlugIns/stylusplugin.h"
+#include "Windows/Input/StylusPlugIns/rawstylusinput.h"
+#include "Windows/Input/pencontexts.h"
 #include "Windows/uielement.h"
+#include "Windows/dependencypropertychangedeventargs.h"
+#include "finallyhelper.h"
+#include "debug.h"
 
 /// <summary>
 /// Insert a StylusPlugIn in the collection at a specific index.
@@ -33,7 +38,7 @@ void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
             // If we are currently active for input then we have a _penContexts that we must lock!
             {
                 QMutexLocker l(&PenContextsSyncRoot());
-                //System.Diagnostics.Debug.Assert(size() > 0); // If active must have more than one plugin already
+                Debug::Assert(size() > 0); // If active must have more than one plugin already
                 insert(index, plugIn);
                 plugIn->Added(this);
             }
@@ -42,14 +47,17 @@ void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
         {
             EnsureEventsHooked(); // Hook up events to track changes to the plugin's element
             insert(index, plugIn);
-            try
+            //try
             {
+                FinallyHelper final([this](){
+                    UpdatePenContextsState();
+                });
                 plugIn->Added(this); // Notify plugin that it has been added to collection
             }
-            finally
-            {
-                UpdatePenContextsState(); // Add to PenContexts if element is in proper state (can fire isactiveforinput).
-            }
+            //finally
+            //{
+            //    UpdatePenContextsState(); // Add to PenContexts if element is in proper state (can fire isactiveforinput).
+            //}
         }
     }
 }
@@ -112,28 +120,34 @@ void StylusPlugInCollection::RemoveItem(int index)
                 QMutexLocker l(&PenContextsSyncRoot());
                 StylusPlugIn* removedItem = (*this)[index];
                 removeAt(index);
-                try
+                //try
                 {
+                    FinallyHelper final([removedItem](){
+                        removedItem->Removed();
+                    });
                     EnsureEventsAndPenContextsUnhooked(); // Clean up events and remove from pencontexts
                 }
-                finally
-                {
-                    removedItem.Removed(); // Notify plugin it has been removed
-                }
+                //finally
+                //{
+                //    removedItem.Removed(); // Notify plugin it has been removed
+                //}
             }
         }
         else
         {
             StylusPlugIn* removedItem = (*this)[index];
             removeAt(index);
-            try
+            //try
             {
+                FinallyHelper final([removedItem](){
+                    removedItem->Removed();
+                });
                 EnsureEventsAndPenContextsUnhooked(); // Clean up events and remove from pencontexts
             }
-            finally
-            {
-                removedItem.Removed(); // Notify plugin it has been removed
-            }
+            //finally
+            //{
+            //    removedItem.Removed(); // Notify plugin it has been removed
+            //}
         }
     }
 }
@@ -168,28 +182,34 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
                 QMutexLocker l(&PenContextsSyncRoot());
                 StylusPlugIn* originalPlugIn = (*this)[index];
                 (*this)[index] = plugIn;
-                try
+                //try
                 {
+                    FinallyHelper final([plugIn, this](){
+                        plugIn->Added(this);
+                    });
                     originalPlugIn->Removed();
                 }
-                finally
-                {
-                    plugIn->Added(this);
-                }
+                //finally
+                //{
+                //    plugIn->Added(this);
+                //}
             }
         }
         else
         {
             StylusPlugIn* originalPlugIn = (*this)[index];
             (*this)[index] = plugIn;
-            try
+            //try
             {
+                FinallyHelper final([plugIn, this](){
+                    plugIn->Added(this);
+                });
                 originalPlugIn->Removed();
             }
-            finally
-            {
-                plugIn->Added(this);
-            }
+            //finally
+            //{
+            //    plugIn->Added(this);
+            //}
         }
     }
 }
@@ -231,13 +251,13 @@ void StylusPlugInCollection::UpdateRect()
     if (_element->IsArrangeValid() && _element->IsEnabled() && _element->IsVisible() && _element->IsHitTestVisible())
     {
         _rc = QRectF(QPointF(), _element->RenderSize());// _element->GetContentBoundingBox();
-        Visual root = VisualTreeHelper.GetContainingVisual2D(InputElement.GetRootVisual(_element));
+        Visual* root = nullptr; //VisualTreeHelper.GetContainingVisual2D(InputElement.GetRootVisual(_element));
 
         try
         {
-            _viewToElement = root.TransformToDescendant(_element);
+            _viewToElement = root->TransformToDescendant(_element);
         }
-        catch(System.InvalidOperationException)
+        catch(...)
         {
             // This gets hit if the transform is not invertable.  In that case
             // we will just not allow this plugin to be hit.
@@ -310,7 +330,8 @@ bool StylusPlugInCollection::IsActiveForInput()
 /// </securitynote>
 QMutex& StylusPlugInCollection::PenContextsSyncRoot()
 {
-    return _penContexts != nullptr ? _penContexts->SyncRoot() : nullptr;
+    static QMutex unused;
+    return _penContexts != nullptr ? _penContexts->SyncRoot() : unused;
 }
 
 
@@ -347,8 +368,11 @@ void StylusPlugInCollection::FireEnterLeave(bool isEnter, RawStylusInput& rawSty
 /// <param name="args">
 void StylusPlugInCollection::FireRawStylusInput(RawStylusInput& args)
 {
-    try
+    //try
     {
+        FinallyHelper final([&args](){
+            args.SetCurrentNotifyPlugIn(nullptr);
+        });
         if (IsActiveForInput())
         {
             // If we are currently active for input then we have a _penContexts that we must lock!
@@ -374,10 +398,10 @@ void StylusPlugInCollection::FireRawStylusInput(RawStylusInput& args)
             }
         }
     }
-    finally
-    {
-        args.CurrentNotifyPlugIn = nullptr;
-    }
+    //finally
+    //{
+    //    args.SetCurrentNotifyPlugIn(nullptr);
+    //}
 }
 
 
@@ -416,6 +440,9 @@ void StylusPlugInCollection::EnsureEventsHooked()
         //PresentationSource.AddSourceChangedHandler(_element, _sourceChangedEventHandler);  // has a security linkdemand
         //_element->LayoutUpdated += _layoutChangedEventHandler;
 
+        QObject::connect(_element, &UIElement::IsVisibleChanged, this, &StylusPlugInCollection::OnIsVisibleChanged);
+        QObject::connect(_element, &UIElement::IsEnabledChanged, this, &StylusPlugInCollection::OnIsEnabledChanged);
+        QObject::connect(_element, &UIElement::IsHitTestVisibleChanged, this, &StylusPlugInCollection::OnIsHitTestVisibleChanged);
         //if (_element->RenderTransform != nullptr &&
         //    !_element->RenderTransform.IsFrozen)
         //{
@@ -446,6 +473,9 @@ void StylusPlugInCollection::EnsureEventsAndPenContextsUnhooked()
         //}
         //PresentationSource.RemoveSourceChangedHandler(_element, _sourceChangedEventHandler);
         //_element->LayoutUpdated -= _layoutChangedEventHandler;
+        QObject::disconnect(_element, &UIElement::IsVisibleChanged, this, &StylusPlugInCollection::OnIsVisibleChanged);
+        QObject::disconnect(_element, &UIElement::IsEnabledChanged, this, &StylusPlugInCollection::OnIsEnabledChanged);
+        QObject::disconnect(_element, &UIElement::IsHitTestVisibleChanged, this, &StylusPlugInCollection::OnIsHitTestVisibleChanged);
 
         // Disable processing of the queue during blocking operations to prevent unrelated reentrancy
         // which a call to Lock() can cause.
@@ -457,21 +487,21 @@ void StylusPlugInCollection::EnsureEventsAndPenContextsUnhooked()
     }
 }
 
-void StylusPlugInCollection::OnIsEnabledChanged(DependencyPropertyChangedEventArgs& e)
+void StylusPlugInCollection::OnIsEnabledChanged()
 {
-    //System.Diagnostics.Debug.Assert(_element->IsEnabled == (bool)e.NewValue);
+    //Debug::Assert(_element->IsEnabled() == e.NewValueT<bool>());
     UpdatePenContextsState();
 }
 
-void StylusPlugInCollection::OnIsVisibleChanged(DependencyPropertyChangedEventArgs& e)
+void StylusPlugInCollection::OnIsVisibleChanged()
 {
-    //System.Diagnostics.Debug.Assert(_element->IsVisible == (bool)e.NewValue);
+    //Debug::Assert(_element->IsVisible() == e.NewValueT<bool>());
     UpdatePenContextsState();
 }
 
-void StylusPlugInCollection::OnIsHitTestVisibleChanged(DependencyPropertyChangedEventArgs& e)
+void StylusPlugInCollection::OnIsHitTestVisibleChanged()
 {
-    //System.Diagnostics.Debug.Assert(_element->IsHitTestVisible == (bool)e.NewValue);
+    //Debug::Assert(_element->IsHitTestVisible() == e.NewValueT<bool>());
     UpdatePenContextsState();
 }
 
@@ -560,17 +590,17 @@ void StylusPlugInCollection::UpdatePenContextsState()
         // See if we should be enabled
         if (_element->IsVisible() && _element->IsEnabled() && _element->IsHitTestVisible())
         {
-            PresentationSource presentationSource = PresentationSource.CriticalFromVisual(_element as Visual);
+            //PresentationSource presentationSource = PresentationSource.CriticalFromVisual(_element as Visual);
 
-            if (presentationSource != nullptr)
+            //if (presentationSource != nullptr)
             {
                 unhookPenContexts = false;
 
                 // Are we currently hooked up?  If not then hook up.
                 if (_penContexts == nullptr)
                 {
-                    InputManager inputManager = (InputManager)_element->Dispatcher.InputManager;
-                    PenContexts penContexts = inputManager.StylusLogic.GetPenContextsFromHwnd(presentationSource);
+                    //InputManager inputManager = (InputManager)_element->Dispatcher.InputManager;
+                    PenContexts* penContexts = _element->GetPenContexts(); //inputManager.StylusLogic.GetPenContextsFromHwnd(presentationSource);
 
                     // _penContexts must be non nullptr or don't do anything.
                     if (penContexts != nullptr)
@@ -578,12 +608,12 @@ void StylusPlugInCollection::UpdatePenContextsState()
                         _penContexts = penContexts;
 
                         {
-                            QMutexLocker l(&penContexts.SyncRoot);
-                            penContexts.AddStylusPlugInCollection(this);
+                            QMutexLocker l(&penContexts->SyncRoot());
+                            penContexts->AddStylusPlugInCollection(this);
 
                             for (StylusPlugIn* spi : *this)
                             {
-                                spi.InvalidateIsActiveForInput(); // Uses _penContexts being set to determine active state.
+                                spi->InvalidateIsActiveForInput(); // Uses _penContexts being set to determine active state.
 
                             }
                             // NTRAID:WINDOWSOS#1677277-2006/06/05-WAYNEZEN,
@@ -591,7 +621,7 @@ void StylusPlugInCollection::UpdatePenContextsState()
                             // However there could be a race condition which the LayoutUpdate gets received
                             // before the properties like IsVisible being set.
                             // So we should always force to call OnLayoutUpdated whenever the input is active.
-                            OnLayoutUpdated(this, EventArgs.Empty);
+                            OnLayoutUpdated(EventArgs::Empty);
                         }
 
                     }

@@ -32,10 +32,10 @@ public:
         : _added(added)
         , _removed(removed)
     {
-        //if ( added == null && removed == null )
-        //{
-        //    throw std::exception(SR.Get(SRID.CannotBothBeNull, "added", "removed"));
-        //}
+        if ( added == nullptr && removed == nullptr )
+        {
+            throw std::exception("added, removed");
+        }
         //_added = ( added == null ) ? null : new StrokeCollection.ReadOnlyStrokeCollection(added);
         //_removed = ( removed == null ) ? null : new StrokeCollection.ReadOnlyStrokeCollection(removed);
     }
@@ -43,20 +43,20 @@ public:
     /// <summary>Set of strokes that where added, result may be an empty collection</summary>
     QSharedPointer<StrokeCollection> Added()
     {
-        //if ( _added == null )
-        //{
-        //    _added = new StrokeCollection.ReadOnlyStrokeCollection(new StrokeCollection());
-        //}
+        if ( _added == nullptr )
+        {
+            _added = QSharedPointer<StrokeCollection>(new StrokeCollection());
+        }
         return _added;
     }
 
     /// <summary>Set of strokes that where removed, result may be an empty collection</summary>
     QSharedPointer<StrokeCollection> Removed()
     {
-        //if ( _removed == null )
-        //{
-        //    _removed = new StrokeCollection.ReadOnlyStrokeCollection(new StrokeCollection());
-        //}
+        if ( _removed == nullptr )
+        {
+            _removed = QSharedPointer<StrokeCollection>(new StrokeCollection());
+        }
         return _removed;
     }
 

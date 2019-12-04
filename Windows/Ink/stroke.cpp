@@ -521,7 +521,7 @@ QSharedPointer<StrokeCollection> Stroke::Clip(QVector<StrokeFIndices> cutAt)
 
     if ((cutAt.size() == 1) && cutAt[0].IsFull())
     {
-        leftovers->push_back(sharedFromThis()); //clip and erase always return clones
+        leftovers->AddItem(sharedFromThis()); //clip and erase always return clones
         return leftovers;
     }
 
@@ -552,7 +552,7 @@ QSharedPointer<StrokeCollection> Stroke::Clip(QVector<StrokeFIndices> cutAt)
         QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, fragment.BeginFIndex(), fragment.EndFIndex());
 
         // Add the stroke to the output collection
-        leftovers->push_back(stroke);
+        leftovers->AddItem(stroke);
     }
 
     return leftovers;
@@ -613,7 +613,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
 
         QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, beginFIndex, fragment.BeginFIndex());
         // Add the stroke to the output collection
-        leftovers->push_back(stroke);
+        leftovers->AddItem(stroke);
 
         beginFIndex = fragment.EndFIndex();
     }
@@ -623,7 +623,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
         QSharedPointer<Stroke> stroke = Copy(sourceStylusPoints, beginFIndex, StrokeFIndices::AfterLast);
 
         // Add the stroke to the output collection
-        leftovers->push_back(stroke);
+        leftovers->AddItem(stroke);
     }
 
     return leftovers;
@@ -1272,8 +1272,9 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
         {
 #endif
         QBrush brush(drawingAttributes->Color());
+        QPen pen(Qt::NoPen);
         //brush.Freeze();
-        drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(drawingAttributes));
+        drawingContext.DrawGeometry(brush, pen, GetGeometry(drawingAttributes));
 #if DEBUG_RENDERING_FEEDBACK
         }
 #endif
@@ -1432,7 +1433,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeIntersection> cutAt
     if(cutAt.size() == 0)
     {
         QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
-        strokes->append(Clone()); //clip and erase always return clones for this condition
+        strokes->AddItem(Clone()); //clip and erase always return clones for this condition
         return strokes;
     }
 

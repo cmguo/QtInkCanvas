@@ -20,7 +20,7 @@ StrokeCollection::StrokeCollection()
 }
 
 StrokeCollection::StrokeCollection(StrokeCollection const & o)
-    : QList<QSharedPointer<Stroke>>(o)
+    : Collection<QSharedPointer<Stroke>>(o)
     , _extendedProperties(o._extendedProperties)
 {
 
@@ -32,13 +32,13 @@ StrokeCollection::StrokeCollection(QVector<QSharedPointer<Stroke>> const & strok
     //unfortunately we have to check for dupes with this ctor
     for ( QSharedPointer<Stroke> stroke : strokes )
     {
-        if ( QList<QSharedPointer<Stroke>>::contains(stroke) )
+        if ( contains(stroke) )
         {
             //clear and throw
             clear();
             throw std::exception("strokes");
         }
-        push_back(stroke);
+        append(stroke);
     }
 }
 
@@ -222,7 +222,7 @@ void StrokeCollection::Transform(QMatrix const & transformMatrix, bool applyToSt
 
     // if transformMatrix is identity or the StrokeCollection is empty
     //      then no change will occur anyway
-    if ( transformMatrix.isIdentity() || size() == 0 )
+    if ( transformMatrix.isIdentity() || count() == 0 )
     {
         return;
     }
@@ -269,18 +269,23 @@ QSharedPointer<StrokeCollection> StrokeCollection::Clone()
 /// </summary>
 void StrokeCollection::ClearItems()
 {
-    if ( size() > 0 )
+    if ( count() > 0 )
     {
         QSharedPointer<StrokeCollection> removed(new StrokeCollection);
-        for ( int x = 0; x < size(); x++ )
+        for ( int x = 0; x < count(); x++ )
         {
-            removed->append(this[x]);
+            removed->append((*this)[x]);
         }
 
         clear();
 
         RaiseStrokesChanged(nullptr /*added*/, removed, -1);
     }
+}
+
+void StrokeCollection::AddItem(QSharedPointer<Stroke> stroke)
+{
+    InsertItem(size(), stroke);
 }
 
 /// <summary>
@@ -294,6 +299,14 @@ void StrokeCollection::RemoveItem(int index)
     QSharedPointer<StrokeCollection> removed(new StrokeCollection);
     removed->append(removedStroke);
     RaiseStrokesChanged(nullptr /*added*/, removed, index);
+}
+
+bool StrokeCollection::RemoveItem(QSharedPointer<Stroke> stroke)
+{
+    int index = IndexOf(stroke);
+    if (index < 0) return false;
+    RemoveItem(index);
+    return true;
 }
 
 /// <summary>
@@ -332,7 +345,7 @@ void StrokeCollection::SetItem(int index, QSharedPointer<Stroke> stroke)
     }
 
     QSharedPointer<Stroke> removedStroke = (*this)[index];
-    (*this)[index] = stroke;
+    at(index) = stroke;
 
     QSharedPointer<StrokeCollection> removed(new StrokeCollection);
     removed->append(removedStroke);
@@ -354,7 +367,7 @@ int StrokeCollection::IndexOf(QSharedPointer<Stroke> stroke)
         //we never allow null strokes
         return -1;
     }
-    for (int i = 0; i < size(); i++)
+    for (int i = 0; i < count(); i++)
     {
         if (at(i) == stroke)
         {
@@ -362,6 +375,11 @@ int StrokeCollection::IndexOf(QSharedPointer<Stroke> stroke)
         }
     }
     return -1;
+}
+
+int StrokeCollection::Count()
+{
+    return size();
 }
 
 /// <summary>
@@ -423,7 +441,7 @@ void StrokeCollection::Add(QSharedPointer<StrokeCollection> strokes)
     //add the strokes
     //bypass this.AddRange, which calls changed events
     //and call our protected List<Stroke> directly
-    QList<QSharedPointer<Stroke>>::append(*strokes);
+    append(*strokes);
 
     RaiseStrokesChanged(strokes, nullptr /*removed*/, index);
 }
@@ -459,6 +477,10 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
     }
 
     QVector<int> indexes = GetStrokeIndexes(strokesToReplace);
+    if ( indexes.size() == 0 )
+    {
+        throw std::exception("strokesToReplace");
+    }
 
     //validate that none of the relplaceWith strokes exist in the collection
     for ( int x = 0; x < strokesToReplaceWith->size(); x++ )
@@ -484,7 +506,7 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
     {
         //insert at the
         for (QSharedPointer<Stroke> stroke : *strokesToReplaceWith)
-        insert(++indexes[0], stroke);
+            insert(indexes[0]++, stroke);
     }
 
 
@@ -497,7 +519,7 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
 void StrokeCollection::AddWithoutEvent(QSharedPointer<Stroke>stroke)
 {
     //Debug.Assert(stroke != null && IndexOf(stroke) == -1);
-    push_back(stroke);
+    append(stroke);
 }
 
 
@@ -1190,7 +1212,7 @@ void StrokeCollection::UpdateStrokeCollection(QSharedPointer<Stroke> original, Q
     //System.Diagnostics.Debug.Assert(index >= 0 && index < this.Count);
     if (toReplace->size() == 0)
     {
-        removeOne(original);
+        RemoveItem(original);
         index--;
     }
     else if (!(toReplace->size() == 1 && (*toReplace)[0] == original))

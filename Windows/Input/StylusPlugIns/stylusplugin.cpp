@@ -1,8 +1,15 @@
 #include "Windows/Input/StylusPlugIns/stylusplugin.h"
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
+#include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
 #include "Windows/Input/inputeventargs.h"
+#include "Windows/uielement.h"
 
 StylusPlugIn::StylusPlugIn()
+{
+
+}
+
+StylusPlugIn::~StylusPlugIn()
 {
 
 }
@@ -66,7 +73,7 @@ void StylusPlugIn::RawStylusInput2(RawStylusInput& rawStylusInput)
     // Only fire if plugin is enabled and hooked up to plugincollection.
     if (__enabled && _pic != nullptr)
     {
-        switch( rawStylusInput.Report()->Actions() )
+        switch( rawStylusInput.Actions() )
         {
             case RawStylusActions::Down:
                 OnStylusDown(rawStylusInput);
@@ -181,7 +188,7 @@ UIElement* StylusPlugIn::GetElement()
 /// </summary>
 QRectF StylusPlugIn::ElementBounds()
 {
-     return (_pic != nullptr) ? _pic->Rect() : new Rect();
+     return (_pic != nullptr) ? _pic->Rect() : QRectF();
 }
 /////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -197,7 +204,7 @@ void StylusPlugIn::SetEnabled(bool value)
      // Verify we are on the proper thread.
      if (_pic != nullptr)
      {
-         _pic->Element().VerifyAccess();
+         _pic->Element()->VerifyAccess();
      }
      if (value != __enabled)
      {
@@ -209,10 +216,10 @@ void StylusPlugIn::SetEnabled(bool value)
          {
                 // Make sure lock() doesn't cause reentrancy.
              // Make sure lock() doesn't cause reentrancy.
-             _pic->Element().Dispatcher.DisableProcessing();
+             //using(_pic->Element()->Dispatcher().DisableProcessing())
              {
-                 lock(_pic->PenContextsSyncRoot())
                  {
+                     QMutexLocker l(&_pic->PenContextsSyncRoot());
                         // Make sure we fire the OnEnabledChanged event in the proper order
                      // Make sure we fire the OnEnabledChanged event in the proper order
                         // depending on whether we are going active or inactive so you don't
@@ -269,7 +276,7 @@ void StylusPlugIn::OnEnabledChanged()
 void StylusPlugIn::InvalidateIsActiveForInput()
 {
 
-    bool newIsActive = (_pic != nullptr) ? (Enabled() &&  _pic->Contains(this) &&
+    bool newIsActive = (_pic != nullptr) ? (Enabled() &&  _pic->contains(this) &&
         _pic->IsActiveForInput()) : false;
 
     if (newIsActive != _activeForInput)

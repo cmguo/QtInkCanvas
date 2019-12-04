@@ -56,9 +56,9 @@ public:
     /// </summary>
     /// <param name="node">node to compute bounds of</param>
     /// <returns>bounds of the node</returns>
-    QRectF GetNodeBounds(StrokeNodeData & node);
+    QRectF GetNodeBounds(StrokeNodeData const & node);
 
-    void GetNodeContourPoints(StrokeNodeData node, QList<QPointF> & pointBuffer);
+    void GetNodeContourPoints(StrokeNodeData const & node, QList<QPointF> & pointBuffer);
 
     /// <summary>
     /// Returns an enumerator for edges of the contour comprised by a given node
@@ -68,7 +68,7 @@ public:
     /// <param name="node">node</param>
     /// <param name="quad">quadrangle connecting the node to the preceeding node</param>
     /// <returns>contour segments enumerator</returns>
-    virtual QList<ContourSegment> GetContourSegments(StrokeNodeData node, Quad & quad);
+    virtual QList<ContourSegment> GetContourSegments(StrokeNodeData const & node, Quad & quad);
 
     /// <summary>
     /// ISSUE-2004/06/15- temporary workaround to avoid hit-testing ellipses with ellipses
@@ -76,7 +76,7 @@ public:
     /// <param name="beginNode"></param>
     /// <param name="endNode"></param>
     /// <returns></returns>
-    virtual QList<ContourSegment> GetNonBezierContourSegments(StrokeNodeData beginNode, StrokeNodeData endNode);
+    virtual QList<ContourSegment> GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode);
 
 
     /// <summary>
@@ -85,7 +85,7 @@ public:
     /// <param name="beginNode">a node to connect</param>
     /// <param name="endNode">another node, next to beginNode</param>
     /// <returns>connecting quadrangle, that can be empty if one node is inside the other</returns>
-    virtual Quad GetConnectingQuad(StrokeNodeData & beginNode, StrokeNodeData & endNode);
+    virtual Quad GetConnectingQuad(StrokeNodeData const & beginNode, StrokeNodeData const & endNode);
 
     /// <summary>
     /// Hit-tests ink segment defined by two nodes against a linear segment.
@@ -97,7 +97,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>true if there's intersection, false otherwise</returns>
     virtual bool HitTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF &hitBeginPoint, QPointF &hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const &hitBeginPoint, QPointF const &hitEndPoint);
 
     /// <summary>
     /// Hit-tests a stroke segment defined by two nodes against another stroke segment.
@@ -109,7 +109,7 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns>true if the contours intersect or overlap</returns>
     virtual bool HitTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment> hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour);
 
     /// <summary>
     /// Hit-tests ink segment defined by two nodes against a linear segment.
@@ -121,7 +121,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF &hitBeginPoint, QPointF &hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const &hitBeginPoint, QPointF const &hitEndPoint);
 
     /// <summary>
     /// CutTest
@@ -133,7 +133,7 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns></returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment>& hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour);
 
     /// <summary>
     /// Cutting ink with polygonal tip shapes with a linear segment
@@ -145,7 +145,7 @@ public:
     /// <param name="hitBegin">Start point of the hitting segment</param>
     /// <param name="hitEnd">End point of the hitting segment</param>
     /// <returns>a double representing the point of clipping</returns>
-    double ClipTest(QPointF const  &spineQPointF, double pressureDelta, QPointF const & hitBegin, QPointF const & hitEnd);
+    double ClipTest(QPointF const & spineQPointF, double pressureDelta, QPointF const & hitBegin, QPointF const & hitEnd);
 
     /// <summary>
     /// Clip-Testing a polygonal inking segment against an arc (circle)
@@ -176,7 +176,7 @@ public:
     /// <param name="endNode">End node of the stroke segment</param>
     /// <returns>true if hit; false otherwise</returns>
     bool HitTestPolygonContourSegments(
-        QList<ContourSegment>& hitContour, StrokeNodeData& beginNode, StrokeNodeData& endNode);
+        QList<ContourSegment> const & hitContour, StrokeNodeData const & beginNode, StrokeNodeData const & endNode);
 
     /// <summary>
     /// Helper function to HitTest the the hitting contour against the inking contour
@@ -187,7 +187,7 @@ public:
     /// <param name="endNode">End node of the stroke segment</param>
     /// <returns>true if hit; false otherwise</returns>
     bool HitTestInkContour(
-        QList<ContourSegment>& hitContour, Quad& quad, StrokeNodeData& beginNode, StrokeNodeData &endNode);
+        QList<ContourSegment> const & hitContour, Quad& quad, StrokeNodeData const & beginNode, StrokeNodeData const &endNode);
 
 
     /// <summary>
@@ -199,7 +199,7 @@ public:
     /// <param name="result"></param>
     /// <returns></returns>
     bool HitTestStrokeNodes(
-        ContourSegment& hitSegment, StrokeNodeData &beginNode, StrokeNodeData &endNode, StrokeFIndices& result);
+        ContourSegment const & hitSegment, StrokeNodeData const &beginNode, StrokeNodeData const &endNode, StrokeFIndices& result);
 
     /// <summary>
     ///  Calculate the clip location
@@ -210,12 +210,12 @@ public:
     /// <param name="pressureDelta"></param>
     /// <returns>the clip location. not-clip if return StrokeFIndices::BeforeFirst</returns>
     double CalculateClipLocation(
-        ContourSegment & hitSegment, StrokeNodeData& beginNode, QPointF& spineQPointF, double pressureDelta);
+        ContourSegment const & hitSegment, StrokeNodeData const & beginNode, QPointF const & spineQPointF, double pressureDelta);
 
     /// <summary>
     /// Helper method used to determine if we came up with a bogus result during hit testing
     /// </summary>
-    bool IsInvalidCutTestResult(StrokeFIndices & result);
+    bool IsInvalidCutTestResult(StrokeFIndices const & result);
 
 
     // Shape parameters

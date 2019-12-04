@@ -2,7 +2,7 @@
 #define INKCANVASSELECTIONADORNER_H
 
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
-#include "Windows/uielement.h"
+#include "Windows/Controls/decorator.h"
 
 #include <QPen>
 #include <QBrush>

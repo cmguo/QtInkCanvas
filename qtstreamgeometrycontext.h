@@ -3,15 +3,18 @@
 
 #include "Windows/Media/streamgeometrycontext.h"
 
+#include <QPainterPath>
+
+class StreamGeometry;
+
 class QtStreamGeometryContext : public StreamGeometryContext
 {
 public:
-    QtStreamGeometryContext();
+    QtStreamGeometryContext(StreamGeometry* geometry);
 
 
     // StreamGeometryContext interface
 public:
-    virtual void Close() override;
     virtual void BeginFigure(const QPointF &startPoint, bool isFilled, bool isClosed) override;
     virtual void LineTo(const QPointF &point, bool isStroked, bool isSmoothJoin) override;
     virtual void QuadraticBezierTo(const QPointF &point1, const QPointF &point2, bool isStroked, bool isSmoothJoin) override;
@@ -22,6 +25,13 @@ public:
     virtual void ArcTo(const QPointF &point, const QSizeF &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin) override;
     virtual void DisposeCore() override;
     virtual void SetClosedState(bool closed) override;
+
+private:
+    StreamGeometry* geometry_;
+    QPainterPath path_;
+    bool isStarted_ = false;
+    bool isClosed_ = false;
+    bool isFilled_ = false;
 };
 
 #endif // QTSTREAMGEOMETRYCONTEXT_H

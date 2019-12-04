@@ -35,18 +35,18 @@ StrokeNodeOperations::~StrokeNodeOperations()
 /// </summary>
 /// <param name="node">node to compute bounds of</param>
 /// <returns>bounds of the node</returns>
-QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData & node)
+QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData const & node)
 {
     if (_shapeBounds.isEmpty())
     {
         int i;
         for (i = 0; (i + 1) < _vertices.size(); i += 2)
         {
-            _shapeBounds = _shapeBounds.united(QRectF(_vertices[i], _vertices[i + 1]));
+            _shapeBounds |= (QRectF(_vertices[i], _vertices[i + 1]));
         }
         if (i < _vertices.size())
         {
-            _shapeBounds = _shapeBounds.united(QRectF(_vertices[i],_vertices[i]));
+            _shapeBounds |= (QRectF(_vertices[i],_vertices[i]));
         }
     }
 
@@ -68,7 +68,7 @@ QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData & node)
     return boundingBox;
 }
 
-void StrokeNodeOperations::GetNodeContourPoints(StrokeNodeData node, QList<QPointF> & pointBuffer)
+void StrokeNodeOperations::GetNodeContourPoints(StrokeNodeData const & node, QList<QPointF> & pointBuffer)
 {
     double pressureFactor = node.PressureFactor();
     if (DoubleUtil::AreClose(pressureFactor, 1))
@@ -95,7 +95,7 @@ void StrokeNodeOperations::GetNodeContourPoints(StrokeNodeData node, QList<QPoin
 /// <param name="node">node</param>
 /// <param name="quad">quadrangle connecting the node to the preceeding node</param>
 /// <returns>contour segments enumerator</returns>
-QList<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData node, Quad & quad)
+QList<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData const& node, Quad & quad)
 {
     //System.Diagnostics.Debug.Assert(node.IsEmpty() == false);
 
@@ -142,7 +142,7 @@ QList<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData no
 /// <param name="beginNode"></param>
 /// <param name="endNode"></param>
 /// <returns></returns>
-QList<ContourSegment> StrokeNodeOperations::GetNonBezierContourSegments(StrokeNodeData beginNode, StrokeNodeData endNode)
+QList<ContourSegment> StrokeNodeOperations::GetNonBezierContourSegments(StrokeNodeData const& beginNode, StrokeNodeData const& endNode)
 {
     Quad quad = beginNode.IsEmpty() ? Quad::Empty() : GetConnectingQuad(beginNode, endNode);
     return GetContourSegments(endNode, quad);
@@ -155,7 +155,7 @@ QList<ContourSegment> StrokeNodeOperations::GetNonBezierContourSegments(StrokeNo
 /// <param name="beginNode">a node to connect</param>
 /// <param name="endNode">another node, next to beginNode</param>
 /// <returns>connecting quadrangle, that can be empty if one node is inside the other</returns>
-Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData & beginNode, StrokeNodeData & endNode)
+Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, StrokeNodeData const & endNode)
 {
     // Return an empty quad if either of the nodes is empty (not a node)
     // or if both nodes are at the same position.
@@ -269,7 +269,7 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData & beginNode, StrokeN
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>true if there's intersection, false otherwise</returns>
 bool StrokeNodeOperations::HitTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF &hitBeginPoint, QPointF &hitEndPoint)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, QPointF const &hitBeginPoint, QPointF const &hitEndPoint)
 {
     // Check for special cases when the endNode is the very first one (beginNode.IsEmpty())
     // or one node is completely inside the other. In either case the connecting quad
@@ -414,7 +414,7 @@ bool StrokeNodeOperations::HitTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns>true if the contours intersect or overlap</returns>
 bool StrokeNodeOperations::HitTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment> hitContour)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, QList<ContourSegment> const& hitContour)
 {
     // Check for special cases when the endNode is the very first one (beginNode.IsEmpty())
     // or one node is completely inside the other. In either case the connecting quad
@@ -448,7 +448,7 @@ bool StrokeNodeOperations::HitTest(
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
 StrokeFIndices StrokeNodeOperations::CutTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF &hitBeginPoint, QPointF &hitEndPoint)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, QPointF const &hitBeginPoint, QPointF const &hitEndPoint)
 {
     StrokeFIndices result = StrokeFIndices::Empty();
 
@@ -540,7 +540,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns></returns>
 StrokeFIndices StrokeNodeOperations::CutTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment>& hitContour)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, QList<ContourSegment> const& hitContour)
 {
     if (beginNode.IsEmpty())
     {
@@ -558,7 +558,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
     double pressureDelta = (endNode.PressureFactor() / beginNode.PressureFactor()) - 1;
     double pressureDeltaReversed = (beginNode.PressureFactor() / endNode.PressureFactor()) - 1;
 
-    for (ContourSegment& hitSegment : hitContour)
+    for (ContourSegment const& hitSegment : hitContour)
     {
         // NTRAID#Window OS bug-1029694-2004/10/19-xiaotu, refactor the code to make it a method
         // to increase the maintainability of the program. FxCop bug.
@@ -910,7 +910,7 @@ double StrokeNodeOperations::ClipTestArc(QPointF const & spineQPointF, double pr
 /// <param name="endNode">End node of the stroke segment</param>
 /// <returns>true if hit; false otherwise</returns>
 bool StrokeNodeOperations::HitTestPolygonContourSegments(
-    QList<ContourSegment>& hitContour, StrokeNodeData& beginNode, StrokeNodeData& endNode)
+    QList<ContourSegment> const& hitContour, StrokeNodeData const& beginNode, StrokeNodeData const& endNode)
 {
     bool isHit = false;
 
@@ -935,7 +935,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
 
     // Enumerate through the segments of the hitting contour and test them
     // one by one against the contour of the ink node.
-    for (ContourSegment & hitSegment : hitContour)
+    for (ContourSegment const & hitSegment : hitContour)
     {
         if (hitSegment.IsArc())
         {
@@ -999,7 +999,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
 /// <param name="endNode">End node of the stroke segment</param>
 /// <returns>true if hit; false otherwise</returns>
 bool StrokeNodeOperations::HitTestInkContour(
-    QList<ContourSegment>& hitContour, Quad& quad, StrokeNodeData& beginNode, StrokeNodeData &endNode)
+    QList<ContourSegment> const& hitContour, Quad& quad, StrokeNodeData const& beginNode, StrokeNodeData const &endNode)
 {
     //System.Diagnostics.Debug.Assert(!quad.IsEmpty());
     bool isHit = false;
@@ -1016,7 +1016,7 @@ bool StrokeNodeOperations::HitTestInkContour(
 
     // The ink connecting quad is not empty, enumerate through the segments of the
     // hitting contour and hit-test them one by one against the ink contour.
-    for (ContourSegment& hitSegment : hitContour)
+    for (ContourSegment const& hitSegment : hitContour)
     {
         // Iterate through the vertices of the contour of the ink segment
         // check where the hit segment is about them, return false if it's
@@ -1163,7 +1163,7 @@ bool StrokeNodeOperations::HitTestInkContour(
 /// <param name="result"></param>
 /// <returns></returns>
 bool StrokeNodeOperations::HitTestStrokeNodes(
-    ContourSegment& hitSegment, StrokeNodeData &beginNode, StrokeNodeData &endNode, StrokeFIndices& result)
+    ContourSegment const& hitSegment, StrokeNodeData const &beginNode, StrokeNodeData const &endNode, StrokeFIndices& result)
 {
     // First, find out if hitSegment intersects with either of the ink nodes
     bool isHit = false;
@@ -1251,7 +1251,7 @@ bool StrokeNodeOperations::HitTestStrokeNodes(
 /// <param name="pressureDelta"></param>
 /// <returns>the clip location. not-clip if return StrokeFIndices::BeforeFirst</returns>
 double StrokeNodeOperations::CalculateClipLocation(
-    ContourSegment & hitSegment, StrokeNodeData& beginNode, QPointF& spineQPointF, double pressureDelta)
+    ContourSegment const & hitSegment, StrokeNodeData const & beginNode, QPointF const & spineQPointF, double pressureDelta)
 {
     double findex = StrokeFIndices::BeforeFirst;
     bool clipIt = hitSegment.IsArc() ? true
@@ -1287,7 +1287,7 @@ double StrokeNodeOperations::CalculateClipLocation(
 /// <summary>
 /// Helper method used to determine if we came up with a bogus result during hit testing
 /// </summary>
-bool StrokeNodeOperations::IsInvalidCutTestResult(StrokeFIndices & result)
+bool StrokeNodeOperations::IsInvalidCutTestResult(StrokeFIndices const & result)
 {
     //
     // check for three invalid states

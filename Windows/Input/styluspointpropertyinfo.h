@@ -1,7 +1,7 @@
 #ifndef STYLUSPOINTPROPERTYINFO_H
 #define STYLUSPOINTPROPERTYINFO_H
 
-#include "styluspointproperty.h"
+#include "Windows/Input/styluspointproperty.h"
 
 enum StylusPointPropertyUnit {
 

@@ -27,7 +27,7 @@ class ContainerVisual;
 /// </summary>
 ///
 //[FriendAccessAllowed] // Built into Core, also used by Framework.
-class InkRenderer : public QObject
+class Renderer : public QObject
 {
     Q_OBJECT
     //#region StrokeVisual
@@ -52,7 +52,7 @@ public:
     /// <summary>
     /// Public Constructor
     /// </summary>
-    InkRenderer();
+    Renderer();
 
     /// <summary>
     /// Returns a reference to a visual tree that can be used to render the ink.
@@ -214,7 +214,7 @@ private:
 
 #include "Windows/Media/containervisual.h"
 
-class InkRenderer::HighlighterContainerVisual : public ContainerVisual
+class Renderer::HighlighterContainerVisual : public ContainerVisual
 {
     Q_OBJECT
 public:

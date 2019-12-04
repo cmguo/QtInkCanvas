@@ -1,6 +1,11 @@
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspointdescription.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/mousedevice.h"
+
+#include <QTouchEvent>
+#include <QMouseEvent>
 
 /// <summary>
 ///     [TBS]
@@ -9,14 +14,18 @@
 /// <param name="tabletToElementTransform">[TBS]
 /// <param name="targetPlugInCollection">[TBS]
 RawStylusInput::RawStylusInput(
-    RawStylusInputReport*    report,
+    QInputEvent&    event,
     QTransform        tabletToElementTransform,
     StylusPlugInCollection* targetPlugInCollection)
+    : inputEvent_(event)
+    , touchEvent_(nullptr)
+    , mouseEvent_(nullptr)
+    , device_(nullptr)
 {
-    if (report == nullptr)
-    {
-        throw std::exception("report");
-    }
+    //if (report == nullptr)
+    //{
+    //    throw std::exception("report");
+    //}
     if (!tabletToElementTransform.isInvertible())
     {
         throw std::exception("tabletToElementTransform");
@@ -26,9 +35,26 @@ RawStylusInput::RawStylusInput(
         throw std::exception("targetPlugInCollection");
     }
 
+    switch (event.type()) {
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+        touchEvent_ = static_cast<QTouchEvent*>(&event);
+        device_ = Stylus::GetDevice(touchEvent_->device());
+        break;
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonRelease:
+        mouseEvent_ = static_cast<QMouseEvent*>(&event);
+        device_ = Mouse::PrimaryDevice;
+        break;
+    default:
+        break;
+    }
+
     // We should always see this QTransform is frozen since we access this from multiple threads.
     //System.Diagnostics.Debug.Assert(tabletToElementTransform.IsFrozen);
-    _report                 = report;
+    //_report                 = report;
     _tabletToElementTransform  = tabletToElementTransform;
     _targetPlugInCollection = targetPlugInCollection;
 }
@@ -36,17 +62,37 @@ RawStylusInput::RawStylusInput(
 /// <summary>
 ///
 /// </summary>
-int RawStylusInput::StylusDeviceId() { return _report->StylusDeviceId; }
+int RawStylusInput::StylusDeviceId()
+{
+    return device_->Id();
+}
 
 /// <summary>
 ///
 /// </summary>
-int RawStylusInput::TabletDeviceId() { return _report->TabletDeviceId; }
+int RawStylusInput::TabletDeviceId() { return touchEvent_ ? touchEvent_->device()->type() : 0; }
 
 /// <summary>
 ///
 /// </summary>
-int RawStylusInput::Timestamp() { return _report->Timestamp; }
+int RawStylusInput::Timestamp() { return static_cast<int>(inputEvent_.timestamp()); }
+
+RawStylusActions RawStylusInput::Actions()
+{
+    switch (inputEvent_.type()) {
+    case QEvent::TouchBegin:
+    case QEvent::MouseButtonPress:
+        return RawStylusActions::Down;
+    case QEvent::TouchUpdate:
+    case QEvent::MouseMove:
+        return RawStylusActions::Move;
+    case QEvent::TouchEnd:
+    case QEvent::MouseButtonRelease:
+        return RawStylusActions::Up;
+    default:
+        return RawStylusActions::None;
+    }
+}
 
 /// <summary>
 /// Returns a copy of the StylusPoints
@@ -73,15 +119,16 @@ QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints(QTransform
     if (_stylusPoints == nullptr)
     {
         //
-        QTransformGroup group = new QTransformGroup();
-        if ( StylusDeviceId() == 0)
-        {
-            // Only do this for the Mouse
-            group.Children.Add(new MatrixTransform(_report->InputSource.CompositionTarget.TransformFromDevice));
-        }
-        group.Children.Add(_tabletToElementTransform);
-        group.Children.Add(transform);
-        return new StylusPointCollection(_report->StylusPointDescription, _report->GetRawPacketData(), group, Matrix.Identity);
+        QTransform group;
+        //if ( StylusDeviceId() == 0)
+        //{
+        //    // Only do this for the Mouse
+        //    group.Children.Add(new MatrixTransform(_report->InputSource.CompositionTarget.TransformFromDevice));
+        //}
+        group = _tabletToElementTransform;
+        group *= transform;
+        return QSharedPointer<StylusPointCollection>(
+                    new StylusPointCollection(device_->PointDescription(), device_->PacketData(inputEvent_), group.toAffine(), QMatrix()));
     }
     else
     {
@@ -109,8 +156,8 @@ void RawStylusInput::SetStylusPoints(QSharedPointer<StylusPointCollection> stylu
         throw std::exception("stylusPoints");
     }
 
-    if (!StylusPointDescription::AreCompatible(  stylusPoints.Description,
-                                                _report->StylusPointDescription))
+    if (!StylusPointDescription::AreCompatible(  stylusPoints->Description(),
+                                                device_->PointDescription()))
     {
         throw std::exception("stylusPoints");
     }
@@ -132,11 +179,11 @@ void RawStylusInput::NotifyWhenProcessed(void* callbackData)
     {
         throw std::exception("SR.Get(SRID.Stylus_CanOnlyCallForDownMoveOrUp)");
     }
-    if (_customData == nullptr)
-    {
-        _customData = new RawStylusInputCustomDataList();
-    }
-    _customData->Add(new RawStylusInputCustomData(_currentNotifyPlugIn, callbackData));
+    //if (_customData == nullptr)
+    //{
+    //    _customData = new RawStylusInputCustomDataList();
+    //}
+    _customData.append(RawStylusInputCustomData{_currentNotifyPlugIn, callbackData});
 }
 
 /// <summary>
@@ -158,7 +205,7 @@ StylusPlugInCollection* RawStylusInput::Target()
 /// </summary>
 RawStylusInputReport* RawStylusInput::Report()
 {
-     return _report;
+     return nullptr;
 }
 /// <summary>
 /// Matrix that was used for rawstylusinput packets.
@@ -170,12 +217,12 @@ QTransform RawStylusInput::ElementTransform()
 /// <summary>
 /// Retrieves the RawStylusInputCustomDataList associated with this input.
 /// </summary>
-RawStylusInputCustomDataList* RawStylusInput::CustomDataList()
+QList<RawStylusInputCustomData> RawStylusInput::CustomDataList()
 {
-     if (_customData == nullptr)
-     {
-         _customData = new RawStylusInputCustomDataList();
-     }
+     // (_customData == nullptr)
+     //{
+     //    _customData = new RawStylusInputCustomDataList();
+     //}
      return _customData;
 }
 /// <summary>

@@ -20,6 +20,8 @@ enum FillRule
 
 #include "geometry.h"
 
+#include <QPainterPath>
+
 class StreamGeometryContext;
 
 // namespace System.Windows.Media
@@ -35,8 +37,13 @@ public:
 
     StreamGeometryContext &Open();
 
+    void Close(QPainterPath & path);
+
+    virtual void Draw(QPainter& painter) override;
+
 private:
-    StreamGeometryContext * context_;
+    StreamGeometryContext * context_ = nullptr;
+    QPainterPath path_;
 };
 
 #endif // STREAMGEOMETRY_H

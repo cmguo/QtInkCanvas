@@ -38,35 +38,19 @@ public:
         int index,
         StrokeNodeData& nodeData,
         StrokeNodeData& lastNodeData,
-        bool isLastNode)
-        : valid_(true)
-        , _operations(operations)
-        , _connectingQuad(Quad::Empty())
-    {
-        //System.Diagnostics.//Debug.Assert(operations != null);
-        //System.Diagnostics.//Debug.Assert((nodeData.IsEmpty == false) && (index >= 0));
-
-
-        //_operations = operations;
-        _index = index;
-        _thisNode = nodeData;
-        _lastNode = lastNodeData;
-        //_isQuadCached = lastNodeData.IsEmpty;
-        //_connectingQuad = Quad.Empty;
-        _isLastNode = isLastNode;
-    }
+        bool isLastNode);
 
     /// <summary>
     /// Position of the node on the stroke spine.
     /// </summary>
     /// <value></value>
-    QPointF & Position() { return _thisNode.Position(); }
+    QPointF const & Position() { return _thisNode.Position(); }
 
     /// <summary>
     /// Position of the previous StrokeNode
     /// </summary>
     /// <value></value>
-    QPointF & PreviousPosition() { return _lastNode.Position(); }
+    QPointF const & PreviousPosition() { return _lastNode.Position(); }
 
     /// <summary>
     /// PressureFactor of the node on the stroke spine.
@@ -210,10 +194,10 @@ public:
     /// <summary>
     /// GetPointsAtMiddleSegment
     /// </summary>
-    void GetPointsAtMiddleSegment( StrokeNode previous,
+    void GetPointsAtMiddleSegment( StrokeNode & previous,
                                             double angleBetweenNodes,
-                                            QList<QPointF> abPoints,
-                                            QList<QPointF> dcPoints,
+                                            QList<QPointF> & abPoints,
+                                            QList<QPointF> & dcPoints,
                                             bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
                                             , DrawingContext debugDC, double feedbackSize, bool showFeedback
@@ -304,10 +288,10 @@ public:
     // Internal objects created for particular rendering
 private:
     bool valid_ = false;
-    StrokeNodeOperations *   _operations;
+    StrokeNodeOperations *   _operations = nullptr;
 
     // Node's index on the stroke spine
-    int             _index;
+    int             _index = 0;
 
     // This and the previous node data that used by the StrokeNodeOperations object to build
     // and/or hit-test the contour of the node/segment
@@ -316,11 +300,11 @@ private:
 
     // Calculating of the connecting quadrangle is not a cheap operations, therefore,
     // first, it's computed only by request, and second, once computed it's cached in the StrokeNode
-    bool            _isQuadCached;
+    bool            _isQuadCached = false;
     Quad            _connectingQuad;
 
     // Is the current stroke node the last node?
-    bool _isLastNode;
+    bool _isLastNode = false;
 };
 
 #endif // STROKENODE_H

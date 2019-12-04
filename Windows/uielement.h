@@ -1,8 +1,12 @@
 #ifndef UIELEMENT_H
 #define UIELEMENT_H
 
+#include "InkCanvas_global.h"
+
 #include "Windows/Media/visual.h"
-#include "routedeventargs.h"
+#include "Windows/routedeventargs.h"
+
+#include <QFlags>
 
 #include <functional>
 
@@ -10,11 +14,12 @@ class RoutedEvent;
 class RoutedEventArgs;
 class Geometry;
 
-class StylusPlugIn;
+class StylusPlugInCollection;
+class PenContexts;
 
 // namespace System.Windows
 
-class UIElement : public Visual
+class INKCANVAS_EXPORT UIElement : public Visual
 {
     Q_OBJECT
 public:
@@ -24,6 +29,12 @@ public:
 
 signals:
     void LayoutUpdated(EventArgs&);
+
+    void IsVisibleChanged();
+
+    void IsHitTestVisibleChanged();
+
+    void IsEnabledChanged();
 
 public:
     UIElement();
@@ -39,7 +50,7 @@ public:
     template<typename T>
     bool InstanceOf()
     {
-        return metaObject() == &T::staticMetaObject;
+        return metaObject()->inherits(&T::staticMetaObject);
     }
 
     QTransform LayoutTransform();
@@ -47,10 +58,6 @@ public:
     QTransform RenderTransform();
 
     QTransform TransformToVisual(UIElement* visual);
-
-    QTransform TransformToAncestor(UIElement* visual);
-
-    QTransform TransformToDescendant(UIElement* visual);
 
     QSizeF DesiredSize();
 
@@ -63,6 +70,10 @@ public:
     void InvalidateMeasure();
 
     void InvalidateArrange();
+
+    bool IsVisible();
+
+    bool IsHitTestVisible();
 
     bool IsMeasureValid();
 
@@ -96,6 +107,7 @@ public:
 
     void ReleaseStylusCapture();
 
+public:
     void AddHandler(RoutedEvent & event, RoutedEventHandler const & handler);
 
     void RemoveHandler(RoutedEvent & event, RoutedEventHandler const & handler);
@@ -106,7 +118,12 @@ public:
 
     void SetHeight(double);
 
-    QList<StylusPlugIn*>& StylusPlugIns();
+    StylusPlugInCollection& StylusPlugIns();
+
+    PenContexts* GetPenContexts();
+
+protected:
+    void RaiseEvent(RoutedEventArgs & e);
 
 protected:
     virtual void OnChildDesiredSizeChanged(UIElement* child);
@@ -123,15 +140,22 @@ protected:
 
     virtual QSizeF MeasureOverride(QSizeF availableSize);
 
+    virtual void OnPreApplyTemplate();
+
 protected:
 
 private:
     virtual bool event(QEvent *event) override;
 
 private:
-    static QMap<RoutedEvent*, int> events_;
-    QMap<int, QList<RoutedEventHandler>> handlers_;
-    QList<StylusPlugIn*> stylusPlugIns_;
+    enum PrivateFlag {
+        HasRoutedEventStore = 1,
+        HasPenContexts = 2,
+    };
+
+    Q_DECLARE_FLAGS(PrivateFlags, PrivateFlag)
+
+    PrivateFlags privateFlags_;
 };
 
 enum class FlowDirection
@@ -153,9 +177,9 @@ enum class FlowDirection
     RightToLeft,
 };
 
-class FrameworkElement : public UIElement
+class INKCANVAS_EXPORT FrameworkElement : public UIElement
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     QRectF Margin();
 
@@ -171,14 +195,6 @@ private:
     virtual int VisualChildrenCount();
 
     virtual Visual* GetVisualChild(int index);
-};
-
-class Adorner : public FrameworkElement
-{
-public:
-    Adorner(UIElement* adornedElement);
-
-    UIElement* AdornedElement();
 };
 
 #endif // UIELEMENT_H

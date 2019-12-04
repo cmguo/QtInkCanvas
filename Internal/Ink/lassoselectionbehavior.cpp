@@ -257,7 +257,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         {
             //Debug.Assert(tappedElement == null);
             selectedStrokes.reset(new StrokeCollection());
-            selectedStrokes->append(tappedStroke);
+            selectedStrokes->AddItem(tappedStroke);
         }
         else if ( tappedElement != nullptr )
         {
