@@ -251,6 +251,11 @@ void StylusPointCollection::RemoveItem(int index)
 
 }
 
+void StylusPointCollection::AddItem(StylusPoint &stylusPoint)
+{
+    InsertItem(size(), stylusPoint);
+}
+
 /// <summary>
 /// called by base class Collection<T> when an item is added to list;
 /// raises a CollectionChanged event to any listeners
@@ -282,7 +287,7 @@ void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
     }
 
     stylusPoint.SetDescription(_stylusPointDescription);
-    (*this)[index] = stylusPoint;
+    at(index) = stylusPoint;
 
     OnChanged();
 }
@@ -372,6 +377,7 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const
 /// <param name="e">
 void StylusPointCollection::OnChanged()
 {
+    emit Changed();
 }
 
 /// <summary>
@@ -389,7 +395,7 @@ void StylusPointCollection::Transform(QMatrix const & transform)
         stylusPoint = point;
 
         //this does not go through our virtuals
-        (*this)[i] = stylusPoint;
+        at(i) = stylusPoint;
     }
 
     if (size() > 0)

@@ -240,7 +240,8 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
 {
     // Create a single point stroke.
     QSharedPointer<StylusPointCollection> stylusPoints(new StylusPointCollection());
-    stylusPoints->append(StylusPoint(0, 0));
+    StylusPoint point(0, 0);
+    stylusPoints->AddItem(point);
 
     QSharedPointer<DrawingAttributes> da(new DrawingAttributes);
     da->SetColor(drawingAttributes->Color());

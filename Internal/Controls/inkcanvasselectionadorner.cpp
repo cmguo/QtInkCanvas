@@ -221,7 +221,7 @@ void InkCanvasSelectionAdorner::OnRender(DrawingContext& drawingContext)
 void InkCanvasSelectionAdorner::DrawHandles(DrawingContext& drawingContext, QRectF const & rectWireFrame)
 {
     for ( InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::TopLeft;
-            hitResult <= InkCanvasSelectionHitResult::Left; (InkCanvasSelectionHitResult)((int)hitResult + 1))
+            hitResult <= InkCanvasSelectionHitResult::Left; hitResult = (InkCanvasSelectionHitResult)((int)hitResult + 1))
     {
         // Draw the handle
         QRectF toleranceRect;

@@ -15,6 +15,7 @@ class DrawingContext;
 /// </summary>
 class InkCanvasFeedbackAdorner : public Adorner
 {
+    Q_OBJECT
     // No default constructor
 private:
     InkCanvasFeedbackAdorner();
@@ -29,34 +30,34 @@ public:
     /// <summary>
     /// The overridden GetDesiredTransform method
     /// </summary>
-    virtual QTransform GetDesiredTransform(QTransform transform);
+    virtual QTransform GetDesiredTransform(QTransform const & transform) override;
 
 private:
     /// <summary>
     /// The OnBoundsUpdated method
     /// </summary>
     /// <param name="rect"></param>
-    void OnBoundsUpdated(QRectF rect);
+    void OnBoundsUpdated(QRectF const &rect);
 
 protected:
     /// <summary>
     /// The overridden MeasureOverride method
     /// </summary>
     /// <param name="constraint"></param>
-    virtual QSizeF MeasureOverride(QSizeF constraint);
+    virtual QSizeF MeasureOverride(QSizeF constraint) override;
 
     /// <summary>
     /// The overridden OnRender method
     /// </summary>
     /// <param name="drawingContext"></param>
-    virtual void OnRender(DrawingContext& drawingContext);
+    virtual void OnRender(DrawingContext& drawingContext) override;
 
 public:
     /// <summary>
     /// The method is called by InkCanvasSelection.UpdateFeedbackRect
     /// </summary>
     /// <param name="rect"></param>
-    void UpdateBounds(QRectF rect);
+    void UpdateBounds(QRectF const &rect);
 
 private:
     InkCanvas&   _inkCanvas;

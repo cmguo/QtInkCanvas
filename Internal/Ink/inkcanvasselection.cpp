@@ -104,17 +104,17 @@ void InkCanvasSelection::StartFeedbackAdorner(QRectF const & feedbackRect, InkCa
 
     _activeSelectionHitResult = {activeSelectionHitResult, true};
 
-    //AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(_inkCanvas.InnerCanvas());
+    AdornerLayer* adornerLayer = AdornerLayer::GetAdornerLayer(&_inkCanvas.InnerCanvas());
 
     // Until the next start, we are going to use this adorner regardless user will change feedback adorner or not during the editing.
     InkCanvasFeedbackAdorner& feedbackAdorner = _inkCanvas.FeedbackAdorner();
 
     // The feedback adorner shouldn't have been connected to the adorner layer yet.
-    Debug::Assert(feedbackAdorner.Parent() == nullptr,
+    Debug::Assert(feedbackAdorner.VisualParent() == nullptr,
         "feedbackAdorner shouldn't be added to tree.");
 
     // Now, attach the feedback adorner to the adorner layer. Then update its bounds
-    //adornerLayer.Add(feedbackAdorner);
+    adornerLayer->Add(&feedbackAdorner);
     feedbackAdorner.UpdateBounds(feedbackRect);
 }
 
@@ -125,9 +125,9 @@ void InkCanvasSelection::StartFeedbackAdorner(QRectF const & feedbackRect, InkCa
 /// <param name="feedbackRect"></param>
 void InkCanvasSelection::UpdateFeedbackAdorner(QRectF const & feedbackRect)
 {
-    //Debug::Assert(_inkCanvas.FeedbackAdorner().GetParent()
-    //    == AdornerLayer.GetAdornerLayer(_inkCanvas.InnerCanvas()),
-    //    "feedbackAdorner should have been added to tree.");
+    Debug::Assert(_inkCanvas.FeedbackAdorner().VisualParent()
+        == AdornerLayer::GetAdornerLayer(&_inkCanvas.InnerCanvas()),
+        "feedbackAdorner should have been added to tree.");
 
     // Update the feedback bounds
     _inkCanvas.FeedbackAdorner().UpdateBounds(feedbackRect);
@@ -140,20 +140,20 @@ void InkCanvasSelection::UpdateFeedbackAdorner(QRectF const & feedbackRect)
 /// <param name="finalRectangle"></param>
 void InkCanvasSelection::EndFeedbackAdorner(QRectF const & finalRectangle)
 {
-    //AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(_inkCanvas.InnerCanvas());
+    AdornerLayer* adornerLayer = AdornerLayer::GetAdornerLayer(&_inkCanvas.InnerCanvas());
     InkCanvasFeedbackAdorner& feedbackAdorner = _inkCanvas.FeedbackAdorner();
 
-    //Debug::Assert(VisualTreeHelper.GetParent(feedbackAdorner) == adornerLayer,
-    //    "feedbackAdorner should have been added to tree.");
+    Debug::Assert(feedbackAdorner.VisualParent() == adornerLayer,
+        "feedbackAdorner should have been added to tree.");
 
     // Reset the feedback bounds and detach it from the adorner layer.
     feedbackAdorner.UpdateBounds(QRectF());
-    //adornerLayer.Remove(feedbackAdorner);
+    adornerLayer->Remove(&feedbackAdorner);
 
     // Commit the new rectange of the selection.
     CommitChanges(finalRectangle, true);
 
-    //_activeSelectionHitResult = nullptr;
+    _activeSelectionHitResult.second = false;
 
 }
 
@@ -846,7 +846,7 @@ QRectF InkCanvasSelection::GetElementsUnionBounds()
     // The SelectedElementsBounds property will ensure the size is got after rendering's done.
     for ( QRectF elementRect : SelectedElementsBoundsEnumerator() )
     {
-        elementsBounds |= (elementRect);
+        elementsBounds |= elementRect;
     }
 
     return elementsBounds;

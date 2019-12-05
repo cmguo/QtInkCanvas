@@ -15,6 +15,7 @@ IncrementalHitTester::~IncrementalHitTester()
 {
     for (auto i : _strokeInfos)
         delete i;
+    _strokeInfos.clear();
 }
 
 /// <summary>
@@ -171,6 +172,7 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
             {
                 if ((*localRemoved)[j] == _strokeInfos[i]->GetStroke())
                 {
+                    delete _strokeInfos[i];
                     _strokeInfos.removeAt(i);
                     localRemoved->RemoveItem(j);
 
@@ -577,7 +579,7 @@ double StrokeInfo::TotalWeight()
     if (!_totalWeightCached)
     {
         _totalWeight = 0;
-        for (int i = 0; i < _stylusPoints->count(); i++)
+        for (int i = 0; i < StylusPoints()->count(); i++)
         {
             _totalWeight += GetPointWeight(i);
         }
@@ -592,7 +594,7 @@ double StrokeInfo::TotalWeight()
 double StrokeInfo::GetPointWeight(int index)
 {
     QSharedPointer<StylusPointCollection> stylusPoints = StylusPoints();
-    QSharedPointer<DrawingAttributes> da = Stroke().GetDrawingAttributes();
+    QSharedPointer<DrawingAttributes> da = GetStroke()->GetDrawingAttributes();
     Debug::Assert(stylusPoints != nullptr && index >= 0 && index < stylusPoints->count());
 
     double weight = 0;

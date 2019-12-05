@@ -78,7 +78,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
             QRectF strokeNodeBounds = strokeNode.GetBounds();
             if (calculateBounds)
             {
-                bounds |= (strokeNodeBounds);
+                bounds |= strokeNodeBounds;
             }
 
             //if the angle between this and the last position has changed
@@ -318,7 +318,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                             //  |------------|
                             //
                             prevPrevStrokeNode = iterator.GetNode(index - 1, prevPrevStrokeNode.Index() - 1);
-                            prevPrevStrokeNodeBounds = prevStrokeNodeBounds.united(prevPrevStrokeNodeBounds);
+                            prevPrevStrokeNodeBounds |= prevStrokeNodeBounds;
 
                             // at this point prevPrevStrokeNodeBounds already contains this node
                             // we can just ignore this node
@@ -423,7 +423,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                         {
                             //only update prevStrokeNode if we have a valid connecting quad
                             prevStrokeNode = strokeNode;
-                            prevStrokeNodeBounds = strokeNodeBounds.united(prevStrokeNodeBounds);
+                            prevStrokeNodeBounds |= strokeNodeBounds;
 
                             // update previousIndex, since it should point to this node now
                             previousIndex = index - 1;
@@ -479,7 +479,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 // PathFigure.  First calc bounds on the strokeNode we know we need to render
                 if (calculateBounds)
                 {
-                    bounds |= (prevStrokeNodeBounds);
+                    bounds |= prevStrokeNodeBounds;
                 }
 
                 // determine what points to add to pathFigureABSide and pathFigureDCSide
@@ -489,7 +489,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                     Debug::Assert(pathFigureDCSide.size() == 0);
                     if (calculateBounds)
                     {
-                        bounds |= (prevPrevStrokeNodeBounds);
+                        bounds |= prevPrevStrokeNodeBounds;
                     }
 
                     if (isStartOfSegment && overlap)
@@ -627,8 +627,8 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 {
                     if (calculateBounds)
                     {
-                        bounds |= (prevPrevStrokeNodeBounds);
-                        bounds |= (prevStrokeNodeBounds);
+                        bounds |= prevPrevStrokeNodeBounds;
+                        bounds |= prevStrokeNodeBounds;
                     }
                     Debug::Assert(!strokeNode.IsValid());
                     //
@@ -675,7 +675,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                 {
                     if (calculateBounds)
                     {
-                        bounds |= (prevPrevStrokeNodeBounds);
+                        bounds |= prevPrevStrokeNodeBounds;
                     }
 
                     // we only have a single point to render
@@ -689,8 +689,8 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
             {
                 if (calculateBounds)
                 {
-                    bounds |= (prevStrokeNodeBounds);
-                    bounds |= (strokeNodeBounds);
+                    bounds |= prevStrokeNodeBounds;
+                    bounds |= strokeNodeBounds;
                 }
 
                 // typical case, we hit the end of the stroke

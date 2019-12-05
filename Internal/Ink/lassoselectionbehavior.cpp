@@ -6,7 +6,7 @@
 #include "Windows/Ink/incrementalhittester.h"
 #include "Internal/Ink/lassoselectionbehavior.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
-
+#include "debug.h"
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -48,7 +48,7 @@ LassoSelectionBehavior::LassoSelectionBehavior(EditingCoordinator& editingCoordi
 /// <param name="mode"></param>
 void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
 {
-    //Debug.Assert(GetEditingCoordinator().IsInMidStroke, "SwitchToMode should only be called in a mid-stroke");
+    Debug::Assert(GetEditingCoordinator().IsInMidStroke(), "SwitchToMode should only be called in a mid-stroke");
 
     switch ( mode )
     {
@@ -76,7 +76,7 @@ void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
             }
         case InkCanvasEditingMode::Select:
             {
-                //Debug.Assert(false, "Cannot switch from Select to Select in mid-stroke");
+                Debug::Assert(false, "Cannot switch from Select to Select in mid-stroke");
                 break;
             }
         case InkCanvasEditingMode::None:
@@ -89,7 +89,7 @@ void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
                 break;
             }
         default:
-            //Debug.Assert(false, "Unknown InkCanvasEditingMode!");
+            Debug::Assert(false, "Unknown InkCanvasEditingMode!");
             break;
     }
 }
@@ -102,7 +102,7 @@ void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
 void LassoSelectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     (void) userInitiated;
-    //Debug.Assert(stylusPoints.Count != 0, "An empty stylusPoints has been passed in.");
+    Debug::Assert(stylusPoints->count() != 0, "An empty stylusPoints has been passed in.");
 
     _disableLasso = false;
 
@@ -227,6 +227,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         //
         // end dynamic rendering
         //
+        GetInkCanvas().dumpObjectTree();
         selectedStrokes = GetInkCanvas().EndDynamicSelection(_lassoHelper->GetVisual());
 
         //
@@ -255,13 +256,13 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         // If we have a pre-selected object, we should select it now.
         if ( tappedStroke != nullptr )
         {
-            //Debug.Assert(tappedElement == null);
+            Debug::Assert(tappedElement == nullptr);
             selectedStrokes.reset(new StrokeCollection());
             selectedStrokes->AddItem(tappedStroke);
         }
         else if ( tappedElement != nullptr )
         {
-            //Debug.Assert(tappedStroke == null);
+            Debug::Assert(tappedStroke == nullptr);
             elementsToSelect.append(tappedElement);
         }
     }
@@ -323,14 +324,15 @@ QList<UIElement*> LassoSelectionBehavior::HitTestForElements()
 {
     QList<UIElement*> elementsToSelect;
 
-    if ( GetInkCanvas().children().size() == 0 )
+    QList<UIElement *> children = GetInkCanvas().Children();
+    if ( children.size() == 0 )
     {
         return elementsToSelect;
     }
 
-    for (int x = 0; x < GetInkCanvas().children().size(); x++)
+    for (int x = 0; x < children.size(); x++)
     {
-        UIElement* uiElement = GetInkCanvas().Children()[x];
+        UIElement* uiElement = children[x];
         HitTestElement(GetInkCanvas().InnerCanvas(), uiElement, elementsToSelect);
     }
 
@@ -351,7 +353,7 @@ void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElem
         //
         // perform hit testing against our lasso
         //
-        //System.Diagnostics.//Debug.Assert(null != _lassoHelper);
+        //System.Diagnostics.Debug::Assert(null != _lassoHelper);
         if (_lassoHelper->ArePointsInLasso(points, _percentIntersectForElements))
         {
             elementsToSelect.append(uiElement);
@@ -368,10 +370,10 @@ void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElem
 /// </summary>
 LassoSelectionBehavior::ElementCornerPoints LassoSelectionBehavior::GetTransformedElementCornerPoints(InkCanvasInnerCanvas& canvas, UIElement* childElement)
 {
-    //Debug.Assert(canvas != null);
-    //Debug.Assert(childElement != null);
+    //Debug::Assert(canvas != nullptr);
+    Debug::Assert(childElement != nullptr);
 
-    //Debug.Assert(canvas.CheckAccess());
+    Debug::Assert(canvas.CheckAccess());
 
     ElementCornerPoints elementPoints;
     elementPoints.Set = false;
@@ -571,7 +573,7 @@ void LassoSelectionBehavior::UpdatePointDistances(ElementCornerPoints elementPoi
 /// <param name="points"></param>
 void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
 {
-    //Debug.Assert(!_disableLasso && _lassoHelper == null, "StartLasso is called unexpectedly.");
+    Debug::Assert(!_disableLasso && _lassoHelper == nullptr, "StartLasso is called unexpectedly.");
 
     if ( GetInkCanvas().ClearSelectionRaiseSelectionChanging() // If user cancels clearing the selection, we shouldn't initiate Lasso.
         // NTRAID:WINDOWS#1534264-2006/02/28-WAYNEZEN

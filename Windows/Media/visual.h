@@ -29,6 +29,8 @@ public:
 
     void RemoveVisualChild(Visual *);
 
+    Visual* VisualParent();
+
 protected:
     virtual void OnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved);
 

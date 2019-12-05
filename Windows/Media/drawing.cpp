@@ -49,7 +49,7 @@ void DrawingGroup::Draw(QPainter &painer)
 
 void DrawingGroup::Close(QList<Drawing*> rootDrawingGroupChildren)
 {
-    children_.append(rootDrawingGroupChildren);
+    children_.swap(rootDrawingGroupChildren);
 }
 
 GeometryDrawing::GeometryDrawing()

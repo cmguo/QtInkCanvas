@@ -91,6 +91,7 @@ UIElement* UIElement::Parent()
 
 void UIElement::InvalidateVisual()
 {
+    update();
 }
 
 

@@ -1,6 +1,8 @@
 #ifndef STYLUSPOINTCOLLECTION_H
 #define STYLUSPOINTCOLLECTION_H
 
+#include "collection.h"
+
 #include <QSharedPointer>
 #include <QList>
 #include <QMatrix>
@@ -15,7 +17,7 @@ class CancelEventArgs;
 
 // namespace System.Windows.Input
 
-class StylusPointCollection : public QObject, public QList<StylusPoint>
+class StylusPointCollection : public QObject, public Collection<StylusPoint>
 {
     Q_OBJECT
 signals:
@@ -96,6 +98,8 @@ public:
     /// raises a CollectionChanged event to any listeners
     /// </summary>
     void RemoveItem(int index);
+
+    void AddItem(StylusPoint & stylusPoint);
 
     /// <summary>
     /// called by base class Collection<T> when an item is added to list;

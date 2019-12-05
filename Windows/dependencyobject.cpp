@@ -34,12 +34,17 @@ void DependencyObject::InvalidateSubProperty(DependencyProperty const * prop)
 
 }
 
-Dispatcher* DependencyObject::GetDispatcher()
+Dispatcher* DependencyObject::GetDispatcher() const
 {
-    return Dispatcher::from(static_cast<Visual*>(this)->thread());
+    return Dispatcher::from(static_cast<Visual const *>(this)->thread());
 }
 
 void DependencyObject::VerifyAccess() const
 {
+    GetDispatcher()->VerifyAccess();
+}
 
+bool DependencyObject::CheckAccess() const
+{
+    return GetDispatcher()->CheckAccess();
 }

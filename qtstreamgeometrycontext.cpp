@@ -4,6 +4,7 @@
 QtStreamGeometryContext::QtStreamGeometryContext(StreamGeometry* geometry)
     : geometry_(geometry)
 {
+    path_.setFillRule(Qt::FillRule::WindingFill);
 }
 
 void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFilled, bool isClosed)

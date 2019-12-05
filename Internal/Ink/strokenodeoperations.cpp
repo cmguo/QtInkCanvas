@@ -42,11 +42,11 @@ QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData const & node)
         int i;
         for (i = 0; (i + 1) < _vertices.size(); i += 2)
         {
-            _shapeBounds |= (QRectF(_vertices[i], _vertices[i + 1]));
+            _shapeBounds |= QRectF(_vertices[i], _vertices[i + 1]);
         }
         if (i < _vertices.size())
         {
-            _shapeBounds |= (QRectF(_vertices[i],_vertices[i]));
+            _shapeBounds = United(_shapeBounds,_vertices[i]);
         }
     }
 

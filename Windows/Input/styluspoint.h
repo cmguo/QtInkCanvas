@@ -281,7 +281,7 @@ public:
     /// Used by the StylusPointCollection.ToHimetricArray method
     /// </summary>
     /// <returns></returns>
-    QVector<int> GetAdditionalData()
+    QVector<int> GetAdditionalData() const
     {
         //return a direct ref
         return _additionalValues;

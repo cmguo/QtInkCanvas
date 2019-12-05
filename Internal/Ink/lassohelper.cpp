@@ -34,7 +34,7 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
 
             justAdded.append(point);
             _lasso.append(point);
-            _boundingBox |= QRectF(point, point);
+            _boundingBox = United(_boundingBox, point);
 
             _firstLassoPoint = point;
             _lastLassoPoint = point;
@@ -51,7 +51,7 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
                 AddLassoPoint(point);
                 justAdded.append(point);
                 _lasso.append(point);
-                _boundingBox |= QRectF(point, point);
+                _boundingBox = United(_boundingBox, point);
 
                 _lastLassoPoint = point;
                 _count++;
@@ -67,7 +67,7 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
                     AddLassoPoint(lassoPoint);
                     justAdded.append(lassoPoint);
                     _lasso.append(lassoPoint);
-                    _boundingBox |= QRectF(lassoPoint, lassoPoint);
+                    _boundingBox = United(_boundingBox, lassoPoint);
 
                     _lastLassoPoint = lassoPoint;
                     _count++;
@@ -95,6 +95,7 @@ QVector<QPointF> LassoHelper::AddPoints(QList<QPointF> const & points)
 void LassoHelper::AddLassoPoint(QPointF const & lassoPoint)
 {
     DrawingVisual* dv = new DrawingVisual;
+    dv->setObjectName("LassoHelper::DrawingVisual");
     std::unique_ptr<DrawingContext> dc;
     //try
     {
@@ -243,6 +244,7 @@ void LassoHelper::EnsureVisual()
     if (nullptr == _containerVisual)
     {
         _containerVisual = new DrawingVisual();
+        _containerVisual->setObjectName("LassoHelper::ContainerVisual");
     }
 }
 

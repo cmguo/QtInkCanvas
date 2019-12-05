@@ -50,6 +50,7 @@ void ISFClipboardData::DoCopy(DataObject* dataObject)
 
     // Save the data in the data object.
     QBuffer stream;
+    stream.open(QIODevice::ReadWrite);
     Strokes()->Save(&stream);
     stream.seek(0);
     //(new UIPermission(UIPermissionClipboard.AllClipboard)).Assert();//BlessedAssert
@@ -71,6 +72,7 @@ void ISFClipboardData::DoPaste(DataObject  const * dataObject)
     // Check if we have ink data
     QByteArray data = dataObject->data(StrokeCollection::InkSerializedFormat);
     QBuffer stream; stream.setData(data);
+    stream.open(QIODevice::ReadOnly);
 
     QSharedPointer<StrokeCollection> newStrokes;
     bool fSucceeded = false;

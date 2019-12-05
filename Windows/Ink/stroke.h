@@ -325,10 +325,17 @@ protected:
     void StylusPoints_Changed();
 
     /// <summary>
+    /// Private method called when StylusPoints are going to zero
+    /// </summary>
+    /// <param name="sender">The StylusPoints object that is about to go to zero count</param>
+    /// <param name="e">event args</param>
+    void StylusPoints_CountGoingToZero(CancelEventArgs& e);
+
+public:
+    /// <summary>
     /// Computes the bounds of the stroke in the default rendering context
     /// </summary>
     /// <returns></returns>
-public:
     virtual QRectF GetBounds();
 
     /// <summary>

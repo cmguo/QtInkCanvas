@@ -67,7 +67,7 @@ public:
 
     virtual void Draw(QPainter& painter) override;
 private:
-    QLine line_;
+    QLineF line_;
 };
 
 class RectangleGeometry : public Geometry

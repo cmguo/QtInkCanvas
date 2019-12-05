@@ -746,7 +746,7 @@ QRectF StrokeCollection::GetBounds()
         // so this is not possible
 #pragma warning disable 1634, 1691
 #pragma warning suppress 6506
-        bounds |= (stroke->GetBounds());
+        bounds |= stroke->GetBounds();
 #pragma warning restore 1634, 1691
     }
     return bounds;

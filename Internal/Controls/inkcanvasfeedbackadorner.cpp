@@ -38,7 +38,7 @@ InkCanvasFeedbackAdorner::InkCanvasFeedbackAdorner(InkCanvas& inkCanvas)
 /// <summary>
 /// The overridden GetDesiredTransform method
 /// </summary>
-QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform transform)
+QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform const &transform)
 {
     //if ( transform == null )
     //{
@@ -61,7 +61,7 @@ QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform transform)
 /// The OnBoundsUpdated method
 /// </summary>
 /// <param name="rect"></param>
-void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF rect)
+void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF const &rect)
 {
     VerifyAccess();
 
@@ -150,7 +150,7 @@ void InkCanvasFeedbackAdorner::OnRender(DrawingContext& drawingContext)
 /// The method is called by InkCanvasSelection.UpdateFeedbackRect
 /// </summary>
 /// <param name="rect"></param>
-void InkCanvasFeedbackAdorner::UpdateBounds(QRectF rect)
+void InkCanvasFeedbackAdorner::UpdateBounds(QRectF const &rect)
 {
     // Invoke OnBoundsUpdated.
     OnBoundsUpdated(rect);

@@ -1,6 +1,7 @@
 #include "Windows/Input/StylusPlugIns/dynamicrenderer.h"
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
 #include "Internal/Ink/strokenodeiterator.h"
+#include "Internal/Ink/strokenodeoperations.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Media/geometry.h"
@@ -192,13 +193,13 @@ public:
     {
         return _strokeNodeIterator;
     }
-    void SetStrokeNodeIterator(StrokeNodeIterator value)
+    void SetStrokeNodeIterator(StrokeNodeIterator && value)
     {
          //if (value == nullptr)
          //{
          //    throw std::exception();
          //}
-         _strokeNodeIterator = value;
+         _strokeNodeIterator = std::move(value);
     }
     QBrush FillBrush()
     {
@@ -788,8 +789,8 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
     //{
     //    throw std::exception("drawingContext");
     //}
-    QPen pen;
-    pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+    QPen pen(Qt::NoPen);
+    //pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
     drawingContext.DrawGeometry(fillBrush, pen, geometry);
 }
 

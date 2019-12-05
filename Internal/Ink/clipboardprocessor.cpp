@@ -304,11 +304,12 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
 
         QSharedPointer<InkCanvas> inkCanvas(new InkCanvas());
 
+        /*
         // NOTICE-2005/12/06-WAYNEZEN,
         // We already transform the Strokes in CopySelectedData.
         if (strokes->size() != 0)
         {
-            GetInkCanvas().SetStrokes(strokes);
+            inkCanvas->SetStrokes(strokes);
         }
 
         int elementCount = elements.size();
@@ -325,7 +326,6 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                 //      1. Presist the elements to Xaml
                 //      2. Load the xaml to create the new instances of the elements.
                 //      3. Add the new instances to the new container.
-/*
                 string xml;
 
                 try
@@ -345,7 +345,6 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                     inkCanvas = nullptr;
                     break;
                 }
-                */
             }
         }
 
@@ -353,7 +352,7 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
         {
             GetInkCanvas().SetWidth(size.width());
             GetInkCanvas().SetHeight(size.height());
-/*
+
             ClipboardData* data = new XamlClipboardData(new UIElement[] { inkCanvas });
 
             try
@@ -366,8 +365,8 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
                 // operation.
                 inkCanvas = nullptr;
             }
-            */
         }
+        */
 
         return inkCanvas != nullptr;
     }

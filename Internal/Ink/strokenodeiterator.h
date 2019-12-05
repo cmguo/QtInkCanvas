@@ -67,7 +67,7 @@ public:
     /// <param name="operations"></param>
     /// <param name="usePressure"></param>
     StrokeNodeIterator(QSharedPointer<StylusPointCollection> stylusPoints,
-                                StrokeNodeOperations* operations,
+                                std::unique_ptr<StrokeNodeOperations>&& operations,
                                 bool usePressure);
 
     /// <summary>
@@ -120,7 +120,7 @@ public:
 
 private:
     QSharedPointer<StylusPointCollection>  _stylusPoints;
-    StrokeNodeOperations *   _operations;
+    std::unique_ptr<StrokeNodeOperations>   _operations;
     bool                    _usePressure;
 };
 

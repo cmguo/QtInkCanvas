@@ -142,7 +142,7 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
     {
         StrokeNode strokeNode = iterator[i];
         QRectF nodeBounds = strokeNode.GetBounds();
-        currentStrokeSegmentBounds = currentStrokeSegmentBounds.united(nodeBounds);
+        currentStrokeSegmentBounds |= nodeBounds;
 
         // Skip the node if it's outside of the lasso's bounds
         if (currentStrokeSegmentBounds.intersects(_bounds) == true)
@@ -390,6 +390,59 @@ void Lasso::ProduceHitTestResults(
     }
 }
 
+/// <summary>
+/// This flag is set to true when a lasso QPointF has been modified or removed
+/// from the list, which will invalidate incremental lasso hitteting
+/// </summary>
+bool Lasso::IsIncrementalLassoDirty()
+{
+    return _incrementalLassoDirty;
+}
+void Lasso::SetIsIncrementalLassoDirty(bool value)
+{
+    _incrementalLassoDirty = value;
+}
+
+/// <summary>
+/// Get a reference to the lasso points store
+/// </summary>
+QList<QPointF> & Lasso::PointsList()
+{
+    return _points;
+}
+
+/// <summary>
+/// Filter out duplicate points (and maybe in the futuer colinear points).
+/// Return true if the QPointF should be filtered
+/// </summary>
+bool Lasso::Filter(QPointF const & point)
+{
+    // First QPointF should not be filtered
+    if (0 == _points.size())
+    {
+        return false;
+    }
+    // ISSUE-2004/06/14-vsmirnov - If the new segment is collinear with the last one,
+    // don't add the QPointF but modify the last QPointF instead.
+    QPointF lastPoint = _points[_points.size() - 1];
+    QPointF vector = point - lastPoint;
+
+    // The QPointF will be filtered out, i.e. not added to the list, if the distance to the previous QPointF is
+    // within the tolerance
+    return (qAbs(vector.x()) < MinDistance && qAbs(vector.y()) < MinDistance);
+}
+
+/// <summary>
+/// Implemtnation of add point
+/// </summary>
+/// <param name="point"></param>
+void Lasso::AddPointImpl(QPointF const & point)
+{
+    _points.append(point);
+    _bounds = United(_bounds, point);
+}
+
+
 int Lasso::LassoCrossing::CompareTo(LassoCrossing const & crossing) const
 {
     //System.Diagnostics.Debug.Assert(obj is LassoCrossing);
@@ -506,7 +559,7 @@ bool SingleLoopLasso::Filter(QPointF const & point)
             QRectF bounds;
             for (int j = 0; j < points.size(); j++)
             {
-                bounds = bounds.united(QRectF(points[j],points[j]));
+                bounds = United(bounds,points[j]);
             }
             SetBounds(bounds);
         }

@@ -37,12 +37,12 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(QSharedPointer<StylusPointCol
     //    throw std::exception("drawingAttributes");
     //}
 
-    StrokeNodeOperations * operations =
-        StrokeNodeOperations::CreateInstance(*drawingAttributes.GetStylusShape());
+    std::unique_ptr<StrokeNodeOperations> operations(
+        StrokeNodeOperations::CreateInstance(*drawingAttributes.GetStylusShape()));
 
     bool usePressure = !drawingAttributes.IgnorePressure();
 
-    return StrokeNodeIterator(stylusPoints, operations, usePressure);
+    return StrokeNodeIterator(stylusPoints, std::move(operations), usePressure);
 }
 
 
@@ -54,7 +54,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(QSharedPointer<StylusPointCol
 /// <param name="nodeShape">a shape that defines the stroke contour</param>
 StrokeNodeIterator::StrokeNodeIterator(StylusShape & nodeShape)
     : StrokeNodeIterator( nullptr,   //stylusPoints
-            StrokeNodeOperations::CreateInstance(nodeShape),
+            std::unique_ptr<StrokeNodeOperations>(StrokeNodeOperations::CreateInstance(nodeShape)),
             false)  //usePressure)
 {
 }
@@ -67,7 +67,7 @@ StrokeNodeIterator::StrokeNodeIterator(StylusShape & nodeShape)
 /// <param name="drawingAttributes">drawing attributes</param>
 StrokeNodeIterator::StrokeNodeIterator(DrawingAttributes& drawingAttributes)
     : StrokeNodeIterator( nullptr,   //stylusPoints
-            StrokeNodeOperations::CreateInstance(*drawingAttributes.GetStylusShape()),
+            std::unique_ptr<StrokeNodeOperations>(StrokeNodeOperations::CreateInstance(*drawingAttributes.GetStylusShape())),
             !drawingAttributes.IgnorePressure())  //usePressure
 {
 }
@@ -79,15 +79,15 @@ StrokeNodeIterator::StrokeNodeIterator(DrawingAttributes& drawingAttributes)
 /// <param name="operations"></param>
 /// <param name="usePressure"></param>
 StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> stylusPoints,
-                            StrokeNodeOperations* operations,
+                            std::unique_ptr<StrokeNodeOperations>&& operations,
                             bool usePressure)
     : _stylusPoints(stylusPoints)
-    , _operations(operations)
+    , _operations(std::move(operations))
     , _usePressure(usePressure)
 {
     //Note, StylusPointCollection can be nullptr
     //_stylusPoints = stylusPoints;
-    if (operations == nullptr)
+    if (_operations == nullptr)
     {
         throw std::exception("operations");
     }
@@ -118,11 +118,11 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<
         sp.SetX(lastStylusPoint.X());
         sp.SetY(lastStylusPoint.Y());
         sp.SetPressureFactor(lastStylusPoint.PressureFactor());
-        stylusPoints->insert(0, sp);
+        stylusPoints->InsertItem(0, sp);
     }
 
     return StrokeNodeIterator(  stylusPoints,
-                                    _operations,
+                                    std::move(_operations),
                                     _usePressure);
 }
 
@@ -143,11 +143,11 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QVector<QPointF
     if (_stylusPoints != nullptr && _stylusPoints->size() > 0)
     {
         //insert the previous last point
-        newStylusPoints->insert(0, (*_stylusPoints)[_stylusPoints->size() - 1]);
+        newStylusPoints->InsertItem(0, const_cast<StylusPoint&>((*_stylusPoints)[_stylusPoints->size() - 1]));
     }
 
     return StrokeNodeIterator(  newStylusPoints,
-                                    _operations,
+                                    std::move(_operations),
                                     _usePressure);
 }
 
@@ -191,5 +191,5 @@ StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex)
     }
 
     //we use previousIndex+1 because index can skip ahead
-    return StrokeNode(_operations, previousIndex + 1, nodeData, lastNodeData, index == _stylusPoints->size() - 1 /*Is this the last node?*/);
+    return StrokeNode(_operations.get(), previousIndex + 1, nodeData, lastNodeData, index == _stylusPoints->size() - 1 /*Is this the last node?*/);
 }

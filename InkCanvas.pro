@@ -22,6 +22,7 @@ SOURCES += \
     eventargs.cpp \
     finallyhelper.cpp \
     notifycollectionchangedeventargs.cpp \
+    qtpainterdrawingcontext.cpp \
     qtstreamgeometrycontext.cpp
 
 HEADERS += \
@@ -31,6 +32,7 @@ HEADERS += \
     eventargs.h \
     finallyhelper.h \
     notifycollectionchangedeventargs.h \
+    qtpainterdrawingcontext.h \
     qtstreamgeometrycontext.h
 
 include(Windows/Windows.pri)

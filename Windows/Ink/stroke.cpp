@@ -12,6 +12,7 @@
 #include "Windows/Media/drawingcontext.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/events.h"
+#include "finallyhelper.h"
 
 #include <QMatrix>
 #include <QBrush>
@@ -70,6 +71,15 @@ Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointe
 /// </summary>
 void Stroke::Initialize()
 {
+    //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
+    //_stylusPoints.Changed += new EventHandler(StylusPoints_Changed);
+    //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
+    QObject::connect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
+                     this, &Stroke::DrawingAttributes_Changed);
+    QObject::connect(_stylusPoints.get(), &StylusPointCollection::Changed,
+                     this, &Stroke::StylusPoints_Changed);
+    QObject::connect(_stylusPoints.get(), &StylusPointCollection::CountGoingToZero,
+                     this, &Stroke::StylusPoints_CountGoingToZero);
 }
 
 /// <summary>Returns a new stroke that has a deep copy.</summary>
@@ -84,9 +94,9 @@ Stroke::Stroke(Stroke const & o)
     //because they will be replaced after we call
     if (o._cloneStylusPoints)
     {
-        _stylusPoints = o._stylusPoints;
+        _stylusPoints = o._stylusPoints->Clone();
     }
-    _drawingAttributes = o._drawingAttributes;
+    _drawingAttributes = o._drawingAttributes->Clone();
     if (o._extendedProperties != nullptr)
     {
         _extendedProperties = new QVariantMap(*o._extendedProperties);
@@ -152,8 +162,11 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
             _delayRaiseInvalidated = true;
         }
 
-        try
+        //try
         {
+            FinallyHelper final([this]() {
+                _delayRaiseInvalidated = false;
+            });
             _stylusPoints->Transform(transformMatrix);
 
             if (applyToStylusTip)
@@ -178,12 +191,12 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
             }
             //else OnInvalidated was already raised
         }
-        catch (...)
-        {
+        //catch (...)
+        //{
             //We do this in a finally block to reset
             //our state in the event that an exception is thrown.
-            _delayRaiseInvalidated = false;
-        }
+        //    _delayRaiseInvalidated = false;
+        //}
     }
 }
 
@@ -360,7 +373,7 @@ void Stroke::AddInterpolatedBezierPoint(StylusPointCollection & bezierStylusPoin
     StylusPoint newBezierPoint(xVal, yVal, pressure, bezierStylusPoints.Description(), additionalData, false, false);
 
 
-    bezierStylusPoints.push_back(newBezierPoint);
+    bezierStylusPoints.AddItem(newBezierPoint);
 }
 
 /// <summary>
@@ -442,6 +455,8 @@ bool Stroke::ContainsPropertyData(QString propertyDataId)
 void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
 {
     //_drawingAttributes.AttributeChanged -= new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
+    QObject::disconnect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
+                     this, &Stroke::DrawingAttributes_Changed);
 
     DrawingAttributesReplacedEventArgs e(value, _drawingAttributes);
 
@@ -460,6 +475,8 @@ void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
     }
 
     //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
+    QObject::connect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
+                     this, &Stroke::DrawingAttributes_Changed);
     OnDrawingAttributesReplaced(e);
     OnInvalidated(EventArgs::Empty);
     OnPropertyChanged(DrawingAttributesName);
@@ -487,11 +504,19 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
 
     //_stylusPoints.Changed -= new EventHandler(StylusPoints_Changed);
     //_stylusPoints.CountGoingToZero -= new CancelEventHandler(StylusPoints_CountGoingToZero);
+    QObject::disconnect(_stylusPoints.get(), &StylusPointCollection::Changed,
+                     this, &Stroke::StylusPoints_Changed);
+    QObject::disconnect(_stylusPoints.get(), &StylusPointCollection::CountGoingToZero,
+                     this, &Stroke::StylusPoints_CountGoingToZero);
 
     _stylusPoints = value;
 
     //_stylusPoints.Changed += new EventHandler(StylusPoints_Changed);
     //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
+    QObject::connect(_stylusPoints.get(), &StylusPointCollection::Changed,
+                     this, &Stroke::StylusPoints_Changed);
+    QObject::connect(_stylusPoints.get(), &StylusPointCollection::CountGoingToZero,
+                     this, &Stroke::StylusPoints_CountGoingToZero);
 
     // fire notification
     OnStylusPointsReplaced(e);
@@ -659,7 +684,7 @@ QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> source
     {
         //System.Diagnostics.Debug.Assert(sourceStylusPoints.Count > i + beginIndex);
         StylusPoint stylusPoint = (*sourceStylusPoints)[i + beginIndex];
-        stylusPoints->push_back(stylusPoint);
+        stylusPoints->AddItem(stylusPoint);
     }
     //System.Diagnostics.Debug.Assert(stylusPoints.Count == pointCount);
 
@@ -724,11 +749,11 @@ QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> source
         //
         StylusPoint tempEnd = (*stylusPoints)[stylusPoints->size() - 1];
         tempEnd = endPoint;
-        (*stylusPoints)[stylusPoints->size() - 1] = tempEnd;
+        stylusPoints->SetItem(stylusPoints->size() - 1, tempEnd);
 
         StylusPoint tempBegin = (*stylusPoints)[0];
         tempBegin = begPoint;
-        (*stylusPoints)[0] = tempBegin;
+        stylusPoints->SetItem(0, tempBegin);
     }
 
     QSharedPointer<Stroke> stroke = nullptr;
@@ -865,6 +890,12 @@ void Stroke::StylusPoints_Changed()
     }
 }
 
+void Stroke::StylusPoints_CountGoingToZero(CancelEventArgs& e)
+{
+    e.SetCancel(true);
+    //StylusPoints will raise the exception
+}
+
 /// <summary>
 /// Computes the bounds of the stroke in the default rendering context
 /// </summary>
@@ -877,7 +908,7 @@ QRectF Stroke::GetBounds()
         for (int i = 0; i < iterator.Count(); i++)
         {
             StrokeNode strokeNode = iterator[i];
-            _cachedBounds = _cachedBounds.united(strokeNode.GetBounds());
+            _cachedBounds |= strokeNode.GetBounds();
         }
     }
 
@@ -1347,16 +1378,18 @@ void Stroke::DrawInternal(DrawingContext& dc, QSharedPointer<DrawingAttributes> 
     {
         // The Stroke.DrawCore may be overriden in the 3rd party code.
         // The out-side code could throw exception. We use try/finally block to protect our status.
-        try
+        //try
         {
+            FinallyHelper final([this](){
+                _drawAsHollow = false;  // reset _drawAsHollow
+            });
             _drawAsHollow = true;  // temporarily set the flag to be true
             DrawCore(dc, DrawingAttributes);
-            _drawAsHollow = false;  // reset _drawAsHollow
         }
-        catch(...)
-        {
-            _drawAsHollow = false;  // reset _drawAsHollow
-        }
+        //catch(...)
+        //{
+        //    _drawAsHollow = false;  // reset _drawAsHollow
+        //}
     }
     else
     {

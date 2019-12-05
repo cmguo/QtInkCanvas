@@ -97,7 +97,7 @@ QRectF StylusShape::BoundingBox()
     {
         for (QPointF vertex : m_vertices)
         {
-            bbox |= QRectF(vertex, vertex);
+            bbox = United(bbox, vertex);
         }
     }
     //

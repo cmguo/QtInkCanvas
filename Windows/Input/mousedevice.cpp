@@ -7,6 +7,7 @@
 
 #include <QMouseEvent>
 #include <QWidget>
+#include <QApplication>
 
 MouseEvent::MouseEvent(int type)
     : RoutedEvent(type)
@@ -63,7 +64,8 @@ QPointF MouseDevice::GetPosition(Visual* relativeTo)
 /// </summary>
 MouseButtonState MouseDevice::LeftButton()
 {
-    return MouseButtonState::Released;
+    return QApplication::mouseButtons().testFlag(Qt::LeftButton)
+            ? MouseButtonState::Pressed : MouseButtonState::Released;
 }
 
 /// <summary>
@@ -71,7 +73,8 @@ MouseButtonState MouseDevice::LeftButton()
 /// </summary>
 MouseButtonState MouseDevice::RightButton()
 {
-    return MouseButtonState::Released;
+    return QApplication::mouseButtons().testFlag(Qt::RightButton)
+            ? MouseButtonState::Pressed : MouseButtonState::Released;
 }
 
 /// <summary>
@@ -79,17 +82,20 @@ MouseButtonState MouseDevice::RightButton()
 /// </summary>
 MouseButtonState MouseDevice::MiddleButton()
 {
-    return MouseButtonState::Released;
+    return QApplication::mouseButtons().testFlag(Qt::MiddleButton)
+            ? MouseButtonState::Pressed : MouseButtonState::Released;
 }
 
 MouseButtonState MouseDevice::XButton1()
 {
-    return MouseButtonState::Released;
+    return QApplication::mouseButtons().testFlag(Qt::XButton1)
+            ? MouseButtonState::Pressed : MouseButtonState::Released;
 }
 
 MouseButtonState MouseDevice::XButton2()
 {
-    return MouseButtonState::Released;
+    return QApplication::mouseButtons().testFlag(Qt::XButton2)
+            ? MouseButtonState::Pressed : MouseButtonState::Released;
 }
 
 UIElement* MouseDevice::Captured()

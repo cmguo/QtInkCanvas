@@ -18,6 +18,7 @@ class DrawingContext;
 /// </summary>
 class InkCanvasSelectionAdorner : public Adorner
 {
+    Q_OBJECT
 public:
     /// <summary>
     /// Constructor

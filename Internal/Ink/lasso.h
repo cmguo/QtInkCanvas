@@ -116,54 +116,26 @@ public:
     /// This flag is set to true when a lasso QPointF has been modified or removed
     /// from the list, which will invalidate incremental lasso hitteting
     /// </summary>
-    bool IsIncrementalLassoDirty()
-    {
-        return _incrementalLassoDirty;
-    }
-    void SetIsIncrementalLassoDirty(bool value)
-    {
-        _incrementalLassoDirty = value;
-    }
+    bool IsIncrementalLassoDirty();
+    void SetIsIncrementalLassoDirty(bool value);
 
     /// <summary>
     /// Get a reference to the lasso points store
     /// </summary>
-    QList<QPointF> & PointsList()
-    {
-        return _points;
-    }
+    QList<QPointF> & PointsList();
 
     /// <summary>
     /// Filter out duplicate points (and maybe in the futuer colinear points).
     /// Return true if the QPointF should be filtered
     /// </summary>
 protected:
-    virtual bool Filter(QPointF const & point)
-    {
-        // First QPointF should not be filtered
-        if (0 == _points.size())
-        {
-            return false;
-        }
-        // ISSUE-2004/06/14-vsmirnov - If the new segment is collinear with the last one,
-        // don't add the QPointF but modify the last QPointF instead.
-        QPointF lastPoint = _points[_points.size() - 1];
-        QPointF vector = point - lastPoint;
-
-        // The QPointF will be filtered out, i.e. not added to the list, if the distance to the previous QPointF is
-        // within the tolerance
-        return (qAbs(vector.x()) < MinDistance && qAbs(vector.y()) < MinDistance);
-    }
+    virtual bool Filter(QPointF const & point);
 
     /// <summary>
     /// Implemtnation of add point
     /// </summary>
     /// <param name="point"></param>
-    virtual void AddPointImpl(QPointF const & point)
-    {
-        _points.append(point);
-        _bounds = _bounds.united(QRectF(point, point));
-    }
+    virtual void AddPointImpl(QPointF const & point);
 
 private:
     QList<QPointF>          _points;

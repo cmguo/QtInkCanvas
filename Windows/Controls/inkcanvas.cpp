@@ -37,6 +37,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include <QShortcut>
 
 /// <summary>
 /// Public constructor.
@@ -96,7 +97,7 @@ void InkCanvas::Initialize()
     AddHandler(Mouse::QueryCursorEvent,
                RoutedEventHandlerT<InkCanvas, QueryCursorEventArgs, &InkCanvas::_OnQueryCursor>(this));
 
-    dumpObjectTree();
+    _RegisterClipboardHandlers();
 }
 
 /// <summary>
@@ -202,7 +203,7 @@ void InkCanvas::OnPositioningChanged(DependencyObject& d, DependencyPropertyChan
     //if ( uie != nullptr )
     {
         // Make sure the UIElement* is a child of InkCanvasInnerCanvas.
-        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie.Parent());
+        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie.VisualParent());
         if ( p != nullptr )
         {
             if ( e.Property() == InkCanvas::LeftProperty
@@ -268,6 +269,7 @@ void InkCanvas::OnPreApplyTemplate()
     {
         //
         _localAdornerDecorator = new AdornerDecorator();
+        _localAdornerDecorator->setObjectName("InkCanvas::LocalAdornerDecorator");
         InkPresenter& inkPresenter = GetInkPresenter();
 
         // Build the visual tree top-down
@@ -344,6 +346,7 @@ InkCanvasSelectionAdorner& InkCanvas::SelectionAdorner()
     {
         // Create the selection Adorner.
         _selectionAdorner = new InkCanvasSelectionAdorner(&InnerCanvas());
+        _selectionAdorner->setObjectName("InkCanvas::SelectionAdorner");
 
         // Bind the InkCanvas.ActiveEditingModeProperty
         // to SelectionAdorner.VisibilityProperty.
@@ -369,6 +372,7 @@ InkCanvasFeedbackAdorner& InkCanvas::FeedbackAdorner()
     if ( _feedbackAdorner == nullptr )
     {
         _feedbackAdorner = new InkCanvasFeedbackAdorner(*this);
+        _feedbackAdorner->setObjectName("InkCanvas::FeedbackAdorner");
     }
 
     return *_feedbackAdorner;
@@ -2072,9 +2076,10 @@ QSharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(QSharedPointer<Strok
 ///                  and therefore is expected by the user.
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
-/*
+
 void InkCanvas::_RegisterClipboardHandlers()
 {
+    /*
     Type ownerType = typeof(InkCanvas);
 
     CommandHelpers.RegisterCommandHandler(ownerType, ApplicationCommands::Cut,
@@ -2099,8 +2104,21 @@ void InkCanvas::_RegisterClipboardHandlers()
     {
         CodeAccessPermission.RevertAssert();
     }
+    */
+    QShortcut * shortcutCopy = new QShortcut(QKeySequence(QKeySequence::Copy), this);
+    QObject::connect(shortcutCopy, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    QShortcut * shortcutCut = new QShortcut(QKeySequence(QKeySequence::Cut), this);
+    QObject::connect(shortcutCut, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    QShortcut * shortcutPaste = new QShortcut(QKeySequence(QKeySequence::Paste), this);
+    QObject::connect(shortcutPaste, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    QShortcut * shortcutSelectAll = new QShortcut(QKeySequence(QKeySequence::SelectAll), this);
+    QObject::connect(shortcutSelectAll, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    QShortcut * shortcutDelete = new QShortcut(QKeySequence(QKeySequence::Delete), this);
+    QObject::connect(shortcutDelete, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    QShortcut * shortcutDeselect = new QShortcut(QKeySequence(QKeySequence::Deselect), this);
+    QObject::connect(shortcutDeselect, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
 }
-*/
+
 /// <summary>
 /// Private helper used to ensure that any stroke collection
 /// passed to the InkCanvas is valid.  Throws exceptions if the argument is invalid
@@ -2310,9 +2328,10 @@ void InkCanvas::DeleteCurrentSelection(bool removeSelectedStrokes, bool removeSe
 /// </summary>
 /// <param name="sender"></param>
 /// <param name="args"></param>
-/*
-void InkCanvas::_OnCommandExecuted(DependencyObject& sender, ExecutedRoutedEventArgs& args)
+
+void InkCanvas::_OnCommandExecuted()
 {
+    /*
     ICommand command = args.Command;
     InkCanvas& inkCanvas = static_cast<InkCanvas&>(sender);
 
@@ -2365,8 +2384,31 @@ void InkCanvas::_OnCommandExecuted(DependencyObject& sender, ExecutedRoutedEvent
             inkCanvas.ClearSelectionRaiseSelectionChanging();
         }
     }
+    */
+    QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
+    if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {
+        if (shortcut->key().matches(QKeySequence::Delete)) {
+            DeleteCurrentSelection(true, true);
+        } else if (shortcut->key().matches(QKeySequence::Cut)) {
+            CutSelection();
+        } else if (shortcut->key().matches(QKeySequence::Copy)) {
+            CopySelection();
+        } else if (shortcut->key().matches(QKeySequence::SelectAll)) {
+            if ( ActiveEditingMode() == InkCanvasEditingMode::Select )
+            {
+                QList<UIElement*> uiElementCollection;// = Children();
+                Select(Strokes(), uiElementCollection);
+            }
+        } else if (shortcut->key().matches(QKeySequence::Paste)) {
+            try {
+                Paste();
+            } catch (...) {
+            }
+        } else if (shortcut->key().matches(QKeySequence::Deselect)) {
+            ClearSelectionRaiseSelectionChanging();
+        }
+    }
 }
-*/
 
 /// <summary>
 /// A class handler for querying the enabled status of the commands.
@@ -2472,8 +2514,6 @@ void InkCanvas::_OnDeviceDown(EventArgs& e)
 void InkCanvas::_OnDeviceUp(EventArgs& e)
 {
     GetEditingCoordinator().OnInkCanvasDeviceUp(static_cast<InputEventArgs&>(e));
-
-    dumpObjectTree();
 }
 
 /// <summary>

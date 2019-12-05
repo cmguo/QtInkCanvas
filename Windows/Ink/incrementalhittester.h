@@ -223,7 +223,7 @@ public:
     {
         if (_selectedStrokes != nullptr)
         {
-            QSharedPointer<StrokeCollection> sc;
+            QSharedPointer<StrokeCollection> sc(new StrokeCollection);
             sc->Add(_selectedStrokes);
             return sc;
         }
@@ -240,7 +240,7 @@ public:
     {
         if (_deselectedStrokes != nullptr)
         {
-            QSharedPointer<StrokeCollection> sc;
+            QSharedPointer<StrokeCollection> sc(new StrokeCollection);
             sc->Add(_deselectedStrokes);
             return sc;
         }

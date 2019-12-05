@@ -48,6 +48,7 @@ void GeometryGroup::Draw(QPainter &painter)
 }
 
 LineGeometry::LineGeometry(QPointF point0, QPointF point1)
+    : line_(point0, point1)
 {
 }
 
@@ -57,19 +58,27 @@ void LineGeometry::Draw(QPainter &painter)
 }
 
 RectangleGeometry::RectangleGeometry(QRectF rectangle)
+    : RectangleGeometry(rectangle, 0, 0)
 {
 }
 RectangleGeometry::RectangleGeometry(QRectF rectangle, double radiusX, double radiusY)
+    : rectangle_(rectangle)
+    , radius_(radiusX, radiusY)
 {
 }
 
 void RectangleGeometry::Draw(QPainter &painter)
 {
-    painter.drawRect(rectangle_);
+    if (radius_.isEmpty())
+        painter.drawRect(rectangle_);
+    else
+        painter.drawRoundedRect(rectangle_, radius_.width(), radius_.height());
 }
 
 EllipseGeometry::EllipseGeometry(QPointF center, double radiusX, double radiusY)
+    : rectangle_(0, 0, radiusX, radiusY)
 {
+    rectangle_.moveCenter(center);
 }
 
 void EllipseGeometry::Draw(QPainter &painter)

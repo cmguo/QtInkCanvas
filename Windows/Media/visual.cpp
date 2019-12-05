@@ -29,6 +29,7 @@ QTransform Visual::TransformToDescendant(Visual* visual)
 void Visual::AddVisualChild(Visual * visual)
 {
     visual->resize(size());
+    visual->move(0, 0);
     visual->setParent(this);
     if (isVisible())
         visual->show();
@@ -38,6 +39,11 @@ void Visual::RemoveVisualChild(Visual * visual)
 {
     if (visual->parent() == this)
         visual->setParent(nullptr);
+}
+
+Visual *Visual::VisualParent()
+{
+    return qobject_cast<Visual*>(parent());
 }
 
 void Visual::OnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved)

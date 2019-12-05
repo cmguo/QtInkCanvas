@@ -329,7 +329,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         else
                         {
                             QPointF intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
-                            QRectF union_ = node1Bounds.united(node2Bounds);
+                            QRectF union_ = node1Bounds | node2Bounds;
                             //union_.Inflate(1.0, 1.0);
                             union_.adjust(-1.0, -1.0, 1.0, 1.0);
                             //make sure we're not off in space
@@ -404,7 +404,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         else
                         {
                             QPointF intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
-                            QRectF union_ = node1Bounds.united(node2Bounds);
+                            QRectF union_ = node1Bounds | node2Bounds;
                             //union_.Inflate(1.0, 1.0);
                             union_.adjust(-1.0, -1.0, 1.0, 1.0);
                             //make sure we're not off in space
@@ -537,7 +537,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     else
                     {
                         QPointF intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
-                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode).united(_operations->GetNodeBounds(_lastNode));
+                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
                         node12.adjust(-1.0, -1.0, 1.0, 1.0);
                         //make sure we're not off in space
                         if (node12.contains(intersection))
@@ -582,7 +582,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     else
                     {
                         QPointF intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
-                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode).united(_operations->GetNodeBounds(_lastNode));
+                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
                         node12.adjust(-1.0, -1.0, 1.0, 1.0);
                         //make sure we're not off in space
                         if (node12.contains(intersection))

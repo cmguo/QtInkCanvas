@@ -51,7 +51,7 @@ void ErasingStroke::MoveTo(QVector<QPointF>const & path)
     for (int i = 0; i < _nodeIterator.Count(); i++)
     {
         StrokeNode strokeNode = _nodeIterator[i];
-        _bounds |= (strokeNode.GetBoundsConnected());
+        _bounds |= strokeNode.GetBoundsConnected();
         _erasingStrokeNodes.append(strokeNode);
     }
 #if POINTS_FILTER_TRACE
@@ -80,7 +80,7 @@ bool ErasingStroke::HitTest(StrokeNodeIterator iterator)
     {
         StrokeNode inkStrokeNode = iterator[i];
         QRectF inkNodeBounds = inkStrokeNode.GetBounds();
-        inkSegmentBounds |= (inkNodeBounds);
+        inkSegmentBounds |= inkNodeBounds;
 
         if (inkSegmentBounds.intersects(_bounds))
         {
@@ -123,7 +123,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
     {
         StrokeNode inkStrokeNode = iterator[x];
         QRectF inkNodeBounds = inkStrokeNode.GetBounds();
-        inkSegmentBounds |= (inkNodeBounds);
+        inkSegmentBounds |= inkNodeBounds;
 
         if (inkSegmentBounds.intersects(_bounds))
         {

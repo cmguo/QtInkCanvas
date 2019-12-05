@@ -281,4 +281,28 @@ inline void RemoveRange(QList<T> list, int start, int count)
     list.erase(list.begin() + start, list.begin() + start + count);
 }
 
+inline QRectF United(QRectF const & rect, QPointF const & point)
+{
+    if (rect.isNull()) {
+        if (rect.x() == 0.0 && rect.y() == 0.0)
+            return QRectF(point, point);
+        else
+            return QRectF(rect.topLeft(), point).normalized();
+    } else {
+        qreal l = 0;
+        qreal t = 0;
+        qreal r = 0;
+        qreal b = 0;
+        if (point.x() < rect.left())
+            l = point.x() - rect.left();
+        if (point.y() < rect.top())
+            t = point.y() - rect.top();
+        if (point.x() > rect.right())
+            r = point.x() - rect.right();
+        if (point.y() > rect.bottom())
+            b = point.y() - rect.bottom();
+        return rect.adjusted(l, t, r, b);
+    }
+}
+
 #endif // DOUBLEUTIL_H

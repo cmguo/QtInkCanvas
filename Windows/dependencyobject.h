@@ -47,9 +47,11 @@ public:
 
     void InvalidateSubProperty(DependencyProperty const * prop);
 
-    Dispatcher* GetDispatcher();
+    Dispatcher* GetDispatcher() const;
 
     void VerifyAccess() const;
+
+    bool CheckAccess() const;
 
 private:
     QMap<DependencyProperty const *, QVariant> props_;

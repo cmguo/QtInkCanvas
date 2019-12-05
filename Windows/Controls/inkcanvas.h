@@ -1399,7 +1399,7 @@ private:
     ///                  and therefore is expected by the user.
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    static void _RegisterClipboardHandlers();
+    void _RegisterClipboardHandlers();
 
     /// <summary>
     /// Private helper used to ensure that any stroke collection
@@ -1461,7 +1461,7 @@ private:
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    static void _OnCommandExecuted(DependencyObject& sender, ExecutedRoutedEventArgs& args);
+    void _OnCommandExecuted();
 
     /// <summary>
     /// A class handler for querying the enabled status of the commands.
