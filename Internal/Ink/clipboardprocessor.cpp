@@ -132,11 +132,11 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
         }
 
         // Then add XAML data.
-        if ( CopySelectionInXAML(dataObject, strokes, elements, transform, bounds.size()) )
-        {
+        //if ( CopySelectionInXAML(dataObject, strokes, elements, transform, bounds.size()) )
+        //{
             // We have to create an InkCanvas as a container and add all the selection to it.
-            copiedDataFormat |= InkCanvasClipboardDataFormat::XAML;
-        }
+        //    copiedDataFormat |= InkCanvasClipboardDataFormat::XAML;
+        //}
     }
     else
     {

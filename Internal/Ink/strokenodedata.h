@@ -2,6 +2,7 @@
 #define STROKENODEDATA_H
 
 #include "Internal/doubleutil.h"
+#include "debug.h"
 
 #include <QPointF>
 
@@ -40,7 +41,7 @@ public:
     /// <param name="pressure">pressure scaling factor at the node</param>
     StrokeNodeData(QPointF const & position, double pressure)
     {
-        //System.Diagnostics.Debug.Assert(DoubleUtil::GreaterThan((double)pressure, 0d));
+        Debug::Assert(DoubleUtil::GreaterThan(pressure, 0));
 
         _position = position;
         _pressure = pressure;
@@ -49,7 +50,7 @@ public:
     /// <summary> Tells whether the structre was properly initialized </summary>
     bool IsEmpty() const
     {
-        //Debug.Assert(DoubleUtil::AreClose(0, s_empty._pressure));
+        Debug::Assert(DoubleUtil::AreClose(0, s_empty._pressure));
         return DoubleUtil::AreClose(_pressure, s_empty._pressure);
     }
 

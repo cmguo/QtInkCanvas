@@ -749,12 +749,12 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 /// </summary>
 void StrokeRenderer::RenderTwoStrokeNodes(   StreamGeometryContext& context,
                                             StrokeNode& strokeNodePrevious,
-                                            QRectF strokeNodePreviousBounds,
+                                            QRectF const & strokeNodePreviousBounds,
                                             StrokeNode& strokeNodeCurrent,
-                                            QRectF strokeNodeCurrentBounds,
-                                            QList<QPointF> pointBuffer1,
-                                            QList<QPointF> pointBuffer2,
-                                            QList<QPointF> pointBuffer3
+                                            QRectF const & strokeNodeCurrentBounds,
+                                            QList<QPointF>& pointBuffer1,
+                                            QList<QPointF>& pointBuffer2,
+                                            QList<QPointF>& pointBuffer3
 #if DEBUG_RENDERING_FEEDBACK
                                            ,DrawingContext debugDC,
                                            double feedbackSize,
@@ -807,7 +807,7 @@ void StrokeRenderer::RenderTwoStrokeNodes(   StreamGeometryContext& context,
 /// <summary>
 /// ReverseDCPointsRenderAndClear
 /// </summary>
-void StrokeRenderer::ReverseDCPointsRenderAndClear(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints, bool isEllipse, bool clear)
+void StrokeRenderer::ReverseDCPointsRenderAndClear(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints, QList<QPointF>& polyLinePoints, bool isEllipse, bool clear)
 {
     //we need to reverse the cd side points
     QPointF temp;
@@ -836,7 +836,7 @@ void StrokeRenderer::ReverseDCPointsRenderAndClear(StreamGeometryContext& contex
 /// <summary>
 /// FuzzyContains for two rects
 /// </summary>
-StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QRectF rect2, double percentIntersect)
+StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF const & rect1, QRectF const & rect2, double percentIntersect)
 {
     Debug::Assert(percentIntersect >= 0.0 && percentIntersect <= 100.0);
 
@@ -872,7 +872,7 @@ StrokeRenderer::RectCompareResult StrokeRenderer::FuzzyContains(QRectF rect1, QR
 /// <summary>
 /// Private helper to render a path figure to the SGC
 /// </summary>
-void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> points, bool isBezierFigure)
+void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> & points, bool isBezierFigure)
 {
     //Debug::Assert(context != nullptr);
     //Debug::Assert(points != nullptr);
@@ -900,7 +900,7 @@ void StrokeRenderer::AddFigureToStreamGeometryContext(StreamGeometryContext& con
 /// <summary>
 /// Private helper to render a path figure to the SGC
 /// </summary>
-void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints)
+void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints)
 {
     //Debug::Assert(context != nullptr);
     //Debug::Assert(abPoints != nullptr && dcPoints != nullptr);
@@ -923,7 +923,7 @@ void StrokeRenderer::AddPolylineFigureToStreamGeometryContext(StreamGeometryCont
 /// <summary>
 /// Private helper to render a path figure to the SGC
 /// </summary>
-void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints)
+void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints, QList<QPointF>& polyLinePoints)
 {
     //Debug::Assert(context != nullptr);
     //Debug::Assert(abPoints != nullptr && dcPoints != nullptr);
@@ -997,7 +997,7 @@ void StrokeRenderer::AddArcToFigureToStreamGeometryContext(StreamGeometryContext
 /// calculates the angle between the previousPosition and the current one and then computes the delta between
 /// the lastAngle.  lastAngle is also updated
 /// </summary>
-double StrokeRenderer::GetAngleDeltaFromLast(QPointF previousPosition, QPointF currentPosition, double& lastAngle)
+double StrokeRenderer::GetAngleDeltaFromLast(QPointF const & previousPosition, QPointF const & currentPosition, double& lastAngle)
 {
     double delta = 0.0;
 
@@ -1036,7 +1036,7 @@ double StrokeRenderer::GetAngleDeltaFromLast(QPointF previousPosition, QPointF c
 /// calculates the angle between the previousPosition and the current one and then computes the delta between
 /// the lastAngle.  lastAngle is also updated
 /// </summary>
-double StrokeRenderer::GetAngleBetween(QPointF previousPosition, QPointF currentPosition)
+double StrokeRenderer::GetAngleBetween(QPointF const & previousPosition, QPointF const & currentPosition)
 {
     double angle = 0.0;
 

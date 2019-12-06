@@ -21,7 +21,7 @@ StrokeNodeOperations * StrokeNodeOperations::CreateInstance(StylusShape & nodeSh
 /// <param name="nodeShape">shape of the nodes</param>
 StrokeNodeOperations::StrokeNodeOperations(StylusShape & nodeShape)
 {
-    ////System.Diagnostics.Debug.Assert(nodeShape != null);
+    //Debug::Assert(nodeShape != nullptr);
     _vertices = nodeShape.GetVerticesAsVectors();
 }
 
@@ -51,7 +51,7 @@ QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData const & node)
     }
 
     QRectF boundingBox = _shapeBounds;
-    //System.Diagnostics.Debug.Assert((boundingBox.x() <= 0) && (boundingBox.y() <= 0));
+    Debug::Assert((boundingBox.x() <= 0) && (boundingBox.y() <= 0));
 
     double pressureFactor = node.PressureFactor();
     if (!DoubleUtil::AreClose(pressureFactor,1))
@@ -97,7 +97,7 @@ void StrokeNodeOperations::GetNodeContourPoints(StrokeNodeData const & node, QLi
 /// <returns>contour segments enumerator</returns>
 QList<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData const& node, Quad & quad)
 {
-    //System.Diagnostics.Debug.Assert(node.IsEmpty() == false);
+    Debug::Assert(node.IsEmpty() == false);
 
     QList<ContourSegment> result;
     if (quad.IsEmpty())
@@ -297,7 +297,7 @@ bool StrokeNodeOperations::HitTest(
             // Instead of applying pressure to the node, do reverse scaling on
             // the hitting segment. This allows us use the original array of vertices
             // in hit-testing.
-            //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(pressureFactor) == false);
+            Debug::Assert(DoubleUtil::IsZero(pressureFactor) == false);
             hitBegin /= pressureFactor;
             hitEnd /= pressureFactor;
         }
@@ -348,7 +348,7 @@ bool StrokeNodeOperations::HitTest(
                 break;
             }
         }
-        //System.Diagnostics.Debug.Assert(count > 0);
+        Debug::Assert(count > 0);
         // This loop does the iteration thru the edges of the ink segment
         // clockwise from quad.D to quad.C.
         for (int node = 0; node < 2; node++)
@@ -374,7 +374,7 @@ bool StrokeNodeOperations::HitTest(
                 vertex = nextVertex;
                 count--;
             }
-            //System.Diagnostics.Debug.Assert(count > 0);
+            Debug::Assert(count > 0);
 
             if (node == 0)
             {
@@ -396,7 +396,7 @@ bool StrokeNodeOperations::HitTest(
                     i = (i + 1) % _vertices.size();
                     count--;
                 }
-                //System.Diagnostics.Debug.Assert(count > 0);
+                Debug::Assert(count > 0);
                 i--;
             }
         }
@@ -463,7 +463,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
         QPointF hitEnd = hitEndPoint - position;
         if (pressureFactor != 1)
         {
-            //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(pressureFactor) == false);
+            Debug::Assert(DoubleUtil::IsZero(pressureFactor) == false);
             hitBegin /= pressureFactor;
             hitEnd /= pressureFactor;
         }
@@ -609,7 +609,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
             double findex = CalculateClipLocation(hitSegment, beginNode, spineQPointF, pressureDelta);
             if (findex != StrokeFIndices::BeforeFirst)
             {
-                //System.Diagnostics.Debug.Assert(findex >= 0 && findex <= 1);
+                Debug::Assert(findex >= 0 && findex <= 1);
                 if (result.BeginFIndex() > findex)
                 {
                     result.SetBeginFIndex(findex);
@@ -623,7 +623,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
             double findex = CalculateClipLocation(hitSegment, endNode, spineQPointFReversed, pressureDeltaReversed);
             if (findex != StrokeFIndices::BeforeFirst)
             {
-                //System.Diagnostics.Debug.Assert(findex >= 0 && findex <= 1);
+                Debug::Assert(findex >= 0 && findex <= 1);
                 findex = 1 - findex;
                 if (result.EndFIndex() < findex)
                 {
@@ -760,7 +760,7 @@ double StrokeNodeOperations::ClipTest(QPointF const  &spineQPointF, double press
             {
                 // This segment is collinear with the edge connecting the nodes,
                 // no need to hit-test the other edges.
-                //System.Diagnostics.Debug.Assert(true == DoubleUtil::IsBetweenZeroAndOne(findex));
+                Debug::Assert(true == DoubleUtil::IsBetweenZeroAndOne(findex));
                 break;
             }
             // The hitting segment intersects the line of the edge connecting
@@ -845,7 +845,7 @@ double StrokeNodeOperations::ClipTestArc(QPointF const & spineQPointF, double pr
                     {
                         // this is it
                         findex = GetPositionBetweenLines(nextVertex, nextNode, hitPoint - lastVertex);
-                        //System.Diagnostics.Debug.Assert(DoubleUtil::IsBetweenZeroAndOne(findex));
+                        Debug::Assert(DoubleUtil::IsBetweenZeroAndOne(findex));
                         break;
                     }
                 }
@@ -887,7 +887,7 @@ double StrokeNodeOperations::ClipTestArc(QPointF const & spineQPointF, double pr
                 {
                     double hitPointFIndex = findexNearest - sqrt(
                         squaredDistanceFromNearestToHitPoint / nextNode.size()Squared);
-                    //System.Diagnostics.Debug.Assert(DoubleUtil::GreaterThanOrClose(hitPointFIndex, 0));
+                    Debug::Assert(DoubleUtil::GreaterThanOrClose(hitPointFIndex, 0));
                     if (hitPointFIndex < findex)
                     {
                         findex = hitPointFIndex;
@@ -944,7 +944,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
             QPointF hitRadius = hitSegment.Radius();
             if (!DoubleUtil::AreClose(pressureFactor, 1))
             {
-                //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(pressureFactor) == false);
+                Debug::Assert(DoubleUtil::IsZero(pressureFactor) == false);
                 hitCenter /= pressureFactor;
                 hitRadius /= pressureFactor;
             }
@@ -969,7 +969,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
             QPointF hitEnd = hitBegin + hitSegment.Vector();
             if (!DoubleUtil::AreClose(pressureFactor, 1))
             {
-                //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(pressureFactor) == false);
+                Debug::Assert(DoubleUtil::IsZero(pressureFactor) == false);
                 hitBegin /= pressureFactor;
                 hitEnd /= pressureFactor;
             }
@@ -1001,7 +1001,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
 bool StrokeNodeOperations::HitTestInkContour(
     QList<ContourSegment> const& hitContour, Quad& quad, StrokeNodeData const& beginNode, StrokeNodeData const &endNode)
 {
-    //System.Diagnostics.Debug.Assert(!quad.IsEmpty());
+    Debug::Assert(!quad.IsEmpty());
     bool isHit = false;
 
     // When hit-testing a contour against another contour, like in this case,
@@ -1071,7 +1071,7 @@ bool StrokeNodeOperations::HitTestInkContour(
                 break;
             }
         }
-        //System.Diagnostics.Debug.Assert(i < count);
+        Debug::Assert(i < count);
 
         int k;
         for (k = 0; k < 2; k++)
@@ -1111,7 +1111,7 @@ bool StrokeNodeOperations::HitTestInkContour(
                 vertex = nextVertex;
                 count--;
             }
-            //System.Diagnostics.Debug.Assert(count > 0);
+            Debug::Assert(count > 0);
 
             if (k == 0)
             {
@@ -1133,7 +1133,7 @@ bool StrokeNodeOperations::HitTestInkContour(
                     i = (i + 1) % _vertices.size();
                     count--;
                 }
-                //System.Diagnostics.Debug.Assert(count > 0);
+                Debug::Assert(count > 0);
                 i--;
             }
         }
@@ -1206,7 +1206,7 @@ bool StrokeNodeOperations::HitTestStrokeNodes(
 
         if (pressureFactor != 1)
         {
-            //System.Diagnostics.Debug.Assert(DoubleUtil::IsZero(pressureFactor) == false);
+            Debug::Assert(DoubleUtil::IsZero(pressureFactor) == false);
             hitBegin /= pressureFactor;
             hitEnd /= pressureFactor;
         }
@@ -1278,7 +1278,7 @@ double StrokeNodeOperations::CalculateClipLocation(
         }
         else
         {
-            //System.Diagnostics.Debug.Assert(findex >= 0 && findex <= 1);
+            Debug::Assert(findex >= 0 && findex <= 1);
         }
     }
     return findex;
@@ -1313,7 +1313,7 @@ bool StrokeNodeOperations::IsInvalidCutTestResult(StrokeFIndices const & result)
 /// <returns>true if hit; false otherwise</returns>
 bool StrokeNodeOperations::HitTestPolygonSegment(QVector<QPointF> & vertices, QPointF& hitBegin, QPointF& hitEnd)
 {
-    //System.Diagnostics.Debug.Assert((null != vertices) && (2 < vertices.Length));
+    Debug::Assert(/*(null != vertices) && */(2 < vertices.size()));
 
     HitResult hitResult = HitResult::Right, firstResult = HitResult::Right, prevResult = HitResult::Right;
     int count = vertices.size();
@@ -1351,7 +1351,7 @@ bool StrokeNodeOperations::HitTestPolygonSegment(QVector<QPointF> & vertices, QP
 /// <returns>true if hit, false otherwise</returns>
 bool StrokeNodeOperations::HitTestQuadSegment(Quad & quad, QPointF const& hitBegin, QPointF const& hitEnd)
 {
-    //System.Diagnostics.Debug.Assert(quad.IsEmpty == false);
+    Debug::Assert(quad.IsEmpty() == false);
 
     HitResult hitResult = HitResult::Right, firstResult = HitResult::Right, prevResult = HitResult::Right;
     int count = 4;
@@ -1396,7 +1396,7 @@ bool StrokeNodeOperations::HitTestPolygonCircle(QVector<QPointF>& vertices, QPoi
     // NTRAID#WINDOWS-1448096-2006/1/9-SAMGEO, this code is not called, but will be in VNext
     throw new std::exception();
     /*
-    //System.Diagnostics.Debug.Assert((null != vertices) && (2 < vertices.Length));
+    Debug::Assert((null != vertices) && (2 < vertices.Length));
 
     HitResult hitResult = HitResult::Right, firstResult = HitResult::Right, prevResult = HitResult::Right;
     int count = vertices.Length;
@@ -1442,7 +1442,7 @@ bool StrokeNodeOperations::HitTestQuadCircle(Quad const& quad, QPointF const& ce
     // NTRAID#WINDOWS-1448096-2006/1/9-SAMGEO, this code is not called, but will be in VNext
     throw new std::exception();
     /*
-    //System.Diagnostics.Debug.Assert(quad.IsEmpty == false);
+    Debug::Assert(quad.IsEmpty == false);
 
     QPointF centerQPointF &= (Vector)center;
     HitResult hitResult = HitResult::Right, firstResult = HitResult::Right, prevResult = HitResult::Right;
@@ -1778,7 +1778,7 @@ double StrokeNodeOperations::GetPositionBetweenLines(QPointF &linesVector, QPoin
     QPointF nearestOnSecond = GetProjection(hitPoint, hitPoint + linesVector);
 
     QPointF shortest = nearestOnFirst - nearestOnSecond;
-    //System.Diagnostics.Debug.Assert((false == DoubleUtil::IsZero(shortest.x())) || (false == DoubleUtil::IsZero(shortest.y())));
+    Debug::Assert((false == DoubleUtil::IsZero(shortest.x())) || (false == DoubleUtil::IsZero(shortest.y())));
 
     //return DoubleUtil::IsZero(shortest.x()) ? (nearestOnFirst.Y / shortest.y()) : (nearestOnFirst.X / shortest.x());
     return sqrt(LengthSquared(nearestOnFirst) / LengthSquared(shortest));

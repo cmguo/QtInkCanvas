@@ -60,12 +60,12 @@ private:
     /// </summary>
     static void RenderTwoStrokeNodes(   StreamGeometryContext& context,
                                                 StrokeNode& strokeNodePrevious,
-                                                QRectF strokeNodePreviousBounds,
+                                                QRectF const & strokeNodePreviousBounds,
                                                 StrokeNode& strokeNodeCurrent,
-                                                QRectF strokeNodeCurrentBounds,
-                                                QList<QPointF> pointBuffer1,
-                                                QList<QPointF> pointBuffer2,
-                                                QList<QPointF> pointBuffer3
+                                                QRectF const & strokeNodeCurrentBounds,
+                                                QList<QPointF>& pointBuffer1,
+                                                QList<QPointF>& pointBuffer2,
+                                                QList<QPointF>& pointBuffer3
 #if DEBUG_RENDERING_FEEDBACK
                                                ,DrawingContext debugDC,
                                                double feedbackSize,
@@ -86,39 +86,39 @@ private:
     /// <summary>
     /// ReverseDCPointsRenderAndClear
     /// </summary>
-    static void ReverseDCPointsRenderAndClear(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints, bool isEllipse, bool clear);
+    static void ReverseDCPointsRenderAndClear(StreamGeometryContext& context, QList<QPointF> & abPoints, QList<QPointF> & dcPoints, QList<QPointF> & polyLinePoints, bool isEllipse, bool clear);
 
     /// <summary>
     /// FuzzyContains for two rects
     /// </summary>
-    static RectCompareResult FuzzyContains(QRectF rect1, QRectF rect2, double percentIntersect);
+    static RectCompareResult FuzzyContains(QRectF const & rect1, QRectF const & rect2, double percentIntersect);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> points, bool isBezierFigure);
+    static void AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& points, bool isBezierFigure);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints);
+    static void AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF> abPoints, QList<QPointF> dcPoints, QList<QPointF> polyLinePoints);
+    static void AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints, QList<QPointF>& polyLinePoints);
 
     /// <summary>
     /// calculates the angle between the previousPosition and the current one and then computes the delta between
     /// the lastAngle.  lastAngle is also updated
     /// </summary>
-    static double GetAngleDeltaFromLast(QPointF previousPosition, QPointF currentPosition, double& lastAngle);
+    static double GetAngleDeltaFromLast(QPointF const & previousPosition, QPointF const & currentPosition, double& lastAngle);
 
     /// <summary>
     /// calculates the angle between the previousPosition and the current one and then computes the delta between
     /// the lastAngle.  lastAngle is also updated
     /// </summary>
-    static double GetAngleBetween(QPointF previousPosition, QPointF currentPosition);
+    static double GetAngleBetween(QPointF const & previousPosition, QPointF const & currentPosition);
 
 public:
     /// <summary>
