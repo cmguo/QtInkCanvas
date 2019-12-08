@@ -4,6 +4,7 @@ HEADERS += \
     $$PWD/drawingflags.h \
     $$PWD/events.h \
     $$PWD/extendedproperty.h \
+    $$PWD/extendedpropertycollection.h \
     $$PWD/gesturerecognitionresult.h \
     $$PWD/gesturerecognizer.h \
     $$PWD/incrementalhittester.h \
@@ -19,6 +20,7 @@ SOURCES += \
     $$PWD/drawingattributes.cpp \
     $$PWD/drawingflags.cpp \
     $$PWD/extendedproperty.cpp \
+    $$PWD/extendedpropertycollection.cpp \
     $$PWD/gesturerecognitionresult.cpp \
     $$PWD/gesturerecognizer.cpp \
     $$PWD/incrementalhittester.cpp \

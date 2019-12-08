@@ -3,6 +3,7 @@
 #include "strokecollection.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Windows/Ink/stylusshape.h"
+#include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Input/styluspoint.h"
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/doubleutil.h"
@@ -52,7 +53,7 @@ Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointe
 /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
 /// <param name="drawingAttributes">drawingAttributes</param>
 /// <param name="extendedProperties">extendedProperties</param>
-Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, QVariantMap * extendedProperties)
+Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, ExtendedPropertyCollection* extendedProperties)
 {
     if (stylusPoints->size() == 0)
     {
@@ -99,7 +100,7 @@ Stroke::Stroke(Stroke const & o)
     _drawingAttributes = o._drawingAttributes->Clone();
     if (o._extendedProperties != nullptr)
     {
-        _extendedProperties = new QVariantMap(*o._extendedProperties);
+        _extendedProperties = o._extendedProperties->Clone();
     }
     //set up listeners
     Initialize();
@@ -381,7 +382,7 @@ void Stroke::AddInterpolatedBezierPoint(StylusPointCollection & bezierStylusPoin
 /// </summary>
 /// <param name="propertyDataId"></param>
 /// <param name="propertyData"></param>
-void Stroke::AddPropertyData(QString propertyDataId, QVariant propertyData)
+void Stroke::AddPropertyData(QUuid const & propertyDataId, QVariant propertyData)
 {
     DrawingAttributes::ValidateStylusTipTransform(propertyDataId, propertyData);
 
@@ -389,11 +390,11 @@ void Stroke::AddPropertyData(QString propertyDataId, QVariant propertyData)
     if (ContainsPropertyData(propertyDataId))
     {
         oldValue = GetPropertyData(propertyDataId);
-        (*ExtendedProperties())[propertyDataId] = propertyData;
+        ExtendedProperties()[propertyDataId] = propertyData;
     }
     else
     {
-        (*ExtendedProperties()).insert(propertyDataId, propertyData);
+        ExtendedProperties().Add(propertyDataId, propertyData);
     }
 
     // fire notification
@@ -406,10 +407,10 @@ void Stroke::AddPropertyData(QString propertyDataId, QVariant propertyData)
 /// Allows removal of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-void Stroke::RemovePropertyData(QString propertyDataId)
+void Stroke::RemovePropertyData(QUuid const & propertyDataId)
 {
     QVariant propertyData = GetPropertyData(propertyDataId);
-    (*ExtendedProperties()).remove(propertyDataId);
+    ExtendedProperties().Remove(propertyDataId);
     // fire notification
     PropertyDataChangedEventArgs e(propertyDataId, QVariant(), propertyData);
     OnPropertyDataChanged(e);
@@ -419,26 +420,26 @@ void Stroke::RemovePropertyData(QString propertyDataId)
 /// Allows retrieval of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-QVariant Stroke::GetPropertyData(QString propertyDataId)
+QVariant Stroke::GetPropertyData(QUuid const & propertyDataId)
 {
-    return (*ExtendedProperties())[propertyDataId];
+    return ExtendedProperties()[propertyDataId];
 }
 
 /// <summary>
 /// Allows retrieval of a Array of guids that are contained in the EPC
 /// </summary>
-QVector<QString> Stroke::GetPropertyDataIds()
+QVector<QUuid> Stroke::GetPropertyDataIds()
 {
-    return ExtendedProperties()->keys().toVector();
+    return ExtendedProperties().GetGuidArray();
 }
 
 /// <summary>
 /// Allows the checking of objects in the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-bool Stroke::ContainsPropertyData(QString propertyDataId)
+bool Stroke::ContainsPropertyData(QUuid const & propertyDataId)
 {
-    return (*ExtendedProperties()).contains(propertyDataId);
+    return ExtendedProperties().Contains(propertyDataId);
 }
 
 
@@ -524,6 +525,19 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
     OnPropertyChanged("StylusPoints");
 }
 
+
+/// <summary>
+/// ExtendedProperties
+/// </summary>
+ExtendedPropertyCollection& Stroke::ExtendedProperties()
+{
+    if (_extendedProperties == nullptr)
+    {
+        _extendedProperties = new ExtendedPropertyCollection;
+    }
+
+    return *_extendedProperties;
+}
 
 /// <summary>
 /// Clip

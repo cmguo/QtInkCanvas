@@ -24,6 +24,7 @@ HEADERS += \
     $$PWD/renderer.h \
     $$PWD/selectioneditingbehavior.h \
     $$PWD/selectioneditor.h \
+    $$PWD/serializationflags.h \
     $$PWD/strokefindices.h \
     $$PWD/strokenode.h \
     $$PWD/strokenodedata.h \
@@ -56,6 +57,7 @@ SOURCES += \
     $$PWD/renderer.cpp \
     $$PWD/selectioneditingbehavior.cpp \
     $$PWD/selectioneditor.cpp \
+    $$PWD/serializationflags.cpp \
     $$PWD/strokefindices.cpp \
     $$PWD/strokenode.cpp \
     $$PWD/strokenodedata.cpp \

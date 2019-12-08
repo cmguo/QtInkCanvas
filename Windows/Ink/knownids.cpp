@@ -1,5 +1,5 @@
 #include "knownids.h"
-#include "Internal/Ink/InkSerializedFormat/knownidcache.h"
+#include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
 /// <summary>
 ///    <para>[To be supplied.]</para>

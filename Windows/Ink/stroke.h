@@ -17,6 +17,7 @@ class Lasso;
 class EventArgs;
 class StylusPointsReplacedEventArgs;
 class DrawingAttributesReplacedEventArgs;
+class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
@@ -45,7 +46,7 @@ public:
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
     /// <param name="drawingAttributes">drawingAttributes</param>
     /// <param name="extendedProperties">extendedProperties</param>
-    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, QVariantMap * extendedProperties);
+    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, ExtendedPropertyCollection* extendedProperties);
 
     Stroke(Stroke const & o);
 
@@ -96,31 +97,31 @@ public:
     /// </summary>
     /// <param name="propertyDataId"></param>
     /// <param name="propertyData"></param>
-    void AddPropertyData(QString propertyDataId, QVariant propertyData);
+    void AddPropertyData(QUuid const & propertyDataId, QVariant propertyData);
 
 
     /// <summary>
     /// Allows removal of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    void RemovePropertyData(QString propertyDataId);
+    void RemovePropertyData(QUuid const & propertyDataId);
 
     /// <summary>
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QString propertyDataId);
+    QVariant GetPropertyData(QUuid const & propertyDataId);
 
     /// <summary>
     /// Allows retrieval of a Array of guids that are contained in the EPC
     /// </summary>
-    QVector<QString> GetPropertyDataIds();
+    QVector<QUuid> GetPropertyDataIds();
 
     /// <summary>
     /// Allows the checking of objects in the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QString propertyDataId);
+    bool ContainsPropertyData(QUuid const & propertyDataId);
 
     /// <summary>
     /// Allows an application to configure the rendering state
@@ -253,21 +254,13 @@ protected:
         emit PropertyChanged(propName);
     }
 
-
+public:
     /// <summary>
     /// ExtendedProperties
     /// </summary>
-    QVariantMap * ExtendedProperties()
-    {
-        if (_extendedProperties == nullptr)
-        {
-            _extendedProperties = new QVariantMap;
-        }
+    ExtendedPropertyCollection& ExtendedProperties();
 
-        return _extendedProperties;
-    }
-
-
+private:
     /// <summary>
     /// Clip
     /// </summary>
@@ -547,7 +540,7 @@ private:
 
 private:
         // Custom attributes associated with this stroke
-    QVariantMap * _extendedProperties = nullptr;
+    ExtendedPropertyCollection* _extendedProperties = nullptr;
 
         // Drawing attributes associated with this stroke
     QSharedPointer<DrawingAttributes> _drawingAttributes;

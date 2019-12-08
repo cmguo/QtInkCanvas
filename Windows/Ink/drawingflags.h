@@ -27,6 +27,7 @@ enum class DrawingFlag
 
 Q_DECLARE_FLAGS(DrawingFlags, DrawingFlag)
 
+Q_DECLARE_METATYPE(DrawingFlag)
 Q_DECLARE_METATYPE(DrawingFlags)
 
 #endif // DRAWINGFLAGS_H

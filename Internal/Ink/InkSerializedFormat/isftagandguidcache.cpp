@@ -1,4 +1,4 @@
-#include "Internal/Ink/InkSerializedFormat/knownidcache.h"
+#include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
 QUuid KnownIdCache::OriginalISFIdTable[] = {
     {0x598a6a8f, 0x52c0, 0x4ba0, 0x93, 0xaf, 0xaf, 0x35, 0x74, 0x11, 0xa5, 0x61},
@@ -40,6 +40,8 @@ QUuid KnownIdCache::OriginalISFIdTable[] = {
     {0xa1718cdd, 0xdac, 0x4095, 0xa1, 0x81, 0x7b, 0x59, 0xcb, 0x10, 0x6b, 0xfb},
     {0x810a74d2, 0x6ee2, 0x4e39, 0x82, 0x5e, 0x6d, 0xef, 0x82, 0x6a, 0xff, 0xc5},
 };
+
+uint KnownIdCache::OriginalISFIdTableLength = sizeof(OriginalISFIdTable) / sizeof(OriginalISFIdTable[0]);
 
 // Size of data used by identified by specified QUuid/Id
 uint KnownIdCache::OriginalISFIdPersistenceSize[] = {

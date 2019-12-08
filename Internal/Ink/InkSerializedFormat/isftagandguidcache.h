@@ -12,7 +12,7 @@ public:
     {
         Unknown = 0,
         InkSpaceRectangle = 0,
-        QUuidTable = 1,
+        GuidTable = 1,
         DrawingAttributesTable = 2,
         DrawingAttributesBlock = 3,
         StrokeDescriptorTable = 4,
@@ -45,7 +45,7 @@ public:
         ExtendedTransformTable = 31,
     };
 
-        // See comments for KnownQUuidBaseIndex to determine ranges of tags/QUuids/indices
+        // See comments for KnownQUuidBaseIndex to determine ranges of tags/Guids/indices
     static constexpr uint MaximumPossibleKnownTags = 50;
     static constexpr uint KnownTagCount = MaximumPossibleKnownTags;
 };
@@ -53,9 +53,10 @@ public:
 class KnownIdCache
 {
 public:
-    // This id table includes the original QUuids that were hardcoded
+    // This id table includes the original Guids that were hardcoded
     //      into ISF for the TabletPC v1 release
     static QUuid OriginalISFIdTable[];
+    static uint OriginalISFIdTableLength;
 
     // Size of data used by identified by specified QUuid/Id
     static uint OriginalISFIdPersistenceSize[];
@@ -103,11 +104,11 @@ public:
         MAXIMUM = 37,
     };
 
-    // This id table includes the QUuids that used the persistence APIs
+    // This id table includes the Guids that used the persistence APIs
     //      - meaning they didn't have the data type information encoded in ISF
     static QUuid TabletInternalIdTable[];
 
-        // lookup indices for table of QUuids used with non-Automation APIs
+        // lookup indices for table of Guids used with non-Automation APIs
     enum TabletInternalIdIndex
     {
         Highlighter = 0,
@@ -121,26 +122,30 @@ public:
         InternalMAXIMUM = 7
     };
 
-    static constexpr KnownTagCache::KnownTagIndex KnownQUuidBaseIndex =
+    static constexpr KnownTagCache::KnownTagIndex KnownGuidBaseIndex =
             static_cast<KnownTagCache::KnownTagIndex>(KnownTagCache::MaximumPossibleKnownTags);
 
         // The maximum value that can be encoded into a single byte is 127.
-        // To improve the chances of storing all of the QUuids in the ISF QUuid table
-        //      with single-byte lookups, the QUuids are broken into two ranges
+        // To improve the chances of storing all of the Guids in the ISF QUuid table
+        //      with single-byte lookups, the Guids are broken into two ranges
         // 0-50 known tags
-        // 50-100 known QUuids (reserved)
-        // 101-127 custom QUuids (user-defined QUuids)
-        // 128-... more custom QUuids, but requiring multiples bytes for QUuid table lookup
+        // 50-100 known Guids (reserved)
+        // 101-127 custom Guids (user-defined Guids)
+        // 128-... more custom Guids, but requiring multiples bytes for QUuid table lookup
 
         // These values aren't currently used, so comment them out
     // static uint KnownQUuidIndexLimit = MaximumPossibleKnownQUuidIndex;
-    static constexpr uint MaximumPossibleKnownQUuidIndex = 100;
-    static constexpr uint CustomQUuidBaseIndex = MaximumPossibleKnownQUuidIndex;
+    static constexpr uint MaximumPossibleKnownGuidIndex = 100;
+    static constexpr uint CustomGuidBaseIndex = MaximumPossibleKnownGuidIndex;
 
-    // This id table includes the QUuids that have been added to ISF as ExtendedProperties
+    // This id table includes the Guids that have been added to ISF as ExtendedProperties
     //      Note that they are visible to 3rd party applications
     static QUuid ExtendedISFIdTable[];
 };
 
+static KnownTagCache::KnownTagIndex operator+(KnownTagCache::KnownTagIndex l, KnownIdCache::OriginalISFIdIndex r)
+{
+    return static_cast<KnownTagCache::KnownTagIndex>(static_cast<int>(l) + static_cast<int>(r));
+}
 
 #endif // KNOWNIDCACHE_H

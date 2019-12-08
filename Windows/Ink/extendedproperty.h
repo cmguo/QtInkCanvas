@@ -15,7 +15,7 @@ public:
     /// <param name="id">Identifier of attribute</param>
     /// <param name="value">Attribute value - not that the Type for value is tied to the id</param>
     /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
-    ExtendedProperty(QUuid id, QVariant value)
+    ExtendedProperty(QUuid const & id, QVariant value)
     {
         if (id.isNull())
         {
