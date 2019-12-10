@@ -4,6 +4,7 @@
 #include "Internal/Ink/isfclipboarddata.h"
 #include "Internal/Ink/inkcanvasselection.h"
 #include "Internal/Ink/textclipboarddata.h"
+#include "Internal/debug.h"
 
 //-------------------------------------------------------------------------------
 //
@@ -45,7 +46,7 @@ ClipboardProcessor::ClipboardProcessor(InkCanvas& inkCanvas)
 /// <returns>The matched clipboard format. Return -1 if there is no recognized format in the data object</returns>
 bool ClipboardProcessor::CheckDataFormats(DataObject const * dataObject)
 {
-    //Debug.Asert(dataObject != nullptr && _preferredClipboardData!= nullptr);
+    Debug::Assert(dataObject != nullptr/* && _preferredClipboardData!= nullptr*/);
 
     for ( auto pair : _preferredClipboardData )
     {
@@ -96,7 +97,7 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
             }
         }
 
-        //Debug.Asert(inkCanvasSelection.SelectedStrokes.Count == orderedStrokes.Count);
+        Debug::Assert(inkCanvasSelection.SelectedStrokes()->Count() == orderedStrokes->Count());
         //Make a copy collection since we will alter the transform before copying the data.
         strokes = orderedStrokes->Clone();
     }
@@ -140,7 +141,7 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
     }
     else
     {
-        //Debug.Asert(false , "CopySelectData: InkCanvas should have a selection!");
+        Debug::Assert(false , "CopySelectData: InkCanvas should have a selection!");
     }
 
     return copiedDataFormat;
@@ -154,7 +155,7 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
 /// <param name="newElements">The elements array which are converted from the data in the DataObject</param>
 bool ClipboardProcessor::PasteData(DataObject const* dataObject, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements)
 {
-    //Debug.Asert(dataObject != nullptr && _preferredClipboardData!= nullptr);
+    Debug::Assert(dataObject != nullptr/* && _preferredClipboardData!= nullptr*/);
 
     // We honor the order in our preferred list.
     for ( auto format : _preferredClipboardData.keys() )
@@ -223,13 +224,13 @@ bool ClipboardProcessor::PasteData(DataObject const* dataObject, QSharedPointer<
 
 QList<InkCanvasClipboardFormat> ClipboardProcessor::PreferredFormats()
 {
-    //Debug.Asert(_preferredClipboardData != nullptr);
+    //Debug::Assert(_preferredClipboardData != nullptr);
     return  _preferredClipboardData.keys();
 }
 
 void ClipboardProcessor::SetPreferredFormats(QList<InkCanvasClipboardFormat> value)
 {
-    //Debug.Asert(value != nullptr);
+    //Debug::Assert(value != nullptr);
 
     QMap<InkCanvasClipboardFormat, ClipboardData*> preferredData;
 

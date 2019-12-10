@@ -2,6 +2,7 @@
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Media/drawingcontext.h"
+#include "Internal/debug.h"
 
 #define pink darkYellow
 #define wheat magenta
@@ -31,8 +32,8 @@ StrokeNode::StrokeNode(
     , _operations(operations)
     , _connectingQuad(Quad::Empty())
 {
-    //System.Diagnostics.//Debug.Assert(operations != null);
-    //System.Diagnostics.//Debug.Assert((nodeData.IsEmpty == false) && (index >= 0));
+    Debug::Assert(operations != nullptr);
+    Debug::Assert((nodeData.IsEmpty() == false) && (index >= 0));
 
 
     //_operations = operations;
@@ -118,7 +119,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 
             if (i == maxCount)
             {
-                //Debug.Assert(false, "StrokeNodeOperations.GetPointsAtStartOfSegment failed to find the D position");
+                Debug::Assert(false, "StrokeNodeOperations.GetPointsAtStartOfSegment failed to find the D position");
                 //we didn't find the d point, return
                 return;
             }
@@ -144,7 +145,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                 }
                 if (dIsInEndNode)
                 {
-                    ///Debug.Assert(!endNodeRect.contains(point));
+                    Debug::Assert(!endNodeRect.contains(point));
 
                     //add the first point after d, clockwise
                     dIsInEndNode = false;
@@ -231,7 +232,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 
             if (i == maxCount)
             {
-                //Debug.Assert(false, "StrokeNodeOperations.GetPointsAtEndOfSegment failed to find the B position");
+                Debug::Assert(false, "StrokeNodeOperations.GetPointsAtEndOfSegment failed to find the B position");
                 //we didn't find the d point, return
                 return;
             }
@@ -501,7 +502,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 
                     if (indexA == -1 || indexB == -1 || indexC == -1 || indexD == -1)
                     {
-                        //Debug.Assert(false, "Couldn't find all 4 indexes in StrokeNodeOperations.GetPointsAtMiddleSegment");
+                        Debug::Assert(false, "Couldn't find all 4 indexes in StrokeNodeOperations.GetPointsAtMiddleSegment");
                         return;
                     }
 
@@ -759,7 +760,7 @@ StrokeFIndices StrokeNode::CutTest(QPointF begin, QPointF end)
     // this segment should be cut at to let the hitNode's contour through it.
     StrokeFIndices cutAt = _operations->CutTest(_lastNode, _thisNode, ConnectingQuad(), begin, end);
 
-    //System.Diagnostics.//Debug.Assert(!double.IsNaN(cutAt.BeginFIndex) && !double.IsNaN(cutAt.EndFIndex));
+    Debug::Assert(!qIsNaN(cutAt.BeginFIndex()) && !qIsNaN(cutAt.EndFIndex()));
 
     // Bind the found findices to the node and return the result
     return BindFIndicesForLassoHitTest(cutAt);
@@ -773,19 +774,19 @@ StrokeFIndices StrokeNode::CutTest(QPointF begin, QPointF end)
 /// <returns></returns>
 StrokeFIndices StrokeNode::BindFIndices(StrokeFIndices & fragment)
 {
-    //System.Diagnostics.//Debug.Assert(IsValid && (_index >= 0));
+    Debug::Assert(IsValid() && (_index >= 0));
 
     if (fragment.IsEmpty() == false)
     {
         // Adjust only findices which are on this segment of thew spine (i.e. between 0 and 1)
         if (!DoubleUtil::AreClose(fragment.BeginFIndex(), StrokeFIndices::BeforeFirst))
         {
-            //System.Diagnostics.//Debug.Assert(fragment.BeginFIndex >= 0 && fragment.BeginFIndex <= 1);
+            Debug::Assert(fragment.BeginFIndex() >= 0 && fragment.BeginFIndex() <= 1);
             fragment.SetBeginFIndex(fragment.BeginFIndex() + _index - 1);
         }
         if (!DoubleUtil::AreClose(fragment.EndFIndex(), StrokeFIndices::AfterLast))
         {
-            //System.Diagnostics.//Debug.Assert(fragment.EndFIndex >= 0 && fragment.EndFIndex <= 1);
+            Debug::Assert(fragment.EndFIndex() >= 0 && fragment.EndFIndex() <= 1);
             fragment.SetEndFIndex(fragment.EndFIndex() + _index - 1);
         }
     }
@@ -801,7 +802,7 @@ StrokeFIndices StrokeNode::BindFIndices(StrokeFIndices & fragment)
 StrokeFIndices StrokeNode::BindFIndicesForLassoHitTest(StrokeFIndices&fragment)
 {
 
-    //System.Diagnostics.//Debug.Assert(IsValid);
+    Debug::Assert(IsValid());
     if (!fragment.IsEmpty())
     {
         // Adjust BeginFIndex
@@ -813,9 +814,9 @@ StrokeFIndices StrokeNode::BindFIndicesForLassoHitTest(StrokeFIndices&fragment)
         else
         {
             // Adjust findices which are on this segment of the spine (i.e. between 0 and 1)
-            //System.Diagnostics.//Debug.Assert(DoubleUtil::GreaterThanOrClose(fragment.BeginFIndex, 0f));
+            Debug::Assert(DoubleUtil::GreaterThanOrClose(fragment.BeginFIndex(), 0));
 
-            //System.Diagnostics.//Debug.Assert(DoubleUtil::LessThanOrClose(fragment.BeginFIndex, 1f));
+            Debug::Assert(DoubleUtil::LessThanOrClose(fragment.BeginFIndex(), 1));
 
             // Adjust the value to consider index, say from 0.75 to 3.75 (for _index = 4)
             fragment.SetBeginFIndex(fragment.BeginFIndex() + _index - 1);
@@ -829,9 +830,9 @@ StrokeFIndices StrokeNode::BindFIndicesForLassoHitTest(StrokeFIndices&fragment)
         }
         else
         {
-            //System.Diagnostics.//Debug.Assert(DoubleUtil::GreaterThanOrClose(fragment.EndFIndex, 0f));
+            Debug::Assert(DoubleUtil::GreaterThanOrClose(fragment.EndFIndex(), 0));
 
-            //System.Diagnostics.//Debug.Assert(DoubleUtil::LessThanOrClose(fragment.EndFIndex, 1f));
+            Debug::Assert(DoubleUtil::LessThanOrClose(fragment.EndFIndex(), 1));
             // Ajust the value to consider the index
             fragment.SetEndFIndex(fragment.EndFIndex() + _index - 1);
         }
@@ -849,7 +850,7 @@ StrokeFIndices StrokeNode::BindFIndicesForLassoHitTest(StrokeFIndices&fragment)
 /// </summary>
 Quad & StrokeNode::ConnectingQuad()
 {
-    //System.Diagnostics.//Debug.Assert(IsValid);
+    Debug::Assert(IsValid());
 
     if (_isQuadCached == false)
     {
@@ -866,7 +867,7 @@ Quad & StrokeNode::ConnectingQuad()
 /// </summary>
 QList<ContourSegment> StrokeNode::GetContourSegments()
 {
-    //System.Diagnostics.//Debug.Assert(IsValid);
+    Debug::Assert(IsValid());
 
     // Calls thru to the StrokeNodeOperations object
     if (IsEllipse())
@@ -884,15 +885,15 @@ QList<ContourSegment> StrokeNode::GetContourSegments()
 /// <returns>Point on the spine</returns>
 QPointF StrokeNode::GetPointAt(double findex)
 {
-    //System.Diagnostics.//Debug.Assert(IsValid);
+    Debug::Assert(IsValid());
 
     if (_lastNode.IsEmpty())
     {
-        //System.Diagnostics.//Debug.Assert(findex == 0);
+        Debug::Assert(findex == 0);
         return _thisNode.Position();
     }
 
-    //System.Diagnostics.//Debug.Assert((findex >= _index - 1) && (findex <= _index));
+    Debug::Assert((findex >= _index - 1) && (findex <= _index));
 
     if (DoubleUtil::AreClose(findex, (double)_index))
     {

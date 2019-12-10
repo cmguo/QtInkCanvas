@@ -196,10 +196,6 @@ public:
 
 private:
     QSharedPointer<StylusPointDescription> _stylusPointDescription;
-
-public:
-    static constexpr double MaxXY = 0;
-    static constexpr double MinXY = 0;
 };
 
 #endif // STYLUSPOINTCOLLECTION_H

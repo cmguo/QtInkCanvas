@@ -152,12 +152,12 @@ private:
     {
         QPointF      Point;       // Point (coordinates are double)
         int          Index;       // Index into the original array
-        int          TanPrev;    // Previous StylusPoint Index for tangent computation
-        int          TanNext;    // Next StylusPoint Index for tangent computation
+        int          TanPrev = 0;    // Previous StylusPoint Index for tangent computation
+        int          TanNext = 0;    // Next StylusPoint Index for tangent computation
     };
 
-    QVector<CDataPoint> _points;
-    QVector<double> _nodes;
+    QList<CDataPoint> _points;
+    QList<double> _nodes;
     double _dist = 0;
     QList<int> _cusps;
 

@@ -3,6 +3,7 @@
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Input/styluspoint.h"
+#include "Internal/debug.h"
 
 #define checked(x) x
 
@@ -99,7 +100,7 @@ bool Bezier::ExtendingRange(double error, CuspData & data, int from, int next_cu
         return false;
     }
 
-    //Debug.Assert(to - from >= 4);
+    Debug::Assert(to - from >= 4);
     int d = (to - from) / 4;
     int i[] = { from, from + d, (to + from) / 2, to - d, to };
 
@@ -339,7 +340,7 @@ bool Bezier::AddLeastSquares(CuspData & data, int from, QPointF & V, int to, QPo
     for (int j = from + 1; j < to; j++)
     {
         // By the way the nodes were constructed -
-        //Debug.Assert(data.Node(to) - data.Node(from) > data.Node(j) - data.Node(from));
+        Debug::Assert(data.Node(to) - data.Node(from) > data.Node(j) - data.Node(from));
         double tj = (data.Node(j) - data.Node(from)) / (data.Node(to) - data.Node(from));
         double tj2 = tj * tj;
         double rj = 1 - tj;

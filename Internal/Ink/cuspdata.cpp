@@ -3,6 +3,7 @@
 #include "Windows/Input/styluspoint.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/doubleutil.h"
+#include "Internal/debug.h"
 
 CuspData::CuspData()
 {
@@ -21,8 +22,8 @@ void CuspData::Analyze(StylusPointCollection & stylusPoints, double rSpan)
     if ((stylusPoints.size() == 0))
         return;
 
-    _points.resize(stylusPoints.size());
-    _nodes.resize(stylusPoints.size());
+    _points.reserve(stylusPoints.size());
+    _nodes.reserve(stylusPoints.size());
 
     // Construct the lists of data points and nodes
     _nodes.push_back(0);
@@ -208,7 +209,7 @@ bool CuspData::Tangent(QPointF & ptT, int nAt, int nPrevCusp, int nNextCusp, boo
     }
     else
     {
-        //Debug.Assert(bReverse);
+        Debug::Assert(bReverse);
         i_1 = nAt;
         i_2 = _points[nAt].TanPrev;
         if (i_2 < nPrevCusp)

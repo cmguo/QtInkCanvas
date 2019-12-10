@@ -1,5 +1,5 @@
 #include "Internal/Ink/ellipticalnodeoperations.h"
-
+#include "Internal/debug.h"
 
 /// <summary>
 /// Constructor
@@ -8,7 +8,7 @@
 EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
     : StrokeNodeOperations(nodeShape)
 {
-    //System.Diagnostics.//Debug.Assert((nodeShape != null) && nodeShape.IsEllipse);
+    Debug::Assert(/*(nodeShape != nullptr) && */nodeShape.IsEllipse());
 
     _radii = QSizeF(nodeShape.Width() * 0.5, nodeShape.Height() * 0.5);
 
@@ -151,7 +151,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 /// <returns></returns>
 QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad& quad)
 {
-    //System.Diagnostics.//Debug.Assert(Node.IsEmpty() == false);
+    Debug::Assert(node.IsEmpty() == false);
 
     QList<ContourSegment> result;
     if (quad.IsEmpty())
@@ -558,7 +558,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
     {
         if (isInside == true)
         {
-            //System.Diagnostics.//Debug.Assert(result.IsEmpty);
+            Debug::Assert(result.IsEmpty());
             result = StrokeFIndices::Full();
         }
         else if ((DoubleUtil::AreClose(result.EndFIndex(), StrokeFIndices::BeforeFirst)) && (!DoubleUtil::AreClose(result.BeginFIndex(), StrokeFIndices::AfterLast)))
@@ -596,7 +596,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
     // when the stylus stays at the the location but pressure changes.
     if (DoubleUtil::IsZero(spineVector.x()) && DoubleUtil::IsZero(spineVector.y()))
     {
-        //System.Diagnostics.//Debug.Assert(DoubleUtil::AreClose(beginRadius, endRadius) == false);
+        Debug::Assert(DoubleUtil::AreClose(beginRadius, endRadius) == false);
 
         QPointF const &nearest = GetNearest(hitBegin, hitEnd);
         double radius;
@@ -628,7 +628,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
     {
         // hitQPointF const &and spineQPointF const &are parallel
         findex = ClipTest(spineVector, beginRadius, endRadius, GetNearest(hitBegin, hitEnd));
-        //System.Diagnostics.//Debug.Assert(!double.IsNaN(findex));
+        Debug::Assert(!qIsNaN(findex));
     }
     else
     {
@@ -637,17 +637,17 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
         QPointF const &P1Xp = hitBegin + (hitVector * x);
         if (LengthSquared(P1Xp) < (beginRadius * beginRadius))
         {
-            //System.Diagnostics.//Debug.Assert(DoubleUtil::IsBetweenZeroAndOne(x) == false);
+            Debug::Assert(DoubleUtil::IsBetweenZeroAndOne(x) == false);
             findex = ClipTest(spineVector, beginRadius, endRadius, (0 > x) ? hitBegin : hitEnd);
-            //System.Diagnostics.//Debug.Assert(!double.IsNaN(findex));
+            Debug::Assert(!qIsNaN(findex));
         }
         else
         {
             // Find the projection point P of endNode.Position() to the line (beginNode.Position(), B).
             QPointF P1P2p = spineVector + GetProjection(-spineVector, P1Xp - spineVector);
 
-            ////System.Diagnostics.//Debug.Assert(false == DoubleUtil::IsZero(P1P2p.LengthSquared));
-            ////System.Diagnostics.//Debug.Assert(false == DoubleUtil::IsZero(endRadius - beginRadius + P1P2p.Length));
+            //Debug::Assert(false == DoubleUtil::IsZero(P1P2p.LengthSquared));
+            //Debug::Assert(false == DoubleUtil::IsZero(endRadius - beginRadius + P1P2p.Length));
             // There checks are here since if either fail no real solution can be caculated and we may
             // as well bail out now and save the caculations that are below.
             if (DoubleUtil::IsZero(LengthSquared(P1P2p)) || DoubleUtil::IsZero(endRadius - beginRadius + Length(P1P2p)))
@@ -655,7 +655,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
 
             // Calculate the findex of the point to split the ink segment at.
             findex = (Length(P1Xp) - beginRadius) / (endRadius - beginRadius + Length(P1P2p));
-            //System.Diagnostics.//Debug.Assert(!double.IsNaN(findex));
+            Debug::Assert(!qIsNaN(findex));
 
             // Find the projection of the split point to the line of this segment.
             QPointF S = spineVector * findex;
@@ -667,7 +667,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
             if (false == DoubleUtil::IsBetweenZeroAndOne(r))
             {
                 findex = ClipTest(spineVector, beginRadius, endRadius, (0 > r) ? hitBegin : hitEnd);
-                //System.Diagnostics.//Debug.Assert(!double.IsNaN(findex));
+                Debug::Assert(!qIsNaN(findex));
             }
         }
     }

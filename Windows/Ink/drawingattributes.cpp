@@ -4,6 +4,7 @@
 #include "Windows/Ink/events.h"
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Internal/doubleutil.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// Creates a DrawingAttributes with default values
@@ -20,7 +21,7 @@ DrawingAttributes::DrawingAttributes()
 /// <param name="extendedProperties"></param>
 DrawingAttributes::DrawingAttributes(ExtendedPropertyCollection* extendedProperties)
 {
-    //System.Diagnostics.Debug.Assert(extendedProperties != null);
+    Debug::Assert(extendedProperties != nullptr);
     _extendedProperties = extendedProperties;
 
     Initialize();
@@ -35,7 +36,7 @@ DrawingAttributes::~DrawingAttributes()
 /// </summary>
 void DrawingAttributes::Initialize()
 {
-    //System.Diagnostics.Debug.Assert(_extendedProperties != null);
+    Debug::Assert(_extendedProperties != nullptr);
     //_extendedProperties->Changed +=
     //    new ExtendedPropertiesChangedEventHandler(this.ExtendedPropertiesChanged_EventForwarder);
 }
@@ -49,7 +50,7 @@ QColor DrawingAttributes::Color() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::Color))
     {
-        //Debug.Assert(Colors.Black == (Color)GetDefaultDrawingAttributeValue(KnownIds::Color));
+        Debug::Assert(QColor(Qt::black) == GetDefaultDrawingAttributeValue(KnownIds::Color).value<QColor>());
         return QColor(Qt::black);
     }
     return GetExtendedPropertyBackedProperty(KnownIds::Color).value<QColor>();
@@ -71,13 +72,13 @@ StylusTip DrawingAttributes::GetStylusTip() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusTip))
     {
-        //Debug.Assert(StylusTip.Ellipse == (StylusTip)GetDefaultDrawingAttributeValue(KnownIds::StylusTip));
+        Debug::Assert(StylusTip::Ellipse == GetDefaultDrawingAttributeValue(KnownIds::StylusTip).value<StylusTip>());
         return StylusTip::Ellipse;
     }
     else
     {
         //if we ever add to StylusTip enumeration, we need to just return GetExtendedPropertyBackedProperty
-        //Debug.Assert(StylusTip.Rectangle == (StylusTip)GetExtendedPropertyBackedProperty(KnownIds::StylusTip));
+        Debug::Assert(StylusTip::Rectangle == GetExtendedPropertyBackedProperty(KnownIds::StylusTip).value<StylusTip>());
         return StylusTip::Rectangle;
     }
 }
@@ -98,7 +99,7 @@ QMatrix DrawingAttributes::StylusTipTransform() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusTipTransform))
     {
-        //Debug.Assert(Matrix.Identity == (Matrix)GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform));
+        Debug::Assert(QMatrix() == GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform).value<QMatrix>());
         return QMatrix();
     }
     return GetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform).value<QMatrix>();
@@ -125,7 +126,7 @@ double DrawingAttributes::Height() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusHeight))
     {
-        //Debug.Assert(DrawingAttributes.DefaultHeight == (double)GetDefaultDrawingAttributeValue(KnownIds::StylusHeight));
+        Debug::Assert(DefaultHeight == GetDefaultDrawingAttributeValue(KnownIds::StylusHeight));
         return DefaultHeight;
     }
     return GetExtendedPropertyBackedProperty(KnownIds::StylusHeight).toDouble();
@@ -150,7 +151,7 @@ double DrawingAttributes::Width() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusWidth))
     {
-        //Debug.Assert(DrawingAttributes.DefaultWidth == (double)GetDefaultDrawingAttributeValue(KnownIds::StylusWidth));
+        Debug::Assert(DefaultWidth == GetDefaultDrawingAttributeValue(KnownIds::StylusWidth).toDouble());
         return DefaultWidth;
     }
     return GetExtendedPropertyBackedProperty(KnownIds::StylusWidth).toDouble();
@@ -228,12 +229,12 @@ bool DrawingAttributes::IsHighlighter() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::IsHighlighter))
     {
-        //Debug.Assert(false == (bool)GetDefaultDrawingAttributeValue(KnownIds::IsHighlighter));
+        Debug::Assert(false == GetDefaultDrawingAttributeValue(KnownIds::IsHighlighter).toBool());
         return false;
     }
     else
     {
-        //Debug.Assert(true == (bool)GetExtendedPropertyBackedProperty(KnownIds::IsHighlighter));
+        Debug::Assert(true == GetExtendedPropertyBackedProperty(KnownIds::IsHighlighter).toBool());
         return true;
     }
 }
@@ -551,7 +552,7 @@ bool DrawingAttributes::GeometricallyEqual(DrawingAttributes const & left, Drawi
 bool DrawingAttributes::IsGeometricalDaGuid(QUuid const & QUuid)
 {
     // Assert it is a DA QUuid
-    //System.Diagnostics.Debug.Assert(null != DrawingAttributes.GetDefaultDrawingAttributeValue(QUuid));
+    Debug::Assert(QVariant() != GetDefaultDrawingAttributeValue(QUuid));
 
     if (QUuid == KnownIds::StylusHeight || QUuid == KnownIds::StylusWidth ||
         QUuid == KnownIds::StylusTipTransform || QUuid == KnownIds::StylusTip ||

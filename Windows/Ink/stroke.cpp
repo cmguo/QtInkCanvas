@@ -14,6 +14,7 @@
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/events.h"
 #include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QMatrix>
 #include <QBrush>
@@ -108,7 +109,7 @@ Stroke::Stroke(Stroke const & o)
     //
     // copy state
     //
-    //Debug.Assert(_cachedGeometry == null || _cachedGeometry.IsFrozen);
+    //Debug::Assert(_cachedGeometry == nullptr/* || _cachedGeometry.IsFrozen*/);
     //we don't need to cache if this is frozen
     //if (null != _cachedGeometry)
     //{
@@ -247,7 +248,7 @@ QSharedPointer<StylusPointCollection> Stroke::GetBezierStylusPoints()
 /// </summary>
 QSharedPointer<StylusPointCollection> Stroke::GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints)
 {
-    //Debug.Assert(bezierPoints != null && bezierPoints.Count > 0);
+    Debug::Assert(/*bezierPoints != null && */bezierPoints.size() > 0);
 
     //new points need the same description
     QSharedPointer<StylusPointCollection> bezierStylusPoints(new StylusPointCollection(_stylusPoints->Description(), bezierPoints.size()));
@@ -299,7 +300,7 @@ QSharedPointer<StylusPointCollection> Stroke::GetInterpolatedStylusPoints(QList<
             if (bezierLength >= prevUnbezierLength &&
                 bezierLength < unbezierLength)
             {
-                //Debug.Assert(stylusPointsCount > stylusPointsIndex);
+                Debug::Assert(stylusPointsCount > stylusPointsIndex);
 
                 StylusPoint prevStylusPoint = (*_stylusPoints)[stylusPointsIndex - 1];
                 float percentFromPrev =
@@ -318,7 +319,7 @@ QSharedPointer<StylusPointCollection> Stroke::GetInterpolatedStylusPoints(QList<
             }
             else
             {
-                //Debug.Assert(bezierLength >= prevUnbezierLength);
+                Debug::Assert(bezierLength >= prevUnbezierLength);
                 //
                 // move our unbezier lengths forward...
                 //
@@ -362,13 +363,13 @@ void Stroke::AddInterpolatedBezierPoint(StylusPointCollection & bezierStylusPoin
                                         QVector<int> const & additionalData,
                                         float pressure)
 {
-    double xVal = bezierPoint.x() > StylusPointCollection::MaxXY ?
-                StylusPointCollection::MaxXY :
-                (bezierPoint.x() < StylusPointCollection::MinXY ? StylusPointCollection::MinXY : bezierPoint.x());
+    double xVal = bezierPoint.x() > StylusPoint::MaxXY ?
+                StylusPoint::MaxXY :
+                (bezierPoint.x() < StylusPoint::MinXY ? StylusPoint::MinXY : bezierPoint.x());
 
-    double yVal = bezierPoint.y() > StylusPointCollection::MaxXY ?
-                StylusPointCollection::MaxXY :
-                (bezierPoint.y() < StylusPointCollection::MinXY ? StylusPointCollection::MinXY : bezierPoint.y());
+    double yVal = bezierPoint.y() > StylusPoint::MaxXY ?
+                StylusPoint::MaxXY :
+                (bezierPoint.y() < StylusPoint::MinXY ? StylusPoint::MinXY : bezierPoint.y());
 
 
     StylusPoint newBezierPoint(xVal, yVal, pressure, bezierStylusPoints.Description(), additionalData, false, false);
@@ -674,7 +675,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
 /// </summary>
 QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> sourceStylusPoints, double beginFIndex, double endFIndex)
 {
-    //Debug.Assert(sourceStylusPoints != null);
+    Debug::Assert(sourceStylusPoints != nullptr);
     //
     // get the floor and ceiling to copy from, we'll adjust the ends below
     //
