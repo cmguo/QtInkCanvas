@@ -1292,33 +1292,34 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
     {
 #if DEBUG_RENDERING_FEEDBACK
         //render debug feedback?
-        Guid guid = new Guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
-        if (this.ContainsPropertyData(guid))
+        QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
+        if (ContainsPropertyData(guid))
         {
-            double thickness = (double)this.GetPropertyData(guid);
+            double thickness = GetPropertyData(guid).toDouble();
 
             //first, draw the outline of the stroke
-            drawingContext.DrawGeometry(null,
-                                        new Pen(Brushes.Black, thickness),
+            drawingContext.DrawGeometry(QBrush(),
+                                        QPen(Qt::black, thickness),
                                         GetGeometry());
 
-            Geometry g2;
-            Rect b2;
+            Geometry* g2 = nullptr;
+            QRectF b2;
             //next, overlay the connecting quad points
-            StrokeRenderer.CalcGeometryAndBounds(StrokeNodeIterator.GetIterator(this, drawingAttributes),
-                                                 drawingAttributes,
+            StrokeNodeIterator iterator = StrokeNodeIterator::GetIterator(*this, *drawingAttributes);
+            StrokeRenderer::CalcGeometryAndBounds(iterator,
+                                                 *drawingAttributes,
                                                  drawingContext, thickness, true,
                                                  true, //calc bounds
-                                                 out g2,
-                                                 out b2);
+                                                 g2,
+                                                 b2);
 
         }
         else
         {
 #endif
-        QBrush brush(drawingAttributes->Color());
-        //brush.Freeze();
-        drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(drawingAttributes));
+            QBrush brush(drawingAttributes->Color());
+            //brush.Freeze();
+            drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(drawingAttributes));
 #if DEBUG_RENDERING_FEEDBACK
         }
 #endif
@@ -1351,10 +1352,11 @@ Geometry * Stroke::GetGeometry(QSharedPointer<DrawingAttributes> drawingAttribut
         StrokeNodeIterator iterator = StrokeNodeIterator::GetIterator(*this, *drawingAttributes);
         Geometry * geometry = nullptr;
         QRectF bounds;
+        std::unique_ptr<DrawingContext> debugDC;
         StrokeRenderer::CalcGeometryAndBounds(iterator,
                                              *drawingAttributes,
 #if DEBUG_RENDERING_FEEDBACK
-                                             null, 0d, false,
+                                             *debugDC, 0, false,
 #endif
                                              true, //calc bounds
                                              geometry,

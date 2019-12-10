@@ -2,6 +2,7 @@
 #include "Windows/Input/styluspoint.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Ink/drawingattributes.h"
+#include "Internal/debug.h"
 
 StylusShape::StylusShape()
 {
@@ -134,7 +135,7 @@ void StylusShape::ComputeRectangleVertices()
 void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
 {
     // The method should only called for Rectangle case.
-    //System.Diagnostics.Debug.Assert(vertices.Length == 4);
+    Debug::Assert(vertices.size() == 4);
 
     QPointF prevVertex = vertices[vertices.size() - 1];
     int counterClockIndex = 0, clockWiseIndex = 0;
@@ -159,7 +160,7 @@ void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
     }
 
     // Assert the transform will make it either clockwise or counter-clockwise.
-    //System.Diagnostics.Debug.Assert(clockWiseIndex == vertices.Length || counterClockIndex == vertices.Length);
+    Debug::Assert(clockWiseIndex == vertices.size() || counterClockIndex == vertices.size());
 
     if (counterClockIndex == vertices.size())
     {
@@ -177,7 +178,7 @@ void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
 
 QVector<QPointF> StylusShape::GetBezierControlPoints()
 {
-    //System.Diagnostics.Debug.Assert(m_tip == StylusTip.Ellipse);
+    Debug::Assert(m_tip == StylusTip::Ellipse);
 
     // Approximating a 1/4 circle with a Bezier curve (borrowed from Avalon's EllipseGeometry.cs)
     const double ArcAsBezier = 0.5522847498307933984; // =(\/2 - 1)*4/3

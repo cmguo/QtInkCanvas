@@ -1,9 +1,10 @@
 #ifndef DRAWINGATTRIBUTES_H
 #define DRAWINGATTRIBUTES_H
 
-#include "knownids.h"
-#include "stylustip.h"
-#include "drawingflags.h"
+#include "InkCanvas_global.h"
+
+#include "Windows/Ink/stylustip.h"
+#include "Windows/Ink/drawingflags.h"
 #include "Internal/Ink/InkSerializedFormat/drawingattributeserializer.h"
 
 #include <QMatrix>
@@ -19,7 +20,7 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
-class DrawingAttributes : public QObject
+class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
     Q_OBJECT
 public:

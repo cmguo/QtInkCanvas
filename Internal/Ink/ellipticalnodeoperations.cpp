@@ -65,7 +65,7 @@ EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
 /// <param name="beginNode">a node to connect</param>
 /// <param name="endNode">another node, next to beginNode</param>
 /// <returns>connecting quadrangle</returns>
-Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData& beginNode, StrokeNodeData endNode)
+Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, StrokeNodeData const & endNode)
 {
     if (beginNode.IsEmpty() || endNode.IsEmpty() || DoubleUtil::AreClose(beginNode.Position(), endNode.Position()))
     {
@@ -149,7 +149,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData& beginNode, Stro
 /// <param name="node"></param>
 /// <param name="quad"></param>
 /// <returns></returns>
-QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData& node, Quad& quad)
+QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad& quad)
 {
     //System.Diagnostics.//Debug.Assert(Node.IsEmpty() == false);
 
@@ -176,7 +176,7 @@ QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeDat
 /// <param name="beginNode"></param>
 /// <param name="endNode"></param>
 /// <returns></returns>
-QList<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(StrokeNodeData& beginNode, StrokeNodeData& endNode)
+QList<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode)
 {
     Quad quad = beginNode.IsEmpty() ? Quad::Empty() : StrokeNodeOperations::GetConnectingQuad(beginNode, endNode);
     return StrokeNodeOperations::GetContourSegments(endNode, quad);
@@ -194,7 +194,7 @@ QList<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(Stro
 /// <param name="hitEndPoint">an end point of the hitting linear segment</param>
 /// <returns>true if the hitting segment intersect the contour comprised of the two stroke nodes</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
 {
     StrokeNodeData bigNode, smallNode;
     if (beginNode.IsEmpty() || (quad.IsEmpty() && (endNode.PressureFactor() > beginNode.PressureFactor())))
@@ -259,7 +259,7 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns>true if the contours intersect or overlap</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData beginNode, StrokeNodeData endNode, Quad quad, QList<ContourSegment> hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour)
 {
     StrokeNodeData bigNode, smallNode;
     double bigRadiusSquared, smallRadiusSquared = 0;
@@ -304,7 +304,7 @@ bool EllipticalNodeOperations::HitTest(
     // until it's false.
     bool isInside = true;
 
-    for (ContourSegment& hitSegment : hitContour)
+    for (ContourSegment const & hitSegment : hitContour)
     {
         if (hitSegment.IsArc())
         {
@@ -365,7 +365,7 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData beginNode, StrokeNodeData endNode, Quad quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
 {
     // Compute the positions of the involved points relative to the endNode.
     QPointF spineVector = beginNode.IsEmpty() ? QPointF(0, 0) : (beginNode.Position() - endNode.Position());
@@ -443,7 +443,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
 /// <param name="hitContour">The hitting ContourSegments</param>
 /// <returns>StrokeFIndices representing the location for cutting</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment> hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour)
 {
     // Compute the positions of the beginNode relative to the endNode.
     QPointF spineVector = beginNode.IsEmpty() ? QPointF(0, 0) : (beginNode.Position() - endNode.Position());
@@ -467,7 +467,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
     bool isInside = true;
     StrokeFIndices result = StrokeFIndices::Empty();
 
-    for (ContourSegment& hitSegment : hitContour)
+    for (ContourSegment const & hitSegment : hitContour)
     {
         if (hitSegment.IsArc())
         {

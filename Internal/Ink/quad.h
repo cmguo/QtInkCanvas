@@ -70,7 +70,7 @@ public:
     /// <summary> Returns the bounds of the quad </summary>
     QRectF Bounds()
     {
-        return IsEmpty() ? QRectF() : QRectF(_A, _B).united(QRectF(_C, _D));
+        return IsEmpty() ? QRectF() : QRectF(_A, _B).normalized().united(QRectF(_C, _D).normalized());
     }
 
 private:

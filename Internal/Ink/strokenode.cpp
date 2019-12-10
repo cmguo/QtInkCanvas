@@ -1,7 +1,11 @@
 #include "Internal/Ink/strokenode.h"
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/Ink/strokerenderer.h"
+#include "Windows/Media/drawingcontext.h"
 
+#define pink darkYellow
+#define wheat magenta
+#define orange darkCyan
 
 StrokeNode::StrokeNode()
     : _connectingQuad(Quad::Empty())
@@ -13,8 +17,8 @@ StrokeNode::StrokeNode()
 /// Constructor.
 /// </summary>
 /// <param name="operations">StrokeNodeOperations object created for particular rendering</param>
-/// <param name="index">Index of the node on the stroke spine</param>
-/// <param name="nodeData">StrokeNodeData for this node</param>
+/// <param name="index">Index of the node on the stroke spine</p aram>
+/// <param name="nodeData">StrokeNodeData for this node</param>q
 /// <param name="lastNodeData">StrokeNodeData for the precedeng node</param>
 /// <param name="isLastNode">Whether the current node is the last node</param>
 StrokeNode::StrokeNode(
@@ -43,7 +47,7 @@ StrokeNode::StrokeNode(
 void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                                         QList<QPointF> & dcPoints
 #if DEBUG_RENDERING_FEEDBACK
-                                        , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                        , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                         )
 {
@@ -66,9 +70,9 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawEllipse(null, new Pen(Brushes.Pink, feedbackSize / 2), _lastNode.Position, startNodeBounds.Width / 2, startNodeBounds.Height / 2);
-                debugDC.DrawEllipse(Brushes.Red, null, quad.A, feedbackSize, feedbackSize);
-                debugDC.DrawEllipse(Brushes.Blue, null, quad.D, feedbackSize, feedbackSize);
+                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), startNodeBounds.width() / 2, startNodeBounds.height() / 2);
+                debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, quad.A(), feedbackSize, feedbackSize);
+                debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad.D(), feedbackSize, feedbackSize);
             }
 #endif
         }
@@ -81,7 +85,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawRectangle(null, new Pen(Brushes.Pink, feedbackSize / 2), _operations->GetNodeBounds(_lastNode));
+                debugDC.DrawRectangle(QBrush(), QPen(Qt::pink , feedbackSize / 2), _operations->GetNodeBounds(_lastNode));
             }
 #endif
             QVector<QPointF> vertices = _operations->GetVertices();
@@ -105,7 +109,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
-                        debugDC.DrawEllipse(Brushes.Blue, null, quad.D, feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad.D(), feedbackSize, feedbackSize);
                     }
 #endif
                     break;
@@ -134,7 +138,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 #if DEBUG_RENDERING_FEEDBACK
                 if (showFeedback)
                 {
-                    debugDC.DrawEllipse(Brushes.Wheat, null, point, feedbackSize, feedbackSize);
+                    debugDC.DrawEllipse(QBrush(Qt::wheat), Qt::NoPen, point, feedbackSize, feedbackSize);
                 }
 #endif
                 }
@@ -151,7 +155,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
-                        debugDC.DrawEllipse(Brushes.Red, null, point, feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, point, feedbackSize, feedbackSize);
                     }
 #endif
                     break;
@@ -168,7 +172,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
                                         QList<QPointF>& dcPoints
 #if DEBUG_RENDERING_FEEDBACK
-                                        , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                        , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                         )
 {
@@ -188,9 +192,9 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawEllipse(null, new Pen(Brushes.Pink, feedbackSize / 2), _thisNode.Position, bounds.Width / 2, bounds.Height / 2);
-                debugDC.DrawEllipse(Brushes.Green, null, quad.B, feedbackSize, feedbackSize);
-                debugDC.DrawEllipse(Brushes.Yellow, null, quad.C, feedbackSize, feedbackSize);
+                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _thisNode.Position(), bounds.width() / 2, bounds.height() / 2);
+                debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad.B(), feedbackSize, feedbackSize);
+                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad.C(), feedbackSize, feedbackSize);
             }
 #endif
         }
@@ -199,7 +203,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawRectangle(null, new Pen(Brushes.Pink, feedbackSize / 2), GetBounds());
+                debugDC.DrawRectangle(QBrush(), QPen(Qt::pink, feedbackSize / 2), GetBounds());
             }
 #endif
             //we're interested in the B, C points as well as the
@@ -218,7 +222,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
-                        debugDC.DrawEllipse(Brushes.Green, null, point, feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, point, feedbackSize, feedbackSize);
                     }
 #endif
                     break;
@@ -249,7 +253,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #if DEBUG_RENDERING_FEEDBACK
                 if (showFeedback)
                 {
-                    debugDC.DrawEllipse(Brushes.Wheat, null, quad.C, feedbackSize, feedbackSize);
+                    debugDC.DrawEllipse(QBrush(Qt::wheat), Qt::NoPen, quad.C(), feedbackSize, feedbackSize);
                 }
 #endif
             }
@@ -259,7 +263,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawEllipse(Brushes.Yellow, null, quad.C, feedbackSize, feedbackSize);
+                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad.C(), feedbackSize, feedbackSize);
             }
 #endif
         }
@@ -275,7 +279,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                                         QList<QPointF> & dcPoints,
                                         bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
-                                        , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                        , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                         )
 {
@@ -296,7 +300,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
-                        debugDC.DrawEllipse(null, new Pen(Brushes.Pink, feedbackSize / 2), _lastNode.Position, node2Bounds.Width / 2, node2Bounds.Height / 2);
+                        debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), node2Bounds.width() / 2, node2Bounds.height() / 2);
                     }
 #endif
                     if (angleBetweenNodes == 0.0 || ((quad1.B() == quad2.A()) && (quad1.C() == quad2.D())))
@@ -307,8 +311,8 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                         if (showFeedback)
                         {
-                            debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize, feedbackSize);
-                            debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize, feedbackSize);
+                            debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize, feedbackSize);
+                            debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize, feedbackSize);
                         }
 #endif
                     }
@@ -322,7 +326,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize, feedbackSize);
                             }
 #endif
                         }
@@ -337,8 +341,8 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize * 1.5, feedbackSize * 1.5);
-                                debugDC.DrawEllipse(Brushes.Red, null, quad2.A, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize * 1.5, feedbackSize * 1.5);
+                                debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, quad2.A(), feedbackSize, feedbackSize);
                             }
 #endif
 
@@ -348,7 +352,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                                 if (showFeedback)
                                 {
-                                    debugDC.DrawEllipse(Brushes.Orange, null, intersection, feedbackSize, feedbackSize);
+                                    debugDC.DrawEllipse(QBrush(Qt::orange), Qt::NoPen, intersection, feedbackSize, feedbackSize);
                                 }
 #endif
                             }
@@ -367,7 +371,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize, feedbackSize);
                             }
 #endif
                         }
@@ -381,8 +385,8 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize, feedbackSize);
-                                debugDC.DrawEllipse(Brushes.Blue, null, quad2.D, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad2.D(), feedbackSize, feedbackSize);
                             }
 #endif
                         }
@@ -397,7 +401,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize, feedbackSize);
                             }
 #endif
                         }
@@ -412,8 +416,8 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize * 1.5, feedbackSize * 1.5);
-                                debugDC.DrawEllipse(Brushes.Blue, null, quad2.D, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize * 1.5, feedbackSize * 1.5);
+                                debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad2.D(), feedbackSize, feedbackSize);
                             }
 #endif
 
@@ -423,7 +427,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                                 if (showFeedback)
                                 {
-                                    debugDC.DrawEllipse(Brushes.Orange, null, intersection, feedbackSize, feedbackSize);
+                                    debugDC.DrawEllipse(QBrush(Qt::orange), Qt::NoPen, intersection, feedbackSize, feedbackSize);
                                 }
 #endif
                             }
@@ -442,7 +446,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize, feedbackSize);
                             }
 #endif
 
@@ -457,8 +461,8 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize, feedbackSize);
-                                debugDC.DrawEllipse(Brushes.Red, null, quad2.A, feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize, feedbackSize);
+                                debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, quad2.A(), feedbackSize, feedbackSize);
                             }
 #endif
                         }
@@ -505,11 +509,11 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     if (showFeedback)
                     {
 
-                        debugDC.DrawRectangle(null, new Pen(Brushes.Pink, feedbackSize / 2), _operations->GetNodeBounds(_lastNode));
-                        debugDC.DrawEllipse(Brushes.Red, null, quad2.A, feedbackSize, feedbackSize);
-                        debugDC.DrawEllipse(Brushes.Green, null, quad1.B, feedbackSize, feedbackSize);
-                        debugDC.DrawEllipse(Brushes.Yellow, null, quad1.C, feedbackSize, feedbackSize);
-                        debugDC.DrawEllipse(Brushes.Blue, null, quad2.D, feedbackSize, feedbackSize);
+                        debugDC.DrawRectangle(QBrush(), QPen(Qt::pink, feedbackSize / 2), _operations->GetNodeBounds(_lastNode));
+                        debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, quad2.A(), feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad1.B(), feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad1.C(), feedbackSize, feedbackSize);
+                        debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad2.D(), feedbackSize, feedbackSize);
                     }
 #endif
 
@@ -546,7 +550,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Orange, null, intersection, feedbackSize, feedbackSize * 1.5);
+                                debugDC.DrawEllipse(QBrush(Qt::orange), Qt::NoPen, intersection, feedbackSize, feedbackSize * 1.5);
                             }
 #endif
                         }
@@ -591,7 +595,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
-                                debugDC.DrawEllipse(Brushes.Orange, null, intersection, feedbackSize, feedbackSize * 1.5);
+                                debugDC.DrawEllipse(QBrush(Qt::orange), Qt::NoPen, intersection, feedbackSize, feedbackSize * 1.5);
                             }
 #endif
                         }

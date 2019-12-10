@@ -9,10 +9,7 @@
 #include <QtMath>
 #include <QTransform>
 
-#define DEBUG_RENDERING_FEEDBACK 0
-
 QPointF StrokeRenderer::ArcToMarker(DBL_MIN, DBL_MIN);
-
 
 /// <summary>
 /// Calculate the StreamGeometry for the StrokeNodes.
@@ -756,7 +753,7 @@ void StrokeRenderer::RenderTwoStrokeNodes(   StreamGeometryContext& context,
                                             QList<QPointF>& pointBuffer2,
                                             QList<QPointF>& pointBuffer3
 #if DEBUG_RENDERING_FEEDBACK
-                                           ,DrawingContext debugDC,
+                                           ,DrawingContext& debugDC,
                                            double feedbackSize,
                                            bool showFeedback
 #endif

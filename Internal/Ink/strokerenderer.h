@@ -8,6 +8,7 @@
 
 class StrokeNodeIterator;
 class DrawingAttributes;
+class DrawingContext;
 class Geometry;
 class Stroke;
 class StreamGeometryContext;
@@ -67,7 +68,7 @@ private:
                                                 QList<QPointF>& pointBuffer2,
                                                 QList<QPointF>& pointBuffer3
 #if DEBUG_RENDERING_FEEDBACK
-                                               ,DrawingContext debugDC,
+                                               ,DrawingContext& debugDC,
                                                double feedbackSize,
                                                bool showFeedback
 #endif

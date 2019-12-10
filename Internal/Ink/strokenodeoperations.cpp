@@ -1,5 +1,6 @@
 #include "Internal/Ink/strokenodeoperations.h"
 #include "Internal/Ink/ellipticalnodeoperations.h"
+#include "Internal/debug.h"
 
 /// <summary>
 ///
@@ -42,7 +43,7 @@ QRectF StrokeNodeOperations::GetNodeBounds(StrokeNodeData const & node)
         int i;
         for (i = 0; (i + 1) < _vertices.size(); i += 2)
         {
-            _shapeBounds |= QRectF(_vertices[i], _vertices[i + 1]);
+            _shapeBounds |= QRectF(_vertices[i], _vertices[i + 1]).normalized();
         }
         if (i < _vertices.size())
         {
@@ -168,10 +169,10 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
     // on the beginNode and B and C on the endNode. Basically, we're looking for segments AB and CD.
     // We iterate through the vertices of the beginNode, at each vertex we analyze location of the
     // connecting segment relative to the node's edges at the vertex, and enforce these rules:
-    //  - if the QPointF of the connecting segment at a vertex V[i] is on the left from QPointF V[i]V[i+1]
-    //    and not on the left from QPointF V[i-1]V[i], then it's the AB segment of the quad (V[i] == A).
-    //  - if the QPointF of the connecting segment at a vertex V[i] is on the left from QPointF V[i-1]V[i]
-    //    and not on the left from QPointF V[i]V[i+1], then it's the CD segment of the quad (V[i] == D).
+    //  - if the point of the connecting segment at a vertex V[i] is on the left from point V[i]V[i+1]
+    //    and not on the left from point V[i-1]V[i], then it's the AB segment of the quad (V[i] == A).
+    //  - if the point of the connecting segment at a vertex V[i] is on the left from point V[i-1]V[i]
+    //    and not on the left from point V[i]V[i+1], then it's the CD segment of the quad (V[i] == D).
     //
 
     Quad quad = Quad::Empty();
@@ -187,9 +188,10 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
     int count = _vertices.size();
     for (int i = 0, j = count - 1; i < count; i++, j = ((j + 1) % count))
     {
-        // Compute QPointF of the connecting segment at the vertex [i]
+        // Compute point of the connecting segment at the vertex [i]
         QPointF connection = spine + _vertices[i] * pressureDelta;
-        if ((pressureDelta != 0) && (connection.x() == 0) && (connection.y() == 0))
+        //if ((pressureDelta != 0) && (connection.x() == 0) && (connection.y() == 0))
+        if (!qFuzzyIsNull(pressureDelta) && qFuzzyIsNull(connection.x()) && qFuzzyIsNull(connection.y()))
         {
             // One of the nodes,                       |----|
             // as well as the connecting quad,         |__  |
@@ -198,9 +200,9 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
             return Quad::Empty();
         }
 
-        // Find out where this QPointF is about the node edge [i][i+1]
+        // Find out where this point is about the node edge [i][i+1]
         // (The vars names "goingTo" and "comingFrom" refer direction of the line defined
-        // by the connecting QPointF applied at vertex [i], relative to the contour of the node shape.
+        // by the connecting point applied at vertex [i], relative to the contour of the node shape.
         // Using these terms, (comingFrom != Right && goingTo == Left) corresponds to the segment AB,
         // and (comingFrom == Right && goingTo != Left) describes the DC.
         HitResult goingTo = WhereIsVectorAboutVector(connection, _vertices[(i + 1) % count] - _vertices[i]);
@@ -246,7 +248,8 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
     }
 
     if (!foundAB || !foundCD ||   // (2)
-        ((pressureDelta != 0) && Determinant(quad.B() - quad.A(), quad.D() - quad.A()) == 0)) // (1)
+        //((pressureDelta != 0) && Determinant(quad.B() - quad.A(), quad.D() - quad.A()) == 0)) // (1)
+        (!qFuzzyIsNull(pressureDelta) && qFuzzyIsNull(Determinant(quad.B() - quad.A(), quad.D() - quad.A())))) // (1)
     {
         //                                          _____        _______
         // One of the nodes,                    (1) |__  |   (2) | ___  |

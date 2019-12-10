@@ -21,7 +21,7 @@ public:
     /// This is probably not the best (design-wise) but the cheapest way to tell
     /// EllipticalNodeOperations from all other implementations of node operations.
     /// </summary>
-    virtual bool IsNodeShapeEllipse() { return true; }
+    virtual bool IsNodeShapeEllipse() override { return true; }
 
     /// <summary>
     /// Finds connecting points for a pair of stroke nodes
@@ -29,7 +29,7 @@ public:
     /// <param name="beginNode">a node to connect</param>
     /// <param name="endNode">another node, next to beginNode</param>
     /// <returns>connecting quadrangle</returns>
-    virtual Quad GetConnectingQuad(StrokeNodeData& beginNode, StrokeNodeData endNode);
+    virtual Quad GetConnectingQuad(StrokeNodeData const & beginNode, StrokeNodeData const & endNode) override;
 
     /// <summary>
     ///
@@ -37,7 +37,7 @@ public:
     /// <param name="node"></param>
     /// <param name="quad"></param>
     /// <returns></returns>
-    virtual QList<ContourSegment> GetContourSegments(StrokeNodeData& node, Quad& quad);
+    virtual QList<ContourSegment> GetContourSegments(StrokeNodeData const &node, Quad& quad) override;
 
     /// <summary>
     /// ISSUE-2004/06/15- temporary workaround to avoid hit-testing ellipses with ellipses
@@ -45,7 +45,7 @@ public:
     /// <param name="beginNode"></param>
     /// <param name="endNode"></param>
     /// <returns></returns>
-    virtual QList<ContourSegment> GetNonBezierContourSegments(StrokeNodeData& beginNode, StrokeNodeData& endNode);
+    virtual QList<ContourSegment> GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode) override;
 
 
     /// <summary>
@@ -59,7 +59,7 @@ public:
     /// <param name="hitEndPoint">an end point of the hitting linear segment</param>
     /// <returns>true if the hitting segment intersect the contour comprised of the two stroke nodes</returns>
     virtual bool HitTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint) override;
 
     /// <summary>
     /// Hit-tests a stroke segment defined by two nodes against another stroke segment.
@@ -71,10 +71,10 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns>true if the contours intersect or overlap</returns>
     virtual bool HitTest(
-        StrokeNodeData beginNode, StrokeNodeData endNode, Quad quad, QList<ContourSegment> hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, QList<ContourSegment> const & hitContour) override;
 
     /// <summary>
-    /// Cut-test ink segment defined by two nodes and a connecting quad against a linear segment
+    /// Cut-test ink segment defined by two nodes and a connecting Quad & against a linear segment
     /// </summary>
     /// <param name="beginNode">Begin node of the ink segment</param>
     /// <param name="endNode">End node of the ink segment</param>
@@ -83,7 +83,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData beginNode, StrokeNodeData endNode, Quad quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint) override;
 
     /// <summary>
     /// CutTest an inking StrokeNode segment (two nodes and a connecting quadrangle) against a hitting contour
@@ -95,7 +95,7 @@ public:
     /// <param name="hitContour">The hitting ContourSegments</param>
     /// <returns>StrokeFIndices representing the location for cutting</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData& beginNode, StrokeNodeData& endNode, Quad& quad, QList<ContourSegment> hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour) override;
 
     /// <summary>
     /// Clip-Testing a circluar inking segment against a linear segment.

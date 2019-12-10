@@ -1,5 +1,6 @@
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Ink/stylusshape.h"
+#include "Windows/Ink/knownids.h"
 #include "Windows/Ink/events.h"
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Internal/doubleutil.h"

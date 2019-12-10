@@ -16,6 +16,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+DEFINES += DEBUG_RENDERING_FEEDBACK=1
+DEFINES += DEBUG_OUTPUT=0
+DEFINES += OLD_ISF=0
+
 SOURCES += \
     collection.cpp \
     eventargs.cpp \
@@ -66,5 +70,6 @@ unix {
 
 win32 {
     #INCLUDEPATH += "C:\Program Files (x86)\Microsoft Tablet PC Platform SDK\Include"
-    LIBS += -ladvapi32 -L$$PWD -lmshwgst
+    LIBS += -ladvapi32
+    #LIBS += -L$$PWD -lmshwgst
 }

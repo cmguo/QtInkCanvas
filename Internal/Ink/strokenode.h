@@ -11,6 +11,7 @@
 
 class ContourSegment;
 class StrokeRenderer;
+class DrawingContext;
 
 class StrokeNodeOperations;
 
@@ -176,7 +177,7 @@ public:
     void GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                                             QList<QPointF> & dcPoints
 #if DEBUG_RENDERING_FEEDBACK
-                                            , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                            , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                             );
 
@@ -187,7 +188,7 @@ public:
     void GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
                                             QList<QPointF>& dcPoints
 #if DEBUG_RENDERING_FEEDBACK
-                                            , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                            , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                             );
 
@@ -200,7 +201,7 @@ public:
                                             QList<QPointF> & dcPoints,
                                             bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
-                                            , DrawingContext debugDC, double feedbackSize, bool showFeedback
+                                            , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
                                             );
 

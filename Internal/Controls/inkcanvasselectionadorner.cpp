@@ -337,9 +337,9 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
     // After that, the underneath elements can receive the messages.
 #if DEBUG_OUTPUT
     // Draw the debug feedback
-    drawingContext.DrawGeometry(new SolidColorBrush(Color.FromArgb(128, 255, 255, 0)), QPen(Qt::NoPen), *backgroundGeometry);
+    drawingContext.DrawGeometry(QBrush(QColor::fromRgba(255, 255, 0, 128)), Qt::NoPen, backgroundGeometry);
 #else
-    drawingContext.DrawGeometry(QBrush(Qt::transparent), QPen(Qt::NoPen), backgroundGeometry);
+    drawingContext.DrawGeometry(QBrush(Qt::transparent), Qt::NoPen, backgroundGeometry);
 #endif
 
     // At last, draw the hatch borders

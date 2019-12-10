@@ -11,6 +11,7 @@
 #include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
 #include "Windows/Ink/stroke.h"
+#include "Windows/Ink/knownids.h"
 #include "Windows/Ink/strokecollection.h"
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Input/styluspointdescription.h"

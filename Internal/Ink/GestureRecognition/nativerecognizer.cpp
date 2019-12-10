@@ -34,7 +34,7 @@ NativeRecognizer::NativeRecognizer()
 {
     Debug::Assert(NativeRecognizer::RecognizerHandleSingleton() != nullptr);
 
-    int hr = ::CreateContext(NativeRecognizer::RecognizerHandleSingleton(),
+    int hr = CreateContext(NativeRecognizer::RecognizerHandleSingleton(),
                                                                 &_hContext);
     if (FAILED(hr))
     {
@@ -168,7 +168,7 @@ QList<GestureRecognitionResult> NativeRecognizer::Recognize(QSharedPointer<Strok
     //try
     {
         // Reset the context
-        hr = ::ResetContext(_hContext);
+        hr = ResetContext(_hContext);
         if (FAILED(hr))
         {
             //finally block will clean up and throw
@@ -185,7 +185,7 @@ QList<GestureRecognitionResult> NativeRecognizer::Recognize(QSharedPointer<Strok
 
         // recognize the ink
         BOOL bIncremental;
-        hr = ::Process(_hContext, &bIncremental);
+        hr = Process(_hContext, &bIncremental);
 
         if (SUCCEEDED(hr))
         {
@@ -305,7 +305,7 @@ void NativeRecognizer::Dispose()
         return;
     }
 
-    ::DestroyContext(_hContext);
+    DestroyContext(_hContext);
     _disposed = true;
 }
 
@@ -396,6 +396,16 @@ bool NativeRecognizer::LoadRecognizerDll()
         s_GetAlternateListExists = false;
         if ( hModule != nullptr )
         {
+            CreateRecognizer = GetProcAddressT(hModule, "CreateRecognizer", CreateRecognizer);
+            DestroyRecognizer = GetProcAddressT(hModule, "DestroyRecognizer", DestroyRecognizer);
+            CreateContext = GetProcAddressT(hModule, "CreateContext", CreateContext);
+            AddStroke = GetProcAddressT(hModule, "AddStroke", AddStroke);
+            ResetContext = GetProcAddressT(hModule, "ResetContext", ResetContext);
+            Process = GetProcAddressT(hModule, "Process", Process);
+            SetEnabledUnicodeRanges = GetProcAddressT(hModule, "SetEnabledUnicodeRanges", SetEnabledUnicodeRanges);
+            EndInkInput = GetProcAddressT(hModule, "EndInkInput", EndInkInput);
+            GetLatticePtr = GetProcAddressT(hModule, "GetLatticePtr", GetLatticePtr);
+
             s_GetAlternateListExists = ::GetProcAddress(
                 hModule, "GetAlternateList") != nullptr ?
                 true : false;
@@ -460,7 +470,7 @@ int NativeRecognizer::SetEnabledGestures(HRECOCONTEXT recContext, QList<Applicat
             charRanges[i].wcLow = static_cast<ushort>( enabledGestures[i] );
         }
     }
-    int hr = ::SetEnabledUnicodeRanges(recContext, static_cast<ULONG>(cRanges), &charRanges[0]);
+    int hr = SetEnabledUnicodeRanges(recContext, static_cast<ULONG>(cRanges), &charRanges[0]);
     return hr;
 }
 
@@ -495,7 +505,7 @@ int NativeRecognizer::AddStrokes(HRECOCONTEXT recContext, QSharedPointer<StrokeC
                 return -2147483640; //E_FAIL - 0x80000008.  We never raise this in an exception
             }
 
-            hr = ::AddStroke(recContext, &packetDescription, static_cast<ULONG>(countOfBytes), reinterpret_cast<BYTE*>(&packets[0]), &xForm);
+            hr = AddStroke(recContext, &packetDescription, static_cast<ULONG>(countOfBytes), reinterpret_cast<BYTE*>(&packets[0]), &xForm);
             if ( FAILED(hr) )
             {
                 // Return from here. The finally block will free the memory and report the error properly.
@@ -509,7 +519,7 @@ int NativeRecognizer::AddStrokes(HRECOCONTEXT recContext, QSharedPointer<StrokeC
         }
     }
 
-    return ::EndInkInput(recContext);
+    return EndInkInput(recContext);
 
 }
 
@@ -769,7 +779,7 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetLatticePtr()
     // There is no need to free the returned the structure.
     // The memory will be released when ResetContext, which is invoked in the callee - Recognize, is called.
     if ( SUCCEEDED(
-        ::GetLatticePtr(
+        GetLatticePtr(
         _hContext, &ptr)) )
     {
         //unsafe
@@ -863,7 +873,7 @@ HRECOGNIZER NativeRecognizer::RecognizerHandleSingleton()
             if (s_isSupported && s_hRec == nullptr)
             {
                 CLSID id = s_Gesture;
-                if (FAILED(::CreateRecognizer(&id, &s_hRec)))
+                if (FAILED(CreateRecognizer(&id, &s_hRec)))
                 {
                     s_hRec = nullptr;
                 }
@@ -889,7 +899,7 @@ QMutex     NativeRecognizer::_syncRoot;
 ///     Critical: The SecurityCritical handle
 /// </SecurityNote>
 //[SecurityCritical]
-HRECOGNIZER NativeRecognizer::s_hRec;
+HRECOGNIZER NativeRecognizer::s_hRec = nullptr;
 
 /// <summary>
 /// The QUuid of the GestureRecognizer used for registry lookup
@@ -899,14 +909,26 @@ QUuid        NativeRecognizer::s_Gesture = QUuid(GestureRecognizerGuid);
 /// <summary>
 /// can we load the recognizer?
 /// </summary>
-bool NativeRecognizer::s_isSupported;
+bool NativeRecognizer::s_isSupported = false;
 
 /// <summary>
 /// A flag indicates whether we can find the entry point of
 /// GetAlternateList function in mshwgst.dll
 /// </summary>
-bool NativeRecognizer::s_GetAlternateListExists;
+bool NativeRecognizer::s_GetAlternateListExists = false;
 
+
+HRESULT (WINAPI *NativeRecognizer::CreateRecognizer)(CLSID *pCLSID, HRECOGNIZER *phrec) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::DestroyRecognizer)(HRECOGNIZER hrec) = nullptr;
+
+HRESULT (WINAPI *NativeRecognizer::CreateContext)(HRECOGNIZER hrec, HRECOCONTEXT *phrc) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::DestroyContext)(HRECOCONTEXT hrc) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::AddStroke)(HRECOCONTEXT hrc, const PACKET_DESCRIPTION* pPacketDesc, ULONG cbPacket, const BYTE *pPacket, const XFORM *pXForm) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::ResetContext)(HRECOCONTEXT hrc) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::Process)(HRECOCONTEXT hrc, BOOL *pbPartialProcessing) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::SetEnabledUnicodeRanges)(HRECOCONTEXT hrc, ULONG cRanges, CHARACTER_RANGE *pcr) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::EndInkInput)(HRECOCONTEXT hrc) = nullptr;
+HRESULT (WINAPI *NativeRecognizer::GetLatticePtr)(HRECOCONTEXT hrc, RECO_LATTICE **ppLattice) = nullptr;
 
 HRESULT (WINAPI *NativeRecognizer::GetAlternateList)(HRECOCONTEXT hrc, RECO_RANGE* pRecoRange, ULONG*pcAlt, HRECOALT*phrcalt, ALT_BREAKS iBreak) = nullptr;
 HRESULT (WINAPI *NativeRecognizer::GetString)(HRECOALT hrcalt, RECO_RANGE *pRecoRange, ULONG* pcSize, WCHAR* pwcString) = nullptr;

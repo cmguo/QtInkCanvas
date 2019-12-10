@@ -2,7 +2,6 @@
 #define STROKENODEDATA_H
 
 #include "Internal/doubleutil.h"
-#include "debug.h"
 
 #include <QPointF>
 
@@ -28,31 +27,17 @@ public:
     /// Constructor for nodes of a pressure insensitive stroke
     /// </summary>
     /// <param name="position">position of the node</param>
-    StrokeNodeData(QPointF const & position)
-    {
-        _position = position;
-        _pressure = 1;
-    }
+    StrokeNodeData(QPointF const & position);
 
     /// <summary>
     /// Constructor for nodes with pressure data
     /// </summary>
     /// <param name="position">position of the node</param>
     /// <param name="pressure">pressure scaling factor at the node</param>
-    StrokeNodeData(QPointF const & position, double pressure)
-    {
-        Debug::Assert(DoubleUtil::GreaterThan(pressure, 0));
-
-        _position = position;
-        _pressure = pressure;
-    }
+    StrokeNodeData(QPointF const & position, double pressure);
 
     /// <summary> Tells whether the structre was properly initialized </summary>
-    bool IsEmpty() const
-    {
-        Debug::Assert(DoubleUtil::AreClose(0, s_empty._pressure));
-        return DoubleUtil::AreClose(_pressure, s_empty._pressure);
-    }
+    bool IsEmpty() const;
 
     /// <summary> Position of the node </summary>
     QPointF const & Position() const

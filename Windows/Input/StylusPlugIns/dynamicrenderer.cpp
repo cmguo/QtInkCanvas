@@ -582,7 +582,7 @@ void DynamicRenderer::RemoveDynamicRendererVisualAndNotifyWhenDone(StrokeInfo* s
         {
             // We are being called by the main UI thread, so marshal over to
             // the inking thread before cleaning up the stroke visual.
-            Dispatcher::from(renderingThread)->BeginInvoke([this, si](void* unused)
+            Dispatcher::from(renderingThread)->BeginInvoke([this, si](void*)
             {
                 if (si->StrokeRTICV ()!= nullptr)
                 {
@@ -629,7 +629,7 @@ void DynamicRenderer::NotifyAppOfDRThreadRenderComplete(StrokeInfo* si)
     {
         // We are being called by the inking thread, so marshal over to
         // the UI thread before handling the StrokeInfos that are done rendering.
-        dispatcher->BeginInvoke([this, si](void* unused)
+        dispatcher->BeginInvoke([this, si](void*)
         {
             // See if this is the one we are doing a full transition for.
             if (si == _renderCompleteStrokeInfo)
@@ -689,7 +689,7 @@ void DynamicRenderer::OnDRThreadRenderComplete(EventArgs& e)
                 {
                     // Post this back to our thread to make sure we return from the
                     // this render complete call first before queuing up the next.
-                    drDispatcher->BeginInvoke([siNext](void* unused) {
+                    drDispatcher->BeginInvoke([siNext](void*) {
                             ((ContainerVisual*)siNext->StrokeHV()->GetVisualTarget()->RootVisual())->Children().Remove(siNext->StrokeRTICV());
                             siNext->SetStrokeRTICV(nullptr);
                             return nullptr;
@@ -737,6 +737,7 @@ void DynamicRenderer::OnStylusUpProcessed(void* callbackData, bool targetVerifie
 
 void DynamicRenderer::OnInternalRenderComplete(EventArgs& e)
 {
+    (void) e;
     // First unhook event handler
     //MediaContext.From(_applicationDispatcher).RenderComplete -= _onRenderComplete;
     _waitingForRenderComplete = false;
@@ -785,6 +786,7 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
                                 Geometry* geometry,
                                 QBrush fillBrush)
 {
+    (void) stylusPoints;
     //if (drawingContext == nullptr)
     //{
     //    throw std::exception("drawingContext");
@@ -827,11 +829,12 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         // Create a PathGeometry representing the contour of the ink increment
         Geometry* strokeGeometry = nullptr;
         QRectF bounds;
+        std::unique_ptr<DrawingContext> debugDC;
         StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator(),
                                              *si->GetDrawingAttributes(),
 #if DEBUG_RENDERING_FEEDBACK
-                                             nullptr, //debug dc
-                                             0d,   //debug feedback size
+                                             *debugDC, //debug dc
+                                             0,   //debug feedback size
                                              false,//render debug feedback
 #endif
                                              false, //calc bounds
@@ -893,7 +896,7 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
             {
                 // We are on a pen thread so marshal this call to our inking thread.
                 drDispatcher.BeginInvoke(DispatcherPriority.Send,
-                (DispatcherOperationCallback) delegate(object unused)
+                (DispatcherOperationCallback) delegate(object)
                 {
                     QBrush fillBrush = si->FillBrush;
 
@@ -1216,7 +1219,7 @@ void DynamicRenderer::DestroyRealTimeVisuals()
 
         if (drDispatcher != nullptr)
         {
-            drDispatcher->BeginInvoke([this, renderingThread](void* unused)
+            drDispatcher->BeginInvoke([this, renderingThread](void*)
             {
                 _renderCompleteDRThreadStrokeInfoList.clear();
 

@@ -317,6 +317,18 @@ private:
     /// </summary>
     static bool s_GetAlternateListExists;
 
+    static HRESULT (WINAPI *CreateRecognizer)(CLSID *pCLSID, HRECOGNIZER *phrec);
+    static HRESULT (WINAPI *DestroyRecognizer)(HRECOGNIZER hrec);
+
+    static HRESULT (WINAPI *CreateContext)(HRECOGNIZER hrec, HRECOCONTEXT *phrc);
+    static HRESULT (WINAPI *DestroyContext)(HRECOCONTEXT hrc);
+    static HRESULT (WINAPI *AddStroke)(HRECOCONTEXT hrc, const PACKET_DESCRIPTION* pPacketDesc, ULONG cbPacket, const BYTE *pPacket, const XFORM *pXForm);
+    static HRESULT (WINAPI *ResetContext)(HRECOCONTEXT hrc);
+    static HRESULT (WINAPI *Process)(HRECOCONTEXT hrc, BOOL *pbPartialProcessing);
+    static HRESULT (WINAPI *SetEnabledUnicodeRanges)(HRECOCONTEXT hrc, ULONG cRanges, CHARACTER_RANGE *pcr);
+    static HRESULT (WINAPI *EndInkInput)(HRECOCONTEXT hrc);
+    static HRESULT (WINAPI *GetLatticePtr)(HRECOCONTEXT hrc, RECO_LATTICE **ppLattice);
+
     static HRESULT (WINAPI *GetAlternateList)(HRECOCONTEXT hrc, RECO_RANGE* pRecoRange, ULONG*pcAlt, HRECOALT*phrcalt, ALT_BREAKS iBreak);
     static HRESULT (WINAPI *GetString)(HRECOALT hrcalt, RECO_RANGE *pRecoRange, ULONG* pcSize, WCHAR* pwcString);
     static HRESULT (WINAPI *GetConfidenceLevel)(HRECOALT hrcalt, RECO_RANGE* pRecoRange, CONFIDENCE_LEVEL* pcl);

@@ -8,6 +8,7 @@
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Ink/stroke.h"
+#include "Windows/Ink/knownids.h"
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Ink/extendedproperty.h"
 #include "Windows/Input/styluspointproperties.h"
