@@ -9,21 +9,15 @@
 class ExtendedProperty
 {
 public:
+    static ExtendedProperty Empty;
+
     /// <summary>
     /// Create a new drawing attribute with the specified key and value
     /// </summary>
     /// <param name="id">Identifier of attribute</param>
     /// <param name="value">Attribute value - not that the Type for value is tied to the id</param>
     /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
-    ExtendedProperty(QUuid const & id, QVariant value)
-    {
-        if (id.isNull())
-        {
-            throw std::exception("(SR.Get(SRID.InvalidQUuid)");
-        }
-        _id = id;
-        _value = value;
-    }
+    ExtendedProperty(QUuid const & id, QVariant value);
 
     /// <summary>Returns a value that can be used to store and lookup
     /// ExtendedProperty QVariants in a hash table</summary>
@@ -114,7 +108,7 @@ public:
     /// <summary>
     /// Retrieve the Identifier, or key, for Drawing Attribute key/value pair
     /// </summary>
-    QUuid Id() const
+    QUuid const & Id() const
     {
         return _id;
     }
@@ -123,11 +117,11 @@ public:
     /// </summary>
     /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
     /// <remarks>Value can be null.</remarks>
-    QVariant Value() const
+    QVariant const & Value() const
     {
        return _value;
     }
-    void SetValue(QVariant value)
+    void SetValue(QVariant const & value)
     {
         if (value.isNull())
         {
@@ -139,6 +133,9 @@ public:
 
         _value = value;
     }
+
+private:
+    ExtendedProperty();
 
     /// <summary>
     /// Creates a copy of the QUuid and Value

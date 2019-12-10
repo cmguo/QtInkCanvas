@@ -1,4 +1,4 @@
-#include "rawstylusactions.h"
+#include "Windows/Input/StylusPlugIns/rawstylusactions.h"
 
 const RawStylusActions RawStylusActionsHelper::MaxActions =
     RawStylusActions::None |

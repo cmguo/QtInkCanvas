@@ -4,7 +4,7 @@
 #include "Internal/Ink/lasso.h"
 #include "Windows/Input/styluspoint.h"
 #include "Windows/Ink/events.h"
-#include "debug.h"
+#include "Internal/debug.h"
 
 IncrementalHitTester::IncrementalHitTester()
 {

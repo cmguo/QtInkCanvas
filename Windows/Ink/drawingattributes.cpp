@@ -1,6 +1,7 @@
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Ink/stylusshape.h"
 #include "Windows/Ink/events.h"
+#include "Windows/Ink/extendedpropertycollection.h"
 #include "Internal/doubleutil.h"
 
 /// <summary>
@@ -8,6 +9,7 @@
 /// </summary>
 DrawingAttributes::DrawingAttributes()
 {
+    _extendedProperties = new ExtendedPropertyCollection;
     Initialize();
 }
 
@@ -15,7 +17,7 @@ DrawingAttributes::DrawingAttributes()
 /// only constructor that initializes a DA with an EPC
 /// </summary>
 /// <param name="extendedProperties"></param>
-DrawingAttributes::DrawingAttributes(QMap<QUuid, QVariant> const & extendedProperties)
+DrawingAttributes::DrawingAttributes(ExtendedPropertyCollection* extendedProperties)
 {
     //System.Diagnostics.Debug.Assert(extendedProperties != null);
     _extendedProperties = extendedProperties;
@@ -33,7 +35,7 @@ DrawingAttributes::~DrawingAttributes()
 void DrawingAttributes::Initialize()
 {
     //System.Diagnostics.Debug.Assert(_extendedProperties != null);
-    //_extendedProperties.Changed +=
+    //_extendedProperties->Changed +=
     //    new ExtendedPropertiesChangedEventHandler(this.ExtendedPropertiesChanged_EventForwarder);
 }
 
@@ -44,7 +46,7 @@ void DrawingAttributes::Initialize()
 QColor DrawingAttributes::Color() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::Color))
+    if (!_extendedProperties->Contains(KnownIds::Color))
     {
         //Debug.Assert(Colors.Black == (Color)GetDefaultDrawingAttributeValue(KnownIds::Color));
         return QColor(Qt::black);
@@ -66,7 +68,7 @@ void DrawingAttributes::SetColor(QColor value)
 StylusTip DrawingAttributes::GetStylusTip() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::StylusTip))
+    if (!_extendedProperties->Contains(KnownIds::StylusTip))
     {
         //Debug.Assert(StylusTip.Ellipse == (StylusTip)GetDefaultDrawingAttributeValue(KnownIds::StylusTip));
         return StylusTip::Ellipse;
@@ -93,7 +95,7 @@ void DrawingAttributes::SetStylusTip(StylusTip value)
 QMatrix DrawingAttributes::StylusTipTransform() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::StylusTipTransform))
+    if (!_extendedProperties->Contains(KnownIds::StylusTipTransform))
     {
         //Debug.Assert(Matrix.Identity == (Matrix)GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform));
         return QMatrix();
@@ -101,9 +103,9 @@ QMatrix DrawingAttributes::StylusTipTransform() const
     return GetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform).value<QMatrix>();
 }
 
-void DrawingAttributes::SetStylusTipTransform(QMatrix value)
+void DrawingAttributes::SetStylusTipTransform(QMatrix const & value)
 {
-    QMatrix m = (QMatrix) value;
+    QMatrix const & m = value;
     if (m.dx() != 0 || m.dy() != 0)
     {
         throw std::exception("value");
@@ -120,7 +122,7 @@ void DrawingAttributes::SetStylusTipTransform(QMatrix value)
 double DrawingAttributes::Height() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::StylusHeight))
+    if (!_extendedProperties->Contains(KnownIds::StylusHeight))
     {
         //Debug.Assert(DrawingAttributes.DefaultHeight == (double)GetDefaultDrawingAttributeValue(KnownIds::StylusHeight));
         return DefaultHeight;
@@ -145,7 +147,7 @@ void DrawingAttributes::SetHeight(double value)
 double DrawingAttributes::Width() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::StylusWidth))
+    if (!_extendedProperties->Contains(KnownIds::StylusWidth))
     {
         //Debug.Assert(DrawingAttributes.DefaultWidth == (double)GetDefaultDrawingAttributeValue(KnownIds::StylusWidth));
         return DefaultWidth;
@@ -223,7 +225,7 @@ void DrawingAttributes::SetIgnorePressure(bool value)
 bool DrawingAttributes::IsHighlighter() const
 {
     //prevent boxing / unboxing if possible
-    if (!_extendedProperties.contains(KnownIds::IsHighlighter))
+    if (!_extendedProperties->Contains(KnownIds::IsHighlighter))
     {
         //Debug.Assert(false == (bool)GetDefaultDrawingAttributeValue(KnownIds::IsHighlighter));
         return false;
@@ -270,7 +272,7 @@ void DrawingAttributes::AddPropertyData(QUuid const & propertyDataId, QVariant p
 /// <param name="propertyDataId"></param>
 void DrawingAttributes::RemovePropertyData(QUuid const & propertyDataId)
 {
-    _extendedProperties.remove(propertyDataId);
+    _extendedProperties->Remove(propertyDataId);
 }
 
 /// <summary>
@@ -287,7 +289,7 @@ QVariant DrawingAttributes::GetPropertyData(QUuid const & propertyDataId)
 /// </summary>
 QVector<QUuid> DrawingAttributes::GetPropertyDataIds()
 {
-    return _extendedProperties.keys().toVector();
+    return _extendedProperties->GetGuidArray();
 }
 
 /// <summary>
@@ -296,22 +298,22 @@ QVector<QUuid> DrawingAttributes::GetPropertyDataIds()
 /// <param name="propertyDataId"></param>
 bool DrawingAttributes::ContainsPropertyData(QUuid const & propertyDataId)
 {
-    return _extendedProperties.contains(propertyDataId);
+    return _extendedProperties->Contains(propertyDataId);
 }
 
 /// <summary>
 /// ExtendedProperties
 /// </summary>
-QMap<QUuid, QVariant> DrawingAttributes::ExtendedProperties()
+ExtendedPropertyCollection& DrawingAttributes::ExtendedProperties()
 {
-    return _extendedProperties;
+    return *_extendedProperties;
 }
 
 
 /// <summary>
 /// Returns a copy of the EPC
 /// </summary>
-QMap<QUuid, QVariant> DrawingAttributes::CopyPropertyData()
+ExtendedPropertyCollection* DrawingAttributes::CopyPropertyData()
 {
     return _extendedProperties;
 }
@@ -340,18 +342,18 @@ StylusShape * DrawingAttributes::GetStylusShape()
 /// </summary>
 int DrawingAttributes::FittingError()
 {
-    if (!_extendedProperties.contains(KnownIds::CurveFittingError))
+    if (!_extendedProperties->Contains(KnownIds::CurveFittingError))
     {
         return 0;
     }
     else
     {
-        return _extendedProperties[KnownIds::CurveFittingError].toInt();
+        return (*_extendedProperties)[KnownIds::CurveFittingError].toInt();
     }
 }
 void DrawingAttributes::SetFittingError(int value)
 {
-    _extendedProperties[KnownIds::CurveFittingError] = value;
+    _extendedProperties->Set(KnownIds::CurveFittingError, value);
 }
 
 /// <summary>
@@ -420,7 +422,7 @@ QSharedPointer<DrawingAttributes> DrawingAttributes::Clone()
     // require ReflectionPermission.  One thing to note, all references
     // are shared, including event delegates, so we need to set those to null
     //
-    QSharedPointer<DrawingAttributes> clone(new DrawingAttributes(_extendedProperties));
+    QSharedPointer<DrawingAttributes> clone(new DrawingAttributes(_extendedProperties->Clone()));
 
     clone->Initialize();
 
@@ -569,7 +571,7 @@ bool DrawingAttributes::IsGeometricalDaGuid(QUuid const & QUuid)
 /// <param name="value">value</param>
 void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVariant value)
 {
-    if (_extendedProperties.contains(id))
+    if (_extendedProperties->Contains(id))
     {
         //
         // check to see if we're setting the property back
@@ -581,7 +583,7 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
         {
             if (defaultValue == value)
             {
-                _extendedProperties.remove(id);
+                _extendedProperties->Remove(id);
                 return;
             }
         }
@@ -593,7 +595,7 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
         QVariant o = GetExtendedPropertyBackedProperty(id);
         if (o != value)
         {
-            _extendedProperties[id] = value;
+            _extendedProperties->Set(id, value);
         }
     }
     else
@@ -605,7 +607,7 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
         QVariant defaultValue = GetDefaultDrawingAttributeValue(id);
         if (defaultValue.isNull() || defaultValue != value)
         {
-            _extendedProperties[id] = value;
+            _extendedProperties->Set(id, value);
         }
     }
 }
@@ -618,7 +620,7 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
 /// <returns></returns>
 QVariant DrawingAttributes::GetExtendedPropertyBackedProperty(QUuid const & id) const
 {
-    if (!_extendedProperties.contains(id))
+    if (!_extendedProperties->Contains(id))
     {
         if (GetDefaultDrawingAttributeValue(id).isValid())
         {
@@ -628,7 +630,7 @@ QVariant DrawingAttributes::GetExtendedPropertyBackedProperty(QUuid const & id) 
     }
     else
     {
-        return _extendedProperties[id];
+        return (*_extendedProperties)[id];
     }
 }
 

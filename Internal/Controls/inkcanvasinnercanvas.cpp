@@ -1,8 +1,8 @@
 #include "Internal/Controls/inkcanvasinnercanvas.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Internal/Ink/inkcanvasselection.h"
-#include "debug.h"
 #include "Windows/Media/hittestresult.h"
+#include "Internal/debug.h"
 
 //------------------------------------------------------
 //

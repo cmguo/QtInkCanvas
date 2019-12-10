@@ -1,6 +1,6 @@
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Ink/events.h"
-#include "debug.h"
+#include "Internal/debug.h"
 
 #include <QVector>
 
@@ -123,7 +123,7 @@ void ExtendedPropertyCollection::Remove(QUuid const& id)
 
     ExtendedProperty* propertyToRemove = GetExtendedPropertyById(id);
     Debug::Assert(propertyToRemove != nullptr );
-    ExtendedPropertiesChangedEventArgs eventArgs(*propertyToRemove, ExtendedProperty(QUuid(), QVariant()) );
+    ExtendedPropertiesChangedEventArgs eventArgs(*propertyToRemove, ExtendedProperty::Empty );
 
     _extendedProperties.removeOne(*propertyToRemove);
 
@@ -188,7 +188,7 @@ void ExtendedPropertyCollection::Set(QUuid const& attributeId, QVariant value)
     }
     for (int i = 0; i < _extendedProperties.size(); i++)
     {
-        ExtendedProperty currentProperty = _extendedProperties[i];
+        ExtendedProperty& currentProperty = _extendedProperties[i];
 
         if (currentProperty.Id() == attributeId)
         {
@@ -230,7 +230,7 @@ void ExtendedPropertyCollection::Add(ExtendedProperty const & extendedProperty)
     // fire notification event
     //if (this.Changed != nullptr )
     {
-        ExtendedPropertiesChangedEventArgs eventArgs(ExtendedProperty(QUuid(), QVariant()), extendedProperty);
+        ExtendedPropertiesChangedEventArgs eventArgs(ExtendedProperty::Empty, extendedProperty);
         Changed(eventArgs);
     }
 }

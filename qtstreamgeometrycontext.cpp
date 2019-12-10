@@ -61,6 +61,8 @@ void QtStreamGeometryContext::PolyBezierTo(const QList<QPointF> &points, bool is
 
 void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
 {
+    path_.lineTo(point);
+    return;
     qDebug() << path_.currentPosition() << point << size << rotationAngle << isLargeArc << sweepDirection;
     // pt1, pt2 are two points in unit circle (location at [0, 0] and with r = 1)
     //   pt1 = [cos(t1) , sin(t1)]

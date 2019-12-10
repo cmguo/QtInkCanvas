@@ -5,8 +5,8 @@
 #include "Windows/Ink/incrementalhittester.h"
 #include "Windows/Controls/inkevents.h"
 #include "Internal/Ink/pencursormanager.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QApplication>
 #include <QScreen>

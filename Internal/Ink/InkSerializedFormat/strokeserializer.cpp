@@ -3,6 +3,8 @@
 #include "Internal/Ink/InkSerializedFormat/strokedescriptor.h"
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Internal/Ink/InkSerializedFormat/metricblock.h"
+#include "Internal/Ink/InkSerializedFormat/compress.h"
+#include "Internal/Ink/InkSerializedFormat/algomodule.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Ink/stroke.h"
@@ -12,29 +14,6 @@
 
 #include <QIODevice>
 
-#if OLD_ISF
-/// <summary>
-/// Loads a stroke from the stream based on Stroke Descriptor, StylusPointDescription, Drawing Attributes, Stroke IDs, transform and GuidList
-/// </summary>
-/// <param name="stream"></param>
-/// <param name="size"></param>
-/// <param name="guidList"></param>
-/// <param name="strokeDescriptor"></param>
-/// <param name="stylusPointDescription"></param>
-/// <param name="drawingAttributes"></param>
-/// <param name="transform"></param>
-/// <param name="compressor">Compression module</param>
-/// <param name="stroke">Newly decoded stroke</param>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - calls the StrokeSerializer.DecodeISFIntoStroke critical method
-///
-///     Called directly by  StrokeCollectionSerializer::DecodeRawISF
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::DecodeRawISF
-/// </SecurityNote>
-[SecurityCritical]
-#else
 /// <summary>
 /// Loads a stroke from the stream based on Stroke Descriptor, StylusPointDescription, Drawing Attributes, Stroke IDs, transform and GuidList
 /// </summary>
@@ -46,7 +25,6 @@
 /// <param name="drawingAttributes"></param>
 /// <param name="transform"></param>
 /// <param name="stroke">Newly decoded stroke</param>
-#endif
 uint StrokeSerializer::DecodeStroke(QIODevice& stream,
                          uint size,
                          GuidList& guidList,
@@ -54,18 +32,12 @@ uint StrokeSerializer::DecodeStroke(QIODevice& stream,
                          QSharedPointer<StylusPointDescription> stylusPointDescription,
                          QSharedPointer<DrawingAttributes> drawingAttributes,
                          QMatrix& transform,
-#if OLD_ISF
-                         Compressor& compressor,
-#endif
                          QSharedPointer<Stroke>& stroke)
 {
     ExtendedPropertyCollection* extendedProperties;
     QSharedPointer<StylusPointCollection> stylusPoints;
 
     uint cb = DecodeISFIntoStroke(
-#if OLD_ISF
-        compressor,
-#endif
         stream,
         size,
         guidList,
@@ -84,35 +56,7 @@ uint StrokeSerializer::DecodeStroke(QIODevice& stream,
 
     return cb;
 }
-#if OLD_ISF
-/// <summary>
-/// This functions loads a stroke from a memory stream based on the descriptor and GuidList. It returns
-/// the no of bytes it has read from the stream to correctly load the stream, which should be same as
-/// the value of the size parameter. If they are unequal throws ArgumentException. Stroke descriptor is
-/// used to load the packetproperty as well as ExtendedPropertyCollection on this stroke. Compressor is used
-/// to decompress the data.
-/// </summary>
-/// <param name="compressor"></param>
-/// <param name="stream"></param>
-/// <param name="totalBytesInStrokeBlockOfIsfStream"></param>
-/// <param name="guidList"></param>
-/// <param name="strokeDescriptor"></param>
-/// <param name="stylusPointDescription"></param>
-/// <param name="transform"></param>
-/// <param name="stylusPoints"></param>
-/// <param name="extendedProperties"></param>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - calls the ExtendedPropertySerializer::DecodeAsISF
-///                          StrokeSerializer.LoadPackets
-///                      and Compressor.DecompressPropertyData critical methods
-///
-///     Called directly by  StrokeSerializer.DecodeStroke
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::DecodeRawISF
-/// </SecurityNote>
-[SecurityCritical]
-#else
+
 /// <summary>
 /// This functions loads a stroke from a memory stream based on the descriptor and GuidList. It returns
 /// the no of bytes it has read from the stream to correctly load the stream, which should be same as
@@ -128,11 +72,7 @@ uint StrokeSerializer::DecodeStroke(QIODevice& stream,
 /// <param name="transform"></param>
 /// <param name="stylusPoints"></param>
 /// <param name="extendedProperties"></param>
-#endif
 uint StrokeSerializer::DecodeISFIntoStroke(
-#if OLD_ISF
-    Compressor& compressor,
-#endif
     QIODevice& stream,
     uint totalBytesInStrokeBlockOfIsfStream,
     GuidList& guidList,
@@ -157,9 +97,6 @@ uint StrokeSerializer::DecodeISFIntoStroke(
     // First try to load any packet data
     locallyDecodedBytes = LoadPackets(  stream,
                                         remainingBytesInStrokeBlock,
-#if OLD_ISF
-                                        compressor,
-#endif
                                         stylusPointDescription,
                                         transform,
                                         stylusPoints);
@@ -343,28 +280,12 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
     return totalBytesInStrokeBlockOfIsfStream;
 }
-#if OLD_ISF
+
 /// <summary>
 /// Loads packets from the input stream.  For example, packets are all of the x's in a stroke
 /// </summary>
-/// <SecurityNote>
-///     Critical - calls the Compressor.DecompressPacketData critical method
-///
-///     Called directly by  StrokeSerializer.DecodeISFIntoStroke
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::DecodeRawISF
-/// </SecurityNote>
-[SecurityCritical]
-#else
-/// <summary>
-/// Loads packets from the input stream.  For example, packets are all of the x's in a stroke
-/// </summary>
-#endif
 uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
                         uint totalBytesInStrokeBlockOfIsfStream,
-#if OLD_ISF
-                        Compressor& compressor,
-#endif
                         QSharedPointer<StylusPointDescription> stylusPointDescription,
                         QMatrix& transform,
                         QSharedPointer<StylusPointCollection>& stylusPoints)
@@ -420,13 +341,10 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
     for (int i = 0; i < valueIntsPerPoint && locallyDecodedBytesRemaining > 0; i++)
     {
         localBytesRead = locallyDecodedBytesRemaining;
-        //Compressor::DecompressPacketData(
-#if OLD_ISF
-                compressor,
-#endif
-        //        inputBuffer,
-        //        localBytesRead,
-        //        packetDataSet);
+        Compressor::DecompressPacketData(
+                inputBuffer,
+                localBytesRead,
+                packetDataSet);
 
         if (localBytesRead > locallyDecodedBytesRemaining)
             throw std::exception(("Invalid ISF data"));
@@ -649,28 +567,6 @@ void StrokeSerializer::FillButtonData(
 //#region Encoding
 
 //#region Public Methods
-#if OLD_ISF
-/// <summary>
-/// Returns an array of bytes of the saved stroke
-/// </summary>
-/// <param name="stroke">Stroke to save</param>
-/// <param name="stream">null to calculate only the size</param>
-/// <param name="compressor"></param>
-/// <param name="compressionAlgorithm"></param>
-/// <param name="guidList"></param>
-/// <param name="strokeLookupEntry"></param>
-/// <SecurityNote>
-///     Critical - Calls the critical methods
-///                     StrokeSerializer.SavePackets
-///                     ExtendedPropertySerializer::EncodeAsISF
-///
-///     This directly called by StrokeCollectionSerializer::StoreStrokeData
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::EncodeISF
-///
-/// </SecurityNote>
-[SecurityCritical]
-#else
 /// <summary>
 /// Returns an array of bytes of the saved stroke
 /// </summary>
@@ -679,22 +575,15 @@ void StrokeSerializer::FillButtonData(
 /// <param name="compressionAlgorithm"></param>
 /// <param name="guidList"></param>
 /// <param name="strokeLookupEntry"></param>
-#endif
 uint StrokeSerializer::EncodeStroke(
     Stroke& stroke,
     QIODevice& stream,
-#if OLD_ISF
-    Compressor compressor,
-#endif
     quint8 compressionAlgorithm,
     GuidList& guidList,
     StrokeCollectionSerializer::StrokeLookupEntry& strokeLookupEntry)
 {
     uint cbWrite = SavePackets( stroke,
                                 stream,
-#if OLD_ISF
-                                compressor,
-#endif
                                 strokeLookupEntry);
 
     //if (stroke.ExtendedProperties().Count() > 0)
@@ -807,38 +696,16 @@ void StrokeSerializer::BuildStrokeDescriptor(
 //#endregion // Private Methods
 
 //#region Private methods
-#if OLD_ISF
-/// <summary>
-/// Saves the packets into a stream of bytes
-/// </summary>
-/// <param name="stroke">Stroke to save</param>
-/// <param name="stream">null to calculate size only</param>
-/// <param name="compressor"></param>
-/// <param name="strokeLookupEntry"></param>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - Calls the critical method StrokeSerializer.SavePacketPropertyData
-///
-///     This directly called by StrokeSerializer.EncodeStroke
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::EncodeISF
-///
-/// </SecurityNote>
-[SecurityCritical]
-#else
+
 /// <summary>
 /// Saves the packets into a stream of bytes
 /// </summary>
 /// <param name="stroke">Stroke to save</param>
 /// <param name="stream">null to calculate size only</param>
 /// <param name="strokeLookupEntry"></param>
-#endif
 uint StrokeSerializer::SavePackets(
     Stroke& stroke,
     QIODevice& stream,
-#if OLD_ISF
-    Compressor& compressor,
-#endif
     StrokeCollectionSerializer::StrokeLookupEntry& strokeLookupEntry)
 {
     // First write or calculate how many points are there
@@ -876,9 +743,6 @@ uint StrokeSerializer::SavePackets(
         compressionAlgorithm = strokeLookupEntry.CompressionData;
         localBytesWritten += SavePacketPropertyData(outputArrays[i],
                                                     stream,
-#if OLD_ISF
-                                                    compressor,
-#endif
                                                     propertyInfo.Id(),
                                                     compressionAlgorithm);
     }
@@ -954,28 +818,6 @@ uint StrokeSerializer::SavePackets(
 
     return localBytesWritten;
 }
-#if OLD_ISF
-/// <summary>
-/// Saves the packets data corresponding to a packet property (identified by the guid) into the stream
-/// based on the Compression algorithm and compress header
-/// </summary>
-/// <param name="packetdata">packet data to save</param>
-/// <param name="stream">null to calculate only the size</param>
-/// <param name="compressor"></param>
-/// <param name="guid"></param>
-/// <param name="algo"></param>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - Calls unmanaged code in Compressor.CompressPacketData to compress
-///         an int[] representing packet data
-///
-///     This directly called by StrokeSerializer.SavePackets
-///
-///     TreatAsSafe boundary is StrokeCollectionSerializer::EncodeISF
-///
-/// </SecurityNote>
-[SecurityCritical]
-#else
 /// <summary>
 /// Saves the packets data corresponding to a packet property (identified by the guid) into the stream
 /// based on the Compression algorithm and compress header
@@ -984,13 +826,9 @@ uint StrokeSerializer::SavePackets(
 /// <param name="stream">null to calculate only the size</param>
 /// <param name="guid"></param>
 /// <param name="algo"></param>
-#endif
 uint StrokeSerializer::SavePacketPropertyData(
     QVector<int> packetdata,
     QIODevice& stream,
-#if OLD_ISF
-    Compressor& compressor,
-#endif
     QUuid const & guid,
     quint8& algo)
 {
@@ -999,13 +837,9 @@ uint StrokeSerializer::SavePacketPropertyData(
         return 0;
     }
 
-    QByteArray data;
-        //Compressor::CompressPacketData(
-#if OLD_ISF
-                compressor,
-#endif
-        //        packetdata,
-        //        algo);
+    QByteArray data = Compressor::CompressPacketData(
+                packetdata,
+                algo);
 
     //Debug::Assert(stream != null);
     // Now write the data in the stream

@@ -6,7 +6,6 @@
 
 #include <QVector>
 #include <QList>
-#include <QMap>
 #include <QObject>
 #include <QUuid>
 #include <QSharedPointer>
@@ -18,6 +17,7 @@ class IncrementalLassoHitTester;
 class StylusShape;
 class Stroke;
 class DrawingContext;
+class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
@@ -184,10 +184,7 @@ public:
 
 
     /// <summary>Collection of extended properties on this StrokeCollection</summary>
-    QMap<QUuid, QVariant> ExtendedProperties()
-    {
-        return _extendedProperties;
-    }
+    ExtendedPropertyCollection& ExtendedProperties();
 
     operator QVariantList();
 
@@ -411,7 +408,7 @@ private:
 
 private:
     //  In v1, these were called Ink.ExtendedProperties
-    QMap<QUuid, QVariant> _extendedProperties;
+    ExtendedPropertyCollection* _extendedProperties = nullptr;
 
     /// <summary>
     /// Constants for the PropertyChanged event

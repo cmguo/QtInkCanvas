@@ -1,4 +1,4 @@
-#include "editingcoordinator.h"
+#include "Internal/Ink/editingcoordinator.h"
 #include "Internal/Ink/selectioneditor.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/Input/styluspointdescription.h"
@@ -13,8 +13,8 @@
 #include "Windows/Input/stylusdevice.h"
 #include "Windows/Input/mousebuttoneventargs.h"
 #include "Windows/Input/styluseventargs.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// Constructors
@@ -777,7 +777,7 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
                     return;
                 }
 
-                stylusPoints.reset(new StylusPointCollection({ _capturedMouse->GetPosition(&_inkCanvas) }));
+                stylusPoints.reset(new StylusPointCollection(QVector<QPointF>{ _capturedMouse->GetPosition(&_inkCanvas) }));
             }
 
             bool fSucceeded = false;

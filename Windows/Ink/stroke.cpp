@@ -13,7 +13,7 @@
 #include "Windows/Media/drawingcontext.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Ink/events.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
 
 #include <QMatrix>
 #include <QBrush>
@@ -1317,9 +1317,8 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
         {
 #endif
         QBrush brush(drawingAttributes->Color());
-        QPen pen(Qt::NoPen);
         //brush.Freeze();
-        drawingContext.DrawGeometry(brush, pen, GetGeometry(drawingAttributes));
+        drawingContext.DrawGeometry(brush, Qt::NoPen, GetGeometry(drawingAttributes));
 #if DEBUG_RENDERING_FEEDBACK
         }
 #endif

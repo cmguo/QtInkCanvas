@@ -18,9 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     collection.cpp \
-    debug.cpp \
     eventargs.cpp \
-    finallyhelper.cpp \
     notifycollectionchangedeventargs.cpp \
     qtpainterdrawingcontext.cpp \
     qtstreamgeometrycontext.cpp
@@ -28,9 +26,7 @@ SOURCES += \
 HEADERS += \
     InkCanvas_global.h \
     collection.h \
-    debug.h \
     eventargs.h \
-    finallyhelper.h \
     notifycollectionchangedeventargs.h \
     qtpainterdrawingcontext.h \
     qtstreamgeometrycontext.h

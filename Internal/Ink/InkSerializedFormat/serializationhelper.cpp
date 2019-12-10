@@ -1,4 +1,4 @@
-#include "serializationhelper.h"
+#include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 
 #include <QIODevice>
 

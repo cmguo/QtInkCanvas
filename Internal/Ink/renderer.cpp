@@ -8,8 +8,8 @@
 #include "Windows/Media/hittestresult.h"
 #include "Windows/Media/drawingvisual.h"
 #include "eventargs.h"
-#include "debug.h"
-#include "finallyhelper.h"
+#include "Internal/debug.h"
+#include "Internal/finallyhelper.h"
 
 class Renderer::StrokeVisual : public DrawingVisual
 {

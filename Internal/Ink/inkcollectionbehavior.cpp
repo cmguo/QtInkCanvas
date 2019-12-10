@@ -6,7 +6,7 @@
 #include "Windows/Input/StylusPlugIns/dynamicrenderer.h"
 #include "Windows/Ink/stroke.h"
 #include "Windows/Controls/inkevents.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
 
 //-------------------------------------------------------------------------------
 //

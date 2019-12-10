@@ -3,13 +3,15 @@
 #include "Windows/Ink/stroke.h"
 #include "Windows/Ink/events.h"
 #include "Windows/Ink/incrementalhittester.h"
+#include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Ink/stylusshape.h"
 #include "Internal/Ink/lasso.h"
+#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Windows/Input/styluspoint.h"
 #include "Internal/Ink/strokerenderer.h"
 #include "Windows/Media/drawingcontext.h"
-#include "finallyhelper.h"
 #include "notifycollectionchangedeventargs.h"
+#include "Internal/finallyhelper.h"
 
 #include <QIODevice>
 #include <QBuffer>
@@ -62,8 +64,8 @@ StrokeCollection::StrokeCollection(QIODevice * stream)
     }
 
     //this will init our stroke collection
-    //StrokeCollectionSerializer serializer(this);
-    //serializer.DecodeISF(stream);
+    StrokeCollectionSerializer serializer(*this);
+    serializer.DecodeISF(*stream);
 }
 
 
@@ -96,9 +98,9 @@ void StrokeCollection::Save(QIODevice * stream)
 /// </summary>
 void StrokeCollection::SaveIsf(QIODevice * stream, bool compress)
 {
-    //StrokeCollectionSerializer serializer(this);
-    //serializer.CurrentCompressionMode = compress ? CompressionMode.Compressed : CompressionMode.NoCompression;
-    //serializer.EncodeISF(stream);
+    StrokeCollectionSerializer serializer(*this);
+    serializer.CurrentCompressionMode = compress ? CompressionMode::Compressed : CompressionMode::NoCompression;
+    serializer.EncodeISF(*stream);
 }
 
 /// <summary>
@@ -150,11 +152,11 @@ void StrokeCollection::AddPropertyData(QUuid const & propertyDataId, QVariant pr
     if ( ContainsPropertyData(propertyDataId) )
     {
         oldValue = GetPropertyData(propertyDataId);
-        _extendedProperties[propertyDataId] = propertyData;
+        _extendedProperties->Set(propertyDataId, propertyData);
     }
     else
     {
-        _extendedProperties.insert(propertyDataId, propertyData);
+        _extendedProperties->Add(propertyDataId, propertyData);
     }
     // fire notification
     OnPropertyDataChanged(propertyDataId);
@@ -167,7 +169,7 @@ void StrokeCollection::AddPropertyData(QUuid const & propertyDataId, QVariant pr
 void StrokeCollection::RemovePropertyData(QUuid const & propertyDataId)
 {
     QVariant propertyData = GetPropertyData(propertyDataId);
-    _extendedProperties.remove(propertyDataId);
+    _extendedProperties->Remove(propertyDataId);
     // fire notification
     OnPropertyDataChanged(propertyDataId);
 }
@@ -183,7 +185,7 @@ QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId)
         throw std::exception("propertyDataId");
     }
 
-    return _extendedProperties[propertyDataId];
+    return (*_extendedProperties)[propertyDataId];
 }
 
 /// <summary>
@@ -191,7 +193,7 @@ QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId)
 /// </summary>
 QVector<QUuid> StrokeCollection::GetPropertyDataIds()
 {
-    return _extendedProperties.keys().toVector();
+    return _extendedProperties->GetGuidArray();
 }
 
 /// <summary>
@@ -200,7 +202,7 @@ QVector<QUuid> StrokeCollection::GetPropertyDataIds()
 /// <param name="propertyDataId"></param>
 bool StrokeCollection::ContainsPropertyData(QUuid const & propertyDataId)
 {
-    return _extendedProperties.contains(propertyDataId);
+    return _extendedProperties->Contains(propertyDataId);
 }
 
 /// <summary>
@@ -522,6 +524,15 @@ void StrokeCollection::AddWithoutEvent(QSharedPointer<Stroke>stroke)
     append(stroke);
 }
 
+/// <summary>Collection of extended properties on this StrokeCollection</summary>
+ExtendedPropertyCollection& StrokeCollection::ExtendedProperties()
+{
+    if ( _extendedProperties == nullptr )
+    {
+        _extendedProperties = new ExtendedPropertyCollection();
+    }
+    return *_extendedProperties;
+}
 
 /// <summary>Method called on derived classes whenever a drawing attributes
 /// change has occurred in the stroke references in the collection</summary>

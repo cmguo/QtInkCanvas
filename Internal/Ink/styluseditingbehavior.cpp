@@ -1,5 +1,5 @@
 #include "Internal/Ink/styluseditingbehavior.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
 
 //-------------------------------------------------------------------------------
 //

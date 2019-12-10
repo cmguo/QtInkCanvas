@@ -14,9 +14,9 @@ class QIODevice;
 
 class MetricBlock
 {
-    MetricEntry* _Entry;
-    uint        _Count;
-    uint        _size;
+    MetricEntry* _Entry = nullptr;
+    uint        _Count = 0;
+    uint        _size = 0;
 
 public:
     /// <summary>

@@ -1,4 +1,5 @@
 #include "Windows/Input/styluspoint.h"
+#include "Internal/debug.h"
 
 StylusPoint::StylusPoint(double x, double y)
     : StylusPoint(x, y, DefaultPressure, nullptr, QVector<int>(), false, false)
@@ -172,7 +173,7 @@ void StylusPoint::SetPressureFactor(float value)
 /// <summary>
 /// Describes the properties this StylusPoint contains
 /// </summary>
-QSharedPointer<StylusPointDescription> StylusPoint::Description()
+QSharedPointer<StylusPointDescription> StylusPoint::Description() const
 {
     if (nullptr == _stylusPointDescription)
     {
@@ -189,8 +190,8 @@ void StylusPoint::SetDescription(QSharedPointer<StylusPointDescription> value)
     // called by StylusPointCollection.Add / Set
     // to replace the StylusPoint.Description with the collections.
     //
-    //Debug.Assert(value != null &&
-    //    StylusPointDescription.AreCompatible(value, this.Description));
+    Debug::Assert(value != nullptr &&
+        StylusPointDescription::AreCompatible(value, Description()));
 
     _stylusPointDescription = value;
 }
@@ -369,7 +370,7 @@ void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, in
 /// </returns>
 /// <param name="stylusPoint1">The first StylusPoint to compare
 /// <param name="stylusPoint2">The second StylusPoint to compare
-bool StylusPoint::Equals(StylusPoint & stylusPoint1, StylusPoint & stylusPoint2)
+bool StylusPoint::Equals(StylusPoint const & stylusPoint1, StylusPoint const & stylusPoint2)
 {
     //
     // do the cheap comparison first
@@ -410,6 +411,36 @@ bool StylusPoint::Equals(StylusPoint & stylusPoint1, StylusPoint & stylusPoint2)
 
     return false;
 }
+
+/// <summary>
+/// Returns the HashCode for this StylusPoint
+/// </summary>
+/// <returns>
+/// int - the HashCode for this StylusPoint
+/// </returns>
+uint StylusPoint::GetHashCode() const
+{
+    uint hash =
+        qHash(_x) ^
+        qHash(_y) ^
+        qHash(_pressureFactor);
+
+    if (_stylusPointDescription != nullptr)
+    {
+        //hash ^= _stylusPointDescription->GetHashCode();
+    }
+
+    //if (_additionalValues != nullptr)
+    {
+        for (int x = 0; x < _additionalValues.size(); x++)
+        {
+            hash ^= _additionalValues[x]; //don't call GetHashCode on integers, it just returns the int
+        }
+    }
+
+    return hash;
+}
+
 
 /// <summary>
 /// GetPacketData - returns avalon space packet data with true pressure if it exists

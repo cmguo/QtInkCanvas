@@ -12,8 +12,8 @@
 #include "Windows/Input/mousedevice.h"
 #include "Windows/uielement.h"
 #include "Windows/dispatcher.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QBrush>
 #include <QThread>
@@ -789,7 +789,7 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
     //{
     //    throw std::exception("drawingContext");
     //}
-    QPen pen(Qt::NoPen);
+    QPen pen;//(Qt::NoPen);
     //pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
     drawingContext.DrawGeometry(fillBrush, pen, geometry);
 }

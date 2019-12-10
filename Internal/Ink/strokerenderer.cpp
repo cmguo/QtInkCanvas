@@ -3,8 +3,8 @@
 #include "Internal/Ink/strokenodeiterator.h"
 #include "Windows/Media/streamgeometrycontext.h"
 #include "Windows/Media/streamgeometry.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QtMath>
 #include <QTransform>

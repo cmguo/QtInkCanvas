@@ -2,7 +2,11 @@ include(Ink/Ink.pri)
 include(Controls/Controls.pri)
 
 HEADERS += \
-    $$PWD/doubleutil.h
+    $$PWD/debug.h \
+    $$PWD/doubleutil.h \
+    $$PWD/finallyhelper.h
 
 SOURCES += \
-    $$PWD/doubleutil.cpp
+    $$PWD/debug.cpp \
+    $$PWD/doubleutil.cpp \
+    $$PWD/finallyhelper.cpp

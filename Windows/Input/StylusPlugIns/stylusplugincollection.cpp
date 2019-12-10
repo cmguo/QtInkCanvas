@@ -4,8 +4,8 @@
 #include "Windows/Input/pencontexts.h"
 #include "Windows/uielement.h"
 #include "Windows/dependencypropertychangedeventargs.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// Insert a StylusPlugIn in the collection at a specific index.

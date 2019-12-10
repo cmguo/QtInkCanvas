@@ -3,8 +3,9 @@
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointproperties.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
-#include "styluspointpropertyinfodefaults.h"
+#include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Ink/events.h"
+#include "Internal/debug.h"
 
 StylusPointCollection::StylusPointCollection()
     : _stylusPointDescription(new StylusPointDescription())
@@ -121,7 +122,7 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 
     int lengthPerPoint = stylusPointDescription->GetInputArrayLengthPerPoint();
     int logicalPointCount = rawPacketData.size() / lengthPerPoint;
-    //Debug.Assert(0 == rawPacketData.Length % lengthPerPoint, "Invalid assumption about packet length, there shouldn't be any remainder");
+    Debug::Assert(0 == rawPacketData.size() % lengthPerPoint, "Invalid assumption about packet length, there shouldn't be any remainder");
 
     //
     // set our capacity and validate
@@ -344,7 +345,7 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const
 /// </summary>
 QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count)
 {
-    //Debug.Assert(count <= this.Count);
+    Debug::Assert(count <= size());
     //
     // We don't need to copy our _stylusPointDescription because it is immutable
     // and we don't need to copy our StylusPoints, because they are structs.
@@ -503,7 +504,7 @@ QVector<int> StylusPointCollection::ToHiMetricArray()
         {
             QVector<int> additionalData = stylusPoint.GetAdditionalData();
             int countToCopy = lengthPerPoint - StylusPointDescription::RequiredCountOfProperties;/*3*/
-            //Debug.Assert(additionalData.size() == countToCopy);
+            Debug::Assert(additionalData.size() == countToCopy);
 
             for (int y = 0; y < countToCopy; y++)
             {
@@ -529,7 +530,7 @@ QVector<int> StylusPointCollection::ToHiMetricArray()
 /// </summary>
 void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, bool & shouldPersistPressure)
 {
-    //Debug.Assert(this.Count != 0, "Why are we serializing an empty StylusPointCollection???");
+    Debug::Assert(size() != 0, "Why are we serializing an empty StylusPointCollection???");
     //
     // X and Y are in Avalon units, we need to convert to HIMETRIC
     //
@@ -579,9 +580,9 @@ void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, boo
         {
             QVector<int> additionalData = stylusPoint.GetAdditionalData();
             int countToCopy = lengthPerPoint - StylusPointDescription::RequiredCountOfProperties;/*3*/
-            //Debug.Assert(   Description()->ButtonCount() > 0 ?
-            //                additionalData.size() -1 == countToCopy :
-            //                additionalData.size() == countToCopy);
+            Debug::Assert(   Description()->ButtonCount() > 0 ?
+                            additionalData.size() -1 == countToCopy :
+                            additionalData.size() == countToCopy);
 
             for (int y = 0; y < countToCopy; y++)
             {
@@ -612,7 +613,7 @@ bool StylusPointCollection::CanGoToZero()
     // call the listeners
     //
     emit CountGoingToZero(e);
-    //Debug.Assert(e.Cancel, "This event should always be cancelled");
+    Debug::Assert(e.Cancel(), "This event should always be cancelled");
 
     return !e.Cancel();
 

@@ -6,9 +6,9 @@
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Ink/stroke.h"
 #include "Internal/doubleutil.h"
-#include "debug.h"
 #include "Windows/Media/drawing.h"
 #include "Windows/Media/drawingcontext.h"
+#include "Internal/debug.h"
 
 #include <QBrush>
 #include <QPen>

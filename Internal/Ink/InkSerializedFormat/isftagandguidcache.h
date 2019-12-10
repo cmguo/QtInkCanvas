@@ -60,6 +60,7 @@ public:
 
     // Size of data used by identified by specified QUuid/Id
     static uint OriginalISFIdPersistenceSize[];
+    static uint TabletInternalIdTableLength;
 
     enum OriginalISFIdIndex
     {

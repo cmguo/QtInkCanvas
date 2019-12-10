@@ -1,6 +1,7 @@
 #ifndef STROKE_H
 #define STROKE_H
 
+#include "InkCanvas_global.h"
 #include "drawingattributes.h"
 #include "Windows/Input/styluspointcollection.h"
 
@@ -21,7 +22,7 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
-class Stroke : public QObject, public QEnableSharedFromThis<Stroke>
+class INKCANVAS_EXPORT Stroke : public QObject, public QEnableSharedFromThis<Stroke>
 {
     Q_OBJECT
 public:

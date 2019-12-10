@@ -7,7 +7,6 @@
 #include "Internal/Ink/InkSerializedFormat/drawingattributeserializer.h"
 
 #include <QMatrix>
-#include <QMap>
 #include <QUuid>
 #include <QColor>
 #include <QVariant>
@@ -16,6 +15,7 @@
 class StylusShape;
 class PropertyChangedEventArgs;
 class PropertyDataChangedEventArgs;
+class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
@@ -32,7 +32,7 @@ public:
     /// only constructor that initializes a DA with an EPC
     /// </summary>
     /// <param name="extendedProperties"></param>
-    DrawingAttributes(QMap<QUuid, QVariant> const & extendedProperties);
+    DrawingAttributes(ExtendedPropertyCollection* extendedProperties);
 
     virtual ~DrawingAttributes();
 
@@ -62,7 +62,7 @@ public:
     /// </summary>
     QMatrix StylusTipTransform() const;
 
-    void SetStylusTipTransform(QMatrix value);
+    void SetStylusTipTransform(QMatrix const & value);
 
     /// <summary>
     /// The height of the StylusTip
@@ -131,13 +131,13 @@ public:
     /// <summary>
     /// ExtendedProperties
     /// </summary>
-    QMap<QUuid, QVariant> ExtendedProperties();
+    ExtendedPropertyCollection& ExtendedProperties();
 
 
     /// <summary>
     /// Returns a copy of the EPC
     /// </summary>
-    QMap<QUuid, QVariant> CopyPropertyData();
+    ExtendedPropertyCollection* CopyPropertyData();
 
     /// <summary>
     /// StylusShape
@@ -338,7 +338,7 @@ protected:
     void OnPropertyChanged(QString propertyName);
 
 private:
-    QMap<QUuid, QVariant> _extendedProperties;
+    ExtendedPropertyCollection* _extendedProperties;
     uint _v1RasterOperation = DrawingAttributeSerializer::RasterOperationDefaultV1;
     bool _heightChangedForCompatabity = false;
 

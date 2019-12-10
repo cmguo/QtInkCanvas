@@ -6,7 +6,7 @@
 #include "Windows/Ink/incrementalhittester.h"
 #include "Internal/Ink/lassoselectionbehavior.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
-#include "debug.h"
+#include "Internal/debug.h"
 //-------------------------------------------------------------------------------
 //
 // Constructors

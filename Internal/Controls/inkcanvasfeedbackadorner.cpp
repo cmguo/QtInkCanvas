@@ -1,9 +1,9 @@
 #include "Internal/Controls/inkcanvasfeedbackadorner.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
-#include "debug.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Media/drawingcontext.h"
+#include "Internal/debug.h"
 
 InkCanvasFeedbackAdorner::InkCanvasFeedbackAdorner()
     : Adorner (nullptr)

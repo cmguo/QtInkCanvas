@@ -1,6 +1,6 @@
 #include "Windows/Media/drawingdrawingcontext.h"
-#include "debug.h"
 #include "Windows/Media/drawing.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// Default DrawingDrawingContext constructor.

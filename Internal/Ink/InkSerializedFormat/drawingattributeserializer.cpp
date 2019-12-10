@@ -3,43 +3,25 @@
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/Ink/InkSerializedFormat/guidlist.h"
+#include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Ink/drawingattributes.h"
+#include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Ink/knownids.h"
-#include "debug.h"
+#include "Internal/debug.h"
 
 #include <QIODevice>
 #include <QDataStream>
+#include <QBuffer>
 
-#if OLD_ISF
-    /// <summary>
-    /// Loads drawing attributes from a memory buffer.
-    /// </summary>
-    /// <param name="stream">Memory buffer to read from</param>
-    /// <param name="guidList">Guid tags if extended properties are used</param>
-    /// <param name="maximumStreamSize">Maximum size of buffer to read through</param>
-    /// <param name="da">The drawing attributes collection to decode into</param>
-    /// <returns>Number of bytes read</returns>
-    /// <SecurityNote>
-    ///     Critical - calls the ExtendedPropertySerializer.DecodeAsISF
-    ///                      and Compressor.DecompressPropertyData critical methods
-    ///
-    ///     Called directly by  StrokeCollectionSerializer::DecodeRawISF
-    ///                         StrokeCollectionSerializer::LoadDrawAttrsTable
-    ///
-    ///     TreatAsSafe boundary is StrokeCollectionSerializer::DecodeRawISF
-    /// </SecurityNote>
-    [SecurityCritical]
-#else
-    /// <summary>
-    /// Loads drawing attributes from a memory buffer.
-    /// </summary>
-    /// <param name="stream">Memory buffer to read from</param>
-    /// <param name="guidList">Guid tags if extended properties are used</param>
-    /// <param name="maximumStreamSize">Maximum size of buffer to read through</param>
-    /// <param name="da">The drawing attributes collection to decode into</param>
-    /// <returns>Number of bytes read</returns>
-#endif
+/// <summary>
+/// Loads drawing attributes from a memory buffer.
+/// </summary>
+/// <param name="stream">Memory buffer to read from</param>
+/// <param name="guidList">Guid tags if extended properties are used</param>
+/// <param name="maximumStreamSize">Maximum size of buffer to read through</param>
+/// <param name="da">The drawing attributes collection to decode into</param>
+/// <returns>Number of bytes read</returns>
 
 quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& guidList, quint32 maximumStreamSize, DrawingAttributes & da)
 {
@@ -150,28 +132,32 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
                     {
                         throw std::exception("ISF size if greater then maximum stream size");
                     }
-                    quint8* in_data = new quint8[cbInSize];
+                    QByteArray in_data(cbInSize, 0);
 
-                    quint32 bytesRead = (quint32) stream.read ((char *)in_data, cbInSize);
+                    quint32 bytesRead = (quint32) stream.read (in_data.data(), cbInSize);
                     if (cbInSize != bytesRead)
                     {
                         throw std::exception("Read different size from stream then expected");
                     }
 
-                    //quint8 out_buffer = Compressor.DecompressPropertyData (in_data);
                     //using (MemoryStream localStream = new MemoryStream(out_buffer))
                     //using (BinaryReader rdr = new BinaryReader(localStream))
-                    //{
-                    //    short sFraction = rdr.ReadInt16();
-                    //    _size += (sFraction / DrawingAttributes::StylusPrecision);
-//
-                    //    maximumStreamSize -= cbInSize;
-                    //}
+                    {
+                        QByteArray out_buffer = Compressor::DecompressPropertyData (in_data);
+                        QBuffer localStream(&out_buffer);
+                        localStream.open(QIODevice::ReadOnly);
+                        QDataStream rdr(&localStream);
+                        short sFraction = 0;
+                        rdr >> sFraction;
+                        _size += (sFraction / DrawingAttributes::StylusPrecision);
+
+                        maximumStreamSize -= cbInSize;
+                    }
                 }
                 else
                 {
                     // Seek it back by cb
-                    stream.rollbackTransaction();
+                    stream.seek(stream.pos() - cb);
                     maximumStreamSize += cb;
                 }
             }
@@ -508,10 +494,10 @@ void DrawingAttributeSerializer::PersistRasterOperation(DrawingAttributes& da, Q
 void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw, unsigned char compressionAlgorithm, bool fTag)
 {
     // Now save the extended properties
-    QMap<QUuid, QVariant> epcClone = da.CopyPropertyData();
+    ExtendedPropertyCollection* epcClone = da.CopyPropertyData();
 
     //walk from the back removing EPs that are uses for DrawingAttributes
-    for (int x = epcClone.size() - 1; x >= 0; x--)
+    for (int x = epcClone->Count() - 1; x >= 0; x--)
     {
         //
         // look for StylusTipTransform while we're at it and turn it into a string

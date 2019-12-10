@@ -1,7 +1,9 @@
 #ifndef STYLUSPOINTCOLLECTION_H
 #define STYLUSPOINTCOLLECTION_H
 
+#include "InkCanvas_global.h"
 #include "collection.h"
+#include "Windows/Input/styluspoint.h"
 
 #include <QSharedPointer>
 #include <QList>
@@ -11,13 +13,12 @@
 #include <iterator>
 #include <vector>
 
-class StylusPoint;
 class StylusPointDescription;
 class CancelEventArgs;
 
 // namespace System.Windows.Input
 
-class StylusPointCollection : public QObject, public Collection<StylusPoint>
+class INKCANVAS_EXPORT StylusPointCollection : public QObject, public Collection<StylusPoint>
 {
     Q_OBJECT
 signals:

@@ -5,7 +5,7 @@
 #include "Windows/dependencypropertychangedeventargs.h"
 #include "eventargs.h"
 #include "Internal/Ink/renderer.h"
-#include "debug.h"
+#include "Internal/debug.h"
 
 //#region Constructors
 

@@ -31,8 +31,8 @@
 #include "Windows/Controls/decorator.h"
 #include "Windows/Ink/gesturerecognizer.h"
 #include "Internal/doubleutil.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QApplication>
 #include <QClipboard>

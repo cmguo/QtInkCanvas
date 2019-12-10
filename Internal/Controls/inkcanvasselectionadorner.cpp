@@ -1,11 +1,11 @@
 #include "Internal/Controls/inkcanvasselectionadorner.h"
 #include "Windows/Media/drawingcontext.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
-#include "debug.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/Media/geometry.h"
 #include "Windows/Media/drawing.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QPainterPath>
 

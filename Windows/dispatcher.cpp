@@ -1,5 +1,5 @@
 #include "Windows/dispatcher.h"
-#include "debug.h"
+#include "Internal/debug.h"
 
 #include <QThread>
 #include <QMutex>

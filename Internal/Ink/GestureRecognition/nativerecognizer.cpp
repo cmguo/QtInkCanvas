@@ -1,11 +1,11 @@
 #include "Internal/Ink/GestureRecognition/nativerecognizer.h"
-#include "debug.h"
 #include "Windows/Ink/strokecollection.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointproperties.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Ink/stroke.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// constructor

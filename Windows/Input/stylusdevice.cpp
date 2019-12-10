@@ -14,6 +14,8 @@ StylusEvent::StylusEvent(int type)
 void StylusEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
 {
     StylusEventArgs args(static_cast<QTouchEvent&>(event));
+    args.MarkAsUserInitiated();
+    RoutedEvent::handle(event, args, handlers);
 }
 
 StylusDevice* Stylus::CurrentStylusDevice()

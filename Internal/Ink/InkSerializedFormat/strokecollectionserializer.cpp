@@ -7,12 +7,15 @@
 #include "Internal/Ink/InkSerializedFormat/metricblock.h"
 #include "Internal/Ink/InkSerializedFormat/metricentry.h"
 #include "Internal/Ink/InkSerializedFormat/transformdescriptor.h"
-#include "Windows/Ink/extendedpropertycollection.h"
+#include "Internal/Ink/InkSerializedFormat/extendedpropertyserializer.h"
+#include "Internal/Ink/InkSerializedFormat/compress.h"
+#include "Internal/Ink/InkSerializedFormat/algomodule.h"
 #include "Windows/Ink/stroke.h"
 #include "Windows/Ink/strokecollection.h"
+#include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Input/styluspointdescription.h"
-#include "finallyhelper.h"
-#include "debug.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 #include <QSharedPointer>
 #include <QIODevice>
@@ -317,7 +320,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
     _metricTable.clear();
 
     // First make sure this ink is empty
-    if (0 != _coreStrokes.size() || _coreStrokes.ExtendedProperties().size() != 0)
+    if (0 != _coreStrokes.size() || _coreStrokes.ExtendedProperties().Count() != 0)
     {
         throw std::exception(("ISF decoder cannot operate on non-empty ink container"));
     }
@@ -408,9 +411,8 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 //initialize to V1 defaults, we do it this way as opposed
                                 //to dr.DrawingFlags = 0 because this was a perf hot spot
                                 //and instancing the epc first mitigates it
-                                //ExtendedPropertyCollection epc = new ExtendedPropertyCollection();
-                                QMap<QUuid, QVariant> epc;
-                                epc.insert(KnownIds::DrawingFlags, QVariant::fromValue(DrawingFlag::Polyline));
+                                ExtendedPropertyCollection* epc = new ExtendedPropertyCollection();
+                                epc->Add(KnownIds::DrawingFlags, QVariant::fromValue(DrawingFlag::Polyline));
                                 QSharedPointer<DrawingAttributes> dr(new DrawingAttributes(epc));
                                 localBytesDecoded = DrawingAttributeSerializer::DecodeAsISF(inputStream, guidList, bytesDecodedInCurrentTag, *dr);
 
@@ -734,7 +736,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         // Loads any custom property data
                         bytesDecodedInCurrentTag = remainingBytesInStream;
 
-                        QUuid const & guid = guidList.FindGuid(isfTag);
+                        QUuid guid = guidList.FindGuid(isfTag);
                         if (guid == GuidList::Empty)
                         {
                             throw std::exception(("Global Custom Attribute tag embedded in ISF stream does not match guid table"));
@@ -744,7 +746,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         QVariant data;
 
                         // load the custom property data from the stream (and decode the type)
-                        //localBytesDecoded = ExtendedPropertySerializer.DecodeAsISF(inputStream, bytesDecodedInCurrentTag, guidList, isfTag, ref guid, data);
+                        localBytesDecoded = ExtendedPropertySerializer::DecodeAsISF(inputStream, bytesDecodedInCurrentTag, guidList, isfTag, guid, data);
                         if (localBytesDecoded > bytesDecodedInCurrentTag)
                         {
                             throw std::exception(("Invalid ISF data"));
@@ -782,36 +784,14 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
         // update remaining ISF buffer length with decoded so far
         remainingBytesInStream -= bytesDecodedInCurrentTag;
     }
-#if OLD_ISF
+    if (0 != remainingBytesInStream)
+        throw std::exception(("Invalid ISF data"));
 }
-finally
-{
-    if (null != compressor)
-    {
-        compressor.Dispose();
-        compressor = null;
-    }
-}
-#endif
-if (0 != remainingBytesInStream)
-    throw std::exception(("Invalid ISF data"));
-}
-#if OLD_ISF
+
 /// <summary>
 /// Loads a DrawingAttributes Table from the stream and adds individual drawing attributes to the drawattr
 /// list passed
 /// </summary>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - Calls the DrawingAttributeSerializer.DecodeAsISF critical method
-/// </SecurityNote>
-[SecurityCritical]
-#else
-/// <summary>
-/// Loads a DrawingAttributes Table from the stream and adds individual drawing attributes to the drawattr
-/// list passed
-/// </summary>
-#endif
 quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList& guidList, quint32 cbSize)
 {
     _drawingAttributesTable.clear();
@@ -1667,33 +1647,10 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
 //#region Encoding
 
 //#region Public Methods
-#if OLD_ISF
 /// <summary>
 /// This functions Saves the Ink as Ink Serialized Format based on the Compression code
 /// </summary>
 /// <returns>A quint8[] with the encoded ISF</returns>
-/// <SecurityNote>
-///     Critical - Calls critical methods:
-///             SaveStrokeIds
-///             ExtendedPropertySerializer.EncodeAsISF
-///             StoreStrokeData
-///
-///
-///     TreatAsSafe - We're saving a StrokeCollection and we control and verify
-///             all of the data the StrokeCollection directly and indirectly contains
-///
-///             This codepath calls into unmanaged code in Compressor.CompressPacketData
-///             and Compressor.CompressPropertyData.  The underlying unmanaged code has been
-///              security reviewed and fuzzed
-///
-/// </SecurityNote>
-[SecurityCritical, SecurityTreatAsSafe]
-#else
-/// <summary>
-/// This functions Saves the Ink as Ink Serialized Format based on the Compression code
-/// </summary>
-/// <returns>A quint8[] with the encoded ISF</returns>
-#endif
 void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
 {
     _strokeLookupTable.clear();
@@ -1720,7 +1677,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         quint32 cumulativeEncodedSize = 0;
         quint32 localEncodedSize = 0;
 
-        quint8 xpData = 0;//(CurrentCompressionMode == CompressionMode::NoCompression) ? AlgoModule.NoCompression : AlgoModule.DefaultCompression;
+        quint8 xpData = (CurrentCompressionMode == CompressionMode::NoCompression) ? AlgoModule::NoCompression : AlgoModule::DefaultCompression;
         for (QSharedPointer<Stroke> s : _coreStrokes)
         {
             _strokeLookupTable[s]->CompressionData = xpData;
@@ -1840,10 +1797,10 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
         // Save global ink properties
-        if (_coreStrokes.ExtendedProperties().size() > 0)
+        if (_coreStrokes.ExtendedProperties().Count() > 0)
         {
             localEncodedSize = cumulativeEncodedSize;
-            //cumulativeEncodedSize += ExtendedPropertySerializer::EncodeAsISF(_coreStrokes.ExtendedProperties(), localStream, guidList, GetCompressionAlgorithm(), true);
+            cumulativeEncodedSize += ExtendedPropertySerializer::EncodeAsISF(_coreStrokes.ExtendedProperties(), localStream, guidList, GetCompressionAlgorithm(), true);
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
                 ISFDebugTrace("Encoded Global Ink Attributes Table: size=" + localEncodedSize);
@@ -2013,31 +1970,13 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             throw std::exception(("Calculated ISF stream size != actual stream size"));
     }
 }
-#if OLD_ISF
-/// <summary>
+
+// <summary>
 /// Saves the stroke Ids in the stream.
 /// </summary>
 /// <param name="strokes"></param>
 /// <param name="strm"></param>
 /// <param name="forceSave">save ids even if they are contiguous</param>
-/// <returns></returns>
-/// <SecurityNote>
-///     Critical - Calls the critical method Compressor.CompressPacketData
-///
-///     This directly called by EncodeISF
-///
-///     TreatAsSafe boundary is EncodeISF
-///
-/// </SecurityNote>
-[SecurityCritical]
-#else
-/// <summary>
-/// Saves the stroke Ids in the stream.
-/// </summary>
-/// <param name="strokes"></param>
-/// <param name="strm"></param>
-/// <param name="forceSave">save ids even if they are contiguous</param>
-#endif
 quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIODevice& strm, bool forceSave)
 {
     if (0 == strokes.size())
@@ -2076,11 +2015,11 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
     ISFDebugTrace("Saved KnownTagCache::KnownTagIndex::StrokeIds size=");
 
     // First findout the no of bytes required to huffman compress these ids
-    //quint8 algorithm = AlgoModule.DefaultCompression;
+    quint8 algorithm = AlgoModule::DefaultCompression;
 #if OLD_ISF
-    //quint8[] data = Compressor.CompressPacketData(null, strkIds, ref algorithm);
+    QByteArray data = Compressor::CompressPacketData(null, strkIds, ref algorithm);
 #else
-    //QByteArray data = Compressor.CompressPacketData(strkIds, algorithm);
+    QByteArray data = Compressor::CompressPacketData(strkIds, algorithm);
 #endif
 
 
@@ -2180,9 +2119,9 @@ GuidList StrokeCollectionSerializer::BuildGuidList()
     int i = 0;
 
     // First go through the list of ink properties
-    auto attributes = _coreStrokes.ExtendedProperties();
+    auto& attributes = _coreStrokes.ExtendedProperties();
     //for (i = 0; i < attributes.size(); i++)
-    for (QUuid const & id : attributes.keys())
+    for (QUuid const & id : attributes.GetGuidArray())
     {
         guidList.Add(id);
     }
@@ -2209,7 +2148,7 @@ void StrokeCollectionSerializer::BuildStrokeGuidList(QSharedPointer<Stroke> stro
     // First drawing attributes
     //      Ignore the default Guids/attributes in the DrawingAttributes
     int count;
-    QVector<QUuid> guids;// = ExtendedPropertySerializer::GetUnknownGuids(stroke->GetDrawingAttributes()->ExtendedProperties(), count);
+    QVector<QUuid> guids = ExtendedPropertySerializer::GetUnknownGuids(stroke->GetDrawingAttributes()->ExtendedProperties(), count);
 
     for (i = 0; i < count; i++)
     {
@@ -2472,6 +2411,7 @@ quint32 StrokeCollectionSerializer::EncodeTransformDescriptor(QIODevice& strm, T
 #pragma warning disable 1634, 1691
 #pragma warning disable 6518
         QDataStream bw(&strm);
+        bw.setVersion(QDataStream::Qt_4_0);
 
         for (int i = 0; i < xform.Size; i++)
         {
@@ -2534,9 +2474,9 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
 
         // Get the size of the saved bytes
         //using (MemoryStream drawingAttributeStream = new MemoryStream(16)) //reasonable default based onn profiling
-        QBuffer drawingAttributeStream;
-        drawingAttributeStream.open(QIODevice::ReadWrite);
         {
+            QBuffer drawingAttributeStream;
+            drawingAttributeStream.open(QIODevice::ReadWrite);
             sizeOfHeaderInBytes = DrawingAttributeSerializer::EncodeAsISF(*drawingAttributes, drawingAttributeStream, guidList, 0, true);
 
             // Write the size first
@@ -2549,8 +2489,6 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
 
             stream.write(   drawingAttributeStream.data().data(),
                             bytesWritten);
-
-            drawingAttributeStream.close();
         }
     }
     else

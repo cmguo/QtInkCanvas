@@ -246,6 +246,7 @@ private:
     //#region Encoding
 
     //#region Public Methods
+public:
 #if OLD_ISF
     /// <summary>
     /// This functions Saves the Ink as Ink Serialized Format based on the Compression code
@@ -275,6 +276,7 @@ private:
 #endif
     void EncodeISF(QIODevice& outputStream);
 
+private:
 #if OLD_ISF
     /// <Summary>
     /// Encodes all of the strokes in a strokecollection to ISF

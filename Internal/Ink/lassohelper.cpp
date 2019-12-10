@@ -1,7 +1,7 @@
 #include "Internal/Ink/lassohelper.h"
 #include "Windows/Media/drawingvisual.h"
 #include "Windows/Media/drawingcontext.h"
-#include "finallyhelper.h"
+#include "Internal/finallyhelper.h"
 #include "Internal/doubleutil.h"
 
 const QColor LassoHelper::DotColor(Qt::yellow);     //FromArgb(1, 0.89f, 0.3607f, 0.1843f);

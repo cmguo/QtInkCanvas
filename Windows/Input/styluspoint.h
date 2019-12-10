@@ -1,6 +1,7 @@
 #ifndef STYLUSPOINT_H
 #define STYLUSPOINT_H
 
+#include "InkCanvas_global.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointproperties.h"
 
@@ -13,7 +14,7 @@ class StylusPointDescription;
 
 // namespace System.Windows.Input
 
-class StylusPoint
+class INKCANVAS_EXPORT StylusPoint
 {
 public:
     static constexpr float DefaultPressure = 0.5f;
@@ -23,7 +24,7 @@ private:
     double _y;
     float _pressureFactor;
     QVector<int> _additionalValues;
-    QSharedPointer<StylusPointDescription> _stylusPointDescription;
+    mutable QSharedPointer<StylusPointDescription> _stylusPointDescription;
 
     /// <summary>
     /// StylusPoint
@@ -114,7 +115,7 @@ public:
     /// <summary>
     /// Describes the properties this StylusPoint contains
     /// </summary>
-    QSharedPointer<StylusPointDescription> Description();
+    QSharedPointer<StylusPointDescription> Description() const;
 
     void SetDescription(QSharedPointer<StylusPointDescription> value);
 
@@ -175,7 +176,7 @@ public:
     /// </returns>
     /// <param name="stylusPoint1">The first StylusPoint to compare
     /// <param name="stylusPoint2">The second StylusPoint to compare
-    friend bool operator ==(StylusPoint & stylusPoint1, StylusPoint & stylusPoint2)
+    friend bool operator ==(StylusPoint const & stylusPoint1, StylusPoint const & stylusPoint2)
     {
         return StylusPoint::Equals(stylusPoint1, stylusPoint2);
     }
@@ -208,7 +209,7 @@ public:
     /// </returns>
     /// <param name="stylusPoint1">The first StylusPoint to compare
     /// <param name="stylusPoint2">The second StylusPoint to compare
-    static bool Equals(StylusPoint & stylusPoint1, StylusPoint & stylusPoint2);
+    static bool Equals(StylusPoint const & stylusPoint1, StylusPoint const & stylusPoint2);
 
     /// <summary>
     /// Compares two StylusPoint instances for exact equality.
@@ -254,28 +255,12 @@ public:
     /// <returns>
     /// int - the HashCode for this StylusPoint
     /// </returns>
-    //override int GetHashCode()
-    //{
-    //    int hash =
-    //        _x.GetHashCode() ^
-    //        _y.GetHashCode() ^
-    //        _pressureFactor.GetHashCode();
+    uint GetHashCode() const;
 
-    //    if (_stylusPointDescription != null)
-    //    {
-    //        hash ^= _stylusPointDescription.GetHashCode();
-    //    }
-
-    //    if (_additionalValues != null)
-    //    {
-    //        for (int x = 0; x < _additionalValues.Length; x++)
-    //        {
-    //            hash ^= _additionalValues[x]; //don't call GetHashCode on integers, it just returns the int
-    //        }
-    //    }
-
-    //    return hash;
-    //}
+    friend uint qHash(StylusPoint const & o)
+    {
+        return o.GetHashCode();
+    }
 
     /// <summary>
     /// Used by the StylusPointCollection.ToHimetricArray method

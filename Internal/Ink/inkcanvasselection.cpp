@@ -2,14 +2,14 @@
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/Ink/stroke.h"
 #include "Internal/doubleutil.h"
-#include "finallyhelper.h"
 #include "Windows/uielement.h"
 #include "Windows/Controls/inkevents.h"
 #include "Internal/Controls/inkcanvasselectionadorner.h"
-#include "debug.h"
 #include "Internal/Ink/editingcoordinator.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
 #include "Internal/Controls/inkcanvasfeedbackadorner.h"
+#include "Internal/finallyhelper.h"
+#include "Internal/debug.h"
 
 /// <summary>
 /// InkCanvasSelection has an constructor to prevent direct instantiation
