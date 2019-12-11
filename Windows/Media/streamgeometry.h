@@ -39,6 +39,8 @@ public:
 
     void Close(QPainterPath & path);
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
 
 private:

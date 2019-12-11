@@ -31,6 +31,11 @@ void StreamGeometry::Close(QPainterPath &path)
     path_.swap(path);
 }
 
+QRectF StreamGeometry::Bounds()
+{
+    return path_.boundingRect();
+}
+
 void StreamGeometry::Draw(QPainter &painter)
 {
     painter.drawPath(path_);

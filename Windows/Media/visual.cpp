@@ -1,4 +1,5 @@
 #include "Windows/Media/visual.h"
+#include "Windows/Media/drawingvisual.h"
 #include "Windows/Media/hittestresult.h"
 
 #include <QDebug>
@@ -28,8 +29,11 @@ QTransform Visual::TransformToDescendant(Visual* visual)
 
 void Visual::AddVisualChild(Visual * visual)
 {
-    visual->resize(size());
-    visual->move(0, 0);
+    if (!visual->metaObject()->inherits(&DrawingVisual::staticMetaObject)
+            || qobject_cast<DrawingVisual*>(visual)->GetDrawing() == nullptr) {
+        visual->resize(size());
+        visual->move(0, 0);
+    }
     visual->setParent(this);
     if (isVisible())
         visual->show();

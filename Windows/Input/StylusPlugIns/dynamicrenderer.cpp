@@ -17,6 +17,7 @@
 
 #include <QBrush>
 #include <QThread>
+#include <QDebug>
 
 #include <Windows.h>
 #include <sysinfoapi.h>
@@ -786,14 +787,13 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
                                 Geometry* geometry,
                                 QBrush fillBrush)
 {
+    qDebug() << "DynamicRenderer::OnDraw";
     (void) stylusPoints;
     //if (drawingContext == nullptr)
     //{
     //    throw std::exception("drawingContext");
     //}
-    QPen pen;//(Qt::NoPen);
-    //pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-    drawingContext.DrawGeometry(fillBrush, pen, geometry);
+    drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -829,7 +829,9 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         // Create a PathGeometry representing the contour of the ink increment
         Geometry* strokeGeometry = nullptr;
         QRectF bounds;
+#if DEBUG_RENDERING_FEEDBACK
         std::unique_ptr<DrawingContext> debugDC;
+#endif
         StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator(),
                                              *si->GetDrawingAttributes(),
 #if DEBUG_RENDERING_FEEDBACK

@@ -28,6 +28,8 @@ public:
 
     virtual ~Geometry();
 
+    virtual QRectF Bounds() = 0;
+
     virtual void Draw(QPainter& painter) = 0;
 };
 
@@ -44,6 +46,8 @@ public:
 
     PathGeometry* Combine(Geometry * geometry);
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
 
 private:
@@ -55,7 +59,10 @@ class GeometryGroup : public Geometry
 public:
     QList<Geometry*>& Children();
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
+
 private:
     QList<Geometry*> children_;
 };
@@ -65,7 +72,10 @@ class LineGeometry : public Geometry
 public:
     LineGeometry(QPointF point0, QPointF point1);
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
+
 private:
     QLineF line_;
 };
@@ -76,7 +86,10 @@ public:
     RectangleGeometry(QRectF rectangle);
     RectangleGeometry(QRectF rectangle, double radiusX, double radiusY);
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
+
 private:
     QRectF rectangle_;
     QSizeF radius_;
@@ -87,7 +100,10 @@ class EllipseGeometry : public Geometry
 public:
     EllipseGeometry(QPointF center, double radiusX, double radiusY);
 
+    virtual QRectF Bounds() override;
+
     virtual void Draw(QPainter& painter) override;
+
 private:
     QRectF rectangle_;
 };

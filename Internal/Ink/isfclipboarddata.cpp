@@ -45,8 +45,8 @@ void ISFClipboardData::DoCopy(DataObject* dataObject)
     // Presharp gives a warning when local IDisposable variables are not closed
     // in this case, we can't call Dispose since it will also close the underlying stream
     // which needs to be open for consumers to read
-#pragma warning disable 1634, 1691
-#pragma warning disable 6518
+//#pragma warning disable 1634, 1691
+//#pragma warning disable 6518
 
     // Save the data in the data object.
     QBuffer stream;
@@ -62,8 +62,8 @@ void ISFClipboardData::DoCopy(DataObject* dataObject)
     //{
     //    UIPermission.RevertAssert();
     //}
-#pragma warning restore 6518
-#pragma warning restore 1634, 1691
+//#pragma warning restore 6518
+//#pragma warning restore 1634, 1691
 }
 
 // Retrieves the stroks from the IDataObject

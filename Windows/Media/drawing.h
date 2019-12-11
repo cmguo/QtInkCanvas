@@ -21,6 +21,7 @@ public:
     virtual QRectF Bounds() = 0;
 
     virtual void Draw(QPainter& painer) = 0;
+
 };
 
 class DrawingGroup : public Drawing

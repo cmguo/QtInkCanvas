@@ -1,4 +1,5 @@
 #include "Windows/Input/mousedevice.h"
+#include "Windows/Input/styluspoint.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/mousebuttoneventargs.h"
@@ -43,6 +44,8 @@ void Mouse::UpdateCursor()
 MouseDevice::MouseDevice()
 {
     description_.reset(new StylusPointDescription);
+    description_.reset(
+                new StylusPointDescription(description_->GetStylusPointProperties(), -1));
 }
 
 void MouseDevice::SetLastPosition(const QPointF &pos)
@@ -131,6 +134,5 @@ QVector<int> MouseDevice::PacketData(QInputEvent& event)
     QPoint pt2 = mouseEvent.pos();
     data.append(pt2.x());
     data.append(pt2.y());
-    data.append(0);
     return data;
 }

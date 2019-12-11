@@ -336,6 +336,7 @@ StylusShape * DrawingAttributes::GetStylusShape()
     }
 
     s->SetTransform(StylusTipTransform());
+    drawingShape_.reset(s);
     return s;
 }
 
@@ -689,4 +690,9 @@ void DrawingAttributes::OnPropertyChanged(QString propertyName)
 {
     PropertyChangedEventArgs args(propertyName);
     OnPropertyChanged(args);
+}
+
+QVariant DrawingAttributesDefaultValueFactory::DefaultValue()
+{
+    return QVariant::fromValue(QSharedPointer<DrawingAttributes>(new DrawingAttributes));
 }

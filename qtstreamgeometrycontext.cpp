@@ -12,6 +12,7 @@ QtStreamGeometryContext::QtStreamGeometryContext(StreamGeometry* geometry)
 
 void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFilled, bool isClosed)
 {
+    //qDebug() << "BeginFigure" << startPoint;
     if (isStarted_) {
         if (isClosed_)
             path_.closeSubpath();
@@ -25,35 +26,48 @@ void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFill
 
 void QtStreamGeometryContext::LineTo(const QPointF &point, bool isStroked, bool isSmoothJoin)
 {
+    //qDebug() << "LineTo" << point;
+    (void) isStroked; (void) isSmoothJoin;
     path_.lineTo(point);
 }
 
 void QtStreamGeometryContext::QuadraticBezierTo(const QPointF &point1, const QPointF &point2, bool isStroked, bool isSmoothJoin)
 {
+    //qDebug() << "QuadraticBezierTo" << point1 << point2;
+    (void) isStroked; (void) isSmoothJoin;
     path_.quadTo(point1, point2);
 }
 
 void QtStreamGeometryContext::BezierTo(const QPointF &point1, const QPointF &point2, const QPointF &point3, bool isStroked, bool isSmoothJoin)
 {
+    //qDebug() << "BezierTo" << point1 << point2 << point3;
+    (void) isStroked; (void) isSmoothJoin;
     path_.cubicTo(point1, point2, point3);
 }
 
 void QtStreamGeometryContext::PolyLineTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
-    for (QPointF const & pt : points)
+    (void) isStroked; (void) isSmoothJoin;
+    for (QPointF const & pt : points) {
+        //qDebug() << "PolyLineTo" << pt;
         path_.lineTo(pt);
+    }
 }
 
 void QtStreamGeometryContext::PolyQuadraticBezierTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
+    (void) isStroked; (void) isSmoothJoin;
     for (int i = 0; i < points.size(); i += 2) {
+        //qDebug() << "PolyQuadraticBezierTo" << points[i] << points[i + 1];
         path_.quadTo(points[i], points[i + 1]);
     }
 }
 
 void QtStreamGeometryContext::PolyBezierTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
+    (void) isStroked; (void) isSmoothJoin;
     for (int i = 0; i < points.size(); i += 3) {
+        //qDebug() << "PolyBezierTo" << points[i] << points[i + 1] << points[i + 2];
         path_.cubicTo(points[i], points[i + 1], points[i + 2]);
     }
 }
@@ -61,9 +75,8 @@ void QtStreamGeometryContext::PolyBezierTo(const QList<QPointF> &points, bool is
 
 void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
 {
-    //path_.lineTo(point);
-    //return;
-    qDebug() << path_.currentPosition() << point << size << rotationAngle << isLargeArc << sweepDirection;
+    //qDebug() << "ArcTo" << point << size;
+    (void) isStroked; (void) isSmoothJoin;
     // pt1, pt2 are two points in unit circle (location at [0, 0] and with r = 1)
     //   pt1 = [cos(t1) , sin(t1)]
     //   pt2 = [cos(t2) , sin(t2)]
@@ -83,36 +96,36 @@ void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, do
     // t = [pt1 - pt2] / 2 = [cos(t1) - cos(t2), sin(t1) - sin(t2)] / 2;
     //                     = [-sin((t1 + t2) / 2) * sin((t1 - t2) / 2), cos((t1 + t2) / 2) * sin((t1 - t2) / 2)]
     QPointF t = matrix.inverted().map(path_.currentPosition() - point) / 2;
-    qDebug() << "t" << t;
+    //qInfo() << "t" << t;
     // a1 = (t1 + t2) / 2, a2 = (t1 - t2) / 2; t1 > t2
     qreal a1 = atan(-t.x() / t.y());
     qreal product = QPointF::dotProduct(t, t);
-    if (product > 1.0) {
-        qDebug() << "product" << product;
+    if (product >= 1.0) {
+        //qInfo() << "product" << product;
         path_.lineTo(point);
         return;
     }
     qreal a2 = asin(product);
-    qDebug() << "a1 <-> a2" << (a1 * 180 / M_PI) << (a2 * 180 / M_PI);
+    //qInfo() << "a1 <-> a2" << (a1 * 180 / M_PI) << (a2 * 180 / M_PI);
     if (isLargeArc != (sweepDirection == SweepDirection::Clockwise))
         a2 = -a2;
-    if (a2 * t.y() < 0)
+    if (a2 * t.y() <= 0)
         a1 += M_PI;
     qreal t1 = a1 + a2, t2 = a1 - a2;
-    qDebug() << "t1 <-> t2" << (t1 * 180 / M_PI) << (t2 * 180 / M_PI);
+    //qInfo() << "t1 <-> t2" << (t1 * 180 / M_PI) << (t2 * 180 / M_PI);
     QPointF pt1(cos(t1), sin(t1));
     QPointF pt2(cos(t2), sin(t2));
-    qDebug() << "pt1 <-> pt2" << pt1 << pt2;
-    qDebug() << "t" << (pt1 - pt2) / 2;
+    //qInfo() << "pt1 <-> pt2" << pt1 << pt2;
+    //qInfo() << "t" << (pt1 - pt2) / 2;
     QPointF c = point - matrix.map(pt2);
     //
     QRectF rect(-rx, -ry, rx * 2, ry * 2);
     QPointF pe1(pt1.x() * rx, pt1.y() * ry);
     QPointF pe2(pt2.x() * rx, pt2.y() * ry);
-    qDebug() << "pe1 <-> pe2" << pe1 << pe2;
+    //qInfo() << "pe1 <-> pe2" << pe1 << pe2;
     a1 = 360 - t1 * 180 / M_PI; // Y axis is up
     a2 = 360 - t2 * 180 / M_PI;
-    qDebug() << "a1 <-> a2" << a1 << a2;
+    //qInfo() << "a1 <-> a2" << a1 << a2;
     QPainterPath ph(pe1);
     a2 -= a1;
     if (sweepDirection == SweepDirection::Clockwise) {

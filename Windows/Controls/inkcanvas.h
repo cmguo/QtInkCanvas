@@ -5,8 +5,8 @@
 
 #include "Windows/uielement.h"
 #include "Windows/Ink/events.h"
-#include "editingmode.h"
-#include "inkcanvasselectionhitresult.h"
+#include "Windows/Controls/editingmode.h"
+#include "Windows/Controls/inkcanvasselectionhitresult.h"
 #include "Internal/Ink/inkcanvasclipboardformat.h"
 #include "Windows/Ink/applicationgesture.h"
 
@@ -152,6 +152,8 @@ public:
     /// </summary>
     InkCanvas(QWidget* parent = nullptr);
 
+    virtual ~InkCanvas() override;
+
 private:
     /// <summary>
     /// Private initialization method used by the constructors
@@ -176,20 +178,20 @@ protected:
     /// </summary>
     /// <param name="availableSize"></param>
     /// <returns></returns>
-    virtual QSizeF MeasureOverride(QSizeF availableSize);
+    virtual QSizeF MeasureOverride(QSizeF availableSize) override;
 
     /// <summary>
     /// ArrangeOverride
     /// </summary>
     /// <param name="arrangeSize"></param>
     /// <returns></returns>
-    virtual QSizeF ArrangeOverride(QSizeF arrangeSize);
+    virtual QSizeF ArrangeOverride(QSizeF arrangeSize) override;
 
 
     /// <summary>
     /// HitTestCore implements precise hit testing against render contents
     /// </summary>
-    HitTestResult HitTestCore(PointHitTestParameters& hitTestParams);
+    virtual HitTestResult HitTestCore(PointHitTestParameters hitTestParams) override;
 
     /// <summary>
     /// OnPropertyChanged
@@ -1655,7 +1657,7 @@ private:
     /// <summary>
     /// Defines the shape of the eraser tip
     /// </summary>
-    StylusShape*                 _eraserShape = nullptr;
+    std::unique_ptr<StylusShape>                 _eraserShape = nullptr;
 
     /// <summary>
     /// Determines if EditingBehaviors should use their own cursor or a custom one specified.

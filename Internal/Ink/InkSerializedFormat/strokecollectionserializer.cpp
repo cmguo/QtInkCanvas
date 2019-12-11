@@ -1222,7 +1222,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
     xform->Tag = tag;
 
     quint32 cbRead = 0;
-    quint32 cbTotal = cbSize;
+    //quint32 cbTotal = cbSize;
 
     if (0 == cbSize)
         return 0;
@@ -1231,8 +1231,8 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
     // Presharp gives a warning when local IDisposable variables are not closed
     // in this case, we can't call Dispose since it will also close the underlying stream
     // which still needs to be read from
-#pragma warning disable 1634, 1691
-#pragma warning disable 6518
+//#pragma warning disable 1634, 1691
+//#pragma warning disable 6518
     QDataStream bw(&strm);
 
     if (KnownTagCache::KnownTagIndex::TransformRotate == tag)
@@ -1295,8 +1295,8 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
     }
 
     return cbRead;
-#pragma warning restore 6518
-#pragma warning restore 1634, 1691
+//#pragma warning restore 6518
+//#pragma warning restore 1634, 1691
 }
 
 /// <summary>
@@ -2052,8 +2052,8 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
         // Presharp gives a warning when local IDisposable variables are not closed
         // in this case, we can't call Dispose since it will also close the underlying stream
         // which still needs to be written to
-#pragma warning disable 1634, 1691
-#pragma warning disable 6518
+//#pragma warning disable 1634, 1691
+//#pragma warning disable 6518
         QDataStream bw(&strm);
 
         for (int i = 0; i < strkIds.size(); i++)
@@ -2061,8 +2061,8 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
             bw << (strkIds[i]);
             cbWrote += 4;
         }
-#pragma warning restore 6518
-#pragma warning restore 1634, 1691
+//#pragma warning restore 6518
+//#pragma warning restore 1634, 1691
     }
 
     return cbWrote;
@@ -2117,7 +2117,7 @@ bool StrokeCollectionSerializer::IsBase64Data(QIODevice& data)
 GuidList StrokeCollectionSerializer::BuildGuidList()
 {
     GuidList guidList;
-    int i = 0;
+    //int i = 0;
 
     // First go through the list of ink properties
     auto& attributes = _coreStrokes.ExtendedProperties();
@@ -2409,8 +2409,8 @@ quint32 StrokeCollectionSerializer::EncodeTransformDescriptor(QIODevice& strm, T
         // Presharp gives a warning when local IDisposable variables are not closed
         // in this case, we can't call Dispose since it will also close the underlying stream
         // which still needs to be written to
-#pragma warning disable 1634, 1691
-#pragma warning disable 6518
+//#pragma warning disable 1634, 1691
+//#pragma warning disable 6518
         QDataStream bw(&strm);
         bw.setVersion(QDataStream::Qt_4_0);
 
@@ -2429,8 +2429,8 @@ quint32 StrokeCollectionSerializer::EncodeTransformDescriptor(QIODevice& strm, T
                 cbData += 4;
             }
         }
-#pragma warning restore 6518
-#pragma warning restore 1634, 1691
+//#pragma warning restore 6518
+//#pragma warning restore 1634, 1691
     }
 
     return cbData;

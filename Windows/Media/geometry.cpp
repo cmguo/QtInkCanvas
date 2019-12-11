@@ -4,12 +4,10 @@
 
 Geometry::Geometry()
 {
-
 }
 
 Geometry::~Geometry()
 {
-
 }
 
 PathGeometry::PathGeometry()
@@ -31,6 +29,11 @@ PathGeometry* PathGeometry::Combine(Geometry * geometry)
     return this;
 }
 
+QRectF PathGeometry::Bounds()
+{
+    return path_.boundingRect();
+}
+
 void PathGeometry::Draw(QPainter &painter)
 {
     painter.drawPath(path_);
@@ -39,6 +42,14 @@ void PathGeometry::Draw(QPainter &painter)
 QList<Geometry*>& GeometryGroup::Children()
 {
     return children_;
+}
+
+QRectF GeometryGroup::Bounds()
+{
+    QRectF bounds;
+    for (Geometry* g : children_)
+        bounds |= g->Bounds();
+    return bounds;
 }
 
 void GeometryGroup::Draw(QPainter &painter)
@@ -50,6 +61,11 @@ void GeometryGroup::Draw(QPainter &painter)
 LineGeometry::LineGeometry(QPointF point0, QPointF point1)
     : line_(point0, point1)
 {
+}
+
+QRectF LineGeometry::Bounds()
+{
+    return QRectF(line_.p1(), line_.p2());
 }
 
 void LineGeometry::Draw(QPainter &painter)
@@ -67,6 +83,11 @@ RectangleGeometry::RectangleGeometry(QRectF rectangle, double radiusX, double ra
 {
 }
 
+QRectF RectangleGeometry::Bounds()
+{
+    return rectangle_;
+}
+
 void RectangleGeometry::Draw(QPainter &painter)
 {
     if (radius_.isEmpty())
@@ -79,6 +100,11 @@ EllipseGeometry::EllipseGeometry(QPointF center, double radiusX, double radiusY)
     : rectangle_(0, 0, radiusX, radiusY)
 {
     rectangle_.moveCenter(center);
+}
+
+QRectF EllipseGeometry::Bounds()
+{
+    return rectangle_;
 }
 
 void EllipseGeometry::Draw(QPainter &painter)

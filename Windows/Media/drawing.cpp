@@ -14,7 +14,6 @@ DrawingGroup::~DrawingGroup()
 {
 }
 
-
 DrawingGroupDrawingContext::DrawingGroupDrawingContext(DrawingGroup* drawingGroup)
     : drawingGroup_(drawingGroup)
 {
@@ -38,7 +37,10 @@ QList<Drawing*>& DrawingGroup::Children()
 
 QRectF DrawingGroup::Bounds()
 {
-    return QRectF();
+    QRectF bounds;
+    for (Drawing * d : children_)
+        bounds |= d->Bounds();
+    return bounds;
 }
 
 void DrawingGroup::Draw(QPainter &painer)
@@ -77,7 +79,7 @@ void GeometryDrawing::SetGeometry(Geometry * g)
 
 QRectF GeometryDrawing::Bounds()
 {
-    return QRectF();
+    return geometry_->Bounds();
 }
 
 void GeometryDrawing::Draw(QPainter &painer)
@@ -116,4 +118,5 @@ void ImageDrawing::Draw(QPainter &painer)
 {
 
 }
+
 

@@ -2,9 +2,11 @@
 #include "Windows/Media/drawing.h"
 
 #include <QPainter>
+#include <QDebug>
 
 DrawingVisual::DrawingVisual()
 {
+    resize(0, 0);
 }
 
 class VisualDrawingContext : public DrawingGroupDrawingContext
@@ -35,6 +37,15 @@ DrawingContext * DrawingVisual::RenderOpen()
 
 void DrawingVisual::RenderClose()
 {
+    QRect bounds = drawing_->Bounds().toRect().adjusted(-1, -1, 1, 1);
+    if (width() < bounds.width() || height() < bounds.height()) {
+        qDebug() << "DrawingVisual::RenderClose" << this << bounds;
+        resize(bounds.size());
+        move(bounds.topLeft());
+    } else if (x() > bounds.left() || y() > bounds.top() || x() + width() < bounds.right()
+               || y() + height() < bounds.bottom()) {
+        move(bounds.topLeft());
+    }
     update();
 }
 
@@ -45,8 +56,10 @@ DrawingGroup * DrawingVisual::GetDrawing()
 
 void DrawingVisual::paintEvent(QPaintEvent* event)
 {
+    qDebug() << "DrawingVisual::paintEvent" << this << event->rect();
     if (drawing_) {
         QPainter painter(this);
+        painter.translate(-QPointF(pos()));
         drawing_->Draw(painter);
     }
     //ContainerVisual::paintEvent(event);

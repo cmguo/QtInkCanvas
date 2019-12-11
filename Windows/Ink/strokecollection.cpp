@@ -755,10 +755,10 @@ QRectF StrokeCollection::GetBounds()
         // Presharp gives a warning when get methods might deref a null.  It's complaining
         // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
         // so this is not possible
-#pragma warning disable 1634, 1691
-#pragma warning suppress 6506
+//#pragma warning disable 1634, 1691
+//#pragma warning suppress 6506
         bounds |= stroke->GetBounds();
-#pragma warning restore 1634, 1691
+//#pragma warning restore 1634, 1691
     }
     return bounds;
 }
@@ -901,13 +901,13 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QRectF const & bounds
         // Presharp gives a warning when get methods might deref a null.  It's complaining
         // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
         // so this is not possible
-#pragma warning disable 1634, 1691
-#pragma warning suppress 6506
+//#pragma warning disable 1634, 1691
+//#pragma warning suppress 6506
         if (true == stroke->HitTest(bounds, percentageWithinBounds))
         {
             hits->append(stroke);
         }
-#pragma warning restore 1634, 1691
+//#pragma warning restore 1634, 1691
     }
     return hits;
 }
@@ -949,14 +949,14 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
         // Presharp gives a warning when get methods might deref a null.  It's complaining
         // here that 'stroke'' could be null, but StrokeCollection never allows nulls to be added
         // so this is not possible
-#pragma warning disable 1634, 1691
-#pragma warning suppress 6506
+//#pragma warning disable 1634, 1691
+//#pragma warning suppress 6506
         if (erasingBounds.intersects(stroke->GetBounds()) &&
             erasingStroke->HitTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes())))
         {
             hits->append(stroke);
         }
-#pragma warning restore 1634, 1691
+//#pragma warning restore 1634, 1691
     }
 
     return hits;

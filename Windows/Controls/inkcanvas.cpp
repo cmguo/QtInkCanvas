@@ -48,6 +48,10 @@ InkCanvas::InkCanvas(QWidget* parent)
     setParent(parent);
 }
 
+InkCanvas::~InkCanvas()
+{
+}
+
 /// <summary>
 /// Private initialization method used by the constructors
 /// </summary>
@@ -228,7 +232,7 @@ void InkCanvas::OnPositioningChanged(DependencyObject& d, DependencyPropertyChan
 /// <summary>
 /// HitTestCore implements precise hit testing against render contents
 /// </summary>
-HitTestResult InkCanvas::HitTestCore(PointHitTestParameters& hitTestParams)
+HitTestResult InkCanvas::HitTestCore(PointHitTestParameters hitTestParams)
 {
     VerifyAccess();
 
@@ -469,9 +473,9 @@ StylusShape* InkCanvas::EraserShape()
     VerifyAccess();
     if (_eraserShape == nullptr)
     {
-        _eraserShape = new RectangleStylusShape(8, 8);
+        _eraserShape.reset(new RectangleStylusShape(8, 8));
     }
-    return _eraserShape;
+    return _eraserShape.get();
 
 }
 void InkCanvas::SetEraserShape(StylusShape * value)
@@ -484,10 +488,10 @@ void InkCanvas::SetEraserShape(StylusShape * value)
     else
     {
         // Invoke getter since this property is lazily created.
-        StylusShape* oldShape = EraserShape();
+        EraserShape();
+        std::unique_ptr<StylusShape> oldShape(std::move(_eraserShape));
 
-        _eraserShape = value;
-
+        _eraserShape.reset(value);
 
         if ( oldShape->Width() != _eraserShape->Width() || oldShape->Height() != _eraserShape->Height()
             || oldShape->Rotation() != _eraserShape->Rotation() || oldShape->metaObject() != _eraserShape->metaObject())

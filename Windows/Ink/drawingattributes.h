@@ -35,7 +35,7 @@ public:
     /// <param name="extendedProperties"></param>
     DrawingAttributes(ExtendedPropertyCollection* extendedProperties);
 
-    virtual ~DrawingAttributes();
+    virtual ~DrawingAttributes() override;
 
 private:
     /// <summary>
@@ -342,6 +342,7 @@ private:
     ExtendedPropertyCollection* _extendedProperties;
     uint _v1RasterOperation = DrawingAttributeSerializer::RasterOperationDefaultV1;
     bool _heightChangedForCompatabity = false;
+    std::unique_ptr<StylusShape> drawingShape_;
 
 public:
     /// <summary>
@@ -382,10 +383,7 @@ public:
 class DrawingAttributesDefaultValueFactory : public DefaultValueFactory
 {
 private:
-    virtual QVariant DefaultValue() override
-    {
-        return QVariant::fromValue(QSharedPointer<DrawingAttributes>(new DrawingAttributes));
-    }
+    virtual QVariant DefaultValue() override;
 };
 
 
