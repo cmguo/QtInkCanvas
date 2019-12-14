@@ -5,6 +5,7 @@
 #include "Internal/Ink/InkSerializedFormat/metricblock.h"
 #include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
+#include "Internal/debug.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Ink/stroke.h"
@@ -14,6 +15,7 @@
 #include "Windows/Input/styluspointproperties.h"
 
 #include <QIODevice>
+#include <QDebug>
 
 /// <summary>
 /// Loads a stroke from the stream based on Stroke Descriptor, StylusPointDescription, Drawing Attributes, Stroke IDs, transform and GuidList
@@ -161,7 +163,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
             //      version of the ISF decoder doesn't understand
             default:
                 {
-                    //System.Diagnostics.Trace.WriteLine("Ignoring unhandled stroke tag in ISF stroke descriptor");
+                    qDebug() << ("Ignoring unhandled stroke tag in ISF stroke descriptor");
                 }
                 break;
         }
@@ -238,7 +240,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
                         QByteArray out_buffer;// = Compressor.DecompressPropertyData(in_buffer);
 
-                        //System.Diagnostics.Debug::Assert(false, "ExtendedProperties for points are not supported");
+                        Debug::Assert(false, "ExtendedProperties for points are not supported");
 
                         // skip the bytes in both success & failure cases
                         // Note: Point ExtendedProperties are discarded

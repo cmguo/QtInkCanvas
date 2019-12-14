@@ -454,21 +454,21 @@ public:
     //#region Debugging Methods
 private:
     //[System.Diagnostics.Conditional("DEBUG_ISF")]
-    static void ISFDebugTrace(QString message)
-    {
+    //static void ISFDebugTrace(QString message)
+    //{
         //Debug::WriteLine(message);
-    }
+    //}
     //#endregion
 
     // [System.Diagnostics.Conditional("DEBUG_ISF")]
-    static QString const & ISFDebugMessage(QString const & debugMessage)
-    {
+    //static QString const & ISFDebugMessage(QString const & debugMessage)
+    //{
 //#if DEBUG
-        return debugMessage;
+    //    return debugMessage;
 //#else
 //        return SR.Get(SRID.IsfOperationFailed);
 //#endif
-    }
+    //}
 
     //#region Fields
 

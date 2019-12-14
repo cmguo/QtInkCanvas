@@ -4,6 +4,7 @@
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/Ink/InkSerializedFormat/guidlist.h"
 #include "Internal/Ink/InkSerializedFormat/compress.h"
+#include "Internal/Ink/InkSerializedFormat/extendedpropertyserializer.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Ink/extendedpropertycollection.h"
@@ -147,6 +148,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
                         QBuffer localStream(&out_buffer);
                         localStream.open(QIODevice::ReadOnly);
                         QDataStream rdr(&localStream);
+                        rdr.setVersion(QDataStream::Qt_4_0);
                         short sFraction = 0;
                         rdr >> sFraction;
                         _size += (sFraction / DrawingAttributes::StylusPrecision);
@@ -186,16 +188,16 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
             da.SetColor(color);
             maximumStreamSize -= cb;
         }
-        //else if (KnownIds::StylusTipTransform == guid)
-        //{
+        else if (KnownIds::StylusTipTransform == guid)
+        {
             //try
-            //{
-            //    object data;
-            //    cb = ExtendedPropertySerializer.DecodeAsISF(stream, maximumStreamSize, guidList, tag, guid, data);
+            {
+                QVariant data;
+                cb = ExtendedPropertySerializer::DecodeAsISF(stream, maximumStreamSize, guidList, tag, guid, data);
 
-            //    Matrix matrix = Matrix.Parse((string)data);
-            //    da.GetStylusTip()Transform = matrix;
-            //}
+                QMatrix matrix;// = Matrix.Parse((string)data);
+                da.SetStylusTipTransform(matrix);
+            }
             //catch (InvalidOperationException) // Matrix.Parse failed.
             //{
             //    Debug::Assert(false, "Corrupt Matrix in the ExtendedPropertyCollection!");
@@ -204,14 +206,14 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
             //{
             //    maximumStreamSize -= cb;
             //}
-        //}
-        //else
-        //{
-        //    object data;
-        //    cb = ExtendedPropertySerializer.DecodeAsISF(stream, maximumStreamSize, guidList, tag, guid, data);
-        //    maximumStreamSize -= cb;
-        //    da.AddPropertyData(guid,data);
-        //}
+        }
+        else
+        {
+            QVariant data;
+            cb = ExtendedPropertySerializer::DecodeAsISF(stream, maximumStreamSize, guidList, tag, guid, data);
+            maximumStreamSize -= cb;
+            da.AddPropertyData(guid,data);
+        }
     }
 
     if (0 != maximumStreamSize)
@@ -382,6 +384,7 @@ quint32 DrawingAttributeSerializer::EncodeAsISF(DrawingAttributes& da, QIODevice
     //Debug::Assert(stream != nullptr);
     quint32 cbData = 0;
     QDataStream bw(&stream);
+    bw.setVersion(QDataStream::Qt_4_0);
 
     PersistDrawingFlags(da, stream, guidList, cbData, bw);
 
@@ -494,30 +497,30 @@ void DrawingAttributeSerializer::PersistRasterOperation(DrawingAttributes& da, Q
 void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw, unsigned char compressionAlgorithm, bool fTag)
 {
     // Now save the extended properties
-    ExtendedPropertyCollection* epcClone = da.CopyPropertyData();
+    ExtendedPropertyCollection& epcClone = *da.CopyPropertyData();
 
     //walk from the back removing EPs that are uses for DrawingAttributes
-    for (int x = epcClone->Count() - 1; x >= 0; x--)
+    for (int x = epcClone.Count() - 1; x >= 0; x--)
     {
         //
         // look for StylusTipTransform while we're at it and turn it into a string
         // for serialization
         //
-        //if (epcClone[x].Id == KnownIds::StylusTipTransform)
-        //{
-        //    Matrix matrix = (Matrix)epcClone[x].Value;
-        //    string matrixString = matrix.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        //    epcClone[x].Value = matrixString;
-        //    continue;
-        //}
+        if (epcClone[x].Id() == KnownIds::StylusTipTransform)
+        {
+            QMatrix matrix = epcClone[x].Value().value<QMatrix>();
+            QString matrixString;
+            epcClone[x].SetValue(matrixString);
+            continue;
+        }
 
-        //if (DrawingAttributes::RemoveIdFromExtendedProperties(epcClone[x].Id))
-        //{
-        //    epcClone.Remove(epcClone[x].Id);
-        //}
+        if (DrawingAttributes::RemoveIdFromExtendedProperties(epcClone[x].Id()))
+        {
+            epcClone.Remove(epcClone[x].Id());
+        }
     }
 
-    //cbData += ExtendedPropertySerializer.EncodeAsISF(epcClone, stream, guidList, compressionAlgorithm, fTag);
+    cbData += ExtendedPropertySerializer::EncodeAsISF(epcClone, stream, guidList, compressionAlgorithm, fTag);
 }
 #if OLD_ISF
 /// <Summary>
@@ -554,13 +557,14 @@ void DrawingAttributeSerializer::PersistStylusTip(DrawingAttributes& da, QIODevi
         cbData += SerializationHelper::Encode(stream, (quint32)PenTip::Rectangle);
 
         //using (MemoryStream localStream = new MemoryStream(6)) //reasonable default
-        //{
-        //    Int32 stylusTip = Convert.ToInt32(da.GetStylusTip(), System.Globalization.CultureInfo.InvariantCulture);
-        //    System.Runtime.InteropServices.VarEnum type = SerializationHelper::ConvertToVarEnum(PersistenceTypes.GetStylusTip(), true);
-        //    ExtendedPropertySerializer.EncodeAttribute(KnownIds::StylusTip, stylusTip, type, localStream);
+        QBuffer localStream; localStream.open(QIODevice::WriteOnly);
+        {
+            qint32 stylusTip = (qint32)da.GetStylusTip();
+            //System.Runtime.InteropServices.VarEnum type = SerializationHelper::ConvertToVarEnum(PersistenceTypes.GetStylusTip(), true);
+            ExtendedPropertySerializer::EncodeAttribute(KnownIds::StylusTip, stylusTip, localStream);
 
-        //    cbData += ExtendedPropertySerializer.EncodeAsISF(KnownIds::StylusTip, localStream.ToArray(), stream, guidList, 0, true);
-        //}
+            cbData += ExtendedPropertySerializer::EncodeAsISF(KnownIds::StylusTip, localStream.data(), stream, guidList, 0, true);
+        }
     }
 }
 

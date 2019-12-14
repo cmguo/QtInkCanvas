@@ -14,6 +14,8 @@ AlgoModule::AlgoModule()
 QByteArray AlgoModule::CompressPacketData(QVector<int> input, quint8 compression)
 {
     QByteArray output(input.size() * 4 + 1, 0);
+    compression = (quint8)(input.size() * 4);
+    output[0] = compression;
     memcpy(output.data() + 1, input.data(), input.length() * 4);
     return output;
 }
@@ -26,14 +28,20 @@ QByteArray AlgoModule::CompressPacketData(QVector<int> input, quint8 compression
 /// <returns></returns>
 uint AlgoModule::DecompressPacketData(QByteArray input, QVector<int>& outputBuffer)
 {
-    if (input.size() != outputBuffer.size() * 4 + 1)
+    if (input.size() < 2)
     {
         throw std::exception(("Input buffer passed was shorter than expected"));
     }
 
-    quint8 compression = input[0];
+    quint8 compression = (quint8)(outputBuffer.size() * 4);
+
+    if (compression != (quint8)input[0])
+    {
+        throw std::exception(("Input buffer passed was shorter than expected"));
+    }
+
     memcpy(outputBuffer.data(), input.data() + 1, outputBuffer.size() * 4);
-    return outputBuffer.size();
+    return outputBuffer.size() * 4 + 1;
 }
 
 /// <summary>

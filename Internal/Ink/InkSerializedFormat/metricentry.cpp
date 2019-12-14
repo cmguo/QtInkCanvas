@@ -126,6 +126,7 @@ void MetricEntry::Initialize(StylusPointPropertyInfo originalInfo, StylusPointPr
             // resolution
             //using (BinaryWriter bw = new BinaryWriter(strm))
             QDataStream bw(&strm);
+            bw.setVersion(QDataStream::Qt_4_0);
             {
                 bw << (originalInfo.Resolution());
                 _size += 4; // sizeof(float)

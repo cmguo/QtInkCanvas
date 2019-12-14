@@ -56,7 +56,7 @@ DrawingGroup * DrawingVisual::GetDrawing()
 
 void DrawingVisual::paintEvent(QPaintEvent* event)
 {
-    qDebug() << "DrawingVisual::paintEvent" << this << event->rect();
+    //qDebug() << "DrawingVisual::paintEvent" << this << event->rect();
     if (drawing_) {
         QPainter painter(this);
         painter.translate(-QPointF(pos()));

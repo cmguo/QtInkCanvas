@@ -22,6 +22,7 @@
 #include <QIODevice>
 #include <QBuffer>
 #include <QtMath>
+#include <QDebug>
 
 TransformDescriptor StrokeCollectionSerializer::IdentityTransformDescriptor = {
     {1.0},
@@ -345,7 +346,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
     // Now read the size of the stream
     localBytesDecoded = SerializationHelper::Decode(inputStream, remainingBytesInStream);
-    ISFDebugTrace("Decoded Stream Size in Bytes: ");
+    qDebug() << ("Decoded Stream Size in Bytes: ") << remainingBytesInStream;
     if (0 == remainingBytesInStream)
         return;
 
@@ -363,7 +364,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
             throw std::exception(("Invalid ISF data"));
         }
 
-        ISFDebugTrace("Decoding Tag: ");
+        qDebug() << ("Decoding Tag: ") << isfTag;
         switch (isfTag)
         {
             case KnownTagCache::KnownTagIndex::GuidTable:
@@ -557,7 +558,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
                         case KnownTagCache::KnownTagIndex::Stroke:
                             {
-                                ISFDebugTrace("   Decoding Stroke Id#("")");
+                                qDebug() << "   Decoding Stroke Id#(" << (strokeIndex + 1) << ")";
 
                                 StrokeDescriptor* strokeDescriptor = nullptr;
 
@@ -732,7 +733,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                 {
                     if ((uint)isfTag >= KnownIdCache::CustomGuidBaseIndex || ((uint)isfTag >= KnownTagCache::KnownTagCount && ((uint)isfTag < (KnownTagCache::KnownTagCount + KnownIdCache::OriginalISFIdTableLength))))
                     {
-                        ISFDebugTrace("  CUSTOM_GUID=");
+                        qDebug() << ("  CUSTOM_GUID=") << guidList.FindGuid(isfTag);
 
                         // Loads any custom property data
                         bytesDecodedInCurrentTag = remainingBytesInStream;
@@ -776,7 +777,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                     break;
                 }
         }
-        ISFDebugTrace("    Size = ");
+        qDebug() << ("    Size = ") << bytesDecodedInCurrentTag;
         if (bytesDecodedInCurrentTag > remainingBytesInStream)
         {
             throw std::exception(("Invalid ISF data"));
@@ -1234,6 +1235,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
 //#pragma warning disable 1634, 1691
 //#pragma warning disable 6518
     QDataStream bw(&strm);
+    bw.setVersion(QDataStream::Qt_4_0);
 
     if (KnownTagCache::KnownTagIndex::TransformRotate == tag)
     {
@@ -1512,6 +1514,7 @@ StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(Q
 
                     //using (BinaryReader br = new BinaryReader(strm))
                     QDataStream br(&strm);
+                    br.setVersion(QDataStream::Qt_4_0);
                     {
                         br >>resolution;
                         cbEntry += 4;
@@ -1720,7 +1723,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             // validate that the expected inkspace rectangle block in ISF was the actual size encoded
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("Encoded InkSpaceRectangle: size=" + localEncodedSize);
+                qDebug() << ("Encoded InkSpaceRectangle: size=") << localEncodedSize;
 
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
@@ -1739,7 +1742,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
 
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("Encoded PersistenceFormat: size=" + localEncodedSize);
+                qDebug() << ("Encoded PersistenceFormat: size=") << localEncodedSize;
 
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
@@ -1753,7 +1756,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += guidList.Save(localStream);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded Custom Guid Table: size=" + localEncodedSize);
+            qDebug() << ("Encoded Custom Guid Table: size=") << localEncodedSize;
 
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
@@ -1766,7 +1769,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += SerializeDrawingAttrsTable(localStream, guidList);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded DrawingAttributesTable: size=" + localEncodedSize);
+            qDebug() << ("Encoded DrawingAttributesTable: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
@@ -1775,7 +1778,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += SerializePacketDescrTable(localStream);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded Packet Description: size=" + localEncodedSize);
+            qDebug() << ("Encoded Packet Description: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
@@ -1784,7 +1787,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += SerializeMetricTable(localStream);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded Metric Table: size=" + localEncodedSize);
+            qDebug() << ("Encoded Metric Table: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
@@ -1793,7 +1796,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += SerializeTransformTable(localStream);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded Transform Table: size=" + localEncodedSize);
+            qDebug() << ("Encoded Transform Table: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
@@ -1804,7 +1807,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             cumulativeEncodedSize += ExtendedPropertySerializer::EncodeAsISF(_coreStrokes.ExtendedProperties(), localStream, guidList, GetCompressionAlgorithm(), true);
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("Encoded Global Ink Attributes Table: size=" + localEncodedSize);
+                qDebug() << ("Encoded Global Ink Attributes Table: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -1814,13 +1817,13 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         cumulativeEncodedSize += SaveStrokeIds(_coreStrokes, localStream, false);
         localEncodedSize = cumulativeEncodedSize - localEncodedSize;
         if (localEncodedSize != 0)
-            ISFDebugTrace("Encoded Stroke Id List: size=" + localEncodedSize);
+            qDebug() << ("Encoded Stroke Id List: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
             throw std::exception(("Calculated ISF stream size != actual stream size"));
 
         StoreStrokeData(localStream, guidList, cumulativeEncodedSize, localEncodedSize);
 
-        ISFDebugTrace("Embedded ISF Stream size=" + cumulativeEncodedSize);
+        qDebug() << ("Embedded ISF Stream size=") << cumulativeEncodedSize;
 
         // Now that all data has been written we need to prepend the stream
         long preEncodingPosition = outputStream.pos();
@@ -1833,7 +1836,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         outputStream.write(localStream.data().data(), (int)cumulativeEncodedSize);
         cbFinal += cumulativeEncodedSize;
 
-        ISFDebugTrace("Final ISF Stream size=" + cbFinal);
+        qDebug() << ("Final ISF Stream size=") << cbFinal;
 
         if (cbFinal != outputStream.pos() - preEncodingPosition)
         {
@@ -1874,7 +1877,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
         QSharedPointer<Stroke> s = _coreStrokes[i];
         quint32 cbStroke = 0;
 
-        ISFDebugTrace("Encoding Stroke Id#");
+        qDebug() << ("Encoding Stroke Id#") << strokeIds[i];
 
         // if the drawing attribute index is different from the current one, write it
         if (currentDrawingAttributesTableIndex != _strokeLookupTable[s]->DrawingAttributesTableIndex)
@@ -1885,7 +1888,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             currentDrawingAttributesTableIndex = _strokeLookupTable[s]->DrawingAttributesTableIndex;
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("    Encoded DrawingAttribute Table Index: size=" + localEncodedSize);
+                qDebug() << ("    Encoded DrawingAttribute Table Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -1899,7 +1902,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             currentStrokeDescriptorTableIndex = _strokeLookupTable[s]->StrokeDescriptorTableIndex;
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("    Encoded Stroke Descriptor Index: size=" + localEncodedSize);
+                qDebug() << ("    Encoded Stroke Descriptor Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -1913,7 +1916,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             uCurrMetricDescriptorTableIndex = _strokeLookupTable[s]->MetricDescriptorTableIndex;
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("    Encoded Metric Index: size=" + localEncodedSize);
+                qDebug() << ("    Encoded Metric Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -1927,7 +1930,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             currentTransformTableIndex = _strokeLookupTable[s]->TransformTableIndex;
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("    Encoded Transform Index: size=" + localEncodedSize);
+                qDebug() << ("    Encoded Transform Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -1952,7 +1955,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
 
             // Now write the tag KnownTagCache::KnownTagIndex::Stroke
             cumulativeEncodedSize += SerializationHelper::Encode(localStream, (uint)KnownTagCache::KnownTagIndex::Stroke);
-            ISFDebugTrace("Stroke size=");
+            qDebug() << ("Stroke size=") << tempstrm.size();
 
             // Now write the size of the stroke
             cumulativeEncodedSize += SerializationHelper::Encode(localStream, cbStroke);
@@ -1963,7 +1966,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
 
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
-                ISFDebugTrace("Encoding Stroke Id#");
+                qDebug() << ("Encoding Stroke Id#") << strokeIds[i] << " size=" << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
                 throw std::exception(("Calculated ISF stream size != actual stream size"));
         }
@@ -2013,7 +2016,7 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
     // First write the KnownTagCache::KnownTagIndex::StrokeIds
     quint32 cbWrote = SerializationHelper::Encode(strm, (uint)KnownTagCache::KnownTagIndex::StrokeIds);
 
-    ISFDebugTrace("Saved KnownTagCache::KnownTagIndex::StrokeIds size=");
+    qDebug() << ("Saved KnownTagCache::KnownTagIndex::StrokeIds size=") << cbWrote;
 
     // First findout the no of bytes required to huffman compress these ids
     quint8 algorithm = AlgoModule::DefaultCompression;
@@ -2055,7 +2058,7 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
 //#pragma warning disable 1634, 1691
 //#pragma warning disable 6518
         QDataStream bw(&strm);
-
+        bw.setVersion(QDataStream::Qt_4_0);
         for (int i = 0; i < strkIds.size(); i++)
         {
             bw << (strkIds[i]);
@@ -2502,6 +2505,7 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
         for (int i = 0; i < _drawingAttributesTable.size(); i++)
         {
             QSharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[i];
+            drawingAttributeStreams[i] = new QBuffer;
             drawingAttributeStreams[i]->open(QIODevice::ReadWrite); //reasonable default based on profiling
 
             sizes[i] = DrawingAttributeSerializer::EncodeAsISF(*drawingAttributes, *drawingAttributeStreams[i], guidList, 0, true);
@@ -2528,6 +2532,7 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
                             bytesWritten);
 
             drawingAttributeStreams[i]->close();
+            delete drawingAttributeStreams[i];
         }
     }
 
@@ -2624,7 +2629,7 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 
         if (false == fMatch)
         {
-            _transformTable.append(&xform);
+            _transformTable.append(new TransformDescriptor(xform));
             _strokeLookupTable[stroke]->TransformTableIndex = (uint)(_transformTable.size() - 1);
         }
 

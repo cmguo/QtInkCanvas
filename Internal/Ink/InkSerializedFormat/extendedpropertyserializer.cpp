@@ -82,6 +82,7 @@ void ExtendedPropertySerializer::EncodeAttribute(QUuid const &guid, QVariant con
     #pragma warning disable 1634, 1691
     #pragma warning disable 6518
     QDataStream bw(&stream);
+    bw.setVersion(QDataStream::Qt_4_0);
 
     // if this guid used the legacy internal attribute persistence APIs,
     //      then it doesn't include embedded type information (it's always a byte array)
@@ -296,6 +297,7 @@ QVariant ExtendedPropertySerializer::DecodeAttribute(QUuid const &guid, QIODevic
     // First determine the object type
     //using (BinaryReader br = new BinaryReader(memStream))
     QDataStream br(&memStream);
+    br.setVersion(QDataStream::Qt_4_0);
     {
         //
         // if usesEmbeddedTypeInfo is true, we do not
