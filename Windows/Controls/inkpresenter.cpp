@@ -15,7 +15,7 @@
 InkPresenter::InkPresenter()
 {
     // Create the internal Renderer object.
-    _renderer = new Renderer();
+    _renderer = new Renderer(this);
 
     StrokesChangedHandlers(Strokes(), nullptr);
 

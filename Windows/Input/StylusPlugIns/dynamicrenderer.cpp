@@ -787,7 +787,6 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
                                 Geometry* geometry,
                                 QBrush fillBrush)
 {
-    qDebug() << "DynamicRenderer::OnDraw";
     (void) stylusPoints;
     //if (drawingContext == nullptr)
     //{

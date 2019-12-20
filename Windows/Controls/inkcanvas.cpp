@@ -307,7 +307,7 @@ void InkCanvas::OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedE
     QSharedPointer<StrokeCollection> newValue = e.NewValue().value<QSharedPointer<StrokeCollection>>();
 
     // Bind the InkPresenter.Strokes to InkCanvas.Strokes
-    InkPresenter().SetStrokes(newValue);
+    inkCanvas.GetInkPresenter().SetStrokes(newValue);
 
     //
     // only change the prop if it's a different object.  We don't

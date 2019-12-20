@@ -52,7 +52,7 @@ public:
     /// <summary>
     /// Public Constructor
     /// </summary>
-    Renderer();
+    Renderer(QObject * parent);
 
     /// <summary>
     /// Returns a reference to a visual tree that can be used to render the ink.

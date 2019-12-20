@@ -148,7 +148,8 @@ private:
 /// <summary>
 /// Public Constructor
 /// </summary>
-Renderer::Renderer()
+Renderer::Renderer(QObject * parent)
+    : QObject(parent)
 {
     // Initialize the data members.
     // We intentionally don't use lazy initialization for the core members to avoid
@@ -572,7 +573,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
                 && (_visuals.contains(stroke) == true)
                 && ((precedingVisual = _visuals.value(stroke))->parentWidget() != nullptr))
             {
-                VisualCollection & children = static_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
+                VisualCollection & children = qobject_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
                 int index = children.indexOf(precedingVisual);
                 children.Insert(index + 1, visual);
                 break;

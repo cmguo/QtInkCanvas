@@ -39,7 +39,7 @@ void DrawingVisual::RenderClose()
 {
     QRect bounds = drawing_->Bounds().toRect().adjusted(-1, -1, 1, 1);
     if (width() < bounds.width() || height() < bounds.height()) {
-        qDebug() << "DrawingVisual::RenderClose" << this << bounds;
+        //qDebug() << "DrawingVisual::RenderClose" << this << bounds;
         resize(bounds.size());
         move(bounds.topLeft());
     } else if (x() > bounds.left() || y() > bounds.top() || x() + width() < bounds.right()

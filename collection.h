@@ -38,6 +38,16 @@ public:
 
     using QList<T>::contains;
 
+    using QList<T>::empty;
+
+    using QList<T>::startsWith;
+
+    using QList<T>::endsWith;
+
+    using QList<T>::constFirst;
+
+    using QList<T>::constLast;
+
 protected:
     T & at(int index)
     {
