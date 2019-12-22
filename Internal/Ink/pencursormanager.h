@@ -10,6 +10,7 @@
 
 class DrawingAttributes;
 class Drawing;
+class DrawingVisual;
 class StylusShape;
 
 // namespace MS.Internal.Ink
@@ -89,6 +90,14 @@ private:
     //[SecurityCritical]
     static QCursor CreateCursorFromDrawing(Drawing& drawing, QPointF hotspot);
 
+    /// <summary>
+    /// Create a DrawingVisual from a Drawing
+    /// </summary>
+    /// <param name="drawing"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    static DrawingVisual* CreateCursorDrawingVisual(Drawing& drawing, int width, int height);
 
     /// <summary>
     /// Custom Pen Drawing

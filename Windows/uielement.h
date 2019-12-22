@@ -122,7 +122,7 @@ public:
 
     PenContexts* GetPenContexts();
 
-protected:
+public:
     void RaiseEvent(RoutedEventArgs & e);
 
 protected:

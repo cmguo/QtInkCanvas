@@ -1,4 +1,5 @@
 #include "Internal/Ink/inkcollectionbehavior.h"
+#include "Internal/Ink/pencursormanager.h"
 #include "Windows/Controls/inkcanvas.h"
 #include "Windows/routedeventargs.h"
 #include "Windows/Ink/drawingattributes.h"
@@ -7,6 +8,9 @@
 #include "Windows/Ink/stroke.h"
 #include "Windows/Controls/inkevents.h"
 #include "Internal/finallyhelper.h"
+
+#include <QApplication>
+#include <QScreen>
 
 //-------------------------------------------------------------------------------
 //
@@ -209,7 +213,7 @@ QCursor InkCollectionBehavior::GetCurrentCursor()
 {
     if ( GetEditingCoordinator().UserIsEditing() == true )
     {
-        return QCursor();
+        return QCursor(Qt::BlankCursor);
     }
     else
     {
@@ -391,7 +395,8 @@ QCursor InkCollectionBehavior::PenCursor()
 
         _cursorDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes()->Clone();
         //DpiScale dpi = GetInkCanvas().GetDpi();
-        //_cachedPenCursor = PenCursorManager.GetPenCursor(da, false, (GetInkCanvas().FlowDirection == FlowDirection.RightToLeft), dpi.DpiScaleX, dpi.DpiScaleY);
+        qreal dpi = QApplication::primaryScreen()->devicePixelRatio();
+        _cachedPenCursor = PenCursorManager::GetPenCursor(da, false, (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft), dpi, dpi);
     }
 
     return _cachedPenCursor;

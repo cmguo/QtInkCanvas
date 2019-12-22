@@ -14,6 +14,8 @@ class DrawingVisual : public ContainerVisual
 public:
     DrawingVisual();
 
+    virtual ~DrawingVisual() override;
+
     DrawingContext * RenderOpen();
 
     void RenderClose();

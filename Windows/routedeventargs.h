@@ -105,7 +105,7 @@ public:
     ///     at any time
     /// </remarks>
     RoutedEvent& GetRoutedEvent();
-    void SetGetRoutedEvent(RoutedEvent& value);
+    void SetRoutedEvent(RoutedEvent& value);
 
     /// <summary>
     ///     Changes the RoutedEvent assocatied with these RoutedEventArgs

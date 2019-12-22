@@ -8,6 +8,8 @@
 #include "Internal/doubleutil.h"
 #include "Windows/Media/drawing.h"
 #include "Windows/Media/drawingcontext.h"
+#include "Windows/Media/drawingvisual.h"
+#include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
 #include <QBrush>
@@ -16,6 +18,7 @@
 #include <QApplication>
 #include <QScreen>
 #include <QSize>
+#include <QPainter>
 
 /// <summary>
 /// Create a pen cursor from DrawingAttributes object
@@ -91,6 +94,7 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
 //[SecurityCritical, SecurityTreatAsSafe]
 QCursor PenCursorManager::GetStrokeEraserCursor()
 {
+    static QCursor s_StrokeEraserCursor;
     if ( s_StrokeEraserCursor == QCursor() )
     {
         // Get Drawing
@@ -198,25 +202,31 @@ QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, QPointF hots
 
     QRectF drawingBounds = drawing.Bounds();
 
-    double originalWidth = drawingBounds.width();
-    double originalHeight = drawingBounds.height();
+    //double originalWidth = drawingBounds.width();
+    //double originalHeight = drawingBounds.height();
 
     // Cursors like to be multiples of 8 in dimension.
     int width = AlignToBytes(drawingBounds.width(), 1);
     int height = AlignToBytes(drawingBounds.height(), 1);
 
     // Now inflate the drawing bounds to the new dimension.
-    drawingBounds.adjust(-(width - originalWidth) / 2, -(height - originalHeight) / 2, (width - originalWidth) / 2, (height - originalHeight) / 2);
+    //drawingBounds.adjust(-(width - originalWidth) / 2, -(height - originalHeight) / 2, (width - originalWidth) / 2, (height - originalHeight) / 2);
 
     // Translate the hotspot accordingly.
-    int xHotspot = qRound(hotspot.x() - drawingBounds.left());
-    int yHotspot = qRound(hotspot.y() - drawingBounds.top());
+    //int xHotspot = qRound(hotspot.x() - drawingBounds.left());
+    //int yHotspot = qRound(hotspot.y() - drawingBounds.top());
 
     // Create a DrawingVisual which represents the cursor drawing.
-    //DrawingVisual cursorDrawingVisual = CreateCursorDrawingVisual(drawing, width, height);
+    std::unique_ptr<DrawingVisual> cursorDrawingVisual(CreateCursorDrawingVisual(drawing, width, height));
 
     // Render the cursor visual to a bitmap
     //RenderTargetBitmap rtb = RenderVisualToBitmap(cursorDrawingVisual, width, height);
+    QPixmap rtb(width, height);
+    rtb.fill(Qt::transparent);
+    QPainter painter(&rtb);
+    painter.setRenderHint(QPainter::HighQualityAntialiasing);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    cursorDrawingVisual->render(&painter);
 
     // Get pixel data in Bgra32 fromat from the bitmap
     //byte[] pixels = GetPixels(rtb, width, height);
@@ -230,7 +240,83 @@ QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, QPointF hots
     //}
 
     //cursor = CursorInteropHelper.CriticalCreate(finalCursor);
+    cursor = QCursor(rtb);
     return cursor;
+}
+
+class DrawingBrush : public Drawing
+{
+public:
+    DrawingBrush(Drawing* d, QRectF const & r) : d_(d), r_(r) {}
+
+    virtual QRectF Bounds()
+    {
+        QRectF b = d_->Bounds();
+        b.moveTopLeft({0, 0});
+        return b;
+    }
+
+    virtual void Draw(QPainter& painer)
+    {
+        QRectF b = d_->Bounds();
+        painer.translate(r_.center());
+        painer.scale(r_.width() / b.width(), r_.height() / b.height());
+        d_->Draw(painer);
+    }
+
+private:
+    Drawing* d_;
+    QRectF r_;
+};
+
+/// <summary>
+/// Create a DrawingVisual from a Drawing
+/// </summary>
+/// <param name="drawing"></param>
+/// <param name="width"></param>
+/// <param name="height"></param>
+/// <returns></returns>
+DrawingVisual* PenCursorManager::CreateCursorDrawingVisual(Drawing& drawing, int width, int height)
+{
+    // Create a drawing brush with the drawing as its content.
+    //DrawingBrush db = new DrawingBrush(drawing);
+    //db.Stretch = Stretch.None;
+    //db.AlignmentX = AlignmentX.Center;
+    //db.AlignmentY = AlignmentY.Center;
+
+    //QRectF bound(drawing.Bounds());
+    //QPixmap rtb(bound.size().toSize());
+    //QPainter painter(&rtb);
+    //painter.translate(-bound.topLeft());
+    //drawing.Draw(painter);
+    //QBrush db(rtb);
+
+    // Create a drawing visual with our drawing brush.
+    std::unique_ptr<DrawingVisual> drawingVisual(new DrawingVisual());
+    std::unique_ptr<DrawingContext> dc = nullptr;
+    //try
+    {
+        FinallyHelper final([&dc]() {
+            if ( dc != nullptr )
+            {
+                dc->Close();
+            }
+        });
+        dc.reset(drawingVisual->RenderOpen());
+        //dc->DrawRectangle(db, Qt::NoPen, QRectF(0, 0, width, height));
+        dc->DrawDrawing(new DrawingBrush(&drawing, QRectF(0, 0, width, height)));
+    }
+    //finally
+    //{
+    //    if ( dc != null )
+    //    {
+    //        dc.Close();
+    //    }
+    //}
+    drawingVisual->move(0, 0);
+    drawingVisual->resize(width, height);
+    //drawingVisual->setAttribute(Qt::WA_TranslucentBackground);
+    return drawingVisual.release();
 }
 
 /// <summary>
@@ -315,12 +401,18 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
         }
     }
 
-    DrawingGroup* penDrawing = new DrawingGroup();
-    DrawingContext* dc = nullptr;
+    std::unique_ptr<DrawingGroup> penDrawing(new DrawingGroup());
+    std::unique_ptr<DrawingContext> dc = nullptr;
 
     //try
     {
-        dc = penDrawing->Open();
+        FinallyHelper final([&dc]() {
+            if ( dc != nullptr )
+            {
+                dc->Close();
+            }
+        });
+        dc.reset(penDrawing->Open());
 
         // Call the drawing method on Stroke to draw as hollow if isHollow == true
         if ( isHollow )
@@ -334,14 +426,14 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
         }
     }
     //finally
-    {
-        if ( dc != nullptr )
-        {
-            dc->Close();
-        }
-    }
+    //{
+    //    if ( dc != nullptr )
+    //    {
+    //        dc->Close();
+    //    }
+    //}
 
-    return penDrawing;
+    return penDrawing.release();
 }
 
 /// <summary>
@@ -497,7 +589,7 @@ int PenCursorManager::AlignToBytes(double original, int nBytesCount)
     Debug::Assert(nBytesCount > 0, "The N-Byte has to be greater than 0!");
 
     int nBitsCount = 8 << (nBytesCount - 1);
-    return ((ceil(original) + (nBitsCount - 1)) / nBitsCount) * nBitsCount;
+    return ((static_cast<int>(ceil(original)) + (nBitsCount - 1)) / nBitsCount) * nBitsCount;
 }
 
 QCursor PenCursorManager::s_StrokeEraserCursor;

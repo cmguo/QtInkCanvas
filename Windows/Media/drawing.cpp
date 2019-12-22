@@ -12,6 +12,9 @@ DrawingGroup::DrawingGroup()
 
 DrawingGroup::~DrawingGroup()
 {
+    for (Drawing * d : children_)
+        delete d;
+    children_.clear();
 }
 
 DrawingGroupDrawingContext::DrawingGroupDrawingContext(DrawingGroup* drawingGroup)
@@ -60,6 +63,8 @@ GeometryDrawing::GeometryDrawing()
 
 GeometryDrawing::~GeometryDrawing()
 {
+    if (geometry_)
+        delete geometry_;
 }
 
 void GeometryDrawing::SetBrush(QBrush brush)

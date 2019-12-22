@@ -32,7 +32,7 @@ public:
 
     static MouseEvent QueryCursorEvent;
 
-    static void UpdateCursor();
+    static void UpdateCursor(UIElement* element);
 
 };
 

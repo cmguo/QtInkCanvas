@@ -57,7 +57,7 @@ RoutedEvent& RoutedEventArgs::GetRoutedEvent()
 {
     return *_routedEvent;
 }
-void RoutedEventArgs::SetGetRoutedEvent(RoutedEvent& value)
+void RoutedEventArgs::SetRoutedEvent(RoutedEvent& value)
 {
      if (UserInitiated() && InvokingHandler())
          throw std::exception("SR.Get(SRID.RoutedEventCannotChangeWhileRouting)");

@@ -8,12 +8,13 @@
 Visual::Visual()
     : QWidget(nullptr, Qt::SubWindow | Qt::FramelessWindowHint)
 {
+    setAttribute(Qt::WA_TranslucentBackground);
 }
 
 
 void Visual::SetOpacity(double opacity)
 {
-
+    setProperty("Opacity", opacity);
 }
 
 QTransform Visual::TransformToAncestor(Visual* visual)

@@ -3,11 +3,12 @@
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/mousebuttoneventargs.h"
+#include "Windows/Input/querycursoreventargs.h"
 #include "Windows/routedeventargs.h"
 #include "Windows/uielement.h"
 
 #include <QMouseEvent>
-#include <QWidget>
+#include <QGraphicsProxyWidget>
 #include <QApplication>
 
 MouseEvent::MouseEvent(int type)
@@ -34,11 +35,19 @@ MouseEvent Mouse::MouseEnterEvent(QEvent::HoverEnter);
 
 MouseEvent Mouse::MouseLeaveEvent(QEvent::HoverLeave);
 
-MouseEvent Mouse::QueryCursorEvent(QEvent::CursorChange);
+MouseEvent Mouse::QueryCursorEvent(0);
 
-void Mouse::UpdateCursor()
+void Mouse::UpdateCursor(UIElement* element)
 {
-
+    QueryCursorEventArgs args(Mouse::PrimaryDevice, 0);
+    args.SetRoutedEvent(Mouse::QueryCursorEvent);
+    element->RaiseEvent(args);
+    if (args.Handled()) {
+        element->setCursor(args.Cursor());
+        QGraphicsProxyWidget * proxy = element->graphicsProxyWidget();
+        if (proxy)
+            proxy->setCursor(args.Cursor());
+    }
 }
 
 MouseDevice::MouseDevice()

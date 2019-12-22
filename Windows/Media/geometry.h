@@ -57,6 +57,8 @@ private:
 class GeometryGroup : public Geometry
 {
 public:
+    virtual ~GeometryGroup() override;
+
     QList<Geometry*>& Children();
 
     virtual QRectF Bounds() override;

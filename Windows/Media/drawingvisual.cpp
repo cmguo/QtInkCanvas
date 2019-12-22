@@ -9,6 +9,12 @@ DrawingVisual::DrawingVisual()
     resize(0, 0);
 }
 
+DrawingVisual::~DrawingVisual()
+{
+    if (drawing_)
+        delete drawing_;
+}
+
 class VisualDrawingContext : public DrawingGroupDrawingContext
 {
 public:
@@ -59,6 +65,9 @@ void DrawingVisual::paintEvent(QPaintEvent* event)
     //qDebug() << "DrawingVisual::paintEvent" << this << event->rect();
     if (drawing_) {
         QPainter painter(this);
+        QVariant opacity = property("Opacity");
+        if (opacity.isValid())
+            painter.setOpacity(opacity.toDouble());
         painter.translate(-QPointF(pos()));
         drawing_->Draw(painter);
     }

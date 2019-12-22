@@ -152,7 +152,8 @@ void UIElement::UpdateLayout()
 
 bool UIElement::IsMouseOver()
 {
-    return false;
+    //return underMouse();
+    return true;
 }
 
 bool UIElement::IsStylusOver()

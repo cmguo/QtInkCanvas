@@ -39,6 +39,13 @@ void PathGeometry::Draw(QPainter &painter)
     painter.drawPath(path_);
 }
 
+GeometryGroup::~GeometryGroup()
+{
+    for (Geometry* g : children_)
+        delete g;
+    children_.clear();
+}
+
 QList<Geometry*>& GeometryGroup::Children()
 {
     return children_;

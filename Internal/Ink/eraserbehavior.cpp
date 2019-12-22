@@ -291,8 +291,8 @@ QCursor EraserBehavior::GetCurrentCursor()
                 }
             }
             //DpiScale dpi = GetInkCanvas().GetDpi();
-            QScreen * screen = QApplication::primaryScreen();
-            _cachedPointEraserCursor = PenCursorManager::GetPointEraserCursor(*_cachedStylusShape, xf, screen->physicalDotsPerInchX(), screen->physicalDotsPerInchY());
+            qreal dpi = QApplication::primaryScreen()->devicePixelRatio();
+            _cachedPointEraserCursor = PenCursorManager::GetPointEraserCursor(*_cachedStylusShape, xf, dpi, dpi);
         }
 
         return _cachedPointEraserCursor;

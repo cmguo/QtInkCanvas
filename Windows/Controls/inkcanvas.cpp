@@ -38,14 +38,21 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QShortcut>
+#include <QDebug>
 
 /// <summary>
 /// Public constructor.
 /// </summary>
 InkCanvas::InkCanvas(QWidget* parent)
 {
+    if (Mouse::PrimaryDevice == nullptr)
+        Mouse::PrimaryDevice = new MouseDevice;
+    setAttribute(Qt::WA_Hover);
     Initialize();
     setParent(parent);
+    QObject::connect(this, &UIElement::IsVisibleChanged, [this]() {
+        UpdateCursor();
+    });
 }
 
 InkCanvas::~InkCanvas()
@@ -2539,11 +2546,11 @@ void InkCanvas::_OnQueryCursor(QueryCursorEventArgs& e)
         QCursor cursor = GetEditingCoordinator().GetActiveBehaviorCursor();
 
         // If cursor is null, we don't handle the event and leave it as whatever the default is.
-        //if ( cursor != nullptr )
-        //{
+        //if ( cursor != QCursor() )
+        {
             e.SetCursor(cursor);
             e.SetHandled(true);
-        //}
+        }
     }
 }
 
@@ -2557,7 +2564,7 @@ void InkCanvas::UpdateCursor()
 {
     if ( IsMouseOver() )
     {
-        Mouse::UpdateCursor();
+        Mouse::UpdateCursor(this);
     }
 }
 
