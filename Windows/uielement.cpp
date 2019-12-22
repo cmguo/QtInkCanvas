@@ -47,6 +47,8 @@ void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler
         store->byroute.insert(&event, rh);
         if (event.type())
             store->bytype.insert(event.type(), rh);
+        if (event.type() == QEvent::HoverEnter)
+            setAttribute(Qt::WA_Hover);
     }
     if (!rh->handlers.contains(handler))
         rh->handlers.append(handler);

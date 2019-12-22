@@ -123,11 +123,11 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
             {
                 if (isRightToLeft)
                 {
-                    cursor = Qt::SizeFDiagCursor;
+                    cursor = Qt::SizeBDiagCursor;
                 }
                 else
                 {
-                    cursor = Qt::SizeBDiagCursor;
+                    cursor = Qt::SizeFDiagCursor;
                 }
                 break;
             }
@@ -144,11 +144,11 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
             {
                 if (isRightToLeft)
                 {
-                    cursor = Qt::SizeBDiagCursor;
+                    cursor = Qt::SizeFDiagCursor;
                 }
                 else
                 {
-                    cursor = Qt::SizeFDiagCursor;
+                    cursor = Qt::SizeBDiagCursor;
                 }
                 break;
             }
@@ -156,7 +156,7 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
         case InkCanvasSelectionHitResult::Left:
         case InkCanvasSelectionHitResult::Right:
             {
-                cursor = Qt::SizeVerCursor;
+                cursor = Qt::SizeHorCursor;
                 break;
             }
         case InkCanvasSelectionHitResult::Selection:

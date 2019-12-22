@@ -66,6 +66,8 @@ void SelectionEditor::OnActivate()
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
     GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseEnterEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseHoverEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
     GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseLeaveEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseLeaveEvent>(this));
 
@@ -84,6 +86,8 @@ void SelectionEditor::OnDeactivate()
     GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseMoveEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
     GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseEnterEvent,
+            RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
+    GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseHoverEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseMoveEvent>(this));
     GetInkCanvas().SelectionAdorner().RemoveHandler(Mouse::MouseLeaveEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseLeaveEvent>(this));

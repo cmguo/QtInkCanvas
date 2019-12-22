@@ -88,6 +88,9 @@ void Stroke::Initialize()
 /// <remarks>Deep copied data includes points, point description, drawing attributes, and transform</remarks>
 /// <returns>Deep copy of current stroke</returns>
 Stroke::Stroke(Stroke const & o)
+    : _drawingAttributes(o._drawingAttributes)
+    , _stylusPoints(o._stylusPoints)
+    , _cloneStylusPoints(o._cloneStylusPoints)
 {
 
 

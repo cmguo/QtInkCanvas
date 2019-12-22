@@ -28,6 +28,8 @@ public:
 
     static MouseEvent MouseEnterEvent;
 
+    static MouseEvent MouseHoverEvent;
+
     static MouseEvent MouseLeaveEvent;
 
     static MouseEvent QueryCursorEvent;

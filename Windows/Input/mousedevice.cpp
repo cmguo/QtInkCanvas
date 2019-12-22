@@ -33,6 +33,8 @@ MouseEvent Mouse::MouseUpEvent(QEvent::MouseButtonRelease);
 
 MouseEvent Mouse::MouseEnterEvent(QEvent::HoverEnter);
 
+MouseEvent Mouse::MouseHoverEvent(QEvent::HoverMove);
+
 MouseEvent Mouse::MouseLeaveEvent(QEvent::HoverLeave);
 
 MouseEvent Mouse::QueryCursorEvent(0);
