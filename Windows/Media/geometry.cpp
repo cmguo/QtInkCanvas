@@ -10,6 +10,15 @@ Geometry::~Geometry()
 {
 }
 
+bool Geometry::tryTakeOwn(void *owner)
+{
+    if (owner_ == nullptr) {
+        owner_ = owner;
+        return true;
+    }
+    return owner_ == owner;
+}
+
 PathGeometry::PathGeometry()
 {
 }

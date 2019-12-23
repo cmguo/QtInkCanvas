@@ -4,6 +4,7 @@
 #include "InkCanvas_global.h"
 #include "drawingattributes.h"
 #include "Windows/Input/styluspointcollection.h"
+#include "Windows/Media/geometry.h"
 
 #include <QList>
 #include <QMap>
@@ -488,7 +489,10 @@ public:
     void SetGeometry(Geometry* geometry)
     {
         //System.Diagnostics.Debug.Assert(geometry != null);
+        if (_cachedGeometry && _cachedGeometry->tryTakeOwn(this))
+            delete _cachedGeometry;
         _cachedGeometry = geometry;
+        _cachedGeometry->tryTakeOwn(this);
     }
 
     /// <summary>

@@ -73,7 +73,7 @@ public:
 private:
     QBrush brush_;
     QPen pen_;
-    Geometry * geometry_;
+    Geometry * geometry_ = nullptr;
 };
 
 class ImageDrawing : public Drawing
@@ -104,7 +104,7 @@ protected:
     void CloseCore(QList<Drawing*> rootDrawingGroupChildren);
 
 private:
-    DrawingGroup* drawingGroup_;
+    DrawingGroup* drawingGroup_ = nullptr;
 };
 
 

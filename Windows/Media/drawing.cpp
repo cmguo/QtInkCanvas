@@ -63,7 +63,7 @@ GeometryDrawing::GeometryDrawing()
 
 GeometryDrawing::~GeometryDrawing()
 {
-    if (geometry_)
+    if (geometry_ && geometry_->tryTakeOwn(this))
         delete geometry_;
 }
 

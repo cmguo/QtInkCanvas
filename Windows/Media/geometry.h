@@ -31,6 +31,11 @@ public:
     virtual QRectF Bounds() = 0;
 
     virtual void Draw(QPainter& painter) = 0;
+
+    bool tryTakeOwn(void * owner);
+
+private:
+    void * owner_ = nullptr;
 };
 
 #include <QPainterPath>
