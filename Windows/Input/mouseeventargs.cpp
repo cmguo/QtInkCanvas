@@ -1,8 +1,8 @@
 #include "Windows/Input/mouseeventargs.h"
 #include "Windows/Input/mousedevice.h"
 
-MouseEventArgs::MouseEventArgs(QMouseEvent &event)
-    : MouseEventArgs(Mouse::PrimaryDevice, static_cast<int>(event.timestamp()))
+MouseEventArgs::MouseEventArgs(QGraphicsSceneMouseEvent &event)
+    : MouseEventArgs(Mouse::PrimaryDevice, Mouse::GetTimestamp())
 {
     _stylusDevice = nullptr;
 }

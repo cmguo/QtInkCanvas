@@ -5,7 +5,7 @@
 #include "Windows/Input/mousedevice.h"
 
 #include <QTouchEvent>
-#include <QMouseEvent>
+#include <QGraphicsSceneMouseEvent>
 
 /// <summary>
 ///     [TBS]
@@ -14,7 +14,7 @@
 /// <param name="tabletToElementTransform">[TBS]
 /// <param name="targetPlugInCollection">[TBS]
 RawStylusInput::RawStylusInput(
-    QInputEvent&    event,
+    QEvent&    event,
     QTransform        tabletToElementTransform,
     StylusPlugInCollection* targetPlugInCollection)
     : inputEvent_(event)
@@ -42,10 +42,10 @@ RawStylusInput::RawStylusInput(
         touchEvent_ = static_cast<QTouchEvent*>(&event);
         device_ = Stylus::GetDevice(touchEvent_->device());
         break;
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseMove:
-    case QEvent::MouseButtonRelease:
-        mouseEvent_ = static_cast<QMouseEvent*>(&event);
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMouseRelease:
+        mouseEvent_ = static_cast<QGraphicsSceneMouseEvent*>(&event);
         device_ = Mouse::PrimaryDevice;
         break;
     default:
@@ -75,19 +75,19 @@ int RawStylusInput::TabletDeviceId() { return touchEvent_ ? touchEvent_->device(
 /// <summary>
 ///
 /// </summary>
-int RawStylusInput::Timestamp() { return static_cast<int>(inputEvent_.timestamp()); }
+int RawStylusInput::Timestamp() { return touchEvent_ ? static_cast<int>(touchEvent_->timestamp()) : Mouse::GetTimestamp(); }
 
 RawStylusActions RawStylusInput::Actions()
 {
     switch (inputEvent_.type()) {
     case QEvent::TouchBegin:
-    case QEvent::MouseButtonPress:
+    case QEvent::GraphicsSceneMousePress:
         return RawStylusActions::Down;
     case QEvent::TouchUpdate:
-    case QEvent::MouseMove:
+    case QEvent::GraphicsSceneMouseMove:
         return RawStylusActions::Move;
     case QEvent::TouchEnd:
-    case QEvent::MouseButtonRelease:
+    case QEvent::GraphicsSceneMouseRelease:
         return RawStylusActions::Up;
     default:
         return RawStylusActions::None;

@@ -24,6 +24,8 @@ class Visual;
 class HitTestResult;
 class PointHitTestParameters;
 class QMimeData;
+class QBrush;
+
 typedef QMimeData DataObject;
 
 class InkCanvasSelectionEditingEventArgs;
@@ -296,14 +298,8 @@ protected:
     ///     An object that describes the background.
     /// </summary>
     //[Bindable(true), Category("Appearance")]
-    QBrush Background()
-    {
-        return GetValue<QBrush>(BackgroundProperty);
-    }
-    void SetBackground(QBrush value)
-    {
-        SetValue(BackgroundProperty, value);
-    }
+    QBrush Background();
+    void SetBackground(QBrush value);
 
 
     /// <summary>

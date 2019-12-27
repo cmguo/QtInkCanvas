@@ -19,13 +19,17 @@ class PenContexts;
 
 // namespace System.Windows
 
-class INKCANVAS_EXPORT UIElement : public Visual
+class INKCANVAS_EXPORT UIElement : public QObject, public Visual
 {
     Q_OBJECT
 public:
     static RoutedEvent LostMouseCaptureEvent;
 
     static RoutedEvent LostStylusCaptureEvent;
+
+    static constexpr int ITEM_DATA = 6000;
+
+    static UIElement* fromItem(QGraphicsItem* item);
 
 signals:
     void LayoutUpdated(EventArgs&);
@@ -143,9 +147,11 @@ protected:
     virtual void OnPreApplyTemplate();
 
 protected:
+    virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
-private:
-    virtual bool event(QEvent *event) override;
+    virtual bool sceneEvent(QEvent *event) override;
+
+    virtual QRectF boundingRect() const override;
 
 private:
     enum PrivateFlag {

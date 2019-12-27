@@ -103,11 +103,6 @@ protected:
         return nullptr;
     }
 
-    virtual void paintEvent(QPaintEvent *event) override
-    {
-        DrawingVisual::paintEvent(event);
-    }
-
 public:
     /// <summary>
     /// The previous value of IsHighlighter
@@ -369,7 +364,7 @@ bool Renderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointe
         = drawingAttributes->IsHighlighter() ? GetContainerVisual(drawingAttributes) : _incrementalRenderingVisuals;
 
     ContainerVisual* currentParent
-        = qobject_cast<ContainerVisual*>(visual->parentWidget());
+        = ContainerVisual::fromItem(visual->parentItem());
 
     if (currentParent == nullptr || correctParent != currentParent)
     {
@@ -531,7 +526,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
         int i = 0;
         for (int j = parent->Children().size() - 1; j >= 0; j--)
         {
-            if (parent->Children()[j]->metaObject()->inherits(&StrokeVisual::staticMetaObject))
+            //if (parent->Children()[j]->metaObject()->inherits(&StrokeVisual::staticMetaObject))
             {
                 i = j + 1;
                 break;
@@ -573,7 +568,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
                 && (_visuals.contains(stroke) == true)
                 && ((precedingVisual = _visuals.value(stroke))->parentWidget() != nullptr))
             {
-                VisualCollection & children = qobject_cast<ContainerVisual*>(precedingVisual->parentWidget())->Children();
+                VisualCollection & children = ContainerVisual::fromItem(precedingVisual->parentItem())->Children();
                 int index = children.indexOf(precedingVisual);
                 children.Insert(index + 1, visual);
                 break;
@@ -595,7 +590,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
 /// </summary>
 void Renderer::DetachVisual(Visual* visual)
 {
-    ContainerVisual* parent = qobject_cast<ContainerVisual*>(visual->parentWidget());
+    ContainerVisual* parent = ContainerVisual::fromItem(visual->parentItem());
     if (parent != nullptr)
     {
         VisualCollection & children = parent->Children();

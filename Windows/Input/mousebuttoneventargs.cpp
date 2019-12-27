@@ -1,7 +1,9 @@
 #include "Windows/Input/mousebuttoneventargs.h"
 #include "Windows/Input/mousedevice.h"
 
-MouseButtonEventArgs::MouseButtonEventArgs(QMouseEvent &event)
+#include <QGraphicsSceneMouseEvent>
+
+MouseButtonEventArgs::MouseButtonEventArgs(QGraphicsSceneMouseEvent &event)
     : MouseEventArgs(event)
 {
     switch (event.button()) {

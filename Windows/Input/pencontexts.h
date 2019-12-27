@@ -25,7 +25,7 @@ public:
 
     void FireCustomData();
 
-private:
+public:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:

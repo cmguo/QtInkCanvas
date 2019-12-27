@@ -45,7 +45,7 @@ public:
 
     virtual QSharedPointer<StylusPointDescription> PointDescription() = 0;
 
-    virtual QVector<int> PacketData(QInputEvent& event) = 0;
+    virtual QVector<int> PacketData(QEvent& event) = 0;
 };
 
 #endif // INPUTDEVICE_H

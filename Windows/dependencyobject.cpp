@@ -3,6 +3,9 @@
 #include "Windows/dispatcher.h"
 #include "Windows/Media/visual.h"
 
+#include <QGraphicsScene>
+#include <QThread>
+
 DependencyObject::DependencyObject()
 {
 
@@ -36,7 +39,7 @@ void DependencyObject::InvalidateSubProperty(DependencyProperty const * prop)
 
 Dispatcher* DependencyObject::GetDispatcher() const
 {
-    return Dispatcher::from(static_cast<Visual const *>(this)->thread());
+    return Dispatcher::from(QThread::currentThread());
 }
 
 void DependencyObject::VerifyAccess() const

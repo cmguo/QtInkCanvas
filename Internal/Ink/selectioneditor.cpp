@@ -164,6 +164,7 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
     {
         // We always use MouseDevice for the selection editing.
         GetEditingCoordinator().ActivateDynamicBehavior(GetEditingCoordinator().GetSelectionEditingBehavior(), args.Device());
+        args.SetHandled(true);
     }
     else
     {

@@ -22,9 +22,14 @@ private:
     ContainerVisual* parent_;
 };
 
-class ContainerVisual : public Visual
+class ContainerVisual : public QObject, public Visual
 {
     Q_OBJECT
+public:
+    static constexpr int ITEM_DATA = 6000;
+
+    static ContainerVisual* fromItem(QGraphicsItem* item);
+
 public:
     ContainerVisual();
 

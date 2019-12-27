@@ -36,6 +36,7 @@ public:
 
     static void UpdateCursor(UIElement* element);
 
+    static int GetTimestamp();
 };
 
 class MouseDevice : public InputDevice
@@ -81,7 +82,7 @@ public:
 
     virtual QSharedPointer<StylusPointDescription> PointDescription();
 
-    virtual QVector<int> PacketData(QInputEvent& event);
+    virtual QVector<int> PacketData(QEvent& event);
 
 private:
     QSharedPointer<StylusPointDescription> description_;

@@ -7,9 +7,14 @@
 #include "Windows/routedeventargs.h"
 #include "Windows/uielement.h"
 
-#include <QMouseEvent>
-#include <QGraphicsProxyWidget>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QApplication>
+#include <QWidget>
+
+#include <Windows.h>
+#include <sysinfoapi.h>
 
 MouseEvent::MouseEvent(int type)
     : RoutedEvent(type)
@@ -18,24 +23,24 @@ MouseEvent::MouseEvent(int type)
 
 void MouseEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
 {
-    MouseButtonEventArgs args(static_cast<QMouseEvent&>(event));
+    MouseButtonEventArgs args(static_cast<QGraphicsSceneMouseEvent&>(event));
     args.MarkAsUserInitiated();
     RoutedEvent::handle(event, args, handlers);
 }
 
 MouseDevice* Mouse::PrimaryDevice = nullptr;
 
-MouseEvent Mouse::MouseDownEvent(QEvent::MouseButtonPress);
+MouseEvent Mouse::MouseDownEvent(QEvent::GraphicsSceneMousePress);
 
-MouseEvent Mouse::MouseMoveEvent(QEvent::MouseMove);
+MouseEvent Mouse::MouseMoveEvent(QEvent::GraphicsSceneMouseMove);
 
-MouseEvent Mouse::MouseUpEvent(QEvent::MouseButtonRelease);
+MouseEvent Mouse::MouseUpEvent(QEvent::GraphicsSceneMouseRelease);
 
-MouseEvent Mouse::MouseEnterEvent(QEvent::HoverEnter);
+MouseEvent Mouse::MouseEnterEvent(QEvent::GraphicsSceneHoverEnter);
 
-MouseEvent Mouse::MouseHoverEvent(QEvent::HoverMove);
+MouseEvent Mouse::MouseHoverEvent(QEvent::GraphicsSceneHoverMove);
 
-MouseEvent Mouse::MouseLeaveEvent(QEvent::HoverLeave);
+MouseEvent Mouse::MouseLeaveEvent(QEvent::GraphicsSceneHoverLeave);
 
 MouseEvent Mouse::QueryCursorEvent(0);
 
@@ -49,10 +54,12 @@ void Mouse::UpdateCursor(UIElement* element)
             element->unsetCursor();
         else
             element->setCursor(args.Cursor());
-        QGraphicsProxyWidget * proxy = element->graphicsProxyWidget();
-        if (proxy)
-            proxy->setCursor(args.Cursor());
     }
+}
+
+int Mouse::GetTimestamp()
+{
+    return ::GetTickCount();
 }
 
 MouseDevice::MouseDevice()
@@ -118,7 +125,11 @@ MouseButtonState MouseDevice::XButton2()
 
 UIElement* MouseDevice::Captured()
 {
-    return qobject_cast<UIElement*>(QWidget::mouseGrabber());
+    QWidget* grabber = QWidget::mouseGrabber();
+    QGraphicsView * view = qobject_cast<QGraphicsView*>(grabber);
+    if (view == nullptr)
+        return nullptr;
+    return UIElement::fromItem(view->scene()->mouseGrabberItem());
 }
 
 UIElement* MouseDevice::Target()
@@ -141,11 +152,11 @@ QSharedPointer<StylusPointDescription> MouseDevice::PointDescription()
     return description_;
 }
 
-QVector<int> MouseDevice::PacketData(QInputEvent& event)
+QVector<int> MouseDevice::PacketData(QEvent& event)
 {
-    QMouseEvent& mouseEvent(static_cast<QMouseEvent&>(event));
+    QGraphicsSceneMouseEvent& mouseEvent(static_cast<QGraphicsSceneMouseEvent&>(event));
     QVector<int> data;
-    QPoint pt2 = mouseEvent.pos();
+    QPoint pt2 = mouseEvent.pos().toPoint();
     data.append(pt2.x());
     data.append(pt2.y());
     return data;

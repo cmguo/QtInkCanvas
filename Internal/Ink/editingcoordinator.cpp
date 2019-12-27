@@ -1070,8 +1070,8 @@ void EditingCoordinator::ReleaseCapture(bool releaseDevice)
 bool EditingCoordinator::IsInputDeviceCaptured(InputDevice* inputDevice)
 {
     Debug::Assert(_capturedStylus == nullptr || _capturedMouse == nullptr, "InkCanvas cannot capture both stylus and mouse at the same time.");
-    return (inputDevice == _capturedStylus && _capturedStylus->Captured() == &_inkCanvas)
-        || (inputDevice == _capturedMouse && _capturedMouse->Captured() == &_inkCanvas);
+    return (inputDevice == _capturedStylus/* && _capturedStylus->Captured() == &_inkCanvas*/)
+        || (inputDevice == _capturedMouse/* && _capturedMouse->Captured() == &_inkCanvas*/);
 }
 
 /// <summary>

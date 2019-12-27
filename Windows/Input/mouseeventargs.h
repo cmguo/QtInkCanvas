@@ -7,6 +7,7 @@
 class Visual;
 class MouseDevice;
 class StylusDevice;
+class QGraphicsSceneMouseEvent;
 
 // namespace System.Windows.Input
 
@@ -17,7 +18,7 @@ class StylusDevice;
 class MouseEventArgs : public InputEventArgs
 {
 public:
-    MouseEventArgs(QMouseEvent &event);
+    MouseEventArgs(QGraphicsSceneMouseEvent &event);
 
     /// <summary>
     ///     Initializes a new instance of the MouseEventArgs class.

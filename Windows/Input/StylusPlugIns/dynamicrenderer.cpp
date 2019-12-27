@@ -19,9 +19,6 @@
 #include <QThread>
 #include <QDebug>
 
-#include <Windows.h>
-#include <sysinfoapi.h>
-
 class HostVisual;
 
 class VisualTarget
@@ -323,7 +320,7 @@ void DynamicRenderer::Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPoi
             // Now create new si and insert it in the list.
             StrokeInfo* si = new StrokeInfo(GetDrawingAttributes(),
                                            (stylusDevice != nullptr) ? stylusDevice->Id() : 0,
-                                           ::GetTickCount(), GetCurrentHostVisual());
+                                           Mouse::GetTimestamp(), GetCurrentHostVisual());
             _strokeInfoList.append(si);
             si->SetIsReset(true);
 
@@ -817,6 +814,7 @@ Dispatcher* DynamicRenderer::GetDispatcher()
 
 void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
 {
+    //qDebug() << "DynamicRenderer::RenderPackets";
     // If no points or not hooked up to element then do nothing.
     if (stylusPoints->size() == 0 || _applicationDispatcher == nullptr)
         return;

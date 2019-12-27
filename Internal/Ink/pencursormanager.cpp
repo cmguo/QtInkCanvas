@@ -19,6 +19,7 @@
 #include <QScreen>
 #include <QSize>
 #include <QPainter>
+#include <QStyleOptionGraphicsItem>
 
 /// <summary>
 /// Create a pen cursor from DrawingAttributes object
@@ -226,7 +227,8 @@ QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, QPointF hots
     QPainter painter(&rtb);
     painter.setRenderHint(QPainter::HighQualityAntialiasing);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
-    cursorDrawingVisual->render(&painter);
+    QStyleOptionGraphicsItem style;
+    cursorDrawingVisual->paint(&painter, &style);
 
     // Get pixel data in Bgra32 fromat from the bitmap
     //byte[] pixels = GetPixels(rtb, width, height);
@@ -313,8 +315,6 @@ DrawingVisual* PenCursorManager::CreateCursorDrawingVisual(Drawing& drawing, int
     //        dc.Close();
     //    }
     //}
-    drawingVisual->move(0, 0);
-    drawingVisual->resize(width, height);
     //drawingVisual->setAttribute(Qt::WA_TranslucentBackground);
     return drawingVisual.release();
 }

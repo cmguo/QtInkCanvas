@@ -80,7 +80,7 @@ public:
 class MouseButtonEventArgs : public MouseEventArgs
 {
 public:
-    MouseButtonEventArgs(QMouseEvent& event);
+    MouseButtonEventArgs(QGraphicsSceneMouseEvent& event);
     /// <summary>
     ///     Initializes a new instance of the MouseButtonEventArgs class.
     /// </summary>

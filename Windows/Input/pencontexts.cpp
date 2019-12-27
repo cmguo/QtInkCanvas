@@ -6,7 +6,7 @@
 #include "Windows/uielement.h"
 
 #include <QTouchEvent>
-#include <QMouseEvent>
+#include <QGraphicsSceneMouseEvent>
 
 PenContexts::PenContexts(UIElement * element)
     : mutex_(QMutex::Recursive)
@@ -53,12 +53,12 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
             customDatas_.append(stylusInput.CustomDataList());
         }
         break;
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseMove:
-    case QEvent::MouseButtonRelease:
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMouseRelease:
         customDatas_.clear();
         for (StylusPlugInCollection* pic : stylusPlugIns_) {
-            RawStylusInput stylusInput(static_cast<QMouseEvent&>(*event), transform_, pic);
+            RawStylusInput stylusInput(static_cast<QGraphicsSceneMouseEvent&>(*event), transform_, pic);
             pic->FireRawStylusInput(stylusInput);
             action_ = stylusInput.Actions();
             customDatas_.append(stylusInput.CustomDataList());

@@ -213,7 +213,7 @@ void InkCanvas::OnPositioningChanged(DependencyObject& d, DependencyPropertyChan
     //if ( uie != nullptr )
     {
         // Make sure the UIElement* is a child of InkCanvasInnerCanvas.
-        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie.VisualParent());
+        InkCanvasInnerCanvas* p = qobject_cast<InkCanvasInnerCanvas*>(uie.Parent());
         if ( p != nullptr )
         {
             if ( e.Property() == InkCanvas::LeftProperty
@@ -292,6 +292,15 @@ void InkCanvas::OnPreApplyTemplate()
     }
 }
 
+QBrush InkCanvas::Background()
+{
+    return GetValue<QBrush>(BackgroundProperty);
+}
+
+void InkCanvas::SetBackground(QBrush value)
+{
+    SetValue(BackgroundProperty, value);
+}
 
 /// <summary>
 ///     The DependencyProperty for the Strokes property.
@@ -2115,6 +2124,7 @@ void InkCanvas::_RegisterClipboardHandlers()
         CodeAccessPermission.RevertAssert();
     }
     */
+    /*
     QShortcut * shortcutCopy = new QShortcut(QKeySequence(QKeySequence::Copy), this);
     QObject::connect(shortcutCopy, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
     QShortcut * shortcutCut = new QShortcut(QKeySequence(QKeySequence::Cut), this);
@@ -2127,6 +2137,7 @@ void InkCanvas::_RegisterClipboardHandlers()
     QObject::connect(shortcutDelete, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
     QShortcut * shortcutDeselect = new QShortcut(QKeySequence(QKeySequence::Deselect), this);
     QObject::connect(shortcutDeselect, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    */
 }
 
 /// <summary>

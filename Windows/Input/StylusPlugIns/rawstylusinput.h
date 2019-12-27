@@ -6,9 +6,9 @@
 #include <QTransform>
 #include <QSharedPointer>
 
-class QInputEvent;
+class QEvent;
 class QTouchEvent;
-class QMouseEvent;
+class QGraphicsSceneMouseEvent;
 class RawStylusInputReport;
 class StylusPlugInCollection;
 class StylusPointCollection;
@@ -37,7 +37,7 @@ public:
     /// <param name="tabletToElementTransform">[TBS]
     /// <param name="targetPlugInCollection">[TBS]
     RawStylusInput(
-        QInputEvent&    event,
+        QEvent&    event,
         QTransform        tabletToElementTransform,
         StylusPlugInCollection* targetPlugInCollection);
 
@@ -123,9 +123,9 @@ public:
     /////////////////////////////////////////////////////////////////////
 
 private:
-    QInputEvent& inputEvent_;
+    QEvent& inputEvent_;
     QTouchEvent* touchEvent_;
-    QMouseEvent* mouseEvent_;
+    QGraphicsSceneMouseEvent* mouseEvent_;
 
     //RawStylusInputReport*    _report;
     InputDevice* device_;

@@ -6,7 +6,6 @@
 
 DrawingVisual::DrawingVisual()
 {
-    resize(0, 0);
 }
 
 DrawingVisual::~DrawingVisual()
@@ -43,15 +42,6 @@ DrawingContext * DrawingVisual::RenderOpen()
 
 void DrawingVisual::RenderClose()
 {
-    QRect bounds = drawing_->Bounds().toRect().adjusted(-1, -1, 1, 1);
-    if (width() < bounds.width() || height() < bounds.height()) {
-        //qDebug() << "DrawingVisual::RenderClose" << this << bounds;
-        resize(bounds.size());
-        move(bounds.topLeft());
-    } else if (x() > bounds.left() || y() > bounds.top() || x() + width() < bounds.right()
-               || y() + height() < bounds.bottom()) {
-        move(bounds.topLeft());
-    }
     update();
 }
 
@@ -60,16 +50,15 @@ DrawingGroup * DrawingVisual::GetDrawing()
     return drawing_;
 }
 
-void DrawingVisual::paintEvent(QPaintEvent* event)
+QRectF DrawingVisual::boundingRect() const
 {
-    //qDebug() << "DrawingVisual::paintEvent" << this << event->rect();
+    return drawing_ ? drawing_->Bounds() : QRectF();
+}
+
+void DrawingVisual::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    //qDebug() << "DrawingVisual::paint" << this->boundingRect();
     if (drawing_) {
-        QPainter painter(this);
-        QVariant opacity = property("Opacity");
-        if (opacity.isValid())
-            painter.setOpacity(opacity.toDouble());
-        painter.translate(-QPointF(pos()));
-        drawing_->Draw(painter);
+        drawing_->Draw(*painter);
     }
-    //ContainerVisual::paintEvent(event);
 }

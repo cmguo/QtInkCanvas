@@ -66,7 +66,7 @@ public:
 
     virtual QSharedPointer<StylusPointDescription> PointDescription() override;
 
-    virtual QVector<int> PacketData(QInputEvent& event) override;
+    virtual QVector<int> PacketData(QEvent& event) override;
 
 private:
     int id_;

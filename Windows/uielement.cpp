@@ -7,13 +7,34 @@
 
 #include <QEvent>
 #include <QDebug>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 RoutedEvent UIElement::LostMouseCaptureEvent(QEvent::UngrabMouse);
 
 RoutedEvent UIElement::LostStylusCaptureEvent(QEvent::TouchCancel);
 
+static constexpr int ITEM_DATA_RECT = UIElement::ITEM_DATA + 1;
+
+UIElement *UIElement::fromItem(QGraphicsItem *item)
+{
+    if (item == nullptr)
+        return nullptr;
+    QVariant elem = item->data(ITEM_DATA);
+    if (elem.userType() == qMetaTypeId<UIElement*>()) {
+        UIElement * ue = elem.value<UIElement*>();
+        if (ue == item)
+            return ue;
+    }
+    return nullptr;
+}
+
 UIElement::UIElement()
 {
+    setData(ITEM_DATA, QVariant::fromValue(this));
+    setData(ITEM_DATA_RECT, QRectF());
+    setAcceptTouchEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
 }
 
 struct RoutedEventAndHandlers
@@ -45,8 +66,13 @@ void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler
         rh = new RoutedEventAndHandlers;
         rh->route = &event;
         store->byroute.insert(&event, rh);
-        if (event.type())
+        if (event.type()) {
+            qDebug() << "AddHandler" << static_cast<QEvent::Type>(event.type());
+            if (event.type() == QEvent::GraphicsSceneHoverEnter) {
+                setAcceptHoverEvents(true);
+            }
             store->bytype.insert(event.type(), rh);
+        }
     }
     if (!rh->handlers.contains(handler))
         rh->handlers.append(handler);
@@ -86,7 +112,7 @@ QList<UIElement*> UIElement::Children()
 
 UIElement* UIElement::Parent()
 {
-    return qobject_cast<UIElement*>(parent());
+    return fromItem(parentItem());
 }
 
 void UIElement::InvalidateVisual()
@@ -117,11 +143,20 @@ QSizeF UIElement::DesiredSize()
 
 QSizeF UIElement::RenderSize()
 {
-    return QSizeF();
+    return boundingRect().size();
 }
 
-void UIElement::SetRenderSize(QSizeF)
+void UIElement::SetRenderSize(QSizeF size)
 {
+    QRectF rect(QPointF(0, 0), size);
+    rect.moveCenter(QPointF(0, 0));
+    setData(ITEM_DATA_RECT, rect);
+    for (QGraphicsItem * o : childItems()) {
+        UIElement* ue = fromItem(o);
+        if (ue) {
+            ue->SetRenderSize(size);
+        }
+    }
 }
 
 void UIElement::Arrange(QRectF rect)
@@ -169,17 +204,17 @@ bool UIElement::Focus()
 
 void UIElement::CaptureMouse()
 {
-    grabMouse();
+    //grabMouse();
 }
 
 bool UIElement::IsMouseCaptured()
 {
-    return Mouse::PrimaryDevice->Captured() == this;
+    return true;// Mouse::PrimaryDevice->Captured() == this;
 }
 
 void UIElement::ReleaseMouseCapture()
 {
-    releaseMouse();
+    //ungrabMouse();
 }
 
 bool UIElement::IsVisible()
@@ -271,7 +306,7 @@ void UIElement::RaiseEvent(RoutedEventArgs &args)
                 return;
         }
     }
-    UIElement * parent = qobject_cast<UIElement*>(parentWidget());
+    UIElement * parent = fromItem(VisualParent());
     if (parent)
         parent->RaiseEvent(args);
 }
@@ -314,25 +349,42 @@ void UIElement::OnPreApplyTemplate()
 {
 }
 
-bool UIElement::event(QEvent *event)
+QVariant UIElement::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    switch (event->type()) {
-    case QEvent::Show:
-        //qDebug() << "event " << event;
+    switch (change) {
+    case QGraphicsItem::ItemVisibleHasChanged:
+        qDebug() << "itemChange " << change;
         emit IsVisibleChanged();
         break;
-    case QEvent::EnabledChange:
-        //qDebug() << "event " << event;
+    case QGraphicsItem::ItemEnabledHasChanged:
+        qDebug() << "itemChange " << change;
         emit IsEnabledChanged();
+        break;
+    case QGraphicsItem::ItemChildAddedChange:
+    {
+        UIElement* ue = fromItem(value.value<QGraphicsItem*>());
+        if (ue) {
+            ue->SetRenderSize(RenderSize());
+        }
+    }
         break;
     default:
         break;
+    }
+    return value;
+}
+
+bool UIElement::sceneEvent(QEvent *event)
+{
+    if (privateFlags_.testFlag(HasPenContexts)) {
+        GetPenContexts()->eventFilter(this, event);
     }
     if (privateFlags_.testFlag(HasRoutedEventStore)) {
         RoutedEventStore* store = property("RoutedEventStore").value<RoutedEventStore*>();
         RoutedEventAndHandlers* rh = store->bytype.value(event->type(), nullptr);
         if (rh) {
-            //qDebug() << "event" << event;
+            //if (event->type() != QEvent::GraphicsSceneHoverMove)
+            //    qDebug() << "sceneEvent" << event->type() << static_cast<QObject*>(this);
             rh->route->handle(*event, rh->handlers);
             if (event->isAccepted())
                 return true;
@@ -342,7 +394,12 @@ bool UIElement::event(QEvent *event)
         GetPenContexts()->FireCustomData();
     }
     //qDebug() << "event reject" << event;
-    return QWidget::event(event);
+    return Visual::sceneEvent(event);
+}
+
+QRectF UIElement::boundingRect() const
+{
+    return data(ITEM_DATA_RECT).toRectF();
 }
 
 QRectF FrameworkElement::Margin()

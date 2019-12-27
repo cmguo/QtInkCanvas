@@ -22,8 +22,10 @@ public:
 
     DrawingGroup * GetDrawing();
 
-protected:
-    virtual void paintEvent(QPaintEvent* event) override;
+public:
+    virtual QRectF boundingRect() const override;
+
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
     DrawingGroup * drawing_ = nullptr;

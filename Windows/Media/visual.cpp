@@ -4,17 +4,16 @@
 
 #include <QDebug>
 #include <QResizeEvent>
+#include <QGraphicsScene>
 
 Visual::Visual()
-    : QWidget(nullptr, Qt::SubWindow | Qt::FramelessWindowHint)
+    : QGraphicsItem(nullptr)
 {
-    setAttribute(Qt::WA_TranslucentBackground);
 }
-
 
 void Visual::SetOpacity(double opacity)
 {
-    setProperty("Opacity", opacity);
+    setOpacity(opacity);
 }
 
 QTransform Visual::TransformToAncestor(Visual* visual)
@@ -30,25 +29,24 @@ QTransform Visual::TransformToDescendant(Visual* visual)
 
 void Visual::AddVisualChild(Visual * visual)
 {
-    if (!visual->metaObject()->inherits(&DrawingVisual::staticMetaObject)
-            || qobject_cast<DrawingVisual*>(visual)->GetDrawing() == nullptr) {
-        visual->resize(size());
-        visual->move(0, 0);
-    }
-    visual->setParent(this);
+    visual->setParentItem(this);
     if (isVisible())
         visual->show();
 }
 
 void Visual::RemoveVisualChild(Visual * visual)
 {
-    if (visual->parent() == this)
-        visual->setParent(nullptr);
+    if (visual->parentItem() == this) {
+        if (scene())
+            scene()->removeItem(visual);
+        else
+            visual->setParentItem(nullptr);
+    }
 }
 
 Visual *Visual::VisualParent()
 {
-    return qobject_cast<Visual*>(parent());
+    return static_cast<Visual*>(parentItem());
 }
 
 void Visual::OnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved)
@@ -61,16 +59,11 @@ HitTestResult Visual::HitTestCore(PointHitTestParameters hitTestParams)
     return HitTestResult(nullptr);
 }
 
-void Visual::resizeEvent(QResizeEvent *event)
+QRectF Visual::boundingRect() const
 {
-    for (QObject * c : children()) {
-        Visual * v = qobject_cast<Visual*>(c);
-        if (v)
-            v->resize(event->size());
-    }
+    return QRectF();
 }
 
-void Visual::paintEvent(QPaintEvent *event)
+void Visual::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    (void) event;
 }

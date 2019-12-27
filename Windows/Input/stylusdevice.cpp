@@ -99,7 +99,7 @@ QSharedPointer<StylusPointDescription> StylusDevice::PointDescription()
     return description_;
 }
 
-QVector<int> StylusDevice::PacketData(QInputEvent& event)
+QVector<int> StylusDevice::PacketData(QEvent& event)
 {
     QTouchEvent& touchEvent(static_cast<QTouchEvent&>(event));
     QVector<int> data;

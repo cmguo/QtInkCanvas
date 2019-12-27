@@ -32,7 +32,7 @@ public:
     virtual void OnRender(DrawingContext& drawingContext) = 0;
 
 protected:
-    virtual void paintEvent(QPaintEvent* event) override;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
     UIElement* adornedElement_;

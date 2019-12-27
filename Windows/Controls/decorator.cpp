@@ -39,15 +39,13 @@ QTransform Adorner::GetDesiredTransform(const QTransform &transform)
     return transform;
 }
 
-void Adorner::paintEvent(QPaintEvent *event)
+void Adorner::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    (void) event;
-    QPainter painter(this);
-    QTransform transform(painter.transform());
-    painter.setTransform(GetDesiredTransform(transform));
-    QtPainterDrawingContext context(painter);
+    QTransform transform(painter->transform());
+    painter->setTransform(GetDesiredTransform(transform));
+    QtPainterDrawingContext context(*painter);
     OnRender(context);
-    painter.setTransform(transform);
+    painter->setTransform(transform);
 }
 
 void AdornerLayer::Add(Adorner *adorner)
@@ -64,10 +62,11 @@ AdornerLayer *AdornerLayer::GetAdornerLayer(Visual *visual)
 {
     Visual * parent = visual->VisualParent();
     while (parent) {
-        AdornerLayer* l = qobject_cast<AdornerLayer*>(parent);
+        UIElement * ue = fromItem(parent);
+        AdornerLayer* l = qobject_cast<AdornerLayer*>(ue);
         if (l)
             return l;
-        AdornerDecorator* d = qobject_cast<AdornerDecorator*>(parent);
+        AdornerDecorator* d = qobject_cast<AdornerDecorator*>(ue);
         if (d)
             return d->GetAdornerLayer();
         parent = parent->VisualParent();

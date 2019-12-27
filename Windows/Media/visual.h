@@ -6,15 +6,14 @@
 #include "Windows/dependencyobject.h"
 #include "pointhittestparameters.h"
 
-#include <QWidget>
+#include <QGraphicsItem>
 
 class HitTestResult;
 
 // namespace System.Windows.Media
 
-class INKCANVAS_EXPORT Visual : public QWidget, public DependencyObject
+class INKCANVAS_EXPORT Visual : public QGraphicsItem, public DependencyObject
 {
-    Q_OBJECT
 public:
     Visual();
 
@@ -37,9 +36,9 @@ protected:
     virtual HitTestResult HitTestCore(PointHitTestParameters hitTestParams);
 
 protected:
-    virtual void resizeEvent(QResizeEvent* event) override;
+    virtual QRectF boundingRect() const override;
 
-    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 };
 
 #endif // VISUAL_H
