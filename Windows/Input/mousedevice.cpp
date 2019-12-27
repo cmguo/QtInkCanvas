@@ -45,7 +45,10 @@ void Mouse::UpdateCursor(UIElement* element)
     args.SetRoutedEvent(Mouse::QueryCursorEvent);
     element->RaiseEvent(args);
     if (args.Handled()) {
-        element->setCursor(args.Cursor());
+        if (args.Cursor() == QCursor())
+            element->unsetCursor();
+        else
+            element->setCursor(args.Cursor());
         QGraphicsProxyWidget * proxy = element->graphicsProxyWidget();
         if (proxy)
             proxy->setCursor(args.Cursor());

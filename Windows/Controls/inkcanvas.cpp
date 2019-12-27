@@ -47,7 +47,6 @@ InkCanvas::InkCanvas(QWidget* parent)
 {
     if (Mouse::PrimaryDevice == nullptr)
         Mouse::PrimaryDevice = new MouseDevice;
-    setAttribute(Qt::WA_Hover);
     Initialize();
     setParent(parent);
     QObject::connect(this, &UIElement::IsVisibleChanged, [this]() {

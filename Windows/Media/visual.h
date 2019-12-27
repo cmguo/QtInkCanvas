@@ -38,6 +38,8 @@ protected:
 
 protected:
     virtual void resizeEvent(QResizeEvent* event) override;
+
+    virtual void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // VISUAL_H

@@ -47,8 +47,6 @@ void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler
         store->byroute.insert(&event, rh);
         if (event.type())
             store->bytype.insert(event.type(), rh);
-        if (event.type() == QEvent::HoverEnter)
-            setAttribute(Qt::WA_Hover);
     }
     if (!rh->handlers.contains(handler))
         rh->handlers.append(handler);
@@ -334,7 +332,7 @@ bool UIElement::event(QEvent *event)
         RoutedEventStore* store = property("RoutedEventStore").value<RoutedEventStore*>();
         RoutedEventAndHandlers* rh = store->bytype.value(event->type(), nullptr);
         if (rh) {
-            //qDebug() << "event " << event;
+            //qDebug() << "event" << event;
             rh->route->handle(*event, rh->handlers);
             if (event->isAccepted())
                 return true;
@@ -343,6 +341,7 @@ bool UIElement::event(QEvent *event)
     if (privateFlags_.testFlag(HasPenContexts)) {
         GetPenContexts()->FireCustomData();
     }
+    //qDebug() << "event reject" << event;
     return QWidget::event(event);
 }
 

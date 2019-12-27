@@ -69,3 +69,8 @@ void Visual::resizeEvent(QResizeEvent *event)
             v->resize(event->size());
     }
 }
+
+void Visual::paintEvent(QPaintEvent *event)
+{
+    (void) event;
+}
