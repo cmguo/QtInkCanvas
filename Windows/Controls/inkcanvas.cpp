@@ -38,6 +38,8 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QShortcut>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QDebug>
 
 /// <summary>
@@ -51,11 +53,13 @@ InkCanvas::InkCanvas(QWidget* parent)
     setParent(parent);
     QObject::connect(this, &UIElement::IsVisibleChanged, [this]() {
         UpdateCursor();
+        _RegisterClipboardHandlers();
     });
 }
 
 InkCanvas::~InkCanvas()
 {
+    delete _feedbackAdorner;
 }
 
 /// <summary>
@@ -106,8 +110,6 @@ void InkCanvas::Initialize()
                RoutedEventHandlerT<InkCanvas, EventArgs, &InkCanvas::_OnDeviceUp>(this));
     AddHandler(Mouse::QueryCursorEvent,
                RoutedEventHandlerT<InkCanvas, QueryCursorEventArgs, &InkCanvas::_OnQueryCursor>(this));
-
-    _RegisterClipboardHandlers();
 }
 
 /// <summary>
@@ -2124,20 +2126,21 @@ void InkCanvas::_RegisterClipboardHandlers()
         CodeAccessPermission.RevertAssert();
     }
     */
-    /*
-    QShortcut * shortcutCopy = new QShortcut(QKeySequence(QKeySequence::Copy), this);
-    QObject::connect(shortcutCopy, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    QShortcut * shortcutCut = new QShortcut(QKeySequence(QKeySequence::Cut), this);
-    QObject::connect(shortcutCut, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    QShortcut * shortcutPaste = new QShortcut(QKeySequence(QKeySequence::Paste), this);
-    QObject::connect(shortcutPaste, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    QShortcut * shortcutSelectAll = new QShortcut(QKeySequence(QKeySequence::SelectAll), this);
-    QObject::connect(shortcutSelectAll, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    QShortcut * shortcutDelete = new QShortcut(QKeySequence(QKeySequence::Delete), this);
-    QObject::connect(shortcutDelete, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    QShortcut * shortcutDeselect = new QShortcut(QKeySequence(QKeySequence::Deselect), this);
-    QObject::connect(shortcutDeselect, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
-    */
+    QWidget* widget = scene()->views().first();
+    if (!widget->property("inkcanvasshortcut").isValid()) {
+        new QShortcut(QKeySequence(QKeySequence::Copy), widget);
+        new QShortcut(QKeySequence(QKeySequence::Cut), widget);
+        new QShortcut(QKeySequence(QKeySequence::Paste), widget);
+        new QShortcut(QKeySequence(QKeySequence::SelectAll), widget);
+        new QShortcut(QKeySequence(QKeySequence::Delete), widget);
+        new QShortcut(QKeySequence(QKeySequence::Deselect), widget);
+        widget->setProperty("inkcanvasshortcut", true);
+    }
+    for (QObject * c : widget->children()) {
+        QShortcut * shortcut = qobject_cast<QShortcut *>(c);
+        if (c)
+            QObject::connect(shortcut, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
+    }
 }
 
 /// <summary>
@@ -2406,6 +2409,8 @@ void InkCanvas::_OnCommandExecuted()
         }
     }
     */
+    if (!scene() && scene()->mouseGrabberItem() != this)
+        return;
     QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
     if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {
         if (shortcut->key().matches(QKeySequence::Delete)) {

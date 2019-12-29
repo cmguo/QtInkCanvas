@@ -37,6 +37,11 @@ UIElement::UIElement()
     setAcceptedMouseButtons(Qt::LeftButton);
 }
 
+UIElement::~UIElement()
+{
+    qDebug() << "destruct" << static_cast<QObject*>(this);
+}
+
 struct RoutedEventAndHandlers
 {
     RoutedEvent* route;

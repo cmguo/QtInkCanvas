@@ -323,7 +323,7 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
 
         outlineGeometry = hatchGeometry->GetOutlinedPathGeometry();
         //outlineGeometry.Freeze();
-        if ( count == 1 && ((InkCanvasInnerCanvas*)AdornedElement())->GetInkCanvas().GetSelectedStrokes()->size() == 0 )
+        if ( count == 1 && qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectedStrokes()->size() == 0 )
         {
             geometryCollection.append(outlineGeometry);
         }
@@ -426,7 +426,7 @@ void InkCanvasSelectionAdorner::GetHandleRect(InkCanvasSelectionHitResult hitRes
 QRectF InkCanvasSelectionAdorner::GetWireFrameRect()
 {
     QRectF frameRect;
-    QRectF selectionRect = ((InkCanvasInnerCanvas*)AdornedElement())->GetInkCanvas().GetSelectionBounds();
+    QRectF selectionRect = qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectionBounds();
 
     if ( !selectionRect.isEmpty() )
     {

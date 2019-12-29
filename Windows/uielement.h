@@ -43,6 +43,8 @@ signals:
 public:
     UIElement();
 
+    virtual ~UIElement() override;
+
     void ApplyTemplate();
 
     QList<UIElement*> Children();

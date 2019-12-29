@@ -1238,6 +1238,8 @@ void DynamicRenderer::DestroyRealTimeVisuals()
         // Make sure to free up inking thread ref to ensure thread shuts down properly.
         _renderingThread = nullptr;
 
+        delete _rawInkHostVisual1;
+        delete _rawInkHostVisual2;
         _rawInkHostVisual1 = nullptr;
         _rawInkHostVisual2 = nullptr;
         _currentHostVisual = nullptr;  // We create new HostVisuals next time we're enabled.

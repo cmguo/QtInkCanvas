@@ -616,7 +616,7 @@ void DrawingAttributeSerializer::PersistWidthHeight(DrawingAttributes& da, QIODe
             // If the fractional values is non zero, we store this value along with TAG_MANTISSA and size with a precisson of 1000
             if (0 != sFraction)
             {
-                quint32 cb = 16; // For header NO_COMPRESS
+                quint32 cb = 2; // Native.SizeOfUShort; // For header NO_COMPRESS
 
                 //Debug::Assert(bw != nullptr);
                 cbData += SerializationHelper::Encode(stream, (quint32)KnownTagCache::KnownTagIndex::Mantissa);

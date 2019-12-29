@@ -18,20 +18,18 @@ void Visual::SetOpacity(double opacity)
 
 QTransform Visual::TransformToAncestor(Visual* visual)
 {
-    return QTransform();
+    return itemTransform(visual);
 }
 
 QTransform Visual::TransformToDescendant(Visual* visual)
 {
-    return QTransform();
+    return itemTransform(visual);
 }
 
 
 void Visual::AddVisualChild(Visual * visual)
 {
     visual->setParentItem(this);
-    if (isVisible())
-        visual->show();
 }
 
 void Visual::RemoveVisualChild(Visual * visual)
@@ -49,12 +47,12 @@ Visual *Visual::VisualParent()
     return static_cast<Visual*>(parentItem());
 }
 
-void Visual::OnVisualChildrenChanged(DependencyObject* visualAdded, DependencyObject* visualRemoved)
+void Visual::OnVisualChildrenChanged(DependencyObject*, DependencyObject*)
 {
 
 }
 
-HitTestResult Visual::HitTestCore(PointHitTestParameters hitTestParams)
+HitTestResult Visual::HitTestCore(PointHitTestParameters)
 {
     return HitTestResult(nullptr);
 }
