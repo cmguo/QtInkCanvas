@@ -59,7 +59,7 @@ InkCanvas::InkCanvas(QWidget* parent)
 
 InkCanvas::~InkCanvas()
 {
-    delete _feedbackAdorner;
+    AdornerLayer::GetAdornerLayer(&InnerCanvas())->Add(_feedbackAdorner);
 }
 
 /// <summary>

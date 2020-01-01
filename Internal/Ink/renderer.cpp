@@ -233,6 +233,7 @@ void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
             StopListeningOnStrokeEvents(visual->GetStroke());
             // Detach the visual from the tree
             DetachVisual(visual);
+            delete visual;
         }
         _visuals.clear();
     }
@@ -449,6 +450,7 @@ void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
             DetachVisual(visual);
             StopListeningOnStrokeEvents(visual->GetStroke());
             _visuals.remove(stroke);
+            delete visual;
         }
         else
         {
@@ -605,6 +607,7 @@ void Renderer::DetachVisual(Visual* visual)
         {
             DetachVisual(hcVisual);
             _highlighters.remove(hcVisual->Color());
+            delete hcVisual;
         }
     }
 }
