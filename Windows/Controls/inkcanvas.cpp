@@ -2138,7 +2138,7 @@ void InkCanvas::_RegisterClipboardHandlers()
     }
     for (QObject * c : widget->children()) {
         QShortcut * shortcut = qobject_cast<QShortcut *>(c);
-        if (c)
+        if (shortcut)
             QObject::connect(shortcut, &QShortcut::activated, this, &InkCanvas::_OnCommandExecuted);
     }
 }

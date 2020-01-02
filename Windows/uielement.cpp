@@ -31,6 +31,7 @@ UIElement *UIElement::fromItem(QGraphicsItem *item)
 
 UIElement::UIElement()
 {
+    //qDebug() << "construct" << static_cast<QObject*>(this);
     setData(ITEM_DATA, QVariant::fromValue(this));
     setData(ITEM_DATA_RECT, QRectF());
     setAcceptTouchEvents(true);
@@ -39,7 +40,7 @@ UIElement::UIElement()
 
 UIElement::~UIElement()
 {
-    qDebug() << "destruct" << static_cast<QObject*>(this);
+    //qDebug() << "destruct" << static_cast<QObject*>(this);
 }
 
 struct RoutedEventAndHandlers
@@ -154,7 +155,7 @@ QSizeF UIElement::RenderSize()
 void UIElement::SetRenderSize(QSizeF size)
 {
     QRectF rect(QPointF(0, 0), size);
-    rect.moveCenter(QPointF(0, 0));
+    //rect.moveCenter(QPointF(0, 0));
     setData(ITEM_DATA_RECT, rect);
     for (QGraphicsItem * o : childItems()) {
         UIElement* ue = fromItem(o);
@@ -358,12 +359,15 @@ QVariant UIElement::itemChange(QGraphicsItem::GraphicsItemChange change, const Q
 {
     switch (change) {
     case QGraphicsItem::ItemVisibleHasChanged:
-        qDebug() << "itemChange " << change;
+        //qDebug() << "itemChange " << change;
         emit IsVisibleChanged();
         break;
     case QGraphicsItem::ItemEnabledHasChanged:
-        qDebug() << "itemChange " << change;
+        //qDebug() << "itemChange " << change;
         emit IsEnabledChanged();
+        break;
+    case QGraphicsItem::ItemParentHasChanged:
+        //qDebug() << "itemChange " << change << qobject_cast<QObject*>(this) << value.value<QGraphicsItem*>();
         break;
     case QGraphicsItem::ItemChildAddedChange:
     {
