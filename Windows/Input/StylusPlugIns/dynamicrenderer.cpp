@@ -279,6 +279,14 @@ DynamicRenderer::DynamicRenderer()
     //_zeroSizedFrozenRect.Freeze();
 }
 
+DynamicRenderer::~DynamicRenderer()
+{
+    DestroyRealTimeVisuals();
+    if (_mainContainerVisual)
+        delete _mainContainerVisual;
+    delete _zeroSizedFrozenRect;
+}
+
 /////////////////////////////////////////////////////////////////////
 /// <summary>
 /// Reset will stop the current strokes being dynamically rendered

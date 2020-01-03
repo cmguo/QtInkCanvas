@@ -24,7 +24,7 @@ protected:
     /// </summary>
     StylusPlugIn();
 
-    ~StylusPlugIn();
+    virtual ~StylusPlugIn();
 
 public:
     /////////////////////////////////////////////////////////////////////

@@ -1,9 +1,18 @@
 #include "Windows/Media/drawing.h"
 
 #include <QPainter>
+#include <QDebug>
+
+static int count = 0;
 
 Drawing::Drawing()
 {
+    qDebug() << "Drawing ++ " << ++count;
+}
+
+Drawing::~Drawing()
+{
+    qDebug() << "Drawing -- " << --count;
 }
 
 DrawingGroup::DrawingGroup()
@@ -30,6 +39,9 @@ void DrawingGroupDrawingContext::CloseCore(QList<Drawing*> rootDrawingGroupChild
 
 DrawingContext* DrawingGroup::Open()
 {
+    for (Drawing * d : children_)
+        delete d;
+    children_.clear();
     return new DrawingGroupDrawingContext(this);
 }
 

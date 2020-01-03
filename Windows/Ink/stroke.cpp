@@ -26,7 +26,7 @@ Stroke::Stroke()
 
 Stroke::~Stroke()
 {
-
+    SetGeometry(nullptr);
 }
 
 /// <summary>Create a stroke from a StylusPointCollection</summary>
@@ -155,7 +155,7 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
     {
         // we need to force a recaculation of the cached path geometry right after the
         // DrawingAttributes changed, beforet the events are raised.
-        _cachedGeometry = nullptr;
+        SetGeometry(nullptr);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
 
@@ -474,7 +474,7 @@ void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
     // DrawingAttributes changed, beforet the events are raised.
     if (false == DrawingAttributes::GeometricallyEqual(*previousDa, *_drawingAttributes))
     {
-        _cachedGeometry = nullptr;
+        SetGeometry(nullptr);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
@@ -500,7 +500,7 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
     }
 
     // Force a recaculation of the cached path geometry
-    _cachedGeometry = nullptr;
+    SetGeometry(nullptr);
 
     // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
     _cachedBounds = QRectF();
@@ -873,7 +873,7 @@ void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
     // set Geometry flag to be dirty if the DA change will cause change in geometry
     if (DrawingAttributes::IsGeometricalDaGuid(e.PropertyGuid()) == true)
     {
-        _cachedGeometry = nullptr;
+        SetGeometry(nullptr);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
@@ -896,7 +896,7 @@ void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
 /// <param name="e">event args</param>
 void Stroke::StylusPoints_Changed()
 {
-    _cachedGeometry = nullptr;
+    SetGeometry(nullptr);
     _cachedBounds = QRectF();
 
     OnStylusPointsChanged();
@@ -1430,6 +1430,18 @@ void Stroke::SetIsSelected(bool value)
     }
 }
 
+/// <summary>
+/// Set the path geometry
+/// </summary>
+void Stroke::SetGeometry(Geometry* geometry)
+{
+    //System.Diagnostics.Debug.Assert(geometry != null);
+    if (_cachedGeometry && _cachedGeometry->tryTakeOwn(this))
+        delete _cachedGeometry;
+    _cachedGeometry = geometry;
+    if (_cachedGeometry)
+        _cachedGeometry->tryTakeOwn(this);
+}
 
 /// <summary>Hit tests all segments within a contour generated with shape and path</summary>
 /// <param name="shape"></param>

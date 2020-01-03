@@ -17,6 +17,8 @@ class INKCANVAS_EXPORT Visual : public QGraphicsItem, public DependencyObject
 public:
     Visual();
 
+    virtual ~Visual() override;
+
 public:
     void SetOpacity(double opacity);
 

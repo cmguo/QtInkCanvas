@@ -41,6 +41,8 @@ QTransform Adorner::GetDesiredTransform(const QTransform &transform)
 
 void Adorner::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    (void) option;
+    (void) widget;
     QTransform transform(painter->transform());
     painter->setTransform(GetDesiredTransform(transform));
     QtPainterDrawingContext context(*painter);

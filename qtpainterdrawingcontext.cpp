@@ -16,6 +16,8 @@ void QtPainterDrawingContext::DrawLine(QPen pen, const QPointF &point0, const QP
 
 void QtPainterDrawingContext::DrawLine(QPen pen, const QPointF &point0, AnimationClock *point0Animations, const QPointF &point1, AnimationClock *point1Animations)
 {
+    (void) point0Animations;
+    (void) point1Animations;
     QPen oldPen = painter_.pen();
     painter_.setPen(pen);
     painter_.drawLine(point0, point1);
@@ -29,6 +31,7 @@ void QtPainterDrawingContext::DrawRectangle(QBrush brush, QPen pen, const QRectF
 
 void QtPainterDrawingContext::DrawRectangle(QBrush brush, QPen pen, const QRectF &rectangle, AnimationClock *rectangleAnimations)
 {
+    (void) rectangleAnimations;
     QBrush oldBrush = painter_.brush();
     QPen oldPen = painter_.pen();
     painter_.setBrush(brush);
@@ -45,6 +48,9 @@ void QtPainterDrawingContext::DrawRoundedRectangle(QBrush brush, QPen pen, const
 
 void QtPainterDrawingContext::DrawRoundedRectangle(QBrush brush, QPen pen, const QRectF &rectangle, AnimationClock *rectangleAnimations, double radiusX, AnimationClock *radiusXAnimations, double radiusY, AnimationClock *radiusYAnimations)
 {
+    (void) rectangleAnimations;
+    (void) radiusXAnimations;
+    (void) radiusYAnimations;
     QBrush oldBrush = painter_.brush();
     QPen oldPen = painter_.pen();
     painter_.setBrush(brush);
@@ -61,6 +67,9 @@ void QtPainterDrawingContext::DrawEllipse(QBrush brush, QPen pen, const QPointF 
 
 void QtPainterDrawingContext::DrawEllipse(QBrush brush, QPen pen, const QPointF &center, AnimationClock *centerAnimations, double radiusX, AnimationClock *radiusXAnimations, double radiusY, AnimationClock *radiusYAnimations)
 {
+    (void) centerAnimations;
+    (void) radiusXAnimations;
+    (void) radiusYAnimations;
     QBrush oldBrush = painter_.brush();
     QPen oldPen = painter_.pen();
     painter_.setBrush(brush);
@@ -77,6 +86,8 @@ void QtPainterDrawingContext::DrawGeometry(QBrush brush, QPen pen, Geometry *geo
     painter_.setBrush(brush);
     painter_.setPen(pen);
     geometry->Draw(painter_);
+    if (geometry->tryTakeOwn(this))
+        delete geometry;
     painter_.setPen(oldPen);
     painter_.setBrush(oldBrush);
 }
@@ -88,6 +99,7 @@ void QtPainterDrawingContext::DrawImage(QPixmap imageSource, const QRectF &recta
 
 void QtPainterDrawingContext::DrawImage(QPixmap imageSource, const QRectF &rectangle, AnimationClock *rectangleAnimations)
 {
+    (void) rectangleAnimations;
     painter_.drawPixmap(rectangle.toRect(), imageSource);
 }
 
@@ -98,11 +110,13 @@ void QtPainterDrawingContext::DrawDrawing(Drawing *drawing)
 
 void QtPainterDrawingContext::PushClip(Geometry *clipGeometry)
 {
+    (void) clipGeometry;
     //painter_.setClipPath(clipGeometry->Clip());
 }
 
 void QtPainterDrawingContext::PushOpacityMask(QBrush brush)
 {
+    (void) brush;
 }
 
 void QtPainterDrawingContext::PushOpacity(double opacity)
@@ -112,6 +126,7 @@ void QtPainterDrawingContext::PushOpacity(double opacity)
 
 void QtPainterDrawingContext::PushOpacity(double opacity, AnimationClock *opacityAnimations)
 {
+    (void) opacityAnimations;
     painter_.setOpacity(opacity);
 }
 

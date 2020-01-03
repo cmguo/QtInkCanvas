@@ -42,6 +42,8 @@ private:
 public:
     DynamicRenderer();
 
+    virtual ~DynamicRenderer() override;
+
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// Reset will stop the current strokes being dynamically rendered

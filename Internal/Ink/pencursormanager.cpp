@@ -432,7 +432,7 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
     //        dc->Close();
     //    }
     //}
-
+    singleStroke->releaseGeometry();
     return penDrawing.release();
 }
 

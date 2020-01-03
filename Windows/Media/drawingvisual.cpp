@@ -35,8 +35,9 @@ private:
 
 DrawingContext * DrawingVisual::RenderOpen()
 {
-    if (!drawing_)
-        drawing_ = new DrawingGroup;
+    if (drawing_)
+        delete drawing_;
+    drawing_ = new DrawingGroup;
     return new VisualDrawingContext(this);
 }
 

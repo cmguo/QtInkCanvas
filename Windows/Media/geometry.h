@@ -34,6 +34,8 @@ public:
 
     bool tryTakeOwn(void * owner);
 
+    bool releaseOwn(void * owner);
+
 private:
     void * owner_ = nullptr;
 };

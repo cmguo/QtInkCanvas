@@ -16,7 +16,7 @@ class Drawing
 public:
     Drawing();
 
-    virtual ~Drawing() {}
+    virtual ~Drawing();
 
     virtual QRectF Bounds() = 0;
 

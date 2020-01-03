@@ -486,14 +486,7 @@ public:
     /// <summary>
     /// Set the path geometry
     /// </summary>
-    void SetGeometry(Geometry* geometry)
-    {
-        //System.Diagnostics.Debug.Assert(geometry != null);
-        if (_cachedGeometry && _cachedGeometry->tryTakeOwn(this))
-            delete _cachedGeometry;
-        _cachedGeometry = geometry;
-        _cachedGeometry->tryTakeOwn(this);
-    }
+    void SetGeometry(Geometry* geometry);
 
     /// <summary>
     /// Set the bounds
@@ -534,6 +527,14 @@ public:
     static constexpr double TapHitPointSize = 1.0;
     static constexpr double TapHitRotation = 0;
 
+
+    void releaseGeometry()
+    {
+        if (_cachedGeometry) {
+            _cachedGeometry->releaseOwn(this);
+            _cachedGeometry = nullptr;
+        }
+    }
 
 /// <summary>
     /// Calculate the two transforms for two-pass rendering used to draw as hollow. The resulting outerTransform will make the

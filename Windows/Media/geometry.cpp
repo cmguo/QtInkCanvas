@@ -1,13 +1,18 @@
 #include "Windows/Media/geometry.h"
 
 #include <QPainter>
+#include <QDebug>
+
+static int count = 0;
 
 Geometry::Geometry()
 {
+    qDebug() << "Geometry ++ " << ++count;
 }
 
 Geometry::~Geometry()
 {
+    qDebug() << "Geometry -- " << --count;
 }
 
 bool Geometry::tryTakeOwn(void *owner)
@@ -17,6 +22,15 @@ bool Geometry::tryTakeOwn(void *owner)
         return true;
     }
     return owner_ == owner;
+}
+
+bool Geometry::releaseOwn(void *owner)
+{
+    if (owner_ == owner) {
+        owner_ = nullptr;
+        return true;
+    }
+    return owner_ == nullptr;
 }
 
 PathGeometry::PathGeometry()

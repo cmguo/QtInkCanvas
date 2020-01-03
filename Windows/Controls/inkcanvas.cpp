@@ -59,7 +59,9 @@ InkCanvas::InkCanvas(QWidget* parent)
 
 InkCanvas::~InkCanvas()
 {
-    AdornerLayer::GetAdornerLayer(&InnerCanvas())->Add(_feedbackAdorner);
+    if (_feedbackAdorner && !_feedbackAdorner->VisualParent())
+        delete _feedbackAdorner;
+    SetDynamicRenderer(nullptr);
 }
 
 /// <summary>
@@ -1599,6 +1601,7 @@ void InkCanvas::SetDynamicRenderer(DynamicRenderer* value)
             {
                 GetInkPresenter().DetachVisuals(_dynamicRenderer->RootVisual());
             }
+            delete _dynamicRenderer;
         }
 
         _dynamicRenderer = value;
