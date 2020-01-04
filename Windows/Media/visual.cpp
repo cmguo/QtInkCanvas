@@ -7,17 +7,17 @@
 #include <QGraphicsScene>
 #include <QDebug>
 
-static int count = 0;
+//static int count = 0;
 
 Visual::Visual()
     : QGraphicsItem(nullptr)
 {
-    qDebug() << "Visual ++ " << ++count;
+    //qDebug() << "Visual ++ " << ++count;
 }
 
 Visual::~Visual()
 {
-    qDebug() << "Visual -- " << --count;
+    //qDebug() << "Visual -- " << --count;
 }
 
 void Visual::SetOpacity(double opacity)

@@ -103,7 +103,7 @@ public:
     /// <summary>
     /// ToString
     /// </summary>
-    QString ToString()
+    QString ToString() const
     {
         return "{"  + StrokeFIndices::GetStringRepresentation(_hitSegment.BeginFIndex()) + ","
                     + StrokeFIndices::GetStringRepresentation(_inSegment.BeginFIndex())  + ","

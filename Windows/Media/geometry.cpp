@@ -3,16 +3,16 @@
 #include <QPainter>
 #include <QDebug>
 
-static int count = 0;
+//static int count = 0;
 
 Geometry::Geometry()
 {
-    qDebug() << "Geometry ++ " << ++count;
+    //qDebug() << "Geometry ++ " << ++count;
 }
 
 Geometry::~Geometry()
 {
-    qDebug() << "Geometry -- " << --count;
+    //qDebug() << "Geometry -- " << --count;
 }
 
 bool Geometry::tryTakeOwn(void *owner)

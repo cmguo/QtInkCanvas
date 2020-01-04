@@ -6,6 +6,8 @@
 #include "Windows/Ink/events.h"
 #include "Internal/debug.h"
 
+#include <QDebug>
+
 IncrementalHitTester::IncrementalHitTester()
 {
 
@@ -434,6 +436,12 @@ IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeColl
     //_erasingStroke = new ErasingStroke(eraserShape);
 }
 
+//static QDebug & operator<<(QDebug & d, StrokeIntersection const & i)
+//{
+//    d << i.ToString();
+//    return d;
+//}
+
 /// <summary>
 /// The implementation behind the public methods AddPoint/AddPoints
 /// </summary>
@@ -478,6 +486,7 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
             //{
             //    strokeHitEventArgCollection = new List<StrokeHitEventArgs>();
             //}
+            //qDebug() << "StrokeHitEventArgs" << eraseAt;
             strokeHitEventArgCollection.append(StrokeHitEventArgs(strokeInfo->GetStroke(), eraseAt.toVector()));
             // We must clear eraseAt or it will contain invalid results for the next strokes
             eraseAt.clear();

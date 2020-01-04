@@ -3,16 +3,16 @@
 #include <QPainter>
 #include <QDebug>
 
-static int count = 0;
+//static int count = 0;
 
 Drawing::Drawing()
 {
-    qDebug() << "Drawing ++ " << ++count;
+    //qDebug() << "Drawing ++ " << ++count;
 }
 
 Drawing::~Drawing()
 {
-    qDebug() << "Drawing -- " << --count;
+    //qDebug() << "Drawing -- " << --count;
 }
 
 DrawingGroup::DrawingGroup()

@@ -18,6 +18,7 @@
 
 #include <QMatrix>
 #include <QBrush>
+#include <QDebug>
 
 Stroke::Stroke()
 {
@@ -570,7 +571,7 @@ QSharedPointer<StrokeCollection> Stroke::Clip(QVector<StrokeFIndices> cutAt)
 
 
     QSharedPointer<StylusPointCollection> sourceStylusPoints = StylusPoints();
-    if (DrawingAttributes().FitToCurve())
+    if (GetDrawingAttributes()->FitToCurve())
     {
         sourceStylusPoints = GetBezierStylusPoints();
     }
@@ -623,7 +624,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
     }
 
     QSharedPointer<StylusPointCollection> sourceStylusPoints = StylusPoints();
-    if (DrawingAttributes().FitToCurve())
+    if (GetDrawingAttributes()->FitToCurve())
     {
         sourceStylusPoints = GetBezierStylusPoints();
     }
@@ -1505,6 +1506,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeIntersection> cutAt
     // 1. AssertSortedNoOverlap
     // 2. Check whether the insegments are out of range with the packets
     QVector<StrokeFIndices> hitSegments = StrokeIntersection::GetHitSegments(cutAt);
+    //qDebug() << "Stroke::Erase" << hitSegments;
     return Erase(hitSegments);
 }
 

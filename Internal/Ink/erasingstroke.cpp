@@ -3,6 +3,8 @@
 #include "Internal/Ink/strokenode.h"
 #include "Windows/Ink/strokeintersection.h"
 
+#include <QDebug>
+
 /// <summary>
 /// Constructor for incremental erasing
 /// </summary>
@@ -125,6 +127,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
         QRectF inkNodeBounds = inkStrokeNode.GetBounds();
         inkSegmentBounds |= inkNodeBounds;
 
+        //qDebug() << "EraseTest: node" << x << inkNodeBounds << inkSegmentBounds;
         if (inkSegmentBounds.intersects(_bounds))
         {
             //
@@ -137,7 +140,9 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
                     continue;
                 }
 
+                //qDebug() << "EraseTest: intersects" << erasingStrokeNode.GetBoundsConnected();
                 StrokeFIndices fragment = inkStrokeNode.CutTest(erasingStrokeNode);
+                //qDebug() << "EraseTest: fragment" << fragment.ToString();
                 if (fragment.IsEmpty())
                 {
                     continue;
@@ -157,6 +162,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
                                 qMin(lastFragment.BeginFIndex(), fragment.BeginFIndex()),
                                 qMax(lastFragment.EndFIndex(), fragment.EndFIndex()));
 
+                            //qDebug() << "EraseTest: merge with" << i << lastFragment.ToString() << "=>" << fragment.ToString();
                             // If the fragment doesn't go beyond lastFragment, break
                             if ((fragment.EndFIndex() <= lastFragment.EndFIndex()) || ((i + 1) == eraseAt.size()))
                             {
@@ -173,6 +179,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
                         // insert otherwise
                         else
                         {
+                            qDebug() << "EraseTest: insert" << i;
                             eraseAt.insert(i, fragment);
                             inserted = true;
                             break;
@@ -183,11 +190,13 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
                 // If not merged nor inserted, add it to the end of the list
                 if (false == inserted)
                 {
+                    //qDebug() << "EraseTest: append";
                     eraseAt.append(fragment);
                 }
                 // Break out if the entire ink segment is hit - {BeforeFirst, AfterLast}
                 if (eraseAt[eraseAt.size() - 1].IsFull())
                 {
+                    //qDebug() << "EraseTest: entire ink segment is hit";
                     break;
                 }
             }
