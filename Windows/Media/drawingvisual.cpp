@@ -35,6 +35,7 @@ private:
 
 DrawingContext * DrawingVisual::RenderOpen()
 {
+    prepareGeometryChange();
     if (drawing_)
         delete drawing_;
     drawing_ = new DrawingGroup;
@@ -43,7 +44,6 @@ DrawingContext * DrawingVisual::RenderOpen()
 
 void DrawingVisual::RenderClose()
 {
-    update();
 }
 
 DrawingGroup * DrawingVisual::GetDrawing()

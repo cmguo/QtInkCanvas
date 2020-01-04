@@ -77,6 +77,7 @@ GeometryDrawing::~GeometryDrawing()
 {
     if (geometry_ && geometry_->tryTakeOwn(this))
         delete geometry_;
+    geometry_ = nullptr;
 }
 
 void GeometryDrawing::SetBrush(QBrush brush)

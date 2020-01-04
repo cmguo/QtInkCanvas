@@ -156,6 +156,7 @@ void UIElement::SetRenderSize(QSizeF size)
 {
     QRectF rect(QPointF(0, 0), size);
     //rect.moveCenter(QPointF(0, 0));
+    prepareGeometryChange();
     setData(ITEM_DATA_RECT, rect);
     for (QGraphicsItem * o : childItems()) {
         UIElement* ue = fromItem(o);
