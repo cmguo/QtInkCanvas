@@ -57,6 +57,8 @@ public:
     /// Read-only access to the container visual for dynamic drawing a lasso
     /// </summary>
 public:
+    ~LassoHelper();
+
     Visual* GetVisual();
 
     /// <summary>TBS</summary>

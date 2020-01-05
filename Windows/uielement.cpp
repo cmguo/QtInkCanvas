@@ -73,7 +73,7 @@ void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler
         rh->route = &event;
         store->byroute.insert(&event, rh);
         if (event.type()) {
-            qDebug() << "AddHandler" << static_cast<QEvent::Type>(event.type());
+            //qDebug() << "AddHandler" << static_cast<QEvent::Type>(event.type());
             if (event.type() == QEvent::GraphicsSceneHoverEnter) {
                 setAcceptHoverEvents(true);
             }

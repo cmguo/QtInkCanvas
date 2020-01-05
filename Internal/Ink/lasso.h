@@ -24,6 +24,10 @@ public:
     {
     }
 
+    virtual ~Lasso()
+    {
+    }
+
     struct LassoCrossing;
 
 public:
@@ -232,6 +236,8 @@ public:
     /// Default constructor
     /// </summary>
     SingleLoopLasso() : Lasso(){}
+
+    virtual ~SingleLoopLasso() {}
 
     /// <summary>
     /// Return true if the QPointF will be filtered out and should NOT be added to the list

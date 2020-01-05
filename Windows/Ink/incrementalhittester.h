@@ -132,6 +132,8 @@ public:
     /// percent of nodes of a stroke to be inside the lasso to consider the stroke hit</param>
     IncrementalLassoHitTester(QSharedPointer<StrokeCollection> strokes, int percentageWithinLasso);
 
+    virtual ~IncrementalLassoHitTester();
+
     /// <summary>
     /// The implementation behind the public methods AddPoint/AddPoints
     /// </summary>

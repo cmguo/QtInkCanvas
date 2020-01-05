@@ -51,7 +51,8 @@ QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform const &trans
     // Check if we need translate the adorner.
     if ( !DoubleUtil::AreClose(_offsetX, 0) || !DoubleUtil::AreClose(_offsetY, 0) )
     {
-        desiredTransform *= QTransform::fromTranslate(_offsetX, _offsetY);
+        //desiredTransform *= QTransform::fromTranslate(_offsetX, _offsetY);
+        desiredTransform.translate(_offsetX, _offsetY);
     }
 
     return desiredTransform;

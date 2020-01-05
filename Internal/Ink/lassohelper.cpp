@@ -7,6 +7,12 @@
 const QColor LassoHelper::DotColor(Qt::yellow);     //FromArgb(1, 0.89f, 0.3607f, 0.1843f);
 const QColor LassoHelper::DotCircumferenceColor(Qt::white);
 
+LassoHelper::~LassoHelper()
+{
+    if (_containerVisual)
+        delete _containerVisual;
+}
+
 Visual* LassoHelper::GetVisual()
 {
     EnsureVisual();

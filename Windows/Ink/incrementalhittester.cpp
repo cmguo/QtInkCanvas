@@ -268,6 +268,11 @@ IncrementalLassoHitTester::IncrementalLassoHitTester(QSharedPointer<StrokeCollec
     _percentIntersect = percentageWithinLasso;
 }
 
+IncrementalLassoHitTester::~IncrementalLassoHitTester()
+{
+    delete _lasso;
+}
+
 /// <summary>
 /// The implementation behind the public methods AddPoint/AddPoints
 /// </summary>

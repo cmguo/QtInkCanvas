@@ -227,7 +227,6 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         //
         // end dynamic rendering
         //
-        GetInkCanvas().dumpObjectTree();
         selectedStrokes = GetInkCanvas().EndDynamicSelection(_lassoHelper->GetVisual());
 
         //
@@ -240,7 +239,9 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
                             this, &LassoSelectionBehavior::OnSelectionChanged);
         //_incrementalLassoHitTester->SelectionChanged() -= new LassoSelectionChangedEventHandler(OnSelectionChanged);
         _incrementalLassoHitTester->EndHitTesting();
+        delete _incrementalLassoHitTester;
         _incrementalLassoHitTester = nullptr;
+        delete _lassoHelper;
         _lassoHelper = nullptr;
     }
     else
