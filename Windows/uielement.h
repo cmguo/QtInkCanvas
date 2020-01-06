@@ -69,9 +69,9 @@ public:
 
     QSizeF RenderSize();
 
-    void SetRenderSize(QSizeF);
+    void SetRenderSize(QSizeF const & size);
 
-    void Arrange(QRectF rect);
+    void Arrange(QRectF const & rect);
 
     void InvalidateMeasure();
 

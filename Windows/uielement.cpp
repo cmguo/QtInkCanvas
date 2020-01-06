@@ -152,22 +152,22 @@ QSizeF UIElement::RenderSize()
     return boundingRect().size();
 }
 
-void UIElement::SetRenderSize(QSizeF size)
+void UIElement::SetRenderSize(QSizeF const & size)
 {
-    QRectF rect(QPointF(0, 0), size);
+    Arrange(QRectF(QPointF(0, 0), size));
     //rect.moveCenter(QPointF(0, 0));
+}
+
+void UIElement::Arrange(QRectF const & rect)
+{
     prepareGeometryChange();
     setData(ITEM_DATA_RECT, rect);
     for (QGraphicsItem * o : childItems()) {
         UIElement* ue = fromItem(o);
         if (ue) {
-            ue->SetRenderSize(size);
+            ue->Arrange(rect);
         }
     }
-}
-
-void UIElement::Arrange(QRectF rect)
-{
 }
 
 void UIElement::InvalidateMeasure()

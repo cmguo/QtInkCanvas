@@ -13,6 +13,7 @@ Visual::Visual()
     : QGraphicsItem(nullptr)
 {
     //qDebug() << "Visual ++ " << ++count;
+    setFlag(ItemHasNoContents);
 }
 
 Visual::~Visual()

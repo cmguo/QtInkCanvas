@@ -27,6 +27,7 @@ void Decorator::SetChild(UIElement *value)
 Adorner::Adorner(UIElement* adornedElement)
     : adornedElement_(adornedElement)
 {
+    setFlag(ItemHasNoContents, false);
 }
 
 UIElement* Adorner::AdornedElement()

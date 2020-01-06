@@ -113,6 +113,7 @@ void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF const &rect)
             if ( parent != nullptr   )
             {
                Parent()->InvalidateArrange( );
+               Arrange(QRectF(_offsetX, _offsetY, _frameSize.width(), _frameSize.height()));
             }
         }
 
