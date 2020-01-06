@@ -487,6 +487,7 @@ public:
     /// Set the path geometry
     /// </summary>
     void SetGeometry(Geometry* geometry);
+    void SetGeometry(std::unique_ptr<Geometry> &geometry);
 
     /// <summary>
     /// Set the bounds

@@ -19,6 +19,7 @@
 #include <QMatrix>
 #include <QBrush>
 #include <QDebug>
+#include <QThread>
 
 Stroke::Stroke()
 {
@@ -156,7 +157,8 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
     {
         // we need to force a recaculation of the cached path geometry right after the
         // DrawingAttributes changed, beforet the events are raised.
-        SetGeometry(nullptr);
+        std::unique_ptr<Geometry> geometry;
+        SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
 
@@ -473,9 +475,10 @@ void Stroke::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
     // If the drawing attributes change involves Width, Height, StylusTipTransform, IgnorePressure, or FitToCurve,
     // we need to force a recaculation of the cached path geometry right after the
     // DrawingAttributes changed, beforet the events are raised.
+    std::unique_ptr<Geometry> geometry;
     if (false == DrawingAttributes::GeometricallyEqual(*previousDa, *_drawingAttributes))
     {
-        SetGeometry(nullptr);
+        SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
@@ -501,7 +504,8 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
     }
 
     // Force a recaculation of the cached path geometry
-    SetGeometry(nullptr);
+    std::unique_ptr<Geometry> geometry;
+    SetGeometry(geometry);
 
     // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
     _cachedBounds = QRectF();
@@ -872,9 +876,10 @@ bool IsValidStrokeFIndices(StrokeFIndices findex)
 void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
 {
     // set Geometry flag to be dirty if the DA change will cause change in geometry
+    std::unique_ptr<Geometry> geometry;
     if (DrawingAttributes::IsGeometricalDaGuid(e.PropertyGuid()) == true)
     {
-        SetGeometry(nullptr);
+        SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
         _cachedBounds = QRectF();
     }
@@ -897,7 +902,8 @@ void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
 /// <param name="e">event args</param>
 void Stroke::StylusPoints_Changed()
 {
-    SetGeometry(nullptr);
+    std::unique_ptr<Geometry> geometry;
+    SetGeometry(geometry);
     _cachedBounds = QRectF();
 
     OnStylusPointsChanged();
@@ -1437,11 +1443,21 @@ void Stroke::SetIsSelected(bool value)
 void Stroke::SetGeometry(Geometry* geometry)
 {
     //System.Diagnostics.Debug.Assert(geometry != null);
-    if (_cachedGeometry && _cachedGeometry->tryTakeOwn(this))
+    if (_cachedGeometry) {
         delete _cachedGeometry;
+    }
     _cachedGeometry = geometry;
     if (_cachedGeometry)
         _cachedGeometry->tryTakeOwn(this);
+}
+
+void Stroke::SetGeometry(std::unique_ptr<Geometry>& geometry)
+{
+    std::unique_ptr<Geometry> cachedGeometry(_cachedGeometry);
+    cachedGeometry.swap(geometry);
+    if (cachedGeometry)
+        cachedGeometry->tryTakeOwn(this);
+    _cachedGeometry = cachedGeometry.release();
 }
 
 /// <summary>Hit tests all segments within a contour generated with shape and path</summary>
