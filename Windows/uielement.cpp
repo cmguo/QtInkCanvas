@@ -29,6 +29,19 @@ UIElement *UIElement::fromItem(QGraphicsItem *item)
     return nullptr;
 }
 
+struct RoutedEventAndHandlers
+{
+    RoutedEvent* route;
+    QList<RoutedEventHandler> handlers;
+};
+
+struct RoutedEventStore
+{
+    int count = 0;
+    QMap<RoutedEvent*, RoutedEventAndHandlers*> byroute;
+    QMap<int, RoutedEventAndHandlers*> bytype;
+};
+
 UIElement::UIElement()
 {
     //qDebug() << "construct" << static_cast<QObject*>(this);
@@ -41,19 +54,14 @@ UIElement::UIElement()
 UIElement::~UIElement()
 {
     //qDebug() << "destruct" << static_cast<QObject*>(this);
+    if (privateFlags_.testFlag(HasRoutedEventStore)) {
+        RoutedEventStore * store = property("RoutedEventStore").value<RoutedEventStore*>();
+        for (RoutedEventAndHandlers* rh : store->byroute) {
+            delete rh;
+        }
+        delete store;
+    }
 }
-
-struct RoutedEventAndHandlers
-{
-    RoutedEvent* route;
-    QList<RoutedEventHandler> handlers;
-};
-
-struct RoutedEventStore
-{
-    QMap<RoutedEvent*, RoutedEventAndHandlers*> byroute;
-    QMap<int, RoutedEventAndHandlers*> bytype;
-};
 
 Q_DECLARE_METATYPE(RoutedEventStore*)
 
@@ -80,23 +88,30 @@ void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler
             store->bytype.insert(event.type(), rh);
         }
     }
-    if (!rh->handlers.contains(handler))
+    if (!rh->handlers.contains(handler)) {
         rh->handlers.append(handler);
+        if (++store->count == 1) {
+            UIElement * parent = this;
+            while (UIElement * pp = parent->Parent()) {
+                parent = pp;
+            }
+            if (parent != this)
+                Arrange(parent->boundingRect());
+        }
+    }
 }
 
 void UIElement::RemoveHandler(RoutedEvent &event, const RoutedEventHandler &handler)
 {
-    RoutedEventStore * store;
-    if (privateFlags_.testFlag(HasRoutedEventStore)) {
-        store = property("RoutedEventStore").value<RoutedEventStore*>();
-    } else {
-        store = new RoutedEventStore;
-        setProperty("RoutedEventStore", QVariant::fromValue(store));
-        privateFlags_ |= HasRoutedEventStore;
-    }
+    if (!privateFlags_.testFlag(HasRoutedEventStore))
+        return;
+    RoutedEventStore * store = property("RoutedEventStore").value<RoutedEventStore*>();
     RoutedEventAndHandlers* rh = store->byroute.value(&event, nullptr);
     if (rh) {
         rh->handlers.removeOne(handler);
+        if (--store->count == 0) {
+            SetRenderSize({0, 0});
+        }
     }
 }
 
@@ -162,12 +177,12 @@ void UIElement::Arrange(QRectF const & rect)
 {
     prepareGeometryChange();
     setData(ITEM_DATA_RECT, rect);
-    for (QGraphicsItem * o : childItems()) {
-        UIElement* ue = fromItem(o);
-        if (ue) {
-            ue->Arrange(rect);
-        }
-    }
+//    for (QGraphicsItem * o : childItems()) {
+//        UIElement* ue = fromItem(o);
+//        if (ue) {
+//            ue->Arrange(rect);
+//        }
+//    }
 }
 
 void UIElement::InvalidateMeasure()
