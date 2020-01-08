@@ -654,7 +654,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeFIndices> cutAt)
         {
             // ISSUE-2004/06/26-vsmirnov - temporary workaround for bugs
             // in point erasing: drop invalid fragments
-            //System.Diagnostics.Debug.Assert(DoubleUtil::LessThan(beginFIndex, fragment.BeginFIndex));
+            Debug::Assert(DoubleUtil::LessThan(beginFIndex, fragment.BeginFIndex()));
             continue;
         }
 
@@ -753,6 +753,7 @@ QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> source
             endPoint = GetIntermediatePoint((*stylusPoints)[stylusPoints->size() - 1],
                                             (*stylusPoints)[stylusPoints->size() - 2],
                                             fraction);
+            //qDebug() << "Copy endPoint" << endPoint;
 
         }
 
@@ -764,7 +765,7 @@ QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> source
                                             (*stylusPoints)[1],
                                             beginFIndex);
 
-
+            //qDebug() << "Copy begPoint" << begPoint;
         }
 
         //
@@ -1502,6 +1503,17 @@ QVector<StrokeIntersection> Stroke::HitTest(Lasso& lasso)
     return lasso.HitTest(sni);
 }
 
+//QDebug & operator<<(QDebug & d, StrokeIntersection const & v)
+//{
+//    d << v.ToString();
+//    return d;
+//}
+
+//QDebug & operator<<(QDebug & d, StrokeFIndices const & v)
+//{
+//    d << v.ToString();
+//    return d;
+//}
 
 /// <summary>
 /// Calculate the after-erasing Strokes. Only the "out-segments" are left after this operation.
@@ -1522,7 +1534,8 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeIntersection> cutAt
     // 1. AssertSortedNoOverlap
     // 2. Check whether the insegments are out of range with the packets
     QVector<StrokeFIndices> hitSegments = StrokeIntersection::GetHitSegments(cutAt);
-    //qDebug() << "Stroke::Erase" << hitSegments;
+    //qDebug() << "Stroke::Erase cutAt" << cutAt;
+    //qDebug() << "Stroke::Erase hitSegments" << hitSegments;
     return Erase(hitSegments);
 }
 

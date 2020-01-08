@@ -179,7 +179,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
                         // insert otherwise
                         else
                         {
-                            qDebug() << "EraseTest: insert" << i;
+                            //qDebug() << "EraseTest: insert" << i;
                             eraseAt.insert(i, fragment);
                             inserted = true;
                             break;

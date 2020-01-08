@@ -78,11 +78,11 @@ public:
     /// <value></value>
     double InBegin()
     {
-        return _hitSegment.BeginFIndex();
+        return _inSegment.BeginFIndex();
     }
     void SetInBegin(double value)
     {
-        _hitSegment.SetBeginFIndex(value);
+        _inSegment.SetBeginFIndex(value);
     }
 
 
@@ -92,11 +92,11 @@ public:
     /// <value></value>
     double InEnd()
     {
-        return _hitSegment.EndFIndex();
+        return _inSegment.EndFIndex();
     }
     void SetInEnd(double value)
     {
-        _hitSegment.SetEndFIndex(value);
+        _inSegment.SetEndFIndex(value);
     }
 
 

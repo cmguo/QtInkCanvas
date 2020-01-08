@@ -1,6 +1,8 @@
 #ifndef STYLUSSHAPE_H
 #define STYLUSSHAPE_H
 
+#include "InkCanvas_global.h"
+
 #include "stylustip.h"
 
 #include <QMatrix>
@@ -18,7 +20,7 @@
 /// There are 2540 himetric units per inch.
 /// This means that 53 high metric units is equivalent to 53/2540*96 in avalon.
 /// </remarks>
-class StylusShape : public QObject
+class INKCANVAS_EXPORT StylusShape : public QObject
 {
     Q_OBJECT
 private:
