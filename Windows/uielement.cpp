@@ -47,7 +47,7 @@ UIElement::UIElement()
     //qDebug() << "construct" << static_cast<QObject*>(this);
     setData(ITEM_DATA, QVariant::fromValue(this));
     setData(ITEM_DATA_RECT, QRectF());
-    setAcceptTouchEvents(true);
+    //setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
 }
 
