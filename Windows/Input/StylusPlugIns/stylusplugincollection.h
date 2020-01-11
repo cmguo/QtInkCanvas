@@ -1,6 +1,10 @@
 #ifndef STYLUSPLUGINCOLLECTION_H
 #define STYLUSPLUGINCOLLECTION_H
 
+#include "InkCanvas_global.h"
+
+#include "collection.h"
+
 #include <QList>
 #include <QMutex>
 #include <QTransform>
@@ -24,7 +28,7 @@ class SourceChangedEventArgs;
 /// but some of them are supposed to be called from one thread only. Please look at the
 /// comments of each method for such an information.
 /// </remarks>
-class StylusPlugInCollection : public QObject, public QList<StylusPlugIn*>
+class INKCANVAS_EXPORT StylusPlugInCollection : public QObject, public Collection<StylusPlugIn*>
 {
     Q_OBJECT
 public:

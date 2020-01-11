@@ -181,7 +181,7 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
             {
                 QMutexLocker l(&PenContextsSyncRoot());
                 StylusPlugIn* originalPlugIn = (*this)[index];
-                (*this)[index] = plugIn;
+                at(index) = plugIn;
                 //try
                 {
                     FinallyHelper final([plugIn, this](){
@@ -198,7 +198,7 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
         else
         {
             StylusPlugIn* originalPlugIn = (*this)[index];
-            (*this)[index] = plugIn;
+            at(index) = plugIn;
             //try
             {
                 FinallyHelper final([plugIn, this](){

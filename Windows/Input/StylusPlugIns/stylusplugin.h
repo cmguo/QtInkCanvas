@@ -1,6 +1,8 @@
 #ifndef STYLUSPLUGIN_H
 #define STYLUSPLUGIN_H
 
+#include "InkCanvas_global.h"
+
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
 
 #include <QRectF>
@@ -15,7 +17,7 @@ class RawStylusInput;
 /// <summary>
 /// [TBS]
 /// </summary>
-class StylusPlugIn
+class INKCANVAS_EXPORT StylusPlugIn
 {
 protected:
     /////////////////////////////////////////////////////////////////////

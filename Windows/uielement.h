@@ -148,7 +148,7 @@ protected:
 
     virtual void OnPreApplyTemplate();
 
-protected:
+public:
     virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
     virtual bool sceneEvent(QEvent *event) override;

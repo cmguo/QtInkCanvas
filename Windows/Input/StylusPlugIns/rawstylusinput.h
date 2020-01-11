@@ -41,6 +41,8 @@ public:
         QTransform        tabletToElementTransform,
         StylusPlugInCollection* targetPlugInCollection);
 
+    QEvent& inputEvent() { return inputEvent_; }
+
     /// <summary>
     ///
     /// </summary>
