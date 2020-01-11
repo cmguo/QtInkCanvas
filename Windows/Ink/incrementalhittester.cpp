@@ -713,3 +713,8 @@ QSharedPointer<StrokeCollection> StrokeHitEventArgs::GetPointEraseResults()
 {
     return _stroke->Erase(_hitFragments);
 }
+
+void StrokeHitEventArgs::Clip(QVector<StrokeIntersection> &fragments)
+{
+    _hitFragments = StrokeIntersection::GetClippedHitSegments(_hitFragments, fragments);
+}

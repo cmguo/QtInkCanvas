@@ -10,6 +10,7 @@
 #include "Windows/Controls/inkevents.h"
 #include "Internal/Ink/inkcollectionbehavior.h"
 #include "Internal/Ink/lassoselectionbehavior.h"
+#include "Internal/Ink/eraserbehavior.h"
 #include "Windows/Ink/stroke.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Ink/strokecollection.h"
@@ -518,6 +519,11 @@ void InkCanvas::SetEraserShape(StylusShape * value)
             GetEditingCoordinator().UpdatePointEraserCursor();
         }
     }
+}
+
+void InkCanvas::SetEraseClip(QPolygonF const & shape)
+{
+    GetEditingCoordinator().GetEraserBehavior()->SetClip(shape);
 }
 
 

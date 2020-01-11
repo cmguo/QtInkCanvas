@@ -6,6 +6,8 @@
 class StylusShape;
 class IncrementalStrokeHitTester;
 class StrokeHitEventArgs;
+class ErasingStroke;
+class QPolygonF;
 
 // namespace MS.Internal.Ink
 
@@ -26,6 +28,8 @@ public:
     EraserBehavior(EditingCoordinator& editingCoordinator, InkCanvas& inkCanvas);
 
     //#endregion Constructors
+
+    void SetClip(QPolygonF const & shape);
 
     //-------------------------------------------------------------------------------
     //
@@ -145,6 +149,7 @@ private:
     QCursor                          _cachedPointEraserCursor;
     StylusShape*                     _cachedStylusShape = nullptr;
     QSharedPointer<StylusPointCollection>           _stylusPoints = nullptr;
+    std::unique_ptr<ErasingStroke> _clipStroke;
 
     //#endregion Fields
 };

@@ -284,6 +284,8 @@ public:
     /// <returns></returns>
     QSharedPointer<StrokeCollection> GetPointEraseResults();
 
+    void Clip(QVector<StrokeIntersection> & clip);
+
 private:
     QSharedPointer<Stroke>         _stroke;
     QVector<StrokeIntersection>    _hitFragments;

@@ -35,6 +35,8 @@ private:
 public:
     StylusShape();
 
+    StylusShape(QPolygonF polygon);
+
     ///<summary>
     /// constructor for a StylusShape.
     ///</summary>

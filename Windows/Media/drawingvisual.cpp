@@ -59,7 +59,7 @@ QRectF DrawingVisual::boundingRect() const
 
 void DrawingVisual::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    qDebug() << "DrawingVisual::paint" << this->boundingRect() << painter->clipRegion();
+    //qDebug() << "DrawingVisual::paint" << this->boundingRect() << painter->clipRegion();
     if (drawing_) {
         drawing_->Draw(*painter);
     }

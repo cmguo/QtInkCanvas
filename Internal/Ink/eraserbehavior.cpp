@@ -5,6 +5,8 @@
 #include "Windows/Ink/incrementalhittester.h"
 #include "Windows/Controls/inkevents.h"
 #include "Internal/Ink/pencursormanager.h"
+#include "Internal/Ink/strokenode.h"
+#include "Internal/Ink/strokenodeoperations.h"
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
@@ -22,6 +24,19 @@
 EraserBehavior::EraserBehavior(EditingCoordinator& editingCoordinator, InkCanvas& inkCanvas)
     : StylusEditingBehavior(editingCoordinator, inkCanvas)
 {
+}
+
+void EraserBehavior::SetClip(const QPolygonF &shape)
+{
+    if (shape.empty()) {
+        _clipStroke.reset();
+    } else {
+        QPointF c = shape.boundingRect().center();
+        QPolygonF shape2 = shape.translated(-c);
+        StylusShape ss(shape2.mid(0, shape.size() - 1));
+        _clipStroke.reset(new ErasingStroke(ss));
+        _clipStroke->MoveTo({c});
+    }
 }
 
 //#endregion Constructors
@@ -406,6 +421,15 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
 
         if ( !args.Cancel() )
         {
+            if (_clipStroke) {
+                QList<StrokeIntersection> clipAt;
+                if (_clipStroke->Bounds().intersects(e.HitStroke()->GetBounds())
+                        && _clipStroke->EraseTest(StrokeNodeIterator::GetIterator(*e.HitStroke(), *e.HitStroke()->GetDrawingAttributes()), clipAt)) {
+                    QVector<StrokeIntersection> vec(clipAt.toVector());
+                    e.Clip(vec);
+                }
+            }
+
             // Erase only if the event wasn't cancelled
             QSharedPointer<StrokeCollection> eraseResult = e.GetPointEraseResults();
             Debug::Assert(eraseResult != nullptr, "eraseResult cannot be nullptr");

@@ -189,69 +189,16 @@ public:
     /// <summary>
     /// Get the "in-segments" of the intersections.
     /// </summary>
-    static QVector<StrokeFIndices> GetInSegments(QVector<StrokeIntersection> & intersections)
-    {
-        //System.Diagnostics.Debug.Assert(intersections != null);
-        //System.Diagnostics.Debug.Assert(intersections.Length > 0);
-
-        QList<StrokeFIndices> inFIndices;
-        inFIndices.reserve(intersections.size());
-        for (int j = 0; j < intersections.size(); j++)
-        {
-            //System.Diagnostics.Debug.Assert(!intersections[j].IsEmpty);
-            if (!intersections[j].InSegment().IsEmpty())
-            {
-                if (inFIndices.size() > 0 &&
-                    inFIndices[inFIndices.size() - 1].EndFIndex() >=
-                    intersections[j].InSegment().BeginFIndex())
-                {
-                    //merge
-                    StrokeFIndices sfiPrevious = inFIndices[inFIndices.size() - 1];
-                    sfiPrevious.SetEndFIndex(intersections[j].InSegment().EndFIndex());
-                    inFIndices[inFIndices.size() - 1] = sfiPrevious;
-                }
-                else
-                {
-                    inFIndices.append(intersections[j].InSegment());
-                }
-            }
-        }
-        return inFIndices.toVector();
-    }
+    static QVector<StrokeFIndices> GetInSegments(QVector<StrokeIntersection> & intersections);
 
     /// <summary>
     /// Get the "hit-segments"
     /// </summary>
-    static QVector<StrokeFIndices> GetHitSegments(QVector<StrokeIntersection> & intersections)
-    {
-        //System.Diagnostics.Debug.Assert(intersections != null);
-        //System.Diagnostics.Debug.Assert(intersections.Length > 0);
+    static QVector<StrokeFIndices> GetHitSegments(QVector<StrokeIntersection> & intersections);
 
-        QList<StrokeFIndices> hitFIndices;
-        hitFIndices.reserve(intersections.size());
-        for (int j = 0; j < intersections.size(); j++)
-        {
-            //System.Diagnostics.Debug.Assert(!intersections[j].IsEmpty);
-            if (!intersections[j].HitSegment().IsEmpty())
-            {
-                if (hitFIndices.size() > 0 &&
-                    hitFIndices[hitFIndices.size() - 1].EndFIndex() >=
-                    intersections[j].HitSegment().BeginFIndex())
-                {
-                    //merge
-                    StrokeFIndices sfiPrevious = hitFIndices[hitFIndices.size() - 1];
-                    sfiPrevious.SetEndFIndex(intersections[j].HitSegment().EndFIndex());
-                    hitFIndices[hitFIndices.size() - 1] = sfiPrevious;
-                }
-                else
-                {
-                    hitFIndices.append(intersections[j].HitSegment());
-                }
-            }
-        }
-        return hitFIndices.toVector();
-    }
 
+    static QVector<StrokeIntersection> GetClippedHitSegments(QVector<StrokeIntersection> & intersections,
+                                                        QVector<StrokeIntersection> & clip);
 
 private:
     StrokeFIndices _hitSegment;

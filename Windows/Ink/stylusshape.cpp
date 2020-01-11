@@ -9,6 +9,11 @@ StylusShape::StylusShape()
 
 }
 
+StylusShape::StylusShape(QPolygonF polygon)
+{
+    m_vertices = polygon;
+}
+
 StylusShape::StylusShape(StylusTip tip, double width, double height, double rotation)
 {
     if (qIsNaN(width) || qIsInf(width) || width < DrawingAttributes::MinWidth || width > DrawingAttributes::MaxWidth)

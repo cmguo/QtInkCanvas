@@ -45,6 +45,8 @@ class RoutedCommand {};
 
 class AdornerDecorator;
 
+class QPolygonF;
+
 // namespace System.Windows.Controls
 
 class INKCANVAS_EXPORT InkCanvas : public FrameworkElement
@@ -530,6 +532,7 @@ public:
     StylusShape* EraserShape();
     void SetEraserShape(StylusShape * value);
 
+    void SetEraseClip(QPolygonF const & shape);
 
     /// <summary>
     /// ActiveEditingMode
