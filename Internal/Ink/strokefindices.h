@@ -21,7 +21,7 @@ private:
     /// </summary>
     /// <value></value>
 public:
-    static constexpr double BeforeFirst = DBL_MIN;
+    static constexpr double BeforeFirst = -DBL_MAX;
 
     /// <summary>
     /// AfterLast

@@ -9,7 +9,7 @@
 #include <QtMath>
 #include <QTransform>
 
-QPointF StrokeRenderer::ArcToMarker(DBL_MIN, DBL_MIN);
+QPointF StrokeRenderer::ArcToMarker(-DBL_MAX, -DBL_MAX);
 
 /// <summary>
 /// Calculate the StreamGeometry for the StrokeNodes.
@@ -251,7 +251,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
             double maxExtent = qMax(drawingAttributes.Height(), drawingAttributes.Width());
             percentIntersect += qMin(4.99999, ((maxExtent / 20) * 5));
 
-            double prevAngle = DBL_MIN;
+            double prevAngle = -DBL_MAX;
             bool isStartOfSegment = true;
             bool isEllipse = drawingAttributes.GetStylusTip() == StylusTip::Ellipse;
             bool ignorePressure = drawingAttributes.IgnorePressure();
@@ -430,7 +430,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                         strokeNode = emptyStrokeNode;
                         //strokeNodeBounds = empty;
 
-                        prevAngle = DBL_MIN; //invalidate
+                        prevAngle = -DBL_MAX; //invalidate
 
                         // go back to our main loop
                         continue;
@@ -512,7 +512,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 
 
 
-                if (prevAngle == DBL_MIN)
+                if (prevAngle == -DBL_MAX)
                 {
                     //prevAngle is no longer valid
                     prevAngle = GetAngleBetween(prevPrevStrokeNode.Position(), prevStrokeNode.Position());

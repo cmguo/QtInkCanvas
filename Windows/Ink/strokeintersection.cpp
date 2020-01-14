@@ -79,6 +79,10 @@ QVector<StrokeIntersection> StrokeIntersection::GetClippedHitSegments(QVector<St
         while (j < clip.size() && clip[j].HitSegment().EndFIndex() <= si.HitSegment().BeginFIndex()) {
             ++j;
         }
+        if (j >= clip.size()) {
+            result.append(si);
+            continue;
+        }
         if (clip[j].HitSegment().EndFIndex() >= si.HitSegment().EndFIndex()) {
             if (clip[j].HitSegment().BeginFIndex() >= si.HitSegment().EndFIndex()) {
             } else if (clip[j].HitSegment().BeginFIndex() > si.HitSegment().BeginFIndex()) {
