@@ -373,7 +373,7 @@ QCursor InkCollectionBehavior::PenCursor()
 {
     // We only update our cache cursor when DefaultDrawingAttributes has changed or
     // there are animated transforms being applied to GetInkCanvas().
-    if ( /*_cachedPenCursor == nullptr ||*/ _cursorDrawingAttributes != GetInkCanvas().DefaultDrawingAttributes() )
+    if ( /*_cachedPenCursor == nullptr ||*/ !_cursorDrawingAttributes || *_cursorDrawingAttributes != *GetInkCanvas().DefaultDrawingAttributes() )
     {
         //adjust the DA for any Layout/Render transforms.
         QMatrix xf = GetElementTransformMatrix();

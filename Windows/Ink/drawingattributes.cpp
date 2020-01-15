@@ -39,6 +39,8 @@ void DrawingAttributes::Initialize()
     Debug::Assert(_extendedProperties != nullptr);
     //_extendedProperties->Changed +=
     //    new ExtendedPropertiesChangedEventHandler(this.ExtendedPropertiesChanged_EventForwarder);
+    QObject::connect(_extendedProperties, &ExtendedPropertyCollection::Changed,
+                     this, &DrawingAttributes::ExtendedPropertiesChanged_EventForwarder);
 }
 
 
@@ -565,6 +567,128 @@ bool DrawingAttributes::IsGeometricalDaGuid(QUuid const & QUuid)
     return false;
 }
 
+
+/// <summary>
+/// Whenever the base class fires the generic ExtendedPropertiesChanged
+/// event, we need to fire the DrawingAttributesChanged event also.
+/// </summary>
+/// <param name="sender">Should be 'this' object</param>
+/// <param name="args">The custom attributes that changed</param>
+void DrawingAttributes::ExtendedPropertiesChanged_EventForwarder(ExtendedPropertiesChangedEventArgs& args)
+{
+    //Debug::Assert(sender != null);
+    //Debug::Assert(args != null);
+
+    //see if the EP that changed is a drawingattribute
+    if (args.NewProperty().Value().isNull())
+    {
+        //a property was removed, see if it is a drawing attribute property
+        QVariant defaultValueIfDrawingAttribute
+            = DrawingAttributes::GetDefaultDrawingAttributeValue(args.OldProperty().Id());
+        if (!defaultValueIfDrawingAttribute.isNull())
+        {
+            ExtendedProperty newProperty(   args.OldProperty().Id(),
+                                        defaultValueIfDrawingAttribute);
+            //this is a da guid
+            PropertyDataChangedEventArgs dargs(  args.OldProperty().Id(),
+                                                        newProperty.Value(),      //the property
+                                                        args.OldProperty().Value());//previous value
+
+            OnAttributeChanged(dargs);
+        }
+        else
+        {
+            PropertyDataChangedEventArgs dargs(  args.OldProperty().Id(),
+                                                        QVariant(),      //the property
+                                                        args.OldProperty().Value());//previous value
+
+            OnPropertyDataChanged(dargs);
+
+        }
+    }
+    else if (args.OldProperty().Value().isNull())
+    {
+        //a property was added, see if it is a drawing attribute property
+        QVariant defaultValueIfDrawingAttribute
+            = DrawingAttributes::GetDefaultDrawingAttributeValue(args.NewProperty().Id());
+        if (!defaultValueIfDrawingAttribute.isNull())
+        {
+            if (defaultValueIfDrawingAttribute != args.NewProperty().Value())
+            {
+                //this is a da guid
+                PropertyDataChangedEventArgs dargs (  args.NewProperty().Id(),
+                                                            args.NewProperty().Value(),   //the property
+                                                            defaultValueIfDrawingAttribute);     //previous value
+
+                OnAttributeChanged(dargs);
+            }
+        }
+        else
+        {
+            PropertyDataChangedEventArgs dargs(args.NewProperty().Id(),
+                                                 args.NewProperty().Value(),   //the property
+                                                 QVariant());     //previous value
+            OnPropertyDataChanged(dargs);
+
+        }
+    }
+    else
+    {
+        //something was modified, see if it is a drawing attribute property
+        QVariant defaultValueIfDrawingAttribute
+            = DrawingAttributes::GetDefaultDrawingAttributeValue(args.NewProperty().Id());
+        if (!defaultValueIfDrawingAttribute.isNull())
+        {
+            //
+            // we only raise DA changed when the value actually changes
+            //
+            if (args.NewProperty().Value() != (args.OldProperty().Value()))
+            {
+                //this is a da guid
+                PropertyDataChangedEventArgs dargs(  args.NewProperty().Id(),
+                                                            args.NewProperty().Value(),       //the da
+                                                            args.OldProperty().Value());//old value
+
+                OnAttributeChanged(dargs);
+            }
+        }
+        else
+        {
+            if (args.NewProperty().Value() != (args.OldProperty().Value()))
+            {
+                PropertyDataChangedEventArgs dargs(  args.NewProperty().Id(),
+                                                            args.NewProperty().Value(),
+                                                            args.OldProperty().Value());//old value
+
+                OnPropertyDataChanged(dargs);
+            }
+        }
+    }
+}
+
+/// <summary>
+/// Method called when a change occurs to any DrawingAttribute
+/// </summary>
+/// <param name="e">The change information for the DrawingAttribute that was modified</param>
+void DrawingAttributes::OnAttributeChanged(PropertyDataChangedEventArgs &e)
+{
+    //if (null == e)
+    //{
+    //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
+    //}
+
+    //try
+    //{
+        PrivateNotifyPropertyChanged(e);
+    //}
+    //finally
+    //{
+        //if ( this.AttributeChanged != null )
+        //{
+            emit AttributeChanged(e);
+        //}
+    //}
+}
 
 /// <summary>
 /// All DrawingAttributes are backed by an ExtendedProperty

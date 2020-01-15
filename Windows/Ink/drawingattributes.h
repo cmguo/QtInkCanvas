@@ -16,6 +16,7 @@
 class StylusShape;
 class PropertyChangedEventArgs;
 class PropertyDataChangedEventArgs;
+class ExtendedPropertiesChangedEventArgs;
 class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
@@ -248,6 +249,14 @@ public:
     /// </summary>
     static bool IsGeometricalDaGuid(QUuid const & QUuid);
 
+    /// <summary>
+    /// Whenever the base class fires the generic ExtendedPropertiesChanged
+    /// event, we need to fire the DrawingAttributesChanged event also.
+    /// </summary>
+    /// <param name="sender">Should be 'this' object</param>
+    /// <param name="args">The custom attributes that changed</param>
+    void ExtendedPropertiesChanged_EventForwarder(ExtendedPropertiesChangedEventArgs& args);
+
 signals:
     /// <summary>
     /// Event fired whenever a DrawingAttribute is modified
@@ -261,25 +270,7 @@ protected:
     /// Method called when a change occurs to any DrawingAttribute
     /// </summary>
     /// <param name="e">The change information for the DrawingAttribute that was modified</param>
-    virtual void OnAttributeChanged(PropertyDataChangedEventArgs &e)
-    {
-        //if (null == e)
-        //{
-        //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
-        //}
-
-        //try
-        //{
-            PrivateNotifyPropertyChanged(e);
-        //}
-        //finally
-        //{
-            //if ( this.AttributeChanged != null )
-            //{
-                emit AttributeChanged(e);
-            //}
-        //}
-    }
+    virtual void OnAttributeChanged(PropertyDataChangedEventArgs &e);
 
 signals:
      /// <summary>
