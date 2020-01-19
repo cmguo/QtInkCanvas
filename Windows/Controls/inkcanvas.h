@@ -154,7 +154,7 @@ public:
     /// <summary>
     /// Public constructor.
     /// </summary>
-    InkCanvas(QWidget* parent = nullptr);
+    InkCanvas(QGraphicsItem* parent = nullptr);
 
     virtual ~InkCanvas() override;
 

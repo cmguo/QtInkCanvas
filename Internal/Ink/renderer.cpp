@@ -568,7 +568,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
             QSharedPointer<Stroke> stroke = (*_strokes)[i];
             if ((stroke->GetDrawingAttributes()->IsHighlighter() == false)
                 && (_visuals.contains(stroke) == true)
-                && ((precedingVisual = _visuals.value(stroke))->parentWidget() != nullptr))
+                && ((precedingVisual = _visuals.value(stroke))->parentItem() != nullptr))
             {
                 VisualCollection & children = ContainerVisual::fromItem(precedingVisual->parentItem())->Children();
                 int index = children.indexOf(precedingVisual);

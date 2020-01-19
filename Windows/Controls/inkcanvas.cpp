@@ -46,12 +46,12 @@
 /// <summary>
 /// Public constructor.
 /// </summary>
-InkCanvas::InkCanvas(QWidget* parent)
+InkCanvas::InkCanvas(QGraphicsItem* parent)
 {
     if (Mouse::PrimaryDevice == nullptr)
         Mouse::PrimaryDevice = new MouseDevice;
     Initialize();
-    setParent(parent);
+    setParentItem(parent);
     QObject::connect(this, &UIElement::IsVisibleChanged, [this]() {
         UpdateCursor();
         _RegisterClipboardHandlers();

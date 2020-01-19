@@ -48,6 +48,8 @@ void VisualCollection::Add(Visual *visual)
 void VisualCollection::Insert(int index, Visual *visual)
 {
     parent_->AddVisualChild(visual);
+    if (index < size())
+        visual->stackBefore(at(index));
     insert(index, visual);
 }
 
