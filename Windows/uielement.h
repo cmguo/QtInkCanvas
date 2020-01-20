@@ -27,6 +27,8 @@ public:
 
     static RoutedEvent LostStylusCaptureEvent;
 
+    static DependencyProperty const * const RenderTransformProperty;
+
     static constexpr int ITEM_DATA = 6000;
 
     static UIElement* fromItem(QGraphicsItem* item);
@@ -188,6 +190,10 @@ enum class FlowDirection
 class INKCANVAS_EXPORT FrameworkElement : public UIElement
 {
     Q_OBJECT
+
+public:
+    static DependencyProperty const * const LayoutTransformProperty;
+
 public:
     QRectF Margin();
 

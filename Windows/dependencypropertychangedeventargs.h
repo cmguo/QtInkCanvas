@@ -24,6 +24,7 @@ enum class OperationType
 
 class DependencyPropertyChangedEventArgs
 {
+public:
     enum PrivateFlag
     {
         IsAValueChange        = 0x01,

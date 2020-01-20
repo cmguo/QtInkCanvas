@@ -1,4 +1,5 @@
 #include "Windows/uielement.h"
+#include "Windows/dependencypropertychangedeventargs.h"
 #include "Windows/Input/stylusdevice.h"
 #include "Windows/Input/mousedevice.h"
 #include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
@@ -13,6 +14,9 @@
 RoutedEvent UIElement::LostMouseCaptureEvent(QEvent::UngrabMouse);
 
 RoutedEvent UIElement::LostStylusCaptureEvent(QEvent::TouchCancel);
+
+DependencyProperty const * const UIElement::RenderTransformProperty =
+    new DependencyProperty(nullptr);
 
 static constexpr int ITEM_DATA_RECT = UIElement::ITEM_DATA + 1;
 
@@ -149,12 +153,12 @@ QTransform UIElement::LayoutTransform()
 
 QTransform UIElement::RenderTransform()
 {
-    return QTransform();
+    return sceneTransform();
 }
 
 QTransform UIElement::TransformToVisual(UIElement* visual)
 {
-    return QTransform();
+    return itemTransform(visual);
 }
 
 QSizeF UIElement::DesiredSize()
@@ -335,10 +339,12 @@ void UIElement::RaiseEvent(RoutedEventArgs &args)
 
 void UIElement::OnChildDesiredSizeChanged(UIElement* child)
 {
+    (void) child;
 }
 
 QList<UIElement*> UIElement::CreateUIElementCollection(UIElement* logicalParent)
 {
+    (void) logicalParent;
     return {};
 }
 
@@ -354,16 +360,19 @@ QList<UIElement*> UIElement::InternalChildren()
 
 Geometry* UIElement::GetLayoutClip(QSizeF layoutSlotSize)
 {
+    (void) layoutSlotSize;
     return nullptr;
 }
 
 QSizeF UIElement::ArrangeOverride(QSizeF arrangeSize)
 {
+    (void) arrangeSize;
     return QSizeF();
 }
 
 QSizeF UIElement::MeasureOverride(QSizeF availableSize)
 {
+    (void) availableSize;
     return QSizeF();
 }
 
@@ -383,7 +392,14 @@ QVariant UIElement::itemChange(QGraphicsItem::GraphicsItemChange change, const Q
         emit IsEnabledChanged();
         break;
     case QGraphicsItem::ItemParentHasChanged:
-        //qDebug() << "itemChange " << change << qobject_cast<QObject*>(this) << value.value<QGraphicsItem*>();
+        //qDebug() << "itemChange " << change;
+        break;
+    case QGraphicsItem::ItemTransformHasChanged:
+    {
+        //qDebug() << "itemChange " << change;
+        DependencyPropertyChangedEventArgs e(RenderTransformProperty, QVariant(), QVariant());
+        OnPropertyChanged(e);
+    }
         break;
     case QGraphicsItem::ItemChildAddedChange:
     {
@@ -426,6 +442,9 @@ QRectF UIElement::boundingRect() const
 {
     return data(ITEM_DATA_RECT).toRectF();
 }
+
+DependencyProperty const * const FrameworkElement::LayoutTransformProperty =
+    new DependencyProperty(nullptr);
 
 QRectF FrameworkElement::Margin()
 {

@@ -200,60 +200,7 @@ protected:
     /// <summary>
     /// OnPropertyChanged
     /// </summary>
-    /*
-    void OnPropertyChanged(DependencyPropertyChangedEventArgs& e)
-    {
-        base.OnPropertyChanged(e);
-
-        if (e.IsAValueChange || e.IsASubPropertyChange)
-        {
-            if (e.Property == UIElement*.RenderTransformProperty ||
-                e.Property == FrameworkElement.LayoutTransformProperty)
-            {
-                EditingCoordinator.InvalidateTransform();
-
-                Transform transform = e.NewValue as Transform;
-                if (transform != nullptr && !transform.HasAnimatedProperties)
-                {
-                    TransformGroup transformGroup = transform as TransformGroup;
-                    if ( transformGroup != nullptr )
-                    {
-                        //walk down the tree looking for animated transforms
-                        Stack<Transform> transforms = new Stack<Transform>();
-                        transforms.Push(transform);
-                        while ( transforms.Count > 0 )
-                        {
-                            transform = transforms.Pop();
-                            if ( transform.HasAnimatedProperties )
-                            {
-                                return;
-                            }
-                            transformGroup = transform as TransformGroup;
-                            if ( transformGroup != nullptr )
-                            {
-                                for ( int i = 0; i < transformGroup.Children.Count; i++ )
-                                {
-                                    transforms.Push(transformGroup.Children[i]);
-                                }
-                            }
-                        }
-                    }
-
-                    //
-                    // only invalidate when there is not an animation on the xf,
-                    // or we could wind up creating thousands of new cursors.  That's bad.
-                    //
-                    _editingCoordinator.InvalidateBehaviorCursor(_editingCoordinator.InkCollectionBehavior);
-                    EditingCoordinator.UpdatePointEraserCursor();
-                }
-            }
-            if (e.Property == FrameworkElement.FlowDirectionProperty)
-            {
-                //flow direction only affects the inking cursor.
-                _editingCoordinator.InvalidateBehaviorCursor(_editingCoordinator.InkCollectionBehavior);
-            }
-        }
-    }*/
+    virtual void OnPropertyChanged(DependencyPropertyChangedEventArgs& e) override;
 
     /// <summary>
     /// Called when the Template's tree is about to be generated

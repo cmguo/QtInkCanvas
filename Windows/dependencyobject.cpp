@@ -51,3 +51,7 @@ bool DependencyObject::CheckAccess() const
 {
     return GetDispatcher()->CheckAccess();
 }
+
+void DependencyObject::OnPropertyChanged(DependencyPropertyChangedEventArgs &)
+{
+}

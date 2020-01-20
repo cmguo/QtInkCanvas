@@ -257,6 +257,64 @@ HitTestResult InkCanvas::HitTestCore(PointHitTestParameters hitTestParams)
 }
 
 /// <summary>
+/// OnPropertyChanged
+/// </summary>
+void InkCanvas::OnPropertyChanged(DependencyPropertyChangedEventArgs& e)
+{
+    UIElement::OnPropertyChanged(e);
+
+    //if (e.IsAValueChange || e.IsASubPropertyChange)
+    {
+        if (e.Property() == UIElement::RenderTransformProperty ||
+            e.Property() == FrameworkElement::LayoutTransformProperty)
+        {
+            GetEditingCoordinator().InvalidateTransform();
+
+            //Transform transform = e.NewValue as Transform;
+            //if (transform != nullptr && !transform.HasAnimatedProperties)
+            {
+                /*
+                TransformGroup transformGroup = transform as TransformGroup;
+                if ( transformGroup != nullptr )
+                {
+                    //walk down the tree looking for animated transforms
+                    Stack<Transform> transforms = new Stack<Transform>();
+                    transforms.Push(transform);
+                    while ( transforms.Count > 0 )
+                    {
+                        transform = transforms.Pop();
+                        if ( transform.HasAnimatedProperties )
+                        {
+                            return;
+                        }
+                        transformGroup = transform as TransformGroup;
+                        if ( transformGroup != nullptr )
+                        {
+                            for ( int i = 0; i < transformGroup.Children.Count; i++ )
+                            {
+                                transforms.Push(transformGroup.Children[i]);
+                            }
+                        }
+                    }
+                }
+                */
+                //
+                // only invalidate when there is not an animation on the xf,
+                // or we could wind up creating thousands of new cursors.  That's bad.
+                //
+                _editingCoordinator->InvalidateBehaviorCursor(_editingCoordinator->GetInkCollectionBehavior());
+                GetEditingCoordinator().UpdatePointEraserCursor();
+            }
+        }
+        //if (e.Property == FrameworkElement.FlowDirectionProperty)
+        //{
+            //flow direction only affects the inking cursor.
+        //    _editingCoordinator.InvalidateBehaviorCursor(_editingCoordinator.InkCollectionBehavior);
+        //}
+    }
+}
+
+/// <summary>
 /// Called when the Template's tree is about to be generated
 /// </summary>
 void InkCanvas::OnPreApplyTemplate()

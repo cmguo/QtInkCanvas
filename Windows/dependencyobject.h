@@ -53,6 +53,9 @@ public:
 
     bool CheckAccess() const;
 
+protected:
+    virtual void OnPropertyChanged(DependencyPropertyChangedEventArgs& e);
+
 private:
     QMap<DependencyProperty const *, QVariant> props_;
 };
