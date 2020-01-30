@@ -66,7 +66,7 @@ public:
             case MouseButton::XButton2:
                 break;
             default:
-                throw std::exception("button");
+                throw std::runtime_error("button");
         }
     }
 

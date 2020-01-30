@@ -74,15 +74,15 @@ public:
 
     UIElement* Captured();
 
-    virtual UIElement* Target();
+    virtual UIElement* Target() override;
 
-    virtual PresentationSource* ActiveSource();
+    virtual PresentationSource* ActiveSource() override;
 
     virtual int Id() override;
 
-    virtual QSharedPointer<StylusPointDescription> PointDescription();
+    virtual QSharedPointer<StylusPointDescription> PointDescription() override;
 
-    virtual QVector<int> PacketData(QEvent& event);
+    virtual QVector<int> PacketData(QEvent& event) override;
 
 private:
     QSharedPointer<StylusPointDescription> description_;

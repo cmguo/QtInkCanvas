@@ -24,15 +24,15 @@ RawStylusInput::RawStylusInput(
 {
     //if (report == nullptr)
     //{
-    //    throw std::exception("report");
+    //    throw std::runtime_error("report");
     //}
     if (!tabletToElementTransform.isInvertible())
     {
-        throw std::exception("tabletToElementTransform");
+        throw std::runtime_error("tabletToElementTransform");
     }
     if (targetPlugInCollection == nullptr)
     {
-        throw std::exception("targetPlugInCollection");
+        throw std::runtime_error("targetPlugInCollection");
     }
 
     switch (event.type()) {
@@ -153,17 +153,17 @@ void RawStylusInput::SetStylusPoints(QSharedPointer<StylusPointCollection> stylu
 
     if (nullptr == stylusPoints)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     if (!StylusPointDescription::AreCompatible(  stylusPoints->Description(),
                                                 device_->PointDescription()))
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
     if (stylusPoints->size() == 0)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     _stylusPoints = stylusPoints->Clone();
@@ -177,7 +177,7 @@ void RawStylusInput::NotifyWhenProcessed(void* callbackData)
 {
     if (_currentNotifyPlugIn == nullptr)
     {
-        throw std::exception("SR.Get(SRID.Stylus_CanOnlyCallForDownMoveOrUp)");
+        throw std::runtime_error("SR.Get(SRID.Stylus_CanOnlyCallForDownMoveOrUp)");
     }
     //if (_customData == nullptr)
     //{

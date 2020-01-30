@@ -5,6 +5,8 @@
 
 #include <QtMath>
 
+#include <float.h>
+
 // namespace MS.Internal.Ink
 
 /// <summary>

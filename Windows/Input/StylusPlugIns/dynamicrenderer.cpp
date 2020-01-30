@@ -195,7 +195,7 @@ public:
     {
          //if (value == nullptr)
          //{
-         //    throw std::exception();
+         //    throw std::runtime_error();
          //}
          _strokeNodeIterator = std::move(value);
     }
@@ -315,7 +315,7 @@ void DynamicRenderer::Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPoi
 
     if (inAir)
     {
-        throw std::exception("stylusDevice");
+        throw std::runtime_error("stylusDevice");
     }
 
     // Avoid reentrancy due to lock() call.
@@ -795,7 +795,7 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
     (void) stylusPoints;
     //if (drawingContext == nullptr)
     //{
-    //    throw std::exception("drawingContext");
+    //    throw std::runtime_error("drawingContext");
     //}
     drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
 }
@@ -1128,7 +1128,7 @@ QSharedPointer<DrawingAttributes> DynamicRenderer::GetDrawingAttributes()
 void DynamicRenderer::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
 {
      if (value == nullptr)
-         throw std::exception("value");
+         throw std::runtime_error("value");
      _drawAttrsSource = value;
      OnDrawingAttributesReplaced();
 }

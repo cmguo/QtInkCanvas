@@ -7,6 +7,8 @@
 
 #define checked(x) x
 
+static double DBL_EPSILON = DoubleUtil::DBL_EPSILON;
+
 Bezier::Bezier()
 {
 

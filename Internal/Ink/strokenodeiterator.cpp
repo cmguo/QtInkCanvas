@@ -9,11 +9,11 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(Stroke & stroke, DrawingAttri
 {
     //if (stroke == nullptr)
     //{
-    //    throw std::exception("stroke");
+    //    throw std::runtime_error("stroke");
     //}
     //if (drawingAttributes == nullptr)
     //{
-    //    throw std::exception("drawingAttributes");
+    //    throw std::runtime_error("drawingAttributes");
     //}
 
     QSharedPointer<StylusPointCollection> stylusPoints =
@@ -30,11 +30,11 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(QSharedPointer<StylusPointCol
 {
     if (stylusPoints == nullptr)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
     //if (drawingAttributes == nullptr)
     //{
-    //    throw std::exception("drawingAttributes");
+    //    throw std::runtime_error("drawingAttributes");
     //}
 
     std::unique_ptr<StrokeNodeOperations> operations(
@@ -89,7 +89,7 @@ StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> sty
     //_stylusPoints = stylusPoints;
     if (_operations == nullptr)
     {
-        throw std::exception("operations");
+        throw std::runtime_error("operations");
     }
     //_operations = operations;
     //_usePressure = usePressure;
@@ -105,7 +105,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<
 {
     if (stylusPoints == nullptr)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     if (_stylusPoints != nullptr && _stylusPoints->size() > 0 && stylusPoints->size() > 0)
@@ -137,7 +137,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QVector<QPointF
 {
     //if (points == nullptr)
     //{
-    //    throw std::exception("points");
+    //    throw std::runtime_error("points");
     //}
     QSharedPointer<StylusPointCollection> newStylusPoints(new StylusPointCollection(points));
     if (_stylusPoints != nullptr && _stylusPoints->size() > 0)
@@ -170,7 +170,7 @@ StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex)
 {
     if (_stylusPoints == nullptr||  index < 0 || index >= _stylusPoints->size() || previousIndex < -1 || previousIndex >= index)
     {
-        throw new std::exception();
+        throw new std::runtime_error("");
     }
 
     StylusPoint stylusPoint = (*_stylusPoints)[index];

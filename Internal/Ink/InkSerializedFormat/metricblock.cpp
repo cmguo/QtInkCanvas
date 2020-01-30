@@ -24,7 +24,7 @@ void MetricBlock::AddMetricEntry(MetricEntry* newEntry)
 {
     if (nullptr == newEntry)
     {
-        throw std::exception(("MetricEntry cannot be null"));
+        throw std::runtime_error(("MetricEntry cannot be null"));
     }
     if( nullptr == _Entry )
         _Entry = newEntry;

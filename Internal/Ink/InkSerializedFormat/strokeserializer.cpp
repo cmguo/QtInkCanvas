@@ -52,7 +52,7 @@ uint StrokeSerializer::DecodeStroke(QIODevice& stream,
 
     if (cb != size)
     {
-        throw std::exception("Stroke size ("") != expected ("")");
+        throw std::runtime_error("Stroke size ("") != expected ("")");
     }
 
     stroke.reset(new Stroke(stylusPoints, drawingAttributes, extendedProperties));
@@ -105,7 +105,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                                         stylusPoints);
 
     if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-        throw std::exception(("Packet buffer overflowed the ISF stream"));
+        throw std::runtime_error(("Packet buffer overflowed the ISF stream"));
 
     remainingBytesInStrokeBlock -= locallyDecodedBytes;
     if (0 == remainingBytesInStrokeBlock)
@@ -131,7 +131,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                         QUuid guid = guidList.FindGuid(tag);
                         if (guid == GuidList::Empty)
                         {
-                            throw std::exception(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
+                            throw std::runtime_error(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
                         }
 
                         // load the extended property data from the stream (and decode the type)
@@ -144,7 +144,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                         }
                         extendedProperties->Set(guid, data);
                         if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
 
                         remainingBytesInStrokeBlock -= locallyDecodedBytes;
                         iTag++;
@@ -179,7 +179,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
         locallyDecodedBytes = SerializationHelper::Decode(stream, uiTag);
         tag = (KnownTagCache::KnownTagIndex)uiTag;
         if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
         remainingBytesInStrokeBlock -= locallyDecodedBytes;
 
@@ -193,7 +193,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
                     locallyDecodedBytes = SerializationHelper::Decode(stream, cbsize);
                     if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-                        throw std::exception(("Invalid ISF data"));
+                        throw std::runtime_error(("Invalid ISF data"));
 
                     remainingBytesInStrokeBlock -= locallyDecodedBytes;
                     while (remainingBytesInStrokeBlock > 0)
@@ -202,7 +202,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                         locallyDecodedBytes = SerializationHelper::Decode(stream, uiTag);
                         tag = (KnownTagCache::KnownTagIndex)uiTag;
                         if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
 
                         remainingBytesInStrokeBlock -= locallyDecodedBytes;
 
@@ -211,7 +211,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
                         locallyDecodedBytes = SerializationHelper::Decode(stream, propindex);
                         if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
 
                         remainingBytesInStrokeBlock -= locallyDecodedBytes;
 
@@ -219,7 +219,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
                         locallyDecodedBytes = SerializationHelper::Decode(stream, propsize);
                         if (locallyDecodedBytes > remainingBytesInStrokeBlock)
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
 
                         remainingBytesInStrokeBlock -= locallyDecodedBytes;
 
@@ -228,14 +228,14 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
                         // Make sure we have enough data to read
                         if (propsize > remainingBytesInStrokeBlock)
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
 
                         QByteArray in_buffer; in_buffer.resize(propsize);
 
                         uint bytesRead = StrokeCollectionSerializer::ReliableRead(stream, (quint8*)in_buffer.data(), propsize);
                         if (propsize != bytesRead)
                         {
-                            throw std::exception(("Read different size from stream then expected"));
+                            throw std::runtime_error(("Read different size from stream then expected"));
                         }
 
                         QByteArray out_buffer;// = Compressor.DecompressPropertyData(in_buffer);
@@ -255,7 +255,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                     QUuid guid = guidList.FindGuid(tag);
                     if (guid == GuidList::Empty)
                     {
-                        throw std::exception(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
+                        throw std::runtime_error(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
                     }
 
                     // load the extended property data from the stream (and decode the type)
@@ -269,7 +269,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                     extendedProperties->Set(guid, data);
                     if (locallyDecodedBytes > remainingBytesInStrokeBlock)
                     {
-                        throw std::exception(("ExtendedProperty decoded totalBytesInStrokeBlockOfIsfStream exceeded ISF stream totalBytesInStrokeBlockOfIsfStream"));
+                        throw std::runtime_error(("ExtendedProperty decoded totalBytesInStrokeBlockOfIsfStream exceeded ISF stream totalBytesInStrokeBlockOfIsfStream"));
                     }
 
                     remainingBytesInStrokeBlock -= locallyDecodedBytes;
@@ -279,7 +279,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
     }
 
     if (0 != remainingBytesInStrokeBlock)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     return totalBytesInStrokeBlockOfIsfStream;
 }
@@ -306,7 +306,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
 
     localBytesRead = SerializationHelper::Decode(inputStream, pointCount);
     if (locallyDecodedBytesRemaining < localBytesRead)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     locallyDecodedBytesRemaining -= localBytesRead;
     if (0 == locallyDecodedBytesRemaining)
@@ -332,7 +332,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
     {
         // Make sure the bytes read are expected. If not, we should bail out.
         // An exception will be thrown.
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
     }
 
     // at this point, we have read all of the bytes remaining in the input
@@ -350,7 +350,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
                 packetDataSet);
 
         if (localBytesRead > locallyDecodedBytesRemaining)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
         //
         // packetDataSet is like this:
@@ -425,7 +425,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
         localBytesRead = (uint)((buttonCount * pointCount + 7) / 8);
         if (localBytesRead > locallyDecodedBytesRemaining)
         {
-            throw std::exception(("Buffer range is smaller than expected expected size"));
+            throw std::runtime_error(("Buffer range is smaller than expected expected size"));
         }
         locallyDecodedBytesRemaining -= localBytesRead;
 
@@ -457,7 +457,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
         // if the number of bytes allocated != necessary byte amount then an error occurred
         if (byteCounter != buttonData.size())
         {
-            throw std::exception(("Button data length not equal to expected length"));
+            throw std::runtime_error(("Button data length not equal to expected length"));
         }
 
         //
@@ -810,7 +810,7 @@ uint StrokeSerializer::SavePackets(
         if (packedButtonData.Length !=
             ((buttonCount * pointCount + 7) / 8))
         {
-            throw std::exception(("Packed button length not equal to expected length"));
+            throw std::runtime_error(("Packed button length not equal to expected length"));
         }
 
         // write out the packed button data to the output stream

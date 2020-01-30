@@ -3,19 +3,24 @@
 
 // namespace System.Diagnostics
 
+#include <QtGlobal>
+
 class Debug
 {
 public:
     static inline void Assert(bool condition)
     {
-#ifdef _DEBUG
+        (void) condition;
+#ifdef QT_DEBUG
         _Assert(condition, "");
 #endif
     }
 
     static inline void Assert(bool condition, char const * message)
     {
-#ifdef _DEBUG
+        (void) condition;
+        (void) message;
+#ifdef QT_DEBUG
         _Assert(condition, message);
 #endif
     }

@@ -6,7 +6,6 @@ HEADERS += \
     $$PWD/extendedproperty.h \
     $$PWD/extendedpropertycollection.h \
     $$PWD/gesturerecognitionresult.h \
-    $$PWD/gesturerecognizer.h \
     $$PWD/incrementalhittester.h \
     $$PWD/knownids.h \
     $$PWD/stroke.h \
@@ -22,7 +21,6 @@ SOURCES += \
     $$PWD/extendedproperty.cpp \
     $$PWD/extendedpropertycollection.cpp \
     $$PWD/gesturerecognitionresult.cpp \
-    $$PWD/gesturerecognizer.cpp \
     $$PWD/incrementalhittester.cpp \
     $$PWD/knownids.cpp \
     $$PWD/stroke.cpp \
@@ -30,3 +28,11 @@ SOURCES += \
     $$PWD/strokeintersection.cpp \
     $$PWD/stylusshape.cpp \
     $$PWD/stylustip.cpp
+
+win32 {
+HEADERS += \
+    $$PWD/gesturerecognizer.h \
+
+SOURCES += \
+    $$PWD/gesturerecognizer.cpp \
+}

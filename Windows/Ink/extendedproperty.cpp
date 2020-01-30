@@ -13,7 +13,7 @@ ExtendedProperty::ExtendedProperty(QUuid const & id, QVariant value)
 {
     if (id.isNull())
     {
-        throw std::exception("(SR.Get(SRID.InvalidQUuid)");
+        throw std::runtime_error("(SR.Get(SRID.InvalidQUuid)");
     }
     _id = id;
     _value = value;

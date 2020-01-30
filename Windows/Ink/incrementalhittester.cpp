@@ -42,12 +42,12 @@ void IncrementalHitTester::AddPoints(QVector<QPointF> const & points)
 
     if (points.size() == 0)
     {
-        throw std::exception("points");
+        throw std::runtime_error("points");
     }
 
     if (false == _fValid)
     {
-        throw std::exception("SR.Get(SRID.EndHitTestingCalled");
+        throw std::runtime_error("SR.Get(SRID.EndHitTestingCalled");
     }
 
     Debug::Assert(_strokes != nullptr);
@@ -68,12 +68,12 @@ void IncrementalHitTester::AddPoints(QSharedPointer<StylusPointCollection> const
 
     if (stylusPoints->size() == 0)
     {
-        throw new std::exception("stylusPoints");
+        throw new std::runtime_error("stylusPoints");
     }
 
     if (false == _fValid)
     {
-        throw std::exception("SR.Get(SRID.EndHitTestingCalled)");
+        throw std::runtime_error("SR.Get(SRID.EndHitTestingCalled)");
     }
 
     Debug::Assert(_strokes != nullptr);

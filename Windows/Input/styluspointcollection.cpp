@@ -21,7 +21,7 @@ StylusPointCollection::StylusPointCollection(int initialCapacity)
 {
     if (initialCapacity < 0)
     {
-        throw std::exception("initialCapacity");
+        throw std::runtime_error("initialCapacity");
     }
     QList<StylusPoint>::reserve(initialCapacity);
 }
@@ -34,7 +34,7 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 {
     if (nullptr == stylusPointDescription)
     {
-        throw std::exception();
+        throw std::runtime_error("");
     }
     _stylusPointDescription = stylusPointDescription;
 }
@@ -49,7 +49,7 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 {
     if (initialCapacity < 0)
     {
-        throw std::exception("initialCapacity");
+        throw std::runtime_error("initialCapacity");
     }
     reserve(initialCapacity);
 }
@@ -65,7 +65,7 @@ StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylus
     QVector<StylusPoint> points(stylusPoints);
     if (points.size() == 0)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     //
@@ -98,7 +98,7 @@ StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
 
     if (stylusPoints.size() == 0)
     {
-        throw std::exception("points");
+        throw std::runtime_error("points");
     }
 
     reserve(stylusPoints.size());
@@ -116,7 +116,7 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 {
     if (nullptr == stylusPointDescription)
     {
-        throw std::exception();
+        throw std::runtime_error("");
     }
     _stylusPointDescription = stylusPointDescription;
 
@@ -185,7 +185,7 @@ void StylusPointCollection::Add(StylusPointCollection & stylusPoints)
     if (!StylusPointDescription::AreCompatible(stylusPoints.Description(),
                                                 _stylusPointDescription))
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     // cache count outside of the loop, so if this SPC is ever passed
@@ -230,7 +230,7 @@ void StylusPointCollection::ClearItems()
     }
     else
     {
-        throw std::exception();
+        throw std::runtime_error("");
     }
 }
 
@@ -247,7 +247,7 @@ void StylusPointCollection::RemoveItem(int index)
     }
     else
     {
-        throw std::exception();
+        throw std::runtime_error("");
     }
 
 }
@@ -266,7 +266,7 @@ void StylusPointCollection::InsertItem(int index, StylusPoint & stylusPoint)
     if (!StylusPointDescription::AreCompatible(stylusPoint.Description(),
                                             _stylusPointDescription))
     {
-        throw std::exception("stylusPoint");
+        throw std::runtime_error("stylusPoint");
     }
 
     stylusPoint.SetDescription(_stylusPointDescription);
@@ -284,7 +284,7 @@ void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
     if (!StylusPointDescription::AreCompatible(stylusPoint.Description(),
                                             _stylusPointDescription))
     {
-        throw std::exception("stylusPoint");
+        throw std::runtime_error("stylusPoint");
     }
 
     stylusPoint.SetDescription(_stylusPointDescription);
@@ -324,7 +324,7 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(int count)
 {
     if (count > size() || count < 1)
     {
-        throw std::exception("count");
+        throw std::runtime_error("count");
     }
 
     return Clone(QMatrix(), Description(), count);
@@ -421,7 +421,7 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPoi
 {
     if (!subsetToReformatTo->IsSubsetOf(Description()))
     {
-        throw std::exception("subsetToReformatTo");
+        throw std::runtime_error("subsetToReformatTo");
     }
 
     QSharedPointer<StylusPointDescription> subsetToReformatToWithCurrentMetrics =

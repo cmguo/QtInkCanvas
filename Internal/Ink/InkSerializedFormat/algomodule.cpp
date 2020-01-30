@@ -30,14 +30,14 @@ uint AlgoModule::DecompressPacketData(QByteArray input, QVector<int>& outputBuff
 {
     if (input.size() < 2)
     {
-        throw std::exception(("Input buffer passed was shorter than expected"));
+        throw std::runtime_error(("Input buffer passed was shorter than expected"));
     }
 
     quint8 compression = (quint8)(outputBuffer.size() * 4);
 
     if (compression != (quint8)input[0])
     {
-        throw std::exception(("Input buffer passed was shorter than expected"));
+        throw std::runtime_error(("Input buffer passed was shorter than expected"));
     }
 
     memcpy(outputBuffer.data(), input.data() + 1, outputBuffer.size() * 4);

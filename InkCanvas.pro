@@ -3,7 +3,7 @@ QT += gui widgets
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
-CONFIG += c++11
+CONFIG += c++17
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

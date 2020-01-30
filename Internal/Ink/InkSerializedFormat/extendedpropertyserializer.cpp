@@ -192,7 +192,7 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
 
     if (0 == cbSize)
     {
-        throw  std::exception("SR.Get(SRID.EmptyDataToLoad)");
+        throw  std::runtime_error("SR.Get(SRID.EmptyDataToLoad)");
     }
 
     if (0 == tag) // no tag is passed, it must be embedded in the data
@@ -201,7 +201,7 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
         cb = SerializationHelper::Decode(stream, uiTag);
         tag = (KnownTagCache::KnownTagIndex)uiTag;
         if (cb > cbTotal)
-            throw std::exception("cbSize");
+            throw std::runtime_error("cbSize");
 
         cbTotal -= cb;
         cbRead += cb;
@@ -211,14 +211,14 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
 
     if (guid == GuidList::Empty)
     {
-        throw std::exception(("Custom Attribute tag embedded in ISF stream does not match guid table"));
+        throw std::runtime_error(("Custom Attribute tag embedded in ISF stream does not match guid table"));
     }
 
     // Try and find the size
     uint size = guidList.GetDataSizeIfKnownGuid(guid);
 
     if (size > cbTotal)
-        throw std::exception("cbSize");
+        throw std::runtime_error("cbSize");
 
     // if the size is 0
     if (0 == size)
@@ -231,14 +231,14 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
         cbRead += cb;
         cbTotal -= cb;
         if (cbInsize > cbTotal)
-            throw std::exception();
+            throw std::runtime_error("");
 
         QByteArray bytes(cbInsize, 0);
 
         uint bytesRead = (uint) stream.read(bytes.data(), cbInsize);
         if (cbInsize != bytesRead)
         {
-            throw std::exception(("Read different size from stream then expected"));
+            throw std::runtime_error(("Read different size from stream then expected"));
         }
 
         cbRead += cbInsize;
@@ -262,7 +262,7 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
         uint bytesRead = (uint) stream.read(bytes.data(), size);
         if (size != bytesRead)
         {
-            throw std::exception(("Read different size from stream then expected"));
+            throw std::runtime_error(("Read different size from stream then expected"));
         }
 
         QByteArray subData = Compressor::DecompressPropertyData(bytes);
@@ -419,14 +419,14 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
 {
     if (id == GuidList::Empty)
     {
-        throw std::exception("SR.Get(SRID.InvalidGuid)");
+        throw std::runtime_error("SR.Get(SRID.InvalidGuid)");
     }
 
     if (id == KnownIds::Color)
     {
         if (!(value.userType() == qMetaTypeId<QColor>()))
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
     }
         // int attributes
@@ -434,7 +434,7 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
     {
         if (!(value.userType() == QVariant::Int))
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
     }
     else if (id == KnownIds::DrawingFlags)
@@ -442,7 +442,7 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
         // ignore validation of flags
         if (value.userType() != qMetaTypeId<DrawingFlags>())
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
     }
     else if (id == KnownIds::StylusTip)
@@ -453,11 +453,11 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
 
         if ( !fStylusTipType && !fIntType )
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
         else if ( !StylusTipHelper::IsDefined(value.value<StylusTip>()) )
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
     }
     else if (id == KnownIds::StylusTipTransform)
@@ -468,22 +468,22 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
         int t = value.userType();
         if ( t != qMetaTypeId<QString>() && t != qMetaTypeId<QMatrix>() )
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
         else if ( t == qMetaTypeId<QMatrix>() )
         {
             QMatrix matrix = value.value<QMatrix>();
             if ( !matrix.isInvertible() )
             {
-                throw std::exception("value");
+                throw std::runtime_error("value");
             }
             //if ( MatrixHelper::ContainsNaN(matrix))
             //{
-            //    throw std::exception(SR.Get(SRID.InvalidMatrixContainsNaN), "value");
+            //    throw std::runtime_error(SR.Get(SRID.InvalidMatrixContainsNaN), "value");
             //}
             //if ( MatrixHelper.ContainsInfinity(matrix))
             //{
-            //    throw std::exception(SR.Get(SRID.InvalidMatrixContainsInfinity), "value");
+            //    throw std::runtime_error(SR.Get(SRID.InvalidMatrixContainsInfinity), "value");
             //}
 
         }
@@ -492,14 +492,14 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
     {
         if ( value.userType() != qMetaTypeId<bool>())
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
     }
     else if ( id == KnownIds::StylusHeight || id == KnownIds::StylusWidth )
     {
         if ( value.userType() != qMetaTypeId<double>() )
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
 
         double dVal = value.toDouble();
@@ -508,14 +508,14 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
         {
             if ( qIsNaN(dVal) || dVal < DrawingAttributes::MinHeight || dVal > DrawingAttributes::MaxHeight)
             {
-                throw std::exception("value");
+                throw std::runtime_error("value");
             }
         }
         else
         {
             if (qIsNaN(dVal) ||  dVal < DrawingAttributes::MinWidth || dVal > DrawingAttributes::MaxWidth)
             {
-                throw std::exception("value");
+                throw std::runtime_error("value");
             }
         }
     }
@@ -523,7 +523,7 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
     {
         if ( value.userType() != qMetaTypeId<quint8>() )
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
 
     }
@@ -535,7 +535,7 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
             //      then it doesn't include embedded type information (it's always a byte array)
             if ( value.userType() != qMetaTypeId<QByteArray>() )
             {
-                throw std::exception("value");
+                throw std::runtime_error("value");
             }
         }
         else

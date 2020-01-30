@@ -47,7 +47,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
 
         if (maximumStreamSize < cb)
         {
-            throw std::exception("ISF size is larger than maximum stream size");
+            throw std::runtime_error("ISF size is larger than maximum stream size");
         }
 
         maximumStreamSize -= cb;
@@ -56,7 +56,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
         QUuid guid = guidList.FindGuid (tag);
         if (guid == GuidList::Empty)
         {
-            throw std::exception("Drawing Attribute tag embedded in ISF stream does not match guid table");
+            throw std::runtime_error("Drawing Attribute tag embedded in ISF stream does not match guid table");
         }
 
         quint32 dw = 0;
@@ -67,7 +67,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
             penTip = (PenTip)dw;
             //if (!PenTipHelper.IsDefined(penTip))
             {
-                throw std::exception("Invalid PenTip value found in ISF stream");
+                throw std::runtime_error("Invalid PenTip value found in ISF stream");
             }
             maximumStreamSize -= cb;
         }
@@ -90,7 +90,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
             quint32 ropSize = GuidList::GetDataSizeIfKnownGuid(KnownIds::RasterOperation);
             if (ropSize == 0)
             {
-                throw  std::exception(("ROP data size was not found"));
+                throw  std::runtime_error(("ROP data size was not found"));
             }
 
             quint8* data = new quint8[ropSize];
@@ -131,14 +131,14 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
                     cbInSize++;
                     if (cbInSize > maximumStreamSize)
                     {
-                        throw std::exception("ISF size if greater then maximum stream size");
+                        throw std::runtime_error("ISF size if greater then maximum stream size");
                     }
                     QByteArray in_data(cbInSize, 0);
 
                     quint32 bytesRead = (quint32) stream.read (in_data.data(), cbInSize);
                     if (cbInSize != bytesRead)
                     {
-                        throw std::exception("Read different size from stream then expected");
+                        throw std::runtime_error("Read different size from stream then expected");
                     }
 
                     //using (MemoryStream localStream = new MemoryStream(out_buffer))
@@ -462,7 +462,7 @@ void DrawingAttributeSerializer::PersistRasterOperation(DrawingAttributes& da, Q
         quint32 ropSize = GuidList::GetDataSizeIfKnownGuid(KnownIds::RasterOperation);
         if (ropSize == 0)
         {
-            throw  std::exception("ROP data size was not found");
+            throw  std::runtime_error("ROP data size was not found");
         }
 
         //Debug::Assert(bw != nullptr);
@@ -471,7 +471,7 @@ void DrawingAttributeSerializer::PersistRasterOperation(DrawingAttributes& da, Q
         bw << (da.RasterOperation());
         if ((quint32)(stream.pos() - currentPosition) != ropSize)
         {
-            throw  std::exception("ROP data was incorrectly serialized");
+            throw  std::runtime_error("ROP data was incorrectly serialized");
         }
         cbData += ropSize;
     }

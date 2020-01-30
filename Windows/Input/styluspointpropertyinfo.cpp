@@ -21,19 +21,19 @@ StylusPointPropertyInfo::StylusPointPropertyInfo(StylusPointProperty const & sty
     // validate unit
     //if (!StylusPointPropertyUnitHelper::IsDefined(unit))
     //{
-    //    throw std::exception("unit");
+    //    throw std::runtime_error("unit");
     //}
 
     // validate min/max
     if (maximum < minimum)
     {
-        throw std::exception("maximum");
+        throw std::runtime_error("maximum");
     }
 
     // validate resolution
     if (resolution < 0.0f)
     {
-        throw std::exception("resolution");
+        throw std::runtime_error("resolution");
     }
 
     _min = minimum;

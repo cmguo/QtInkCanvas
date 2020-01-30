@@ -9,6 +9,7 @@
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
 #include "Internal/Ink/inkcanvasclipboardformat.h"
 #include "Windows/Ink/applicationgesture.h"
+#include "Windows/Ink/stylusshape.h"
 
 class InkCanvasSelection;
 class InkCanvasSelectionAdorner;
@@ -56,7 +57,7 @@ public:
     /// <summary>
     /// The static constructor
     /// </summary>
-    /*
+#if 0
     static InkCanvas()
     {
         Type ownerType = typeof(InkCanvas);
@@ -144,8 +145,9 @@ public:
         StyleProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(defaultStyle));
         DefaultStyleKeyProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(typeof(InkCanvas)));
 
-        FocusVisualStyleProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata((object)null /* default value /));
-    }*/
+        FocusVisualStyleProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata((object)null /* default value */));
+    }
+#endif
 
 private:
     Q_DISABLE_COPY(InkCanvas)
@@ -266,7 +268,7 @@ protected:
     //[AttachedPropertyBrowsableForChildren()]
     static double GetTop(UIElement* element)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         return element->GetValue<double>(TopProperty);
     }
 
@@ -278,7 +280,7 @@ protected:
     /// <seealso cref="InkCanvas.TopProperty" />
     static void SetTop(UIElement* element, double length)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         element->SetValue(TopProperty, length);
     }
 
@@ -297,7 +299,7 @@ protected:
     //[AttachedPropertyBrowsableForChildren()]
     static double GetBottom(UIElement* element)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         return element->GetValue<double>(BottomProperty);
     }
 
@@ -309,7 +311,7 @@ protected:
     /// <seealso cref="InkCanvas.BottomProperty" />
     static void SetBottom(UIElement* element, double length)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         element->SetValue(BottomProperty, length);
     }
 
@@ -328,7 +330,7 @@ protected:
     //[AttachedPropertyBrowsableForChildren()]
     static double GetLeft(UIElement* element)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         return element->GetValue<double>(LeftProperty);
     }
 
@@ -340,7 +342,7 @@ protected:
     /// <seealso cref="InkCanvas.LeftProperty" />
     static void SetLeft(UIElement* element, double length)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         element->SetValue(LeftProperty, length);
     }
 
@@ -359,7 +361,7 @@ protected:
     //[AttachedPropertyBrowsableForChildren()]
     static double GetRight(UIElement* element)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         return element->GetValue<double>(RightProperty);
     }
 
@@ -371,7 +373,7 @@ protected:
     /// <seealso cref="InkCanvas.RightProperty" />
     static void SetRight(UIElement* element, double length)
     {
-        if (element == nullptr) { throw new std::exception("element"); }
+        if (element == nullptr) { throw new std::runtime_error("element"); }
         element->SetValue(RightProperty, length);
     }
 
@@ -1146,7 +1148,7 @@ public:
 
    //     if ( value == nullptr )
    //     {
-    //        throw new std::exception("value");
+    //        throw new std::runtime_error("value");
     //    }
 
     //    ( (IAddChild)InnerCanvas ).AddChild(value);
@@ -1422,7 +1424,7 @@ private:
     ///                     before invoking the critical method.
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    /*
+#if 0
     static void _OnQueryCommandEnabled(object sender, CanExecuteRoutedEventArgs& args)
     {
         RoutedCommand command = (RoutedCommand)(args.Command);
@@ -1447,8 +1449,8 @@ private:
                 try
                 {
                     args.CanExecute = args.UserInitiated
-                                        ? inkCanvas.UserInitiatedCanPaste() /* Call UserInitiatedCanPaste when the query is initiated by user /
-                                        : inkCanvas.CanPaste() /* Call the public CanPaste if not /;
+                                        ? inkCanvas.UserInitiatedCanPaste() /* Call UserInitiatedCanPaste when the query is initiated by user */
+                                        : inkCanvas.CanPaste() /* Call the public CanPaste if not */;
                 }
                 catch ( System.Runtime.InteropServices.COMException )
                 {
@@ -1479,7 +1481,8 @@ private:
             args.Handled = true;
         }
 
-    }*/
+    }
+#endif
 
     InkCanvasClipboardDataFormats PrivateCopySelection();
 

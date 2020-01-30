@@ -10,7 +10,7 @@ void StylusPointProperty::Initialize(QUuid const & identifier, bool isButton)
         if (!isButton)
         {
             //error, this is a known button
-            throw std::exception("isButton");
+            throw std::runtime_error("isButton");
         }
     }
     else
@@ -18,7 +18,7 @@ void StylusPointProperty::Initialize(QUuid const & identifier, bool isButton)
         if (StylusPointPropertyIds::IsKnownId(identifier) && isButton)
         {
             //error, this is a known guid that is NOT a button
-            throw std::exception("isButton");
+            throw std::runtime_error("isButton");
         }
     }
 

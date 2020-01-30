@@ -904,7 +904,7 @@ void InkCanvasSelection::EnusreElementsBounds()
 QMatrix InkCanvasSelection::MapRectToRect(QRectF const & target, QRectF const & source)
 {
     if(source.isEmpty())
-        throw std::exception("source");
+        throw std::runtime_error("source");
     /*
     In the horizontal direction:
 

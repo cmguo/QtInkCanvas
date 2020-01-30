@@ -22,7 +22,7 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
         infos[RequiredYIndex].Id() != StylusPointPropertyIds::Y ||
         infos[RequiredPressureIndex].Id() != StylusPointPropertyIds::NormalPressure)
     {
-        throw std::exception("stylusPointPropertyInfos");
+        throw std::runtime_error("stylusPointPropertyInfos");
     }
 
     //
@@ -38,7 +38,7 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
     {
         if (seenIds.contains(infos[x].Id()))
         {
-            throw std::exception("stylusPointPropertyInfos");
+            throw std::runtime_error("stylusPointPropertyInfos");
         }
         if (infos[x].IsButton())
         {
@@ -49,14 +49,14 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
             //this is not a button, make sure we haven't seen one before
             if (buttonCount > 0)
             {
-                throw std::exception("stylusPointPropertyInfos");
+                throw std::runtime_error("stylusPointPropertyInfos");
             }
         }
         seenIds.push_back(infos[x].Id());
     }
     if (buttonCount > MaximumButtonCount)
     {
-        throw std::exception("stylusPointPropertyInfos");
+        throw std::runtime_error("stylusPointPropertyInfos");
     }
 
     _buttonCount = buttonCount;
@@ -110,7 +110,7 @@ StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(QUuid const & QU
     if (-1 == index)
     {
         //we didn't find it
-        throw std::exception("stylusPointProperty");
+        throw std::runtime_error("stylusPointProperty");
     }
     return _stylusPointPropertyInfos[index];
 }
@@ -200,7 +200,7 @@ int StylusPointDescription::GetButtonBitPosition(StylusPointProperty buttonPrope
 {
     if (!buttonProperty.IsButton())
     {
-        throw std::exception();
+        throw std::runtime_error("");
     }
     int buttonIndex = 0;
     for (int x = _stylusPointPropertyInfos.size() - _buttonCount; //start of the buttons
@@ -328,7 +328,7 @@ bool StylusPointDescription::IsSubsetOf(QSharedPointer<StylusPointDescription> s
 {
     if (nullptr == stylusPointDescriptionSuperset)
     {
-        throw std::exception("stylusPointDescriptionSuperset");
+        throw std::runtime_error("stylusPointDescriptionSuperset");
     }
     if (stylusPointDescriptionSuperset->_stylusPointPropertyInfos.size() < _stylusPointPropertyInfos.size())
     {

@@ -121,57 +121,57 @@ void StrokeCollectionSerializer::DecodeISF(QIODevice& inkData)
     catch (ArgumentException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
     catch (InvalidOperationException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
     catch (IndexOutOfRangeException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
     catch (NullReferenceException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
     catch (EndOfStreamException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
     catch (OverflowException ex)
     {
         //only include an inner exception in debug builds
-        throw std::exception(SR.Get(SRID.IsfOperationFailed), ex);
+        throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), ex);
     }
 #else
     //catch (ArgumentException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     //catch (InvalidOperationException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     //catch (IndexOutOfRangeException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     //catch (NullReferenceException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     //catch (EndOfStreamException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     //catch (OverflowException)
     //{
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed), "stream");//stream comes from StrokeCollection.ctor()
     //}
     catch (std::exception)
     {
@@ -206,7 +206,7 @@ quint32 StrokeCollectionSerializer::LoadStrokeIds(QIODevice& isfStream, quint32 
 
     cb = SerializationHelper::Decode(isfStream, count);
     if (cb > cbTotal)
-        throw std::exception("isfStream");
+        throw std::runtime_error("isfStream");
 
     cbTotal -= cb;
     if (0 == count)
@@ -220,12 +220,12 @@ quint32 StrokeCollectionSerializer::LoadStrokeIds(QIODevice& isfStream, quint32 
     quint32 bytesRead = ReliableRead(isfStream, inputdata, cb);
     if (cb != bytesRead)
     {
-        throw std::exception("isfStream");
+        throw std::runtime_error("isfStream");
     }
     cbTotal -= cb;
 
     if (0 != cbTotal)
-        throw std::exception("isfStream");
+        throw std::runtime_error("isfStream");
 
     return cbSize;
 }
@@ -324,7 +324,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
     // First make sure this ink is empty
     if (0 != _coreStrokes.size() || _coreStrokes.ExtendedProperties().Count() != 0)
     {
-        throw std::exception(("ISF decoder cannot operate on non-empty ink container"));
+        throw std::runtime_error(("ISF decoder cannot operate on non-empty ink container"));
     }
 #if OLD_ISF
     //
@@ -342,7 +342,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
     quint32 uiTag;
     quint32 localBytesDecoded = SerializationHelper::Decode(inputStream, uiTag);
     if (0x00 != uiTag)
-        throw std::exception("SR.Get(SRID.InvalidStream)");
+        throw std::runtime_error("SR.Get(SRID.InvalidStream)");
 
     // Now read the size of the stream
     localBytesDecoded = SerializationHelper::Decode(inputStream, remainingBytesInStream);
@@ -361,7 +361,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
             remainingBytesInStream -= localBytesDecoded;
         else
         {
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
         }
 
         qDebug() << ("Decoding Tag: ") << isfTag;
@@ -385,7 +385,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                     localBytesDecoded = SerializationHelper::Decode(inputStream, bytesDecodedInCurrentTag);
                     if (remainingBytesInStream < (localBytesDecoded + bytesDecodedInCurrentTag))
                     {
-                        throw std::exception("inputStream");
+                        throw std::runtime_error("inputStream");
                     }
 
                     remainingBytesInStream -= localBytesDecoded;
@@ -472,7 +472,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 // non-double transform table should have already been loaded
                                 if (!transformDecoded)
                                 {
-                                    throw std::exception(("Invalid ISF data"));
+                                    throw std::runtime_error(("Invalid ISF data"));
                                 }
 
                                 // Load double-sized Transform Table
@@ -506,7 +506,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
                                 localBytesDecoded = SerializationHelper::SignDecode(inputStream, sz);
                                 if (localBytesDecoded > remainingBytesInStream)
-                                    throw std::exception(("Invalid ISF data"));
+                                    throw std::runtime_error(("Invalid ISF data"));
 
                                 _himetricSize.setX((double)sz);
                                 localBytesDecoded += SerializationHelper::SignDecode(inputStream, sz);
@@ -524,7 +524,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 quint32 bytesRead = ReliableRead(inputStream, data, bytesDecodedInCurrentTag);
                                 if (bytesDecodedInCurrentTag != bytesRead)
                                 {
-                                    throw std::exception(("Read different size from stream then expected"), "isfStream");
+                                    throw std::runtime_error(("Read different size from stream then expected"), "isfStream");
                                 }
 
                                 quint32 size = bytesDecodedInCurrentTag;
@@ -539,7 +539,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 //      corrupted.
                                 if (size != bytesDecodedInCurrentTag)
                                 {
-                                    throw std::exception(("Compressor intialization reported inconsistent size"));
+                                    throw std::runtime_error(("Compressor intialization reported inconsistent size"));
                                 }
 #else
                                 //just advance the inputstream position, we don't need
@@ -569,7 +569,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                     if (oldStrokeDescriptorTableIndex != strokeDescriptorTableIndex)
                                     {
                                         if (_strokeDescriptorTable.size() <= strokeDescriptorTableIndex)
-                                            throw std::exception(("Invalid ISF data"));
+                                            throw std::runtime_error(("Invalid ISF data"));
                                     }
 
                                     strokeDescriptor = _strokeDescriptorTable[(int)strokeDescriptorTableIndex];
@@ -582,7 +582,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                     if (transformDecoded)
                                     {
                                         if (_transformTable.size() <= transformTableIndex)
-                                            throw std::exception(("Invalid ISF data"));
+                                            throw std::runtime_error(("Invalid ISF data"));
 
                                         // Load the transform descriptor based on the index from the list of unique
                                         // transforn descriptors
@@ -604,7 +604,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                     if (oldMetricDescriptorTableIndex != metricDescriptorTableIndex)
                                     {
                                         if (_metricTable.size() <= metricDescriptorTableIndex)
-                                            throw std::exception(("Invalid ISF data"));
+                                            throw std::runtime_error(("Invalid ISF data"));
                                     }
 
                                     metricBlock = _metricTable[(int)metricDescriptorTableIndex];
@@ -618,7 +618,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                     if (oldDrawingAttributesTableIndex != drawingAttributesTableIndex)
                                     {
                                         if (_drawingAttributesTable.size() <= drawingAttributesTableIndex)
-                                            throw std::exception(("Invalid ISF data"));
+                                            throw std::runtime_error(("Invalid ISF data"));
 
                                         oldDrawingAttributesTableIndex = drawingAttributesTableIndex;
                                     }
@@ -660,14 +660,14 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
                         default:
                             {
-                                throw std::exception(("Invalid ISF tag logic"));
+                                throw std::runtime_error(("Invalid ISF tag logic"));
                             }
                     }
 
                     // if this isfTag's decoded size != expected size, then error out
                     if (localBytesDecoded != bytesDecodedInCurrentTag)
                     {
-                        throw std::exception(("Invalid ISF data"));
+                        throw std::runtime_error(("Invalid ISF data"));
                     }
 
                     break;
@@ -741,7 +741,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         QUuid guid = guidList.FindGuid(isfTag);
                         if (guid == GuidList::Empty)
                         {
-                            throw std::exception(("Global Custom Attribute tag embedded in ISF stream does not match guid table"));
+                            throw std::runtime_error(("Global Custom Attribute tag embedded in ISF stream does not match guid table"));
                         }
 
 
@@ -751,7 +751,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         localBytesDecoded = ExtendedPropertySerializer::DecodeAsISF(inputStream, bytesDecodedInCurrentTag, guidList, isfTag, guid, data);
                         if (localBytesDecoded > bytesDecodedInCurrentTag)
                         {
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
                         }
 
 
@@ -765,7 +765,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         localBytesDecoded = SerializationHelper::Decode(inputStream, bytesDecodedInCurrentTag);
                         if (remainingBytesInStream < (localBytesDecoded + bytesDecodedInCurrentTag))
                         {
-                            throw std::exception(("Invalid ISF data"));
+                            throw std::runtime_error(("Invalid ISF data"));
                         }
                         else
                         {
@@ -780,14 +780,14 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
         qDebug() << ("    Size = ") << bytesDecodedInCurrentTag;
         if (bytesDecodedInCurrentTag > remainingBytesInStream)
         {
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
         }
 
         // update remaining ISF buffer length with decoded so far
         remainingBytesInStream -= bytesDecodedInCurrentTag;
     }
     if (0 != remainingBytesInStream)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 }
 
 /// <summary>
@@ -811,12 +811,12 @@ quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList
         quint32 cb = SerializationHelper::Decode(strm, cbDA);
 
         if (cbSize < cb)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
         if (cbTotal < cbDA)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
 
@@ -829,7 +829,7 @@ quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList
 
         // Load the stream into this attribute
         if (cbSize < cbDA)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cbDA;
@@ -839,7 +839,7 @@ quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList
     }
 
     if (0 != cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
 
     return cbSize;
@@ -871,7 +871,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
         cb = SerializationHelper::Decode(strm, uiTag);
         tag = (KnownTagCache::KnownTagIndex)uiTag;
         if (cb > cbBlock)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
         cbBlock -= cb;
         descr->Template.append(tag);
@@ -884,7 +884,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
             // Read the no. of buttons first
             cb = SerializationHelper::Decode(strm, cbButton);
             if (cb > cbBlock)
-                throw std::exception(("Invalid ISF data"));
+                throw std::runtime_error(("Invalid ISF data"));
 
             cbBlock -= cb;
             descr->Template.append((KnownTagCache::KnownTagIndex)cbButton);
@@ -894,7 +894,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
 
                 cb = SerializationHelper::Decode(strm, dw);
                 if (cb > cbBlock)
-                    throw std::exception(("Invalid ISF data"));
+                    throw std::runtime_error(("Invalid ISF data"));
 
                 cbBlock -= cb;
                 cbButton--;
@@ -911,7 +911,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
 
                 cb = SerializationHelper::Decode(strm, dw);
                 if (cb > cbBlock)
-                    throw std::exception(("Invalid ISF data"));
+                    throw std::runtime_error(("Invalid ISF data"));
 
                 cbBlock -= cb;
                 descr->Template.append((KnownTagCache::KnownTagIndex)dw);
@@ -920,7 +920,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
     }
 
     if (0 != cbBlock)
-        throw std::exception("strm");
+        throw std::runtime_error("strm");
 
     return cbSize;
 }
@@ -943,7 +943,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorBlock(QIODevice& strm,
     quint32 cbRead = DecodeStrokeDescriptor(strm, cbSize, descr);
 
     if (cbRead != cbSize)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     _strokeDescriptorTable.append(descr);
     return cbRead;
@@ -973,12 +973,12 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm,
 
         cb = SerializationHelper::Decode(strm, cbBlock);
         if (cb > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
         if (cbBlock > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
 
@@ -986,7 +986,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm,
 
         cb = DecodeStrokeDescriptor(strm, cbBlock, descr);
         if (cb != cbBlock)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
@@ -996,7 +996,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm,
     }
 
     if (0 != cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
 
     return cbSize;
@@ -1028,7 +1028,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricTable(QIODevice& strm, quint32 c
 
         cb = SerializationHelper::Decode(strm, dw);
         if (cb + dw > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
@@ -1037,7 +1037,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricTable(QIODevice& strm, quint32 c
 
         cb = DecodeMetricBlock(strm, dw, newblock);
         if (cb != dw)
-            throw std::exception("strm");
+            throw std::runtime_error("strm");
 
 
         cbTotal -= cb;
@@ -1045,7 +1045,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricTable(QIODevice& strm, quint32 c
     }
 
     if (0 != cbTotal)
-        throw std::exception("strm");
+        throw std::runtime_error("strm");
 
 
     return cbSize;
@@ -1077,7 +1077,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricBlock(QIODevice& strm, quint32 c
 
         cb = SerializationHelper::Decode(strm, dw);
         if (cb > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
@@ -1085,7 +1085,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricBlock(QIODevice& strm, quint32 c
         // Next read the size of the metric data
         cb = SerializationHelper::Decode(strm, size);
         if (cb + size > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         cbTotal -= cb;
@@ -1113,7 +1113,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricBlock(QIODevice& strm, quint32 c
     }
 
     if (0 != cbTotal)
-        throw std::exception("strm");
+        throw std::runtime_error("strm");
 
 
     return cbSize;
@@ -1151,7 +1151,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformTable(QIODevice& strm, quint3
         cb = SerializationHelper::Decode(strm, uiTag);
         tag = (KnownTagCache::KnownTagIndex)uiTag;
         if (cb > cbTotal)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
         cbTotal -= cb;
 
@@ -1172,7 +1172,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformTable(QIODevice& strm, quint3
     }
 
     if (0 != cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     return cbSize;
 }
@@ -1188,7 +1188,7 @@ quint32 StrokeCollectionSerializer::ReliableRead(QIODevice& stream, quint8* buff
 {
     if (buffer == nullptr)
     {
-        throw std::exception(("Invalid argument passed to ReliableRead"));
+        throw std::runtime_error(("Invalid argument passed to ReliableRead"));
     }
 
     // let's read the whole block into our buffer
@@ -1243,7 +1243,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
 
         cbRead = SerializationHelper::Decode(strm, angle);
         if (cbRead > cbSize)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         xform->Transform[0] = (double)angle;
@@ -1278,7 +1278,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformBlock(QIODevice& strm, KnownT
         }
 
         if (cbRead > cbSize)
-            throw std::exception(("Invalid ISF data"));
+            throw std::runtime_error(("Invalid ISF data"));
 
 
         for (int i = 0; i < xform->Size; i++)
@@ -1316,46 +1316,46 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
     //Left
     cb = SerializationHelper::SignDecode(strm, data);
     if (cb > cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     cbTotal -= cb;
     cbRead += cb;
     _inkSpaceRectangle.setX(data);
     if (cbRead > cbSize)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     //Top
     cb = SerializationHelper::SignDecode(strm, data);
     if (cb > cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     cbTotal -= cb;
     cbRead += cb;
     _inkSpaceRectangle.setY(data);
     if (cbRead > cbSize)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     //Right
     cb = SerializationHelper::SignDecode(strm, data);
     if (cb > cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     cbTotal -= cb;
     cbRead += cb;
     _inkSpaceRectangle.setWidth(data - _inkSpaceRectangle.left());
     if (cbRead > cbSize)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     //Bottom
     cb = SerializationHelper::SignDecode(strm, data);
     if (cb > cbTotal)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     cbTotal -= cb;
     cbRead += cb;
     _inkSpaceRectangle.setHeight(data - _inkSpaceRectangle.top());
     if (cbRead > cbSize)
-        throw std::exception(("Invalid ISF data"));
+        throw std::runtime_error(("Invalid ISF data"));
 
     return cbRead;
 }
@@ -1576,7 +1576,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
                     QUuid const & guid = guidList.FindGuid(strd->Template[cTags]);
                     if (guid == GuidList::Empty)
                     {
-                        throw std::exception(("Button guid tag embedded in ISF stream does not match guid table"));
+                        throw std::runtime_error(("Button guid tag embedded in ISF stream does not match guid table"));
                     }
 
                     buttonguids[(int)u] = guid;
@@ -1592,7 +1592,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
                 if (KnownTagCache::KnownTagIndex::NoX == tag ||
                     KnownTagCache::KnownTagIndex::NoY == tag)
                 {
-                    throw std::exception(("Invalid ISF with NoX or NoY specified"));
+                    throw std::runtime_error(("Invalid ISF with NoX or NoY specified"));
                 }
 
                 tags.append(strd->Template[cTags]);
@@ -1617,7 +1617,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
             QUuid const & guid = guidList.FindGuid(tags[i]);
             if (guid == GuidList::Empty)
             {
-                throw std::exception(("Packet Description Property tag embedded in ISF stream does not match guid table"));
+                throw std::runtime_error(("Packet Description Property tag embedded in ISF stream does not match guid table"));
             }
             if (pressureIndex == -1 && guid == StylusPointPropertyIds::NormalPressure)
             {
@@ -1726,7 +1726,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
                 qDebug() << ("Encoded InkSpaceRectangle: size=") << localEncodedSize;
 
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // First prepare the compressor. Currently Compression is not supported.
@@ -1745,7 +1745,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
                 qDebug() << ("Encoded PersistenceFormat: size=") << localEncodedSize;
 
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // Store any size information if necessary such as GIF image size
@@ -1759,7 +1759,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             qDebug() << ("Encoded Custom Guid Table: size=") << localEncodedSize;
 
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Now build the tables
         BuildTables(guidList);
@@ -1771,7 +1771,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         if (localEncodedSize != 0)
             qDebug() << ("Encoded DrawingAttributesTable: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Next write the stroke descriptor table
         localEncodedSize = cumulativeEncodedSize;
@@ -1780,7 +1780,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         if (localEncodedSize != 0)
             qDebug() << ("Encoded Packet Description: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Write the metric table
         localEncodedSize = cumulativeEncodedSize;
@@ -1789,7 +1789,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         if (localEncodedSize != 0)
             qDebug() << ("Encoded Metric Table: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Write the transform table
         localEncodedSize = cumulativeEncodedSize;
@@ -1798,7 +1798,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         if (localEncodedSize != 0)
             qDebug() << ("Encoded Transform Table: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Save global ink properties
         if (_coreStrokes.ExtendedProperties().Count() > 0)
@@ -1809,7 +1809,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             if (localEncodedSize != 0)
                 qDebug() << ("Encoded Global Ink Attributes Table: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // Save stroke ids
@@ -1819,7 +1819,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         if (localEncodedSize != 0)
             qDebug() << ("Encoded Stroke Id List: size=") << localEncodedSize;
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         StoreStrokeData(localStream, guidList, cumulativeEncodedSize, localEncodedSize);
 
@@ -1840,7 +1840,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
 
         if (cbFinal != outputStream.pos() - preEncodingPosition)
         {
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
     }
 }
@@ -1890,7 +1890,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             if (localEncodedSize != 0)
                 qDebug() << ("    Encoded DrawingAttribute Table Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // if the stroke descriptor index is different from the current one, write it
@@ -1904,7 +1904,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             if (localEncodedSize != 0)
                 qDebug() << ("    Encoded Stroke Descriptor Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // if the metric table index is different from the current one, write it
@@ -1918,7 +1918,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             if (localEncodedSize != 0)
                 qDebug() << ("    Encoded Metric Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // if the Transform index is different from the current one, write it
@@ -1932,7 +1932,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             if (localEncodedSize != 0)
                 qDebug() << ("    Encoded Transform Index: size=") << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
 
         // now create a separate Memory Stream object which will be used for storing the saved stroke data temporarily
@@ -1950,7 +1950,7 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
 
             if (cbStroke != tempstrm.size())
             {
-                throw std::exception(("Encoded stroke size != reported size"));
+                throw std::runtime_error(("Encoded stroke size != reported size"));
             }
 
             // Now write the tag KnownTagCache::KnownTagIndex::Stroke
@@ -1968,10 +1968,10 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
             if (localEncodedSize != 0)
                 qDebug() << ("Encoding Stroke Id#") << strokeIds[i] << " size=" << localEncodedSize;
             if (cumulativeEncodedSize != localStream.size())
-                throw std::exception(("Calculated ISF stream size != actual stream size"));
+                throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
         }
         if (cumulativeEncodedSize != localStream.size())
-            throw std::exception(("Calculated ISF stream size != actual stream size"));
+            throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
     }
 }
 

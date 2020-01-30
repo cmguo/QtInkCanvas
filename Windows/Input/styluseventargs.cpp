@@ -21,7 +21,7 @@ StylusEventArgs::StylusEventArgs(StylusDevice* stylus, int timestamp)
 {
     if( stylus == nullptr )
     {
-        throw std::exception("stylus");
+        throw std::runtime_error("stylus");
     }
 }
 

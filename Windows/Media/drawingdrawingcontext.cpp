@@ -1156,7 +1156,7 @@ void DrawingDrawingContext::DrawingDrawingContext::Pop()
     // Verify that Pop hasn't been called too many times
     if ( _previousDrawingGroupStack.size() == 0)
     {
-        throw std::exception("SR.Get(SRID.DrawingContext_TooManyPops)");
+        throw std::runtime_error("SR.Get(SRID.DrawingContext_TooManyPops)");
     }
 
     // Restore the previous value of the current drawing group
@@ -1357,7 +1357,7 @@ void DrawingDrawingContext::VerifyNotDisposed()
 {
     if (_disposed)
     {
-        throw std::exception("DrawingDrawingContext");
+        throw std::runtime_error("DrawingDrawingContext");
     }
 }
 

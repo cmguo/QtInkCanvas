@@ -1,7 +1,8 @@
 #ifndef ERASERBEHAVIOR_H
 #define ERASERBEHAVIOR_H
 
-#include "styluseditingbehavior.h"
+#include "Internal/Ink/styluseditingbehavior.h"
+#include "Windows/Ink/incrementalhittester.h"
 
 class StylusShape;
 class IncrementalStrokeHitTester;

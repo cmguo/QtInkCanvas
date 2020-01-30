@@ -125,7 +125,7 @@ public:
     {
         if (value.isNull())
         {
-            throw std::exception("value");
+            throw std::runtime_error("value");
         }
 
         // validate the type information for the id against the id

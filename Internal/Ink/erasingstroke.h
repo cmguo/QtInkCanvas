@@ -1,7 +1,8 @@
 #ifndef ERASINGSTROKE_H
 #define ERASINGSTROKE_H
 
-#include "strokenodeiterator.h"
+#include "Internal/Ink/strokenodeiterator.h"
+#include "Internal/Ink/strokenode.h"
 
 class StylusShape;
 

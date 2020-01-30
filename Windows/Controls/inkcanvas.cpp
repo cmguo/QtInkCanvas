@@ -561,7 +561,7 @@ void InkCanvas::SetEraserShape(StylusShape * value)
     VerifyAccess();
     if (value == nullptr)
     {
-        throw new std::exception("value");
+        throw new std::runtime_error("value");
     }
     else
     {
@@ -700,7 +700,7 @@ void InkCanvas::SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescr
     //
     if ( value == nullptr )
     {
-        throw new std::exception("value");
+        throw new std::runtime_error("value");
     }
 
     _defaultStylusPointDescription = value;
@@ -724,7 +724,7 @@ void InkCanvas::SetPreferredPasteFormats(QList<InkCanvasClipboardFormat> value)
     //if ( value == nullptr )
     //{
         // Null is not allowed as the argument value
-    //    throw new std::exception("value");
+    //    throw new std::runtime_error("value");
     //}
 
     GetClipboardProcessor().SetPreferredFormats(value);
@@ -764,7 +764,7 @@ void InkCanvas::OnStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
 
     RaiseEvent(e);
@@ -797,6 +797,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
             }
         });
 
+#if TARGET_OS_WIN32
         //
         // perform gesture reco before raising this event
         // if we're in the right mode
@@ -850,6 +851,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
                 }
             }
         }
+#endif
 
         // Reset the flag.
         addStrokeToInkCanvas = false;
@@ -891,7 +893,7 @@ void InkCanvas::OnGesture(InkCanvasGestureEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
 
     RaiseEvent(e);
@@ -909,7 +911,7 @@ void InkCanvas::OnStrokesReplaced(InkCanvasStrokesReplacedEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != StrokesReplaced)
     //{
@@ -929,7 +931,7 @@ void InkCanvas::OnDefaultDrawingAttributesReplaced(DrawingAttributesReplacedEven
 
     //if (e == nullptr)
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != DefaultDrawingAttributesReplaced)
     //{
@@ -965,7 +967,7 @@ void InkCanvas::OnActiveEditingModeChanged(RoutedEventArgs& e)
 
     //if (e == nullptr)
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
 
     RaiseEvent(e);
@@ -1024,7 +1026,7 @@ void InkCanvas::OnEditingModeChanged2(RoutedEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
 
     RaiseEvent(e);
@@ -1063,7 +1065,7 @@ void InkCanvas::OnEditingModeInvertedChanged2(RoutedEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
 
     RaiseEvent(e);
@@ -1094,7 +1096,7 @@ void InkCanvas::OnSelectionMoving( InkCanvasSelectionEditingEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionMoving)
     //{
@@ -1124,7 +1126,7 @@ void InkCanvas::OnSelectionMoved(EventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionMoved)
     //{
@@ -1159,7 +1161,7 @@ void InkCanvas::OnStrokeErasing(InkCanvasStrokeErasingEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != StrokeErasing)
     //{
@@ -1193,7 +1195,7 @@ void InkCanvas::OnStrokeErased(RoutedEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     RaiseEvent(e);
 }
@@ -1218,7 +1220,7 @@ void InkCanvas::OnSelectionResizing( InkCanvasSelectionEditingEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionResizing)
     //{
@@ -1248,7 +1250,7 @@ void InkCanvas::OnSelectionResized(EventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionResized)
     //{
@@ -1280,7 +1282,7 @@ void InkCanvas::OnSelectionChanging(InkCanvasSelectionChangingEventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionChanging)
     //{
@@ -1309,7 +1311,7 @@ void InkCanvas::OnSelectionChanged(EventArgs& e)
 
     //if ( e == nullptr )
     //{
-    //    throw new std::exception("e");
+    //    throw new std::runtime_error("e");
     //}
     //if (nullptr != SelectionChanged)
     //{
@@ -1351,7 +1353,11 @@ QList<ApplicationGesture> InkCanvas::GetEnabledGestures()
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
+#if TARGET_OS_WIN32
     return QList<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
+#else
+    return {};
+#endif
 }
 
 /// <summary>
@@ -1364,7 +1370,9 @@ void InkCanvas::SetEnabledGestures(QList<ApplicationGesture> applicationGestures
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
+#if TARGET_OS_WIN32
     GetGestureRecognizer().SetEnabledGestures(applicationGestures);
+#endif
 }
 
 /// <summary>
@@ -1520,7 +1528,7 @@ void InkCanvas::Paste(QPointF const &point)
         qIsInf(point.x())||
         qIsInf(point.y()) )
     {
-            throw std::exception("point");
+            throw std::runtime_error("point");
     }
 
 
@@ -1595,7 +1603,7 @@ bool InkCanvas::CanPaste()
 
 //     if ( value == nullptr )
 //     {
-//        throw new std::exception("value");
+//        throw new std::runtime_error("value");
 //    }
 
 //    ( (IAddChild)InnerCanvas ).AddChild(value);
@@ -2375,7 +2383,9 @@ GestureRecognizer& InkCanvas::GetGestureRecognizer()
 {
     if (_gestureRecognizer == nullptr)
     {
+#if TARGET_OS_WIN32
         _gestureRecognizer = new GestureRecognizer();
+#endif
     }
     return *_gestureRecognizer;
 }

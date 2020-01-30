@@ -60,9 +60,9 @@ public:
 
     UIElement* Captured();
 
-    virtual UIElement* Target();
+    virtual UIElement* Target() override;
 
-    virtual PresentationSource* ActiveSource();
+    virtual PresentationSource* ActiveSource() override;
 
     virtual QSharedPointer<StylusPointDescription> PointDescription() override;
 

@@ -1,5 +1,5 @@
 include(InkSerializedFormat/InkSerializedFormat.pri)
-include(GestureRecognition/GestureRecognition.pri)
+win32: include(GestureRecognition/GestureRecognition.pri)
 
 HEADERS += \
     $$PWD/bezier.h \

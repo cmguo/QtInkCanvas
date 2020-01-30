@@ -46,11 +46,11 @@ StylusPoint::StylusPoint(
 {
     if (qIsNaN(x))
     {
-        throw std::exception("x");
+        throw std::runtime_error("x");
     }
     if (qIsNaN(y))
     {
-        throw std::exception("y");
+        throw std::runtime_error("y");
     }
 
 
@@ -58,7 +58,7 @@ StylusPoint::StylusPoint(
     if (validatePressureFactor &&
         (qIsNaN(pressureFactor) || pressureFactor < 0.0f || pressureFactor > 1.0f))
     {
-        throw std::exception("pressureFactor");
+        throw std::runtime_error("pressureFactor");
     }
     //
     // only accept values between MaxXY and MinXY
@@ -78,7 +78,7 @@ StylusPoint::StylusPoint(
         //
         if (nullptr == stylusPointDescription)
         {
-            throw std::exception("stylusPointDescription");
+            throw std::runtime_error("stylusPointDescription");
         }
 
 
@@ -90,7 +90,7 @@ StylusPoint::StylusPoint(
             int expectedAdditionalValues = properties.size() - StylusPointDescription::RequiredCountOfProperties; //for x, y, pressure
             if (additionalValues.size() != expectedAdditionalValues)
             {
-                throw std::exception("additionalValues");
+                throw std::runtime_error("additionalValues");
             }
 
             //
@@ -118,7 +118,7 @@ void StylusPoint::SetX(double value)
 {
     if (qIsNaN(value))
     {
-        throw std::exception("X");
+        throw std::runtime_error("X");
     }
     //
     // only accept values between MaxXY and MinXY
@@ -132,7 +132,7 @@ void StylusPoint::SetY(double value)
 {
     if (qIsNaN(value))
     {
-        throw std::exception("Y");
+        throw std::runtime_error("Y");
     }
     //
     // only accept values between MaxXY and MinXY
@@ -165,7 +165,7 @@ void StylusPoint::SetPressureFactor(float value)
 {
     if (value < 0.0f || value > 1.0f)
     {
-        throw std::exception("PressureFactor");
+        throw std::runtime_error("PressureFactor");
     }
     _pressureFactor = value;
 }
@@ -232,7 +232,7 @@ int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty)
         int propertyIndex = Description()->GetPropertyIndex(stylusPointProperty.Id());
         if (-1 == propertyIndex)
         {
-            throw std::exception("stylusPointProperty");
+            throw std::runtime_error("stylusPointProperty");
         }
         if (stylusPointProperty.IsButton())
         {
@@ -315,13 +315,13 @@ void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, in
         int propertyIndex = Description()->GetPropertyIndex(stylusPointProperty.Id());
         if (-1 == propertyIndex)
         {
-            throw std::exception("propertyId");
+            throw std::runtime_error("propertyId");
         }
         if (stylusPointProperty.IsButton())
         {
             if (value < 0 || value > 1)
             {
-                throw std::exception("value");
+                throw std::runtime_error("value");
             }
 
             if (copyBeforeWrite)

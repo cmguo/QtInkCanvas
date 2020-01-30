@@ -49,7 +49,7 @@ public:
             case 2: return _C;
             case 3: return _D;
             default:
-                throw new std::exception("index");
+                throw new std::runtime_error("index");
         }
     }
 

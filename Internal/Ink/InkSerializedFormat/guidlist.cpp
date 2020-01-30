@@ -100,7 +100,7 @@ QUuid const & GuidList::FindKnownGuid(KnownTagCache::KnownTagIndex tag)
 {
     if (tag < KnownIdCache::KnownGuidBaseIndex)
     {
-        throw std::exception(("Tag is outside of the known guid tag range"));
+        throw std::runtime_error(("Tag is outside of the known guid tag range"));
     }
 
     // Get the index in the OriginalISFIdTable array first
@@ -124,7 +124,7 @@ QUuid const & GuidList::FindCustomGuid(KnownTagCache::KnownTagIndex tag)
 {
     if ((int)tag < (int)KnownIdCache::CustomGuidBaseIndex)
     {
-        throw std::exception(("Tag is outside of the known guid tag range"));
+        throw std::runtime_error(("Tag is outside of the known guid tag range"));
     }
 
     // Get the index in the OriginalISFIdTable array first

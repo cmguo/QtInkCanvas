@@ -30,7 +30,7 @@ void Compressor::DecompressPacketData(
             //we don't raise any information that could be used to attack our ISF code
             //a simple 'ISF Operation Failed' is sufficient since the user can't do
             //anything to fix bogus ISF
-            throw std::exception("StrokeCollectionSerializer.ISFDebugMessage(SR.Get(SRID.DecompressPacketDataFailed))");
+            throw std::runtime_error("StrokeCollectionSerializer.ISFDebugMessage(SR.Get(SRID.DecompressPacketDataFailed))");
         }
 
         size = GetAlgoModule().DecompressPacketData(compressedInput, decompressedPackets);
@@ -47,7 +47,7 @@ QByteArray Compressor::DecompressPropertyData(QByteArray input)
         //we don't raise any information that could be used to attack our ISF code
         //a simple 'ISF Operation Failed' is sufficient since the user can't do
         //anything to fix bogus ISF
-        //throw std::exception();
+        //throw std::runtime_error();
     }
 
     QByteArray data = GetAlgoModule().DecompressPropertyData(input);
@@ -67,7 +67,7 @@ QByteArray Compressor::CompressPropertyData(QByteArray data, quint8 algorithm)
         //we don't raise any information that could be used to attack our ISF code
         //a simple 'ISF Operation Failed' is sufficient since the user can't do
         //anything to fix bogus ISF
-        //throw std::exception("data");
+        //throw std::runtime_error("data");
     }
 
     return GetAlgoModule().CompressPropertyData(data, algorithm);
@@ -112,7 +112,7 @@ QByteArray Compressor::CompressPacketData(
         //we don't raise any information that could be used to attack our ISF code
         //a simple 'ISF Operation Failed' is sufficient since the user can't do
         //anything to fix bogus ISF
-    //    throw std::exception(SR.Get(SRID.IsfOperationFailed));
+    //    throw std::runtime_error(SR.Get(SRID.IsfOperationFailed));
     }
 
     QByteArray data = GetAlgoModule().CompressPacketData(input, algorithm);

@@ -6,7 +6,11 @@
 #include <QRectF>
 #include <QList>
 
+#include <cmath>
+
 // namespace MS.Internal
+
+#undef DBL_EPSILON
 
 /// <summary>
 /// Utility to provide double calculations.
@@ -14,7 +18,7 @@
 struct DoubleUtil
 {
 public:
-    //static constexpr double DBL_EPSILON  =   2.2204460492503131e-016; /* smallest such that 1.0+DBL_EPSILON != 1.0 */
+    static constexpr double DBL_EPSILON  =   2.2204460492503131e-016; /* smallest such that 1.0+DBL_EPSILON != 1.0 */
     //static constexpr float  FLT_MIN      =   1.175494351e-38F; /* Number close to zero, where float.MinValue is -float.MaxValue */
 
     /// <summary>

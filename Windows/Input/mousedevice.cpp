@@ -13,8 +13,10 @@
 #include <QApplication>
 #include <QWidget>
 
+#if TARGET_OS_WIN32
 #include <Windows.h>
 #include <sysinfoapi.h>
+#endif
 
 MouseEvent::MouseEvent(int type)
     : RoutedEvent(type)
@@ -59,7 +61,11 @@ void Mouse::UpdateCursor(UIElement* element)
 
 int Mouse::GetTimestamp()
 {
+#if TARGET_OS_WIN32
     return ::GetTickCount();
+#else
+    return clock();
+#endif
 }
 
 MouseDevice::MouseDevice()

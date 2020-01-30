@@ -38,7 +38,7 @@ StrokeCollection::StrokeCollection(QVector<QSharedPointer<Stroke>> const & strok
         {
             //clear and throw
             clear();
-            throw std::exception("strokes");
+            throw std::runtime_error("strokes");
         }
         append(stroke);
     }
@@ -50,17 +50,17 @@ StrokeCollection::StrokeCollection(QIODevice * stream)
 {
     if ( stream == nullptr )
     {
-        throw std::exception("stream");
+        throw std::runtime_error("stream");
     }
     if ( !stream->isReadable() )
     {
-        throw std::exception("stream");
+        throw std::runtime_error("stream");
     }
 
     QIODevice * seekableStream = GetSeekableStream(stream);
     if (seekableStream == nullptr)
     {
-        throw std::exception("stream");
+        throw std::runtime_error("stream");
     }
 
     //this will init our stroke collection
@@ -77,11 +77,11 @@ void StrokeCollection::Save(QIODevice * stream, bool compress)
 {
     if ( stream == nullptr )
     {
-        throw std::exception("stream");
+        throw std::runtime_error("stream");
     }
     if ( !stream->isWritable() )
     {
-        throw std::exception("stream");
+        throw std::runtime_error("stream");
     }
     SaveIsf(stream, compress);
 }
@@ -182,7 +182,7 @@ QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId)
 {
     if ( propertyDataId == QUuid() )
     {
-        throw std::exception("propertyDataId");
+        throw std::runtime_error("propertyDataId");
     }
 
     return (*_extendedProperties)[propertyDataId];
@@ -220,7 +220,7 @@ void StrokeCollection::Transform(QMatrix const & transformMatrix, bool applyToSt
 {
     // Ensure that the transformMatrix is invertible.
     if ( false == transformMatrix.isInvertible() )
-        throw std::exception("transformMatrix");
+        throw std::runtime_error("transformMatrix");
 
     // if transformMatrix is identity or the StrokeCollection is empty
     //      then no change will occur anyway
@@ -318,11 +318,11 @@ void StrokeCollection::InsertItem(int index, QSharedPointer<Stroke> stroke)
 {
     if ( stroke == nullptr )
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
     if ( IndexOf(stroke) != -1 )
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
 
     insert(index, stroke);
@@ -339,11 +339,11 @@ void StrokeCollection::SetItem(int index, QSharedPointer<Stroke> stroke)
 {
     if ( stroke == nullptr )
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
     if ( IndexOf(stroke) != -1 )
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
 
     QSharedPointer<Stroke> removedStroke = (*this)[index];
@@ -436,7 +436,7 @@ void StrokeCollection::Add(QSharedPointer<StrokeCollection> strokes)
         QSharedPointer<Stroke> stroke = (*strokes)[x];
         if ( indexOf(stroke) != -1 )
         {
-            throw std::exception("strokes");
+            throw std::runtime_error("strokes");
         }
     }
 
@@ -457,7 +457,7 @@ void StrokeCollection::Replace(QSharedPointer<Stroke> strokeToReplace, QSharedPo
 {
     if ( strokeToReplace == nullptr )
     {
-        throw std::exception("SR.Get(SRID.EmptyScToReplace)");
+        throw std::runtime_error("SR.Get(SRID.EmptyScToReplace)");
     }
 
     QSharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection);
@@ -475,13 +475,13 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
     int replaceCount = strokesToReplace->size();
     if ( replaceCount == 0 )
     {
-        throw std::exception("strokesToReplace");
+        throw std::runtime_error("strokesToReplace");
     }
 
     QVector<int> indexes = GetStrokeIndexes(strokesToReplace);
     if ( indexes.size() == 0 )
     {
-        throw std::exception("strokesToReplace");
+        throw std::runtime_error("strokesToReplace");
     }
 
     //validate that none of the relplaceWith strokes exist in the collection
@@ -490,7 +490,7 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
         QSharedPointer<Stroke> stroke = (*strokesToReplaceWith)[x];
         if ( IndexOf(stroke) != -1 )
         {
-            throw std::exception("strokesToReplaceWith");
+            throw std::runtime_error("strokesToReplaceWith");
         }
     }
 
@@ -792,7 +792,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QPointF const & point
 {
     if (qIsNaN(diameter) || diameter < DrawingAttributes::MinWidth || diameter > DrawingAttributes::MaxWidth)
     {
-        throw std::exception("diameter");
+        throw std::runtime_error("diameter");
     }
     EllipseStylusShape stylusShape(diameter, diameter);
     return PointHitTest(point, stylusShape);
@@ -810,11 +810,11 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
     // Check the input parameters
     //if (lassoPoints == nullptr)
     //{
-    //    throw std::exception("lassoPoints");
+    //    throw std::runtime_error("lassoPoints");
     //}
     if ((percentageWithinLasso < 0) || (percentageWithinLasso > 100))
     {
-        throw std::exception("percentageWithinLasso");
+        throw std::runtime_error("percentageWithinLasso");
     }
 
     if (lassoPoints.size() < 3)
@@ -886,7 +886,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QRectF const & bounds
     // Check the input parameters
     if ((percentageWithinBounds < 0) || (percentageWithinBounds > 100))
     {
-        throw std::exception("percentageWithinBounds");
+        throw std::runtime_error("percentageWithinBounds");
     }
     if (bounds.isEmpty())
     {
@@ -924,11 +924,11 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
     // Check the input parameters
     //if (stylusShape == nullptr)
     //{
-    //    throw std::exception("stylusShape");
+    //    throw std::runtime_error("stylusShape");
     //}
     //if (path == nullptr)
     //{
-    //    throw std::exception("path");
+    //    throw std::runtime_error("path");
     //}
     if (path.size() == 0)
     {
@@ -971,13 +971,13 @@ void StrokeCollection::Clip(QVector<QPointF> const & lassoPoints)
     // Check the input parameters
     //if (lassoPoints == nullptr)
     //{
-    //    throw std::exception("lassoPoints");
+    //    throw std::runtime_error("lassoPoints");
     //}
 
     int length = lassoPoints.size();
     if (length == 0)
     {
-        throw std::exception("SR.Get(SRID.EmptyArray)");
+        throw std::runtime_error("SR.Get(SRID.EmptyArray)");
     }
 
     if (length < 3)
@@ -1025,12 +1025,12 @@ void StrokeCollection::Erase(QVector<QPointF> const & lassoPoints)
     // Check the input parameters
     //if (lassoPoints == nullptr)
     //{
-    //    throw std::exception("lassoPoints");
+    //    throw std::runtime_error("lassoPoints");
     //}
     int length = lassoPoints.size();
     if (length == 0)
     {
-        throw std::exception("SR.Get(SRID.EmptyArray)");
+        throw std::runtime_error("SR.Get(SRID.EmptyArray)");
     }
 
     if (length < 3)
@@ -1073,11 +1073,11 @@ void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& e
     // Check the input parameters
     //if (eraserShape == nullptr)
     //{
-    //    throw std::exception("SR.Get(SRID.SCEraseShape)");
+    //    throw std::runtime_error("SR.Get(SRID.SCEraseShape)");
     //}
     //if (eraserPath == nullptr)
     //{
-    //    throw std::exception(SR.Get(SRID.SCErasePath));
+    //    throw std::runtime_error(SR.Get(SRID.SCErasePath));
     //}
     if (eraserPath.size() == 0)
     {
@@ -1110,7 +1110,7 @@ void StrokeCollection::Draw(DrawingContext& context)
 {
     //if (nullptr == context)
     //{
-    //    throw std::exception("context");
+    //    throw std::runtime_error("context");
     //}
 
     //The verification of UI context affinity is done in Stroke.Draw()
@@ -1178,7 +1178,7 @@ IncrementalStrokeHitTester* StrokeCollection::GetIncrementalStrokeHitTester(Styl
 {
     //if (eraserShape == nullptr)
     //{
-    //    throw std::exception("eraserShape");
+    //    throw std::runtime_error("eraserShape");
     //}
     return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape);
 }
@@ -1193,7 +1193,7 @@ IncrementalLassoHitTester* StrokeCollection::GetIncrementalLassoHitTester(int pe
 {
     if ((percentageWithinLasso < 0) || (percentageWithinLasso > 100))
     {
-        throw std::exception("percentageWithinLasso");
+        throw std::runtime_error("percentageWithinLasso");
     }
     return new IncrementalLassoHitTester(sharedFromThis(), percentageWithinLasso);
 }

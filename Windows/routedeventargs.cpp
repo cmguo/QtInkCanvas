@@ -60,7 +60,7 @@ RoutedEvent& RoutedEventArgs::GetRoutedEvent()
 void RoutedEventArgs::SetRoutedEvent(RoutedEvent& value)
 {
      if (UserInitiated() && InvokingHandler())
-         throw std::exception("SR.Get(SRID.RoutedEventCannotChangeWhileRouting)");
+         throw std::runtime_error("SR.Get(SRID.RoutedEventCannotChangeWhileRouting)");
      _routedEvent = &value;
 }
 
@@ -99,7 +99,7 @@ void RoutedEventArgs::SetHandled(bool value)
 {
      //if (_routedEvent == nullptr)
      //{
-     //    throw std::exception(SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent));
+     //    throw std::runtime_error(SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent));
      //}
      //if( TraceRoutedEvent.IsEnabled )
      //{
@@ -146,10 +146,10 @@ DependencyObject* RoutedEventArgs::Source()
 void RoutedEventArgs::SetSource(DependencyObject* value)
 {
      if (InvokingHandler() && UserInitiated())
-         throw std::exception("SR.Get(SRID.RoutedEventCannotChangeWhileRouting)");
+         throw std::runtime_error("SR.Get(SRID.RoutedEventCannotChangeWhileRouting)");
      //if (_routedEvent == nullptr)
      //{
-     //    throw std::exception(SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent));
+     //    throw std::runtime_error(SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent));
      //}
      DependencyObject* source = value ;
      if (_source == nullptr && _originalSource == nullptr)
@@ -238,17 +238,17 @@ void RoutedEventArgs::InvokeEventHandler(RoutedEventHandler const & handler, Dep
 {
     //if (genericHandler == nullptr)
     //{
-    //    throw std::exception("genericHandler");
+    //    throw std::runtime_error("genericHandler");
     //}
 
     if (genericTarget == nullptr)
     {
-        throw std::exception("genericTarget");
+        throw std::runtime_error("genericTarget");
     }
 
     //if (_routedEvent == nullptr)
     //{
-    //    throw std::exception("SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent)");
+    //    throw std::runtime_error("SR.Get(SRID.RoutedEventArgsMustHaveRoutedEvent)");
     //}
 
     SetInvokingHandler(true);

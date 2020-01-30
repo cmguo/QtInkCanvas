@@ -183,7 +183,7 @@ MetricEntryType MetricEntry::CreateMetricEntry(StylusPointPropertyInfo propertyI
                 Initialize(propertyInfo, DefaultPropertyMetrics);
                 break;
             default:
-                throw std::exception(("MetricEntryType was persisted with Never flag which should never happen"));
+                throw std::runtime_error(("MetricEntryType was persisted with Never flag which should never happen"));
         }
     }
     return type;

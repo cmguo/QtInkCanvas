@@ -60,7 +60,7 @@ Stroke::Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointe
 {
     if (stylusPoints->size() == 0)
     {
-        throw std::exception("stylusPoints");
+        throw std::runtime_error("stylusPoints");
     }
 
     _drawingAttributes = drawingAttributes;
@@ -143,15 +143,15 @@ void Stroke::Transform(QMatrix transformMatrix, bool applyToStylusTip)
 
     if (!transformMatrix.isInvertible())
     {
-        throw std::exception("transformMatrix");
+        throw std::runtime_error("transformMatrix");
     }
     else if ( MatrixHelper::ContainsNaN(transformMatrix))
     {
-        throw std::exception("transformMatrix");
+        throw std::runtime_error("transformMatrix");
     }
     else if ( MatrixHelper::ContainsInfinity(transformMatrix))
     {
-        throw std::exception("transformMatrix");
+        throw std::runtime_error("transformMatrix");
     }
     else
     {
@@ -500,7 +500,7 @@ void Stroke::SetStylusPoints(QSharedPointer<StylusPointCollection> value)
     if (value->size() == 0)
     {
         //we don't allow this
-        throw new std::exception("StylusPoints");
+        throw new std::runtime_error("StylusPoints");
     }
 
     // Force a recaculation of the cached path geometry
@@ -950,7 +950,7 @@ void Stroke::Draw(DrawingContext &context)
 {
     //if (nullptr == context)
     //{
-    //    throw std::exception("context");
+    //    throw std::runtime_error("context");
     //}
 
     //our code never calls this public API so we can assume that opacity
@@ -971,7 +971,7 @@ void Stroke::Draw(DrawingContext & drawingContext, QSharedPointer<DrawingAttribu
 {
     //if (nullptr == drawingContext)
     //{
-    //    throw std::exception("context");
+    //    throw std::runtime_error("context");
     //}
 
 
@@ -1022,7 +1022,7 @@ QSharedPointer<StrokeCollection> Stroke::GetClipResult(QVector<QPointF> const & 
 {
     if (lassoPoints.count() == 0)
     {
-        throw std::exception("SR.Get(SRID.EmptyArray)");
+        throw std::runtime_error("SR.Get(SRID.EmptyArray)");
     }
 
     SingleLoopLasso lasso;
@@ -1050,7 +1050,7 @@ QSharedPointer<StrokeCollection> Stroke::GetEraseResult(QVector<QPointF> const &
 {
     if (lassoPoints.size() == 0)
     {
-        throw std::exception("SR.Get(SRID.EmptyArray)");
+        throw std::runtime_error("SR.Get(SRID.EmptyArray)");
     }
 
     SingleLoopLasso lasso;
@@ -1069,7 +1069,7 @@ QSharedPointer<StrokeCollection> Stroke::GetEraseResult(QVector<QPointF> const &
     // Check the input parameters
     //if (eraserShape == nullptr)
     //{
-    //    throw std::exception("eraserShape");
+    //    throw std::runtime_error("eraserShape");
     //}
 
     return Erase(EraseTest(eraserPath, eraserShape));
@@ -1097,7 +1097,7 @@ bool Stroke::HitTest(QPointF const & point, double diameter)
 {
     if (qIsNaN(diameter) || diameter < DrawingAttributes::MinWidth || diameter > DrawingAttributes::MaxWidth)
     {
-        throw std::exception("diameter");
+        throw std::runtime_error("diameter");
     }
     EllipseStylusShape stylusShape(diameter, diameter, TapHitRotation);
     return HitTest({point}, stylusShape);
@@ -1113,7 +1113,7 @@ bool Stroke::HitTest(QRectF const & bounds, int percentageWithinBounds)
 {
     if ((percentageWithinBounds < 0) || (percentageWithinBounds > 100))
     {
-        throw std::exception("percentageWithinBounds");
+        throw std::runtime_error("percentageWithinBounds");
     }
 
     if (percentageWithinBounds == 0)
@@ -1163,7 +1163,7 @@ bool Stroke::HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinL
 {
     if ((percentageWithinLasso < 0) || (percentageWithinLasso > 100))
     {
-        throw std::exception("percentageWithinLasso");
+        throw std::runtime_error("percentageWithinLasso");
     }
 
     if (percentageWithinLasso == 0)
@@ -1218,7 +1218,7 @@ bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape &stylusShape)
 {
     //if (stylusShape == nullptr)
     //{
-    //    throw std::exception("stylusShape");
+    //    throw std::runtime_error("stylusShape");
     //}
 
     if (path.size() == 0)
@@ -1271,7 +1271,7 @@ void Stroke::DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAtt
 {
     //if (nullptr == drawingContext)
     //{
-    //    throw std::exception("drawingContext");
+    //    throw std::runtime_error("drawingContext");
     //}
 
     if (_drawAsHollow == true)

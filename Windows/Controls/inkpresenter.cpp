@@ -231,7 +231,7 @@ Visual* InkPresenter::GetVisualChild(int index)
                 return _renderer->RootVisual();
 
             default:
-                throw std::exception("index");
+                throw std::runtime_error("index");
         }
     }
     else if (index == 0 && count == 1)
@@ -245,7 +245,7 @@ Visual* InkPresenter::GetVisualChild(int index)
             return Child();
         }
     }
-    throw std::exception("index");
+    throw std::runtime_error("index");
 }
 
 

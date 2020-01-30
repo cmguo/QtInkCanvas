@@ -2,6 +2,7 @@
 #define PENCONTEXTS_H
 
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
+#include "Windows/Input/StylusPlugIns/rawstylusinput.h"
 
 #include <QObject>
 #include <QMutex>

@@ -112,7 +112,7 @@ void DrawingAttributes::SetStylusTipTransform(QMatrix const & value)
     QMatrix const & m = value;
     if (m.dx() != 0 || m.dy() != 0)
     {
-        throw std::exception("value");
+        throw std::runtime_error("value");
     }
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
@@ -138,7 +138,7 @@ void DrawingAttributes::SetHeight(double value)
 {
     if (qIsNaN(value) || value < MinHeight || value > MaxHeight)
     {
-        throw std::exception("Height");
+        throw std::runtime_error("Height");
     }
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
@@ -162,7 +162,7 @@ void DrawingAttributes::SetWidth(double value)
 {
     if (qIsNaN(value) || value < MinWidth || value > MaxWidth)
     {
-        throw std::exception("Width");
+        throw std::runtime_error("Width");
     }
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
@@ -492,14 +492,14 @@ void DrawingAttributes::ValidateStylusTipTransform(QUuid const & propertyDataId,
     //  gets serialized as a String, but at runtime is a Matrix
     if (propertyData.isNull())
     {
-        throw std::exception("propertyData");
+        throw std::runtime_error("propertyData");
     }
     else if (propertyDataId == KnownIds::StylusTipTransform)
     {
         // StylusTipTransform gets serialized as a String, but at runtime is a Matrix
         if (propertyData.type() == QVariant::Type::String)
         {
-            throw std::exception("propertyData");
+            throw std::runtime_error("propertyData");
         }
     }
 }
@@ -753,7 +753,7 @@ QVariant DrawingAttributes::GetExtendedPropertyBackedProperty(QUuid const & id) 
         {
             return GetDefaultDrawingAttributeValue(id);
         }
-        throw std::exception("id");
+        throw std::runtime_error("id");
     }
     else
     {

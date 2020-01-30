@@ -21,7 +21,7 @@ MouseEventArgs::MouseEventArgs(MouseDevice* mouse, int timestamp)
 {
     if( mouse == nullptr )
     {
-        throw std::exception("mouse");
+        throw std::runtime_error("mouse");
     }
     _stylusDevice = nullptr;
 }
@@ -43,7 +43,7 @@ MouseEventArgs::MouseEventArgs(MouseDevice* mouse, int timestamp, StylusDevice* 
 {
     if( mouse == nullptr )
     {
-        throw std::exception("mouse");
+        throw std::runtime_error("mouse");
     }
     _stylusDevice = stylusDevice;
 }

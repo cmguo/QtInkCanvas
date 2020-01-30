@@ -11,7 +11,7 @@ InkCanvasStrokeCollectedEventArgs::InkCanvasStrokeCollectedEventArgs(QSharedPoin
 {
     if (stroke == nullptr)
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
     _stroke = stroke;
 }
@@ -26,11 +26,11 @@ InkCanvasStrokesReplacedEventArgs::InkCanvasStrokesReplacedEventArgs(QSharedPoin
 {
     if (newStrokes == nullptr)
     {
-        throw std::exception("newStrokes");
+        throw std::runtime_error("newStrokes");
     }
     if (previousStrokes == nullptr)
     {
-        throw std::exception("previousStrokes");
+        throw std::runtime_error("previousStrokes");
     }
     _newStrokes = newStrokes;
     _previousStrokes = previousStrokes;
@@ -44,11 +44,11 @@ InkCanvasSelectionChangingEventArgs::InkCanvasSelectionChangingEventArgs(QShared
 {
     if (selectedStrokes == nullptr)
     {
-        throw std::exception("selectedStrokes");
+        throw std::runtime_error("selectedStrokes");
     }
     //if (selectedElements == nullptr)
     //{
-    //    throw std::exception("selectedElements");
+    //    throw std::runtime_error("selectedElements");
     //}
     _strokes = selectedStrokes;
     //List<UIElement*> elements =
@@ -69,7 +69,7 @@ void InkCanvasSelectionChangingEventArgs::SetSelectedElements(QList<UIElement*> 
 {
     //if ( selectedElements == nullptr )
     //{
-    //    throw std::exception("selectedElements");
+    //    throw std::runtime_error("selectedElements");
     //}
 
     //List<UIElement*> elements =
@@ -88,7 +88,7 @@ void InkCanvasSelectionChangingEventArgs::SetSelectedStrokes(QSharedPointer<Stro
 {
     if ( selectedStrokes == nullptr )
     {
-        throw std::exception("selectedStrokes");
+        throw std::runtime_error("selectedStrokes");
     }
 
     _strokes = selectedStrokes;
@@ -127,7 +127,7 @@ InkCanvasStrokeErasingEventArgs::InkCanvasStrokeErasingEventArgs(QSharedPointer<
 {
     if (stroke == nullptr)
     {
-        throw std::exception("stroke");
+        throw std::runtime_error("stroke");
     }
     _stroke = stroke;
 }
@@ -144,21 +144,21 @@ InkCanvasGestureEventArgs::InkCanvasGestureEventArgs(QSharedPointer<StrokeCollec
 {
     if (strokes == nullptr)
     {
-        throw std::exception("strokes");
+        throw std::runtime_error("strokes");
     }
     if (strokes->size() < 1)
     {
-        throw std::exception("strokes");
+        throw std::runtime_error("strokes");
     }
     //if (gestureRecognitionResults == nullptr)
     //{
-    //    throw std::exception("strokes");
+    //    throw std::runtime_error("strokes");
     //}
     //QList<GestureRecognitionResult> results =
     //    new List<GestureRecognitionResult>(gestureRecognitionResults);
     if (gestureRecognitionResults.size() == 0)
     {
-        throw std::exception("gestureRecognitionResults");
+        throw std::runtime_error("gestureRecognitionResults");
     }
     _strokes = strokes;
     _gestureRecognitionResults = gestureRecognitionResults;

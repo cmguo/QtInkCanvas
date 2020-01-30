@@ -35,7 +35,7 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action)
     {
         if (action != NotifyCollectionChangedAction::Reset)
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         InitializeAdd(action, QVariantList(), -1);
     }
@@ -49,12 +49,12 @@ public:
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
             if (!changedItem.isNull())
-                throw std::exception("action");
+                throw std::runtime_error("action");
 
             InitializeAdd(action, QVariantList(), -1);
         }
@@ -74,14 +74,14 @@ public:
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
             if (!changedItem.isNull())
-                throw std::exception("action");
+                throw std::runtime_error("action");
             if (index != -1)
-                throw std::exception("action");
+                throw std::runtime_error("action");
 
             InitializeAdd(action, QVariantList(), -1);
         }
@@ -100,19 +100,19 @@ public:
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
             if (changedItems.isEmpty())
-                throw std::exception("action");
+                throw std::runtime_error("action");
 
             InitializeAdd(action, QVariantList(), -1);
         }
         else
         {
             if (changedItems.isEmpty())
-                throw std::exception("changedItems");
+                throw std::runtime_error("changedItems");
 
             InitializeAddOrRemove(action, changedItems, -1);
         }
@@ -128,23 +128,23 @@ public:
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
             if (!changedItems.isEmpty())
-                throw std::exception("action");
+                throw std::runtime_error("action");
             if (startingIndex != -1)
-                throw std::exception("action");
+                throw std::runtime_error("action");
 
             InitializeAdd(action, QVariantList(), -1);
         }
         else
         {
             if (changedItems.isEmpty())
-                throw std::exception("changedItems");
+                throw std::runtime_error("changedItems");
             if (startingIndex < -1)
-                throw std::exception("startingIndex");
+                throw std::runtime_error("startingIndex");
 
             InitializeAddOrRemove(action, changedItems, startingIndex);
         }
@@ -159,7 +159,7 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant newItem, QVariant oldItem)
     {
         if (action != NotifyCollectionChangedAction::Replace)
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         InitializeMoveOrReplace(action, QVariantList({newItem}), QVariantList({oldItem}), -1, -1);
     }
@@ -174,7 +174,7 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant newItem, QVariant oldItem, int index)
     {
         if (action != NotifyCollectionChangedAction::Replace)
-            throw std::exception("action");
+            throw std::runtime_error("action");
 
         int oldStartingIndex = index;
 
@@ -199,11 +199,11 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems)
     {
         if (action != NotifyCollectionChangedAction::Replace)
-            throw std::exception("action");
+            throw std::runtime_error("action");
         if (newItems.isEmpty())
-            throw std::exception("newItems");
+            throw std::runtime_error("newItems");
         if (oldItems.isEmpty())
-            throw std::exception("oldItems");
+            throw std::runtime_error("oldItems");
 
         InitializeMoveOrReplace(action, newItems, oldItems, -1, -1);
     }
@@ -218,11 +218,11 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems, int startingIndex)
     {
         if (action != NotifyCollectionChangedAction::Replace)
-            throw std::exception("action");
+            throw std::runtime_error("action");
         if (newItems.isEmpty())
-            throw std::exception("newItems");
+            throw std::runtime_error("newItems");
         if (oldItems.isEmpty())
-            throw std::exception("oldItems");
+            throw std::runtime_error("oldItems");
 
         InitializeMoveOrReplace(action, newItems, oldItems, startingIndex, startingIndex);
     }
@@ -237,9 +237,9 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant changedItem, int index, int oldIndex)
     {
         if (action != NotifyCollectionChangedAction::Move)
-            throw std::exception("action");
+            throw std::runtime_error("action");
         if (index < 0)
-            throw std::exception("index");
+            throw std::runtime_error("index");
 
         QVariantList changedItems= {changedItem};
         InitializeMoveOrReplace(action, changedItems, changedItems, index, oldIndex);
@@ -255,9 +255,9 @@ public:
     NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList changedItems, int index, int oldIndex)
     {
         if (action != NotifyCollectionChangedAction::Move)
-            throw std::exception("action");
+            throw std::runtime_error("action");
         if (index < 0)
-            throw std::exception("index");
+            throw std::runtime_error("index");
 
         InitializeMoveOrReplace(action, changedItems, changedItems, index, oldIndex);
     }
@@ -291,7 +291,7 @@ private:
         else if (action == NotifyCollectionChangedAction::Remove)
             InitializeRemove(action, changedItems, startingIndex);
         else
-            throw std::exception(QString("Unsupported action: %s").arg(action).toUtf8());
+            throw std::runtime_error(QString("Unsupported action: %s").arg(action).toUtf8());
     }
 
     void InitializeAdd(NotifyCollectionChangedAction action, QVariantList newItems, int newStartingIndex)

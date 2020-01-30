@@ -2,6 +2,7 @@
 #define STROKENODEITERATOR_H
 
 #include "Windows/Ink/stroke.h"
+#include "Internal/Ink/strokenodeoperations.h"
 
 class StrokeNodeOperations;
 class StrokeNode;
@@ -113,7 +114,7 @@ public:
     /// <returns></returns>
     StrokeNode GetNode(int index, int previousIndex);
 
-    friend bool operator!=(StrokeNodeIterator const & l, nullptr_t r)
+    friend bool operator!=(StrokeNodeIterator const & l, nullptr_t)
     {
         return l._stylusPoints != nullptr;
     }

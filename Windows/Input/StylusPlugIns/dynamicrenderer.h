@@ -66,31 +66,31 @@ public:
     /// [TBS] - On app Dispatcher
     /// </summary>
 protected:
-    virtual void OnAdded();
+    virtual void OnAdded() override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS] - On app dispatcher
     /// </summary>
-    virtual void OnRemoved();
+    virtual void OnRemoved() override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS] - On UIContext
     /// </summary>
-    virtual void OnIsActiveForInputChanged();
+    virtual void OnIsActiveForInputChanged() override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS] - On pen threads or app thread
     /// </summary>
-    virtual void OnStylusEnter(RawStylusInput& rawStylusInput, bool confirmed);
+    virtual void OnStylusEnter(RawStylusInput& rawStylusInput, bool confirmed) override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS] - On pen threads or app thread
     /// </summary>
-    virtual void OnStylusLeave(RawStylusInput& rawStylusInput, bool confirmed);
+    virtual void OnStylusLeave(RawStylusInput& rawStylusInput, bool confirmed) override;
 
 private:
     void HandleStylusEnterLeave(RawStylusInput& rawStylusInput, bool isEnter, bool isConfirmed);
@@ -100,25 +100,25 @@ protected:
     /// <summary>
     /// [TBS] - On UIContext
     /// </summary>
-    virtual void OnEnabledChanged();
+    virtual void OnEnabledChanged() override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS]
     /// </summary>
-    virtual void OnStylusDown(RawStylusInput& rawStylusInput);
+    virtual void OnStylusDown(RawStylusInput& rawStylusInput) override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS]
     /// </summary>
-    virtual void OnStylusMove(RawStylusInput& rawStylusInput);
+    virtual void OnStylusMove(RawStylusInput& rawStylusInput) override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS]
     /// </summary>
-    virtual void OnStylusUp(RawStylusInput& rawStylusInput);
+    virtual void OnStylusUp(RawStylusInput& rawStylusInput) override;
 
 private:
     bool IsStylusUp(int stylusId);
@@ -140,13 +140,13 @@ private:
     /// <summary>
     /// [TBS]
     /// </summary>
-    void OnStylusDownProcessed(void* callbackData, bool targetVerified);
+    virtual void OnStylusDownProcessed(void* callbackData, bool targetVerified) override;
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS]
     /// </summary>
-    virtual void OnStylusUpProcessed(void* callbackData, bool targetVerified);
+    virtual void OnStylusUpProcessed(void* callbackData, bool targetVerified) override;
 
     void OnInternalRenderComplete(EventArgs& e);
 

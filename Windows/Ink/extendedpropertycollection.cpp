@@ -100,7 +100,7 @@ void ExtendedPropertyCollection::Add(QUuid const& id, QVariant value)
 {
     if (Contains(id))
     {
-        throw std::exception("id");
+        throw std::runtime_error("id");
     }
 
     ExtendedProperty extendedProperty(id, value);
@@ -118,7 +118,7 @@ void ExtendedPropertyCollection::Remove(QUuid const& id)
 {
     if (!Contains(id))
     {
-        throw std::exception("id");
+        throw std::runtime_error("id");
     }
 
     ExtendedProperty* propertyToRemove = GetExtendedPropertyById(id);
@@ -175,7 +175,7 @@ QVariant ExtendedPropertyCollection::operator[](QUuid const& attributeId)
         ExtendedProperty* ep = GetExtendedPropertyById(attributeId);
         if (ep == nullptr )
         {
-            throw std::exception("attributeId");
+            throw std::runtime_error("attributeId");
         }
         return ep->Value();
 }
@@ -184,7 +184,7 @@ void ExtendedPropertyCollection::Set(QUuid const& attributeId, QVariant value)
 {
     if (value.isNull() )
     {
-        throw std::exception("value");
+        throw std::runtime_error("value");
     }
     for (int i = 0; i < _extendedProperties.size(); i++)
     {

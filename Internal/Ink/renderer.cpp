@@ -26,7 +26,7 @@ public:
 
         if (stroke == nullptr)
         {
-            throw std::exception("stroke");
+            throw std::runtime_error("stroke");
         }
 
         _stroke = stroke;
@@ -213,7 +213,7 @@ void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
 {
     if (value == nullptr)
     {
-        throw std::exception("value");
+        throw std::runtime_error("value");
     }
     if (value == _strokes)
     {
@@ -273,11 +273,11 @@ void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Drawing
     // Check the input parameters
     if (visual == nullptr)
     {
-        throw std::exception("visual");
+        throw std::runtime_error("visual");
     }
     if (drawingAttributes == nullptr)
     {
-        throw std::exception("drawingAttributes");
+        throw std::runtime_error("drawingAttributes");
     }
 
     //harden against eaten exceptions
@@ -291,7 +291,7 @@ void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Drawing
             if (visual == alreadyAttachedVisual)
             {
                 exceptionRaised = true;
-                throw std::exception("SR.Get(SRID.CannotAttachVisualTwice)""");
+                throw std::runtime_error("SR.Get(SRID.CannotAttachVisualTwice)""");
             }
         }
     }
@@ -324,13 +324,13 @@ void Renderer::DetachIncrementalRendering(Visual* visual)
 {
     if (visual == nullptr)
     {
-        throw std::exception("visual");
+        throw std::runtime_error("visual");
     }
 
     // Remove the visual in the list of attached via AttachIncrementalRendering
     if ((_attachedVisuals.removeOne(visual) == false))
     {
-        throw std::exception("SR.Get(SRID.VisualCannotBeDetached)");
+        throw std::runtime_error("SR.Get(SRID.VisualCannotBeDetached)");
     }
 
     // Detach it from the tree
@@ -424,7 +424,7 @@ void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
         // Verify that it's not a dupe
         if (_visuals.contains(stroke))
         {
-            throw std::exception("SR.Get(SRID.DuplicateStrokeAdded)");
+            throw std::runtime_error("SR.Get(SRID.DuplicateStrokeAdded)");
         }
 
         // Create a visual for the new stroke and add it to the dictionary
@@ -454,7 +454,7 @@ void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
         }
         else
         {
-            throw std::exception("SR.Get(SRID.UnknownStroke3)");
+            throw std::runtime_error("SR.Get(SRID.UnknownStroke3)");
         }
     }
 }
@@ -472,7 +472,7 @@ void Renderer::OnStrokeInvalidated(EventArgs& eventArgs)
     QSharedPointer<Stroke> stroke = static_cast<Stroke*>(sender())->sharedFromThis();
     if (_visuals.contains(stroke) == false)
     {
-        throw std::exception("SR.Get(SRID.UnknownStroke1)");
+        throw std::runtime_error("SR.Get(SRID.UnknownStroke1)");
     }
     visual = _visuals.value(stroke);
     // The original value of IsHighligher and Color are cached in StrokeVisual.

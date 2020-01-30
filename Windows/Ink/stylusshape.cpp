@@ -18,22 +18,22 @@ StylusShape::StylusShape(StylusTip tip, double width, double height, double rota
 {
     if (qIsNaN(width) || qIsInf(width) || width < DrawingAttributes::MinWidth || width > DrawingAttributes::MaxWidth)
     {
-        throw std::exception("width");
+        throw std::runtime_error("width");
     }
 
     if (qIsNaN(height) || qIsInf(height) || height < DrawingAttributes::MinHeight || height > DrawingAttributes::MaxHeight)
     {
-        throw std::exception("height");
+        throw std::runtime_error("height");
     }
 
     if (qIsNaN(rotation) || qIsInf(rotation))
     {
-        throw std::exception("rotation");
+        throw std::runtime_error("rotation");
     }
 
     if (!StylusTipHelper::IsDefined(tip))
     {
-        throw std::exception("tip");
+        throw std::runtime_error("tip");
     }
 
 

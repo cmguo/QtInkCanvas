@@ -34,7 +34,7 @@ public:
     {
         if ( added == nullptr && removed == nullptr )
         {
-            throw std::exception("added, removed");
+            throw std::runtime_error("added, removed");
         }
         //_added = ( added == null ) ? null : new StrokeCollection.ReadOnlyStrokeCollection(added);
         //_removed = ( removed == null ) ? null : new StrokeCollection.ReadOnlyStrokeCollection(removed);
@@ -88,7 +88,7 @@ public:
     {
         if ( newValue.isNull() && previousValue.isNull() )
         {
-            throw std::exception("newValue, previousValue");
+            throw std::runtime_error("newValue, previousValue");
         }
 
         _propertyGuid = propertyGuid;
@@ -141,7 +141,7 @@ public:
     {
         //if ( oldProperty == null && newProperty == null )
         //{
-        //    throw std::exception("oldProperty");
+        //    throw std::runtime_error("oldProperty");
         //}
         //_oldProperty = oldProperty;
         //_newProperty = newProperty;
@@ -186,11 +186,11 @@ public:
     {
         //if ( newDrawingAttributes == null )
         //{
-        //    throw std::exception("newDrawingAttributes");
+        //    throw std::runtime_error("newDrawingAttributes");
         //}
         //if ( previousDrawingAttributes == null )
         //{
-        //    throw std::exception("previousDrawingAttributes");
+        //    throw std::runtime_error("previousDrawingAttributes");
         //}
         //_newDrawingAttributes = newDrawingAttributes;
         //_previousDrawingAttributes = previousDrawingAttributes;
@@ -236,11 +236,11 @@ public:
     {
         //if ( newStylusPoints == null )
         //{
-        //    throw std::exception("newStylusPoints");
+        //    throw std::runtime_error("newStylusPoints");
         //}
         //if ( previousStylusPoints == null )
         //{
-        //    throw std::exception("previousStylusPoints");
+        //    throw std::runtime_error("previousStylusPoints");
         //}
         //_newStylusPoints = newStylusPoints;
         //_previousStylusPoints = previousStylusPoints;

@@ -21,12 +21,12 @@ void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
     // Validate the input parameter
     if (nullptr == plugIn)
     {
-        throw std::exception("plugIn");
+        throw std::runtime_error("plugIn");
     }
 
     if (indexOf(plugIn) != -1)
     {
-        throw std::exception("plugIn");
+        throw std::runtime_error("plugIn");
     }
 
     // Disable processing of the queue during blocking operations to prevent unrelated reentrancy
@@ -163,12 +163,12 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
 
     if (nullptr == plugIn)
     {
-        throw std::exception("plugIn");
+        throw std::runtime_error("plugIn");
     }
 
     if (indexOf(plugIn) != -1)
     {
-        throw std::exception("plugIn");
+        throw std::runtime_error("plugIn");
     }
 
     // Disable processing of the queue during blocking operations to prevent unrelated reentrancy

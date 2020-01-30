@@ -18,7 +18,7 @@ ClipboardProcessor::ClipboardProcessor(InkCanvas& inkCanvas)
 {
     //if ( inkCanvas == nullptr )
     //{
-    //    throw std::exception("inkCanvas");
+    //    throw std::runtime_error("inkCanvas");
     //}
 
     //_inkCanvas = inkCanvas;
@@ -252,7 +252,7 @@ void ClipboardProcessor::SetPreferredFormats(QList<InkCanvasClipboardFormat> val
                     clipboardData = new TextClipboardData();
                     break;
                 default:
-                    throw std::exception("value");
+                    throw std::runtime_error("value");
             }
 
             preferredData.insert(format, clipboardData);
