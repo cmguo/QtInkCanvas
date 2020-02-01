@@ -130,6 +130,10 @@ public:
 
     PenContexts* GetPenContexts();
 
+    void SetLimitInputPosition(bool active);
+
+    bool GetLimitInputPosition() const;
+
 public:
     void RaiseEvent(RoutedEventArgs & e);
 
@@ -161,6 +165,7 @@ private:
     enum PrivateFlag {
         HasRoutedEventStore = 1,
         HasPenContexts = 2,
+        LimitInputPosition = 4,
     };
 
     Q_DECLARE_FLAGS(PrivateFlags, PrivateFlag)

@@ -5,6 +5,7 @@
 #include "Windows/routedeventargs.h"
 
 #include <QMap>
+#include <QList>
 
 class StylusPointCollection;
 class StylusPointDescription;
@@ -46,6 +47,8 @@ class StylusDevice : public InputDevice
 public:
     StylusDevice(QTouchDevice * device, int id);
 
+    void SetLastPoints(QList<QTouchEvent::TouchPoint> const & points);
+
     virtual int Id() override;
 
     bool InAir();
@@ -72,6 +75,7 @@ private:
     int id_;
     QTouchDevice * device_;
     QSharedPointer<StylusPointDescription> description_;
+    QList<QTouchEvent::TouchPoint> lastPoints_;
 };
 
 #endif // STYLUSDEVICE_H

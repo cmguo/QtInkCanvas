@@ -252,7 +252,7 @@ void StylusPointCollection::RemoveItem(int index)
 
 }
 
-void StylusPointCollection::AddItem(StylusPoint &stylusPoint)
+void StylusPointCollection::AddItem(StylusPoint const &stylusPoint)
 {
     InsertItem(size(), stylusPoint);
 }
@@ -261,7 +261,7 @@ void StylusPointCollection::AddItem(StylusPoint &stylusPoint)
 /// called by base class Collection<T> when an item is added to list;
 /// raises a CollectionChanged event to any listeners
 /// </summary>
-void StylusPointCollection::InsertItem(int index, StylusPoint & stylusPoint)
+void StylusPointCollection::InsertItem(int index, StylusPoint const & stylusPoint)
 {
     if (!StylusPointDescription::AreCompatible(stylusPoint.Description(),
                                             _stylusPointDescription))
@@ -269,8 +269,9 @@ void StylusPointCollection::InsertItem(int index, StylusPoint & stylusPoint)
         throw std::runtime_error("stylusPoint");
     }
 
-    stylusPoint.SetDescription(_stylusPointDescription);
+    //stylusPoint.SetDescription(_stylusPointDescription);
     insert(index, stylusPoint);
+    at(index).SetDescription(_stylusPointDescription);
 
     OnChanged();
 }
@@ -279,7 +280,7 @@ void StylusPointCollection::InsertItem(int index, StylusPoint & stylusPoint)
 /// called by base class Collection<T> when an item is set in list;
 /// raises a CollectionChanged event to any listeners
 /// </summary>
-void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
+void StylusPointCollection::SetItem(int index, StylusPoint const & stylusPoint)
 {
     if (!StylusPointDescription::AreCompatible(stylusPoint.Description(),
                                             _stylusPointDescription))
@@ -287,8 +288,9 @@ void StylusPointCollection::SetItem(int index, StylusPoint & stylusPoint)
         throw std::runtime_error("stylusPoint");
     }
 
-    stylusPoint.SetDescription(_stylusPointDescription);
+    //stylusPoint.SetDescription(_stylusPointDescription);
     at(index) = stylusPoint;
+    at(index).SetDescription(_stylusPointDescription);
 
     OnChanged();
 }

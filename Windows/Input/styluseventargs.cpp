@@ -4,6 +4,7 @@
 StylusEventArgs::StylusEventArgs(QTouchEvent& event)
     : InputEventArgs(Stylus::GetDevice(event.device()), static_cast<int>(event.timestamp()))
 {
+    GetStylusDevice()->SetLastPoints(event.touchPoints());
 }
 
 /////////////////////////////////////////////////////////////////////

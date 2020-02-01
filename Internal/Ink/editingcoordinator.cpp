@@ -678,6 +678,7 @@ void EditingCoordinator::OnInkCanvasDeviceDown(InputEventArgs& args)
         // The dynamic renderer will be reset in InkCollectionBehavior.OnActivated since the device is under down state.
         StylusEventArgs& stylusEventArgs = static_cast<StylusEventArgs&>(args);
         UpdateInvertedState(stylusEventArgs.GetStylusDevice(), stylusEventArgs.Inverted());
+        args.SetHandled(true);
     }
 
     // If the active behavior is not one of StylusEditingBehavior, don't even bother here.

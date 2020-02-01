@@ -100,19 +100,19 @@ public:
     /// </summary>
     void RemoveItem(int index);
 
-    void AddItem(StylusPoint & stylusPoint);
+    void AddItem(StylusPoint const & stylusPoint);
 
     /// <summary>
     /// called by base class Collection<T> when an item is added to list;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void InsertItem(int index, StylusPoint & stylusPoint);
+    void InsertItem(int index, StylusPoint const & stylusPoint);
 
     /// <summary>
     /// called by base class Collection<T> when an item is set in list;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void SetItem(int index, StylusPoint & stylusPoint);
+    void SetItem(int index, StylusPoint const & stylusPoint);
 
     /// <summary>
     /// Clone

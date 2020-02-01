@@ -2,9 +2,11 @@
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluseventargs.h"
 #include "Windows/routedeventargs.h"
+#include "Windows/Input/styluspointcollection.h"
 
 #include <QTouchDevice>
 #include <QTouchEvent>
+#include <QDebug>
 
 StylusEvent::StylusEvent(int type)
     : RoutedEvent(type)
@@ -46,6 +48,13 @@ StylusDevice::StylusDevice(QTouchDevice * device, int id)
     , device_(device)
 {
     description_.reset(new StylusPointDescription());
+    description_.reset(
+                new StylusPointDescription(description_->GetStylusPointProperties(), -1));
+}
+
+void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points)
+{
+    lastPoints_ = points;
 }
 
 int StylusDevice::Id()
@@ -65,7 +74,8 @@ bool StylusDevice::Inverted()
 
 QPointF StylusDevice::GetPosition(Visual *relativeTo)
 {
-    return QPointF();
+    (void) relativeTo;
+    return lastPoints_.first().pos();
 }
 
 QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual * visual)
@@ -75,7 +85,14 @@ QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual * vis
 
 QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual * visual, QSharedPointer<StylusPointDescription> description)
 {
-    return nullptr;
+    if (description == nullptr)
+        description = description_;
+    QSharedPointer<StylusPointCollection> points(new StylusPointCollection(description));
+    StylusPoint point(GetPosition(visual));
+    //qDebug() << "StylusDevice pressure" << lastPoints_.first().pressure();
+    //point.SetPressureFactor(lastPoints_.first().pressure());
+    points->AddItem(point);
+    return points;
 }
 
 UIElement* StylusDevice::Captured()
@@ -107,7 +124,8 @@ QVector<int> StylusDevice::PacketData(QEvent& event)
         QPoint pt2 = pt.pos().toPoint();
         data.append(pt2.x());
         data.append(pt2.y());
-        data.append(static_cast<int>(pt.pressure()));
+        //data.append(static_cast<int>(pt.pressure()));
+        break; // single touch
     }
     return data;
 }

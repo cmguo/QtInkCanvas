@@ -51,7 +51,7 @@ UIElement::UIElement()
     //qDebug() << "construct" << static_cast<QObject*>(this);
     setData(ITEM_DATA, QVariant::fromValue(this));
     setData(ITEM_DATA_RECT, QRectF());
-    //setAcceptTouchEvents(true);
+    setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
 }
 
@@ -274,7 +274,7 @@ void UIElement::CaptureStylus()
 
 bool UIElement::IsStylusCaptured()
 {
-    return false;
+    return true;
 }
 
 bool UIElement::IsAncestorOf(UIElement*)
@@ -318,6 +318,16 @@ PenContexts* UIElement::GetPenContexts()
     setProperty("PenContexts", QVariant::fromValue(c));
     privateFlags_.setFlag(HasPenContexts);
     return c;
+}
+
+void UIElement::SetLimitInputPosition(bool active)
+{
+    privateFlags_.setFlag(LimitInputPosition, active);
+}
+
+bool UIElement::GetLimitInputPosition() const
+{
+    return privateFlags_.testFlag(LimitInputPosition);
 }
 
 void UIElement::RaiseEvent(RoutedEventArgs &args)
