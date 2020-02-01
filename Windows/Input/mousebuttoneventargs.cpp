@@ -29,6 +29,14 @@ MouseButtonEventArgs::MouseButtonEventArgs(QGraphicsSceneMouseEvent &event)
     Mouse::PrimaryDevice->SetLastPosition(event.pos());
 }
 
+MouseButtonEventArgs::MouseButtonEventArgs(QTouchEvent &event)
+    : MouseEventArgs(event)
+{
+    _button = MouseButton::Left;
+    _count = 1;
+    Mouse::PrimaryDevice->SetLastPosition(event.touchPoints().first().pos());
+}
+
 /// <summary>
 ///     Initializes a new instance of the MouseButtonEventArgs class.
 /// </summary>

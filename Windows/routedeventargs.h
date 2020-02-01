@@ -14,13 +14,17 @@ class RoutedEventHandler;
 class RoutedEvent
 {
 public:
-    RoutedEvent(int type) : type_(type) {}
+    RoutedEvent(int type, int type2 = 0) : type_(type), type2_(type2) {}
     virtual ~RoutedEvent() {}
     int type() {return type_; }
+    int type2() {return type2_; }
     virtual void handle(QEvent& event, QList<RoutedEventHandler> handlers);
+    virtual void handle2(QEvent& event, QList<RoutedEventHandler> handlers);
+public:
     void handle(QEvent &event, RoutedEventArgs& args, QList<RoutedEventHandler> handlers);
 private:
     int type_;
+    int type2_;
 };
 
 class RoutedEventHandler

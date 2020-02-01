@@ -1,10 +1,17 @@
 #include "Windows/Input/mouseeventargs.h"
 #include "Windows/Input/mousedevice.h"
+#include "Windows/Input/stylusdevice.h"
 
-MouseEventArgs::MouseEventArgs(QGraphicsSceneMouseEvent &event)
+MouseEventArgs::MouseEventArgs(QGraphicsSceneMouseEvent &)
     : MouseEventArgs(Mouse::PrimaryDevice, Mouse::GetTimestamp())
 {
     _stylusDevice = nullptr;
+}
+
+MouseEventArgs::MouseEventArgs(QTouchEvent &event)
+    : MouseEventArgs(Mouse::PrimaryDevice, event.timestamp())
+{
+    _stylusDevice = Stylus::GetDevice(event.device());
 }
 
 /// <summary>

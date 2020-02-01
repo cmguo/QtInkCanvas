@@ -17,8 +17,9 @@ class Visual;
 class StylusEvent : public RoutedEvent
 {
 public:
-    StylusEvent(int type);
+    StylusEvent(int type, int type2);
     virtual void handle(QEvent &event, QList<RoutedEventHandler> handlers) override;
+    virtual void handle2(QEvent &event, QList<RoutedEventHandler> handlers) override;
 };
 
 class Stylus

@@ -20,6 +20,8 @@ class MouseEventArgs : public InputEventArgs
 public:
     MouseEventArgs(QGraphicsSceneMouseEvent &event);
 
+    MouseEventArgs(QTouchEvent &event);
+
     /// <summary>
     ///     Initializes a new instance of the MouseEventArgs class.
     /// </summary>

@@ -362,6 +362,12 @@ void RoutedEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
     handle(event, args, handlers);
 }
 
+void RoutedEvent::handle2(QEvent &event, QList<RoutedEventHandler> handlers)
+{
+    RoutedEventArgs args;
+    handle(event, args, handlers);
+}
+
 void RoutedEvent::handle(QEvent &event, RoutedEventArgs &args, QList<RoutedEventHandler> handlers)
 {
     for (RoutedEventHandler & h : handlers) {

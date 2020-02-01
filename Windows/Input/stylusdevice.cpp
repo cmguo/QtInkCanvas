@@ -3,19 +3,27 @@
 #include "Windows/Input/styluseventargs.h"
 #include "Windows/routedeventargs.h"
 #include "Windows/Input/styluspointcollection.h"
+#include "Windows/Input/mousebuttoneventargs.h"
 
 #include <QTouchDevice>
 #include <QTouchEvent>
 #include <QDebug>
 
-StylusEvent::StylusEvent(int type)
-    : RoutedEvent(type)
+StylusEvent::StylusEvent(int type, int type2)
+    : RoutedEvent(type, type2)
 {
 }
 
 void StylusEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
 {
     StylusEventArgs args(static_cast<QTouchEvent&>(event));
+    args.MarkAsUserInitiated();
+    RoutedEvent::handle(event, args, handlers);
+}
+
+void StylusEvent::handle2(QEvent &event, QList<RoutedEventHandler> handlers)
+{
+    MouseButtonEventArgs args(static_cast<QTouchEvent&>(event));
     args.MarkAsUserInitiated();
     RoutedEvent::handle(event, args, handlers);
 }
@@ -37,11 +45,11 @@ StylusDevice* Stylus::GetDevice(QTouchDevice* device)
 
 QMap<QTouchDevice*, StylusDevice*> Stylus::devices_;
 
-StylusEvent Stylus::StylusDownEvent(QEvent::TouchBegin);
+StylusEvent Stylus::StylusDownEvent(QEvent::TouchBegin, QEvent::GraphicsSceneMousePress);
 
-StylusEvent Stylus::StylusMoveEvent(QEvent::TouchUpdate);
+StylusEvent Stylus::StylusMoveEvent(QEvent::TouchUpdate, QEvent::GraphicsSceneMouseMove);
 
-StylusEvent Stylus::StylusUpEvent(QEvent::TouchEnd);
+StylusEvent Stylus::StylusUpEvent(QEvent::TouchEnd, QEvent::GraphicsSceneMouseRelease);
 
 StylusDevice::StylusDevice(QTouchDevice * device, int id)
     : id_(id)

@@ -430,6 +430,7 @@ bool UIElement::sceneEvent(QEvent *event)
     if (privateFlags_.testFlag(HasPenContexts)) {
         GetPenContexts()->eventFilter(this, event);
     }
+    bool handled = false;
     if (privateFlags_.testFlag(HasRoutedEventStore)) {
         RoutedEventStore* store = property("RoutedEventStore").value<RoutedEventStore*>();
         RoutedEventAndHandlers* rh = store->bytype.value(event->type(), nullptr);
@@ -437,13 +438,19 @@ bool UIElement::sceneEvent(QEvent *event)
             //if (event->type() != QEvent::GraphicsSceneHoverMove)
             //    qDebug() << "sceneEvent" << event->type() << static_cast<QObject*>(this);
             rh->route->handle(*event, rh->handlers);
-            if (event->isAccepted())
-                return true;
+            if (!event->isAccepted() && rh->route->type2()) {
+                RoutedEventAndHandlers* rh2 = store->bytype.value(rh->route->type2(), nullptr);
+                if (rh2)
+                    rh->route->handle2(*event, rh2->handlers);
+            }
+            handled = event->isAccepted();
         }
     }
     if (privateFlags_.testFlag(HasPenContexts)) {
         GetPenContexts()->FireCustomData();
     }
+    if (handled)
+        return true;
     //qDebug() << "event reject" << event;
     return Visual::sceneEvent(event);
 }
@@ -482,11 +489,11 @@ FlowDirection FrameworkElement::GetFlowDirection()
 
 int FrameworkElement::VisualChildrenCount()
 {
-    return 0;
+    return childItems().size();
 }
 
 Visual* FrameworkElement::GetVisualChild(int index)
 {
-    return nullptr;
+    return static_cast<Visual*>(childItems().at(index));
 }
 
