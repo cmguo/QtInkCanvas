@@ -87,6 +87,9 @@ void MouseDevice::SetLastPosition(const QPointF &pos)
 QPointF MouseDevice::GetPosition(Visual* relativeTo)
 {
     (void) relativeTo;
+    UIElement* e = UIElement::fromItem(relativeTo);
+    if (!e || !e->GetLimitInputPosition())
+        return lastPosition_;
     QRectF r(relativeTo->boundingRect());
     if (!r.contains(lastPosition_)) {
         if (lastPosition_.x() < r.left())
