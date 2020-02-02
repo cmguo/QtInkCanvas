@@ -58,7 +58,7 @@ private:
 /// <summary>
 ///    InkCanvasStrokesChangedEventArgs
 /// </summary>
-class InkCanvasStrokesReplacedEventArgs : EventArgs
+class InkCanvasStrokesReplacedEventArgs : public EventArgs
 {
 public:
     /// <summary>

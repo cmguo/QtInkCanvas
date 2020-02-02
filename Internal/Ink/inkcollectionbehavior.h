@@ -3,6 +3,8 @@
 
 #include "styluseditingbehavior.h"
 
+#include <QMap>
+
 class DrawingAttributes;
 
 // namespace MS.Internal.Ink
@@ -211,7 +213,7 @@ private:
     ///         critical method GetInkCanvas().RaiseGestureOrStrokeCollected.
     /// </SecurityNote>
     //[SecurityCritical]
-    QSharedPointer<StylusPointCollection>                           _stylusPoints;
+    QMap<int, QSharedPointer<StylusPointCollection>>                           _stylusPoints;
 
     /// <SecurityNote>
     ///     Critical: We use this to track if the input that makes up _stylusPoints
