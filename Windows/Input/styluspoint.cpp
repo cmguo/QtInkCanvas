@@ -200,7 +200,7 @@ void StylusPoint::SetDescription(QSharedPointer<StylusPointDescription> value)
 /// Returns true if this StylusPoint supports the specified property
 /// </summary>
 /// <param name="stylusPointProperty">The StylusPointProperty to see if this StylusPoint supports
-bool StylusPoint::HasProperty(StylusPointProperty & stylusPointProperty)
+bool StylusPoint::HasProperty(StylusPointProperty & stylusPointProperty) const
 {
     return Description()->HasProperty(stylusPointProperty);
 }
@@ -209,7 +209,7 @@ bool StylusPoint::HasProperty(StylusPointProperty & stylusPointProperty)
 /// Provides read access to all stylus properties
 /// </summary>
 /// <param name="stylusPointProperty">The StylusPointPropertyIds of the property to retrieve
-int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty)
+int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty) const
 {
     if (stylusPointProperty.Id() == StylusPointPropertyIds::X)
     {
@@ -445,7 +445,7 @@ uint StylusPoint::GetHashCode() const
 /// <summary>
 /// GetPacketData - returns avalon space packet data with true pressure if it exists
 /// </summary>
-QVector<int> StylusPoint::GetPacketData()
+QVector<int> StylusPoint::GetPacketData() const
 {
     int count = 2; //x, y
     //if (_additionalValues != null)
@@ -479,7 +479,7 @@ QVector<int> StylusPoint::GetPacketData()
 /// helper to determine if a stroke has default pressure
 /// This is used by ISF serialization to not serialize pressure
 /// </summary>
-bool StylusPoint::HasDefaultPressure()
+bool StylusPoint::HasDefaultPressure() const
 {
     return qFuzzyCompare(_pressureFactor, DefaultPressure);
 }

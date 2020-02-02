@@ -123,13 +123,13 @@ public:
     /// Returns true if this StylusPoint supports the specified property
     /// </summary>
     /// <param name="stylusPointProperty">The StylusPointProperty to see if this StylusPoint supports
-    bool HasProperty(StylusPointProperty & stylusPointProperty);
+    bool HasProperty(StylusPointProperty & stylusPointProperty) const;
 
     /// <summary>
     /// Provides read access to all stylus properties
     /// </summary>
     /// <param name="stylusPointProperty">The StylusPointPropertyIds of the property to retrieve
-    int GetPropertyValue(StylusPointProperty & stylusPointProperty);
+    int GetPropertyValue(StylusPointProperty & stylusPointProperty) const;
 
     /// <summary>
     /// Allows supported properties to be set
@@ -159,7 +159,7 @@ public:
     /// Allows languages that don't support operator overloading
     /// to convert to a point
     /// </summary>
-    QPointF ToPoint()
+    QPointF ToPoint() const
     {
         return QPointF(_x, _y);
     }
@@ -244,7 +244,7 @@ public:
     /// bool - true if "value" is equal to "this".
     /// </returns>
     /// <param name="value">The StylusPoint to compare to "this"
-    bool Equals(StylusPoint & value)
+    bool Equals(StylusPoint & value) const
     {
         return StylusPoint::Equals(*this, value);
     }
@@ -275,7 +275,7 @@ public:
     /// <summary>
     /// helper used by SPC.Reformat to preserve the pressureFactor
     /// </summary>
-    float GetUntruncatedPressureFactor()
+    float GetUntruncatedPressureFactor() const
     {
         return _pressureFactor;
     }
@@ -283,13 +283,13 @@ public:
     /// <summary>
     /// GetPacketData - returns avalon space packet data with true pressure if it exists
     /// </summary>
-    QVector<int> GetPacketData();
+    QVector<int> GetPacketData() const;
 
     /// <summary>
     /// helper to determine if a stroke has default pressure
     /// This is used by ISF serialization to not serialize pressure
     /// </summary>
-    bool HasDefaultPressure();
+    bool HasDefaultPressure() const;
 
     /// <summary>
     /// Used by the SetPropertyData to make a copy of the data

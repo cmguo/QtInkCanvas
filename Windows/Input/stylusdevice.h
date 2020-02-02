@@ -1,6 +1,8 @@
 #ifndef STYLUSDEVICE_H
 #define STYLUSDEVICE_H
 
+#include "InkCanvas_global.h"
+
 #include "Windows/Input/inputdevice.h"
 #include "Windows/routedeventargs.h"
 
@@ -22,18 +24,24 @@ public:
     virtual void handle2(QEvent &event, QList<RoutedEventHandler> handlers) override;
 };
 
-class Stylus
+class StylusPointPropertyInfo;
+
+class INKCANVAS_EXPORT Stylus
 {
 public:
     static StylusDevice* CurrentStylusDevice();
 
     static StylusDevice* GetDevice(QTouchDevice* device);
 
+    static QSharedPointer<StylusPointDescription> DefaultPointDescription();
+
     static StylusEvent StylusDownEvent;
 
     static StylusEvent StylusMoveEvent;
 
     static StylusEvent StylusUpEvent;
+
+    static StylusPointPropertyInfo StylusIdPropertyInfo;
 
 private:
     static QMap<QTouchDevice*, StylusDevice*> devices_;

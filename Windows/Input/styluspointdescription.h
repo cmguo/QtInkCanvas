@@ -46,79 +46,79 @@ public:
     /// HasProperty
     /// </summary>
     /// <param name="stylusPointProperty">stylusPointProperty
-    bool HasProperty(StylusPointProperty& stylusPointProperty);
+    bool HasProperty(StylusPointProperty& stylusPointProperty) const;
 
     /// <summary>
     /// The count of properties this StylusPointDescription contains
     /// </summary>
-    int PropertyCount();
+    int PropertyCount() const;
 
     /// <summary>
     /// GetProperty
     /// </summary>
     /// <param name="stylusPointProperty">stylusPointProperty
-    StylusPointPropertyInfo GetPropertyInfo(StylusPointProperty & stylusPointProperty);
+    StylusPointPropertyInfo GetPropertyInfo(StylusPointProperty & stylusPointProperty) const;
 
     /// <summary>
     /// GetPropertyInfo
     /// </summary>
     /// <param name="QUuid">QUuid
-    StylusPointPropertyInfo GetPropertyInfo(QUuid const & QUuid);
+    StylusPointPropertyInfo GetPropertyInfo(QUuid const & QUuid) const;
 
     /// <summary>
     /// Returns the index of the given StylusPointProperty by ID, or -1 if none is found
     /// </summary>
-    int GetPropertyIndex(QUuid QUuid);
+    int GetPropertyIndex(QUuid QUuid) const;
 
     /// <summary>
     /// GetStylusPointProperties
     /// </summary>
-    QVector<StylusPointPropertyInfo> GetStylusPointProperties();
+    QVector<StylusPointPropertyInfo> GetStylusPointProperties() const;
 
     /// <summary>
     /// GetStylusPointPropertyIdss
     /// </summary>
-    QVector<QUuid> GetStylusPointPropertyIds();
+    QVector<QUuid> GetStylusPointPropertyIds() const;
 
     /// <summary>
     /// helper for determining how many ints in a raw int array
     /// correspond to one point we get from the input system
     /// </summary>
-    int GetInputArrayLengthPerPoint();
+    int GetInputArrayLengthPerPoint() const;
 
     /// <summary>
     /// helper for determining how many members a StylusPoint's
     /// int[] should be for additional data
     /// </summary>
-    int GetExpectedAdditionalDataCount();
+    int GetExpectedAdditionalDataCount() const;
 
     /// <summary>
     /// helper for determining how many ints in a raw int array
     /// correspond to one point when saving to himetric
     /// </summary>
     /// <returns></returns>
-    int GetOutputArrayLengthPerPoint();
+    int GetOutputArrayLengthPerPoint() const;
 
     /// <summary>
     /// helper for determining how many buttons are present
     /// </summary>
-    int ButtonCount();
+    int ButtonCount() const;
 
     /// <summary>
     /// helper for determining what bit position the button is at
     /// </summary>
-    int GetButtonBitPosition(StylusPointProperty buttonProperty);
+    int GetButtonBitPosition(StylusPointProperty buttonProperty) const;
 
     /// <summary>
     /// ContainsTruePressure - true if this StylusPointDescription was instanced
     /// by a TabletDevice or by ISF serialization that contains NormalPressure
     /// </summary>
-    bool ContainsTruePressure();
+    bool ContainsTruePressure() const;
 
     /// <summary>
     /// helper to determine the original pressure index
     /// </summary>
-    int OriginalPressureIndex();
+    int OriginalPressureIndex() const;
 
     /// <summary>
     /// Returns true if the two StylusPointDescriptions have the same StylusPointProperties.  Metrics are ignored.
@@ -142,13 +142,13 @@ public:
     /// </summary>
     /// <param name="stylusPointDescriptionSuperset">stylusPointDescriptionSuperset
     /// <returns></returns>
-    bool IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset);
+    bool IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset) const;
 
     /// <summary>
     /// Returns the index of the given StylusPointProperty, or -1 if none is found
     /// </summary>
     /// <param name="propertyId">propertyId
-    int IndexOf(QUuid propertyId);
+    int IndexOf(QUuid propertyId) const;
 
 };
 
