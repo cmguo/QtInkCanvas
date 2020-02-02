@@ -19,6 +19,8 @@
 #include <QThread>
 #include <QDebug>
 
+#include <map>
+
 class HostVisual;
 
 class VisualTarget
@@ -100,14 +102,14 @@ class DynamicRenderer::StrokeInfo
     bool _isReset = false; // Was reset used to create this StrokeInfo?
     QBrush _fillBrush; // app thread based brushed
     QSharedPointer<DrawingAttributes> _drawingAttributes;
-    StrokeNodeIterator _strokeNodeIterator;
+    std::map<int, StrokeNodeIterator> _strokeNodeIterator;
     double _opacity;
     DynamicRendererHostVisual*   _strokeHV = nullptr;  // App thread rendering HostVisual
 
 public:
     StrokeInfo(QSharedPointer<DrawingAttributes> drawingAttributes, int stylusDeviceId, int startTimestamp, DynamicRendererHostVisual* hostVisual)
         : _drawingAttributes(drawingAttributes->Clone())
-        , _strokeNodeIterator(*_drawingAttributes)
+        //, _strokeNodeIterator(*_drawingAttributes)
     {
         _stylusId = stylusDeviceId;
         _startTime = startTimestamp;
@@ -187,17 +189,23 @@ public:
     {
         _isReset = value;
     }
-    StrokeNodeIterator& GetStrokeNodeIterator()
+    StrokeNodeIterator& GetStrokeNodeIterator(int id)
     {
-        return _strokeNodeIterator;
+        auto i = _strokeNodeIterator.find(id);
+        if (i == _strokeNodeIterator.end()) {
+            StrokeNodeIterator&& ni = StrokeNodeIterator(*_drawingAttributes);
+            i = _strokeNodeIterator.insert(std::pair<int, StrokeNodeIterator&&>(id, std::move(ni))).first;
+        }
+        return i->second;
     }
-    void SetStrokeNodeIterator(StrokeNodeIterator && value)
+    void SetStrokeNodeIterator(int id, StrokeNodeIterator && value)
     {
          //if (value == nullptr)
          //{
          //    throw std::runtime_error();
          //}
-         _strokeNodeIterator = std::move(value);
+        auto i = _strokeNodeIterator.find(id);
+        i->second = std::move(value);
     }
     QBrush FillBrush()
     {
@@ -822,133 +830,150 @@ Dispatcher* DynamicRenderer::GetDispatcher()
 
 void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
 {
-    //qDebug() << "DynamicRenderer::RenderPackets";
     // If no points or not hooked up to element then do nothing.
+    //qDebug() << "DynamicRenderer::RenderPackets" << stylusPoints->size();
     if (stylusPoints->size() == 0 || _applicationDispatcher == nullptr)
         return;
 
-    // Get a collection of ink nodes built from the new stylusPoints.
-    si->SetStrokeNodeIterator(si->GetStrokeNodeIterator().GetIteratorForNextSegment(stylusPoints));
-    if (si->GetStrokeNodeIterator() != nullptr)
-    {
-        // Create a PathGeometry representing the contour of the ink increment
-        Geometry* strokeGeometry = nullptr;
-        QRectF bounds;
-#if DEBUG_RENDERING_FEEDBACK
-        std::unique_ptr<DrawingContext> debugDC;
-#endif
-        StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator(),
-                                             *si->GetDrawingAttributes(),
-#if DEBUG_RENDERING_FEEDBACK
-                                             *debugDC, //debug dc
-                                             0,   //debug feedback size
-                                             false,//render debug feedback
-#endif
-                                             false, //calc bounds
-                                             strokeGeometry,
-                                             bounds);
-
-        // If we are called from the app thread we can just stay on it and render to that
-        // visual tree.  Otherwise we need to marshal over to our inking thread to do our work.
-        if (_applicationDispatcher->CheckAccess())
-        {
-            // See if we need to create a new container visual for the stroke.
-            if (si->StrokeCV() == nullptr)
-            {
-                // Create new container visual for this stroke and add our incremental rendering visual to it.
-                si->SetStrokeCV(new ContainerVisual());
-
-                //
-
-
-
-
-                if (!si->GetDrawingAttributes()->IsHighlighter())
-                {
-                    si->StrokeCV()->SetOpacity(si->Opacity());
-                }
-                _mainRawInkContainerVisual->Children().Add(si->StrokeCV());
+    QMap<int, QSharedPointer<StylusPointCollection>> collections;
+    if (stylusPoints->Description()->HasProperty(Stylus::StylusIdPropertyInfo)) {
+        for (StylusPoint const & sp : *stylusPoints) {
+            int touchId = sp.GetPropertyValue(Stylus::StylusIdPropertyInfo);
+            QSharedPointer<StylusPointCollection>& c = collections[touchId];
+            if (c == nullptr) {
+                c.reset(new StylusPointCollection(stylusPoints->Description()));
             }
-
-            // Create new visual and render the geometry into it
-            DrawingVisual* visual = new DrawingVisual();
-            std::unique_ptr<DrawingContext> drawingContext(visual->RenderOpen());
-            //try
-            {
-                FinallyHelper final([&drawingContext]() {
-                    drawingContext->Close();
-                });
-                OnDraw(*drawingContext, stylusPoints, strokeGeometry, si->FillBrush());
-            }
-            //finally
-            //{
-            //    drawingContext.Close();
-            //}
-
-            // Now add it to the visual tree (making sure we still have StrokeCV after
-            // onDraw called above).
-            if (si->StrokeCV() != nullptr)
-            {
-                si->StrokeCV()->Children().Add(visual);
-            }
+            c->AddItem(sp);
         }
-        else
-        {
-            /*
-            QThread* renderingThread = _renderingThread; // keep it alive
-            Dispatcher* drDispatcher = renderingThread != nullptr ? renderingThread->ThreadDispatcher() : nullptr;
-
-            // Only try to render if we get a ref on the rendering thread.
-            if (drDispatcher != nullptr)
-            {
-                // We are on a pen thread so marshal this call to our inking thread.
-                drDispatcher.BeginInvoke(DispatcherPriority.Send,
-                (DispatcherOperationCallback) delegate(object)
-                {
-                    QBrush fillBrush = si->FillBrush;
-
-                    // Make sure this stroke is not aborted
-                    if (fillBrush != nullptr)
-                    {
-                        // See if we need to create a new container visual for the stroke.
-                        if (si->StrokeRTICV == nullptr)
-                        {
-                            // Create new container visual for this stroke and add our incremental rendering visual to it.
-                            si->StrokeRTICV = new ContainerVisual();
-
-                            //
-
-
-
-
-                            if (!si->DrawingAttributes.IsHighlighter)
-                            {
-                                si->StrokeRTICV.Opacity = si->Opacity;
-                            }
-                            ((ContainerVisual)si->StrokeHV.VisualTarget.RootVisual).Children.Add(si->StrokeRTICV);
-                        }
-
-                        // Create new visual and render the geometry into it
-                        DrawingVisual visual = new DrawingVisual();
-                        DrawingContext drawingContext = visual.RenderOpen();
-                        try
-                        {
-                            OnDraw(drawingContext, stylusPoints, strokeGeometry, fillBrush);
-                        }
-                        finally
-                        {
-                            drawingContext.Close();
-                        }
-                        // Add it to the visual tree
-                        si->StrokeRTICV.Children.Add(visual);
-                    }
-
-                    return nullptr;
-                },
-                nullptr);
-            }*/
-        }
+    } else {
+        collections.insert(0, stylusPoints);
     }
+
+    auto i = collections.keyValueBegin();
+    for (; i != collections.keyValueEnd(); ++i) {
+        // Get a collection of ink nodes built from the new stylusPoints.
+        si->SetStrokeNodeIterator((*i).first, si->GetStrokeNodeIterator((*i).first).GetIteratorForNextSegment((*i).second));
+        if (si->GetStrokeNodeIterator((*i).first) != nullptr)
+        {
+            // Create a PathGeometry representing the contour of the ink increment
+            Geometry* strokeGeometry = nullptr;
+            QRectF bounds;
+    #if DEBUG_RENDERING_FEEDBACK
+            std::unique_ptr<DrawingContext> debugDC;
+    #endif
+            StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator((*i).first),
+                                                 *si->GetDrawingAttributes(),
+    #if DEBUG_RENDERING_FEEDBACK
+                                                 *debugDC, //debug dc
+                                                 0,   //debug feedback size
+                                                 false,//render debug feedback
+    #endif
+                                                 false, //calc bounds
+                                                 strokeGeometry,
+                                                 bounds);
+
+            // If we are called from the app thread we can just stay on it and render to that
+            // visual tree.  Otherwise we need to marshal over to our inking thread to do our work.
+            if (_applicationDispatcher->CheckAccess())
+            {
+                // See if we need to create a new container visual for the stroke.
+                if (si->StrokeCV() == nullptr)
+                {
+                    // Create new container visual for this stroke and add our incremental rendering visual to it.
+                    si->SetStrokeCV(new ContainerVisual());
+
+                    //
+
+
+
+
+                    if (!si->GetDrawingAttributes()->IsHighlighter())
+                    {
+                        si->StrokeCV()->SetOpacity(si->Opacity());
+                    }
+                    _mainRawInkContainerVisual->Children().Add(si->StrokeCV());
+                }
+
+                // Create new visual and render the geometry into it
+                DrawingVisual* visual = new DrawingVisual();
+                std::unique_ptr<DrawingContext> drawingContext(visual->RenderOpen());
+                //try
+                {
+                    FinallyHelper final([&drawingContext]() {
+                        drawingContext->Close();
+                    });
+                    OnDraw(*drawingContext, stylusPoints, strokeGeometry, si->FillBrush());
+                }
+                //finally
+                //{
+                //    drawingContext.Close();
+                //}
+
+                // Now add it to the visual tree (making sure we still have StrokeCV after
+                // onDraw called above).
+                if (si->StrokeCV() != nullptr)
+                {
+                    si->StrokeCV()->Children().Add(visual);
+                }
+            }
+            else
+            {
+                /*
+                QThread* renderingThread = _renderingThread; // keep it alive
+                Dispatcher* drDispatcher = renderingThread != nullptr ? renderingThread->ThreadDispatcher() : nullptr;
+
+                // Only try to render if we get a ref on the rendering thread.
+                if (drDispatcher != nullptr)
+                {
+                    // We are on a pen thread so marshal this call to our inking thread.
+                    drDispatcher.BeginInvoke(DispatcherPriority.Send,
+                    (DispatcherOperationCallback) delegate(object)
+                    {
+                        QBrush fillBrush = si->FillBrush;
+
+                        // Make sure this stroke is not aborted
+                        if (fillBrush != nullptr)
+                        {
+                            // See if we need to create a new container visual for the stroke.
+                            if (si->StrokeRTICV == nullptr)
+                            {
+                                // Create new container visual for this stroke and add our incremental rendering visual to it.
+                                si->StrokeRTICV = new ContainerVisual();
+
+                                //
+
+
+
+
+                                if (!si->DrawingAttributes.IsHighlighter)
+                                {
+                                    si->StrokeRTICV.Opacity = si->Opacity;
+                                }
+                                ((ContainerVisual)si->StrokeHV.VisualTarget.RootVisual).Children.Add(si->StrokeRTICV);
+                            }
+
+                            // Create new visual and render the geometry into it
+                            DrawingVisual visual = new DrawingVisual();
+                            DrawingContext drawingContext = visual.RenderOpen();
+                            try
+                            {
+                                OnDraw(drawingContext, stylusPoints, strokeGeometry, fillBrush);
+                            }
+                            finally
+                            {
+                                drawingContext.Close();
+                            }
+                            // Add it to the visual tree
+                            si->StrokeRTICV.Children.Add(visual);
+                        }
+
+                        return nullptr;
+                    },
+                    nullptr);
+                }*/
+            }
+        }
+    } // for
 }
 
 /////////////////////////////////////////////////////////////////////
