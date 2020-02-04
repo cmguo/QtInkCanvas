@@ -797,7 +797,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
             }
         });
 
-#if TARGET_OS_WIN32
+#if WIN32
         //
         // perform gesture reco before raising this event
         // if we're in the right mode
@@ -1353,7 +1353,7 @@ QList<ApplicationGesture> InkCanvas::GetEnabledGestures()
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
-#if TARGET_OS_WIN32
+#if WIN32
     return QList<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
 #else
     return {};
@@ -1370,7 +1370,7 @@ void InkCanvas::SetEnabledGestures(QList<ApplicationGesture> applicationGestures
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
-#if TARGET_OS_WIN32
+#if WIN32
     GetGestureRecognizer().SetEnabledGestures(applicationGestures);
 #endif
 }
@@ -2383,7 +2383,7 @@ GestureRecognizer& InkCanvas::GetGestureRecognizer()
 {
     if (_gestureRecognizer == nullptr)
     {
-#if TARGET_OS_WIN32
+#if WIN32
         _gestureRecognizer = new GestureRecognizer();
 #endif
     }

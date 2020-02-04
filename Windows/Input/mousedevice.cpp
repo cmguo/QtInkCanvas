@@ -13,7 +13,7 @@
 #include <QApplication>
 #include <QWidget>
 
-#if TARGET_OS_WIN32
+#if WIN32
 #include <Windows.h>
 #include <sysinfoapi.h>
 #endif
@@ -61,7 +61,7 @@ void Mouse::UpdateCursor(UIElement* element)
 
 int Mouse::GetTimestamp()
 {
-#if TARGET_OS_WIN32
+#if WIN32
     return ::GetTickCount();
 #else
     return clock();
