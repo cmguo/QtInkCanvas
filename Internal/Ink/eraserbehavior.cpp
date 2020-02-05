@@ -273,6 +273,8 @@ void EraserBehavior::StylusInputEnd(bool commit)
     // Don't forget ending the current incremental hit testing.
     _incrementalStrokeHitTester->EndHitTesting();
     _incrementalStrokeHitTester = nullptr;
+
+    GetEditingCoordinator().InvalidateBehaviorCursor(this);
 }
 
 /// <summary>
@@ -283,6 +285,10 @@ QCursor EraserBehavior::GetCurrentCursor()
 {
     if ( InkCanvasEditingMode::EraseByPoint == _cachedEraseMode )
     {
+        if ( GetEditingCoordinator().UserIsEditing() == false )
+        {
+            return QCursor(Qt::ArrowCursor);
+        }
         if ( _cachedStylusShape == nullptr )
         {
             _cachedStylusShape = GetInkCanvas().EraserShape();
