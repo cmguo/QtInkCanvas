@@ -59,6 +59,11 @@ void Mouse::UpdateCursor(UIElement* element)
     }
 }
 
+void Mouse::SetLastInput(QGraphicsSceneMouseEvent &input)
+{
+    PrimaryDevice->SetLastPosition(input.pos());
+}
+
 int Mouse::GetTimestamp()
 {
 #if WIN32

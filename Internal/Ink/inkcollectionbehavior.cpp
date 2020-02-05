@@ -245,19 +245,7 @@ void InkCollectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollectio
         _userInitiated = true;
     }
 
-    if (stylusPoints->Description()->HasProperty(Stylus::StylusIdPropertyInfo)) {
-        for (StylusPoint const & sp : *stylusPoints) {
-            int touchId = sp.GetPropertyValue(Stylus::StylusIdPropertyInfo);
-            QSharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
-            if (c == nullptr) {
-                c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
-            }
-            c->AddItem(sp);
-        }
-    } else {
-        _stylusPoints[0].reset(new StylusPointCollection(stylusPoints->Description(), 100));
-        _stylusPoints[0]->Add(*stylusPoints);
-    }
+    StylusInput(stylusPoints);
 
     _strokeDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes()->Clone();
 
@@ -301,18 +289,7 @@ void InkCollectionBehavior::StylusInputContinue(QSharedPointer<StylusPointCollec
         _userInitiated = false;
     }
 
-    if (stylusPoints->Description()->HasProperty(Stylus::StylusIdPropertyInfo)) {
-        for (StylusPoint const & sp : *stylusPoints) {
-            int touchId = sp.GetPropertyValue(Stylus::StylusIdPropertyInfo);
-            QSharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
-            if (c == nullptr) {
-                c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
-            }
-            c->AddItem(sp);
-        }
-    } else {
-        _stylusPoints[0]->Add(*stylusPoints);
-    }
+    StylusInput(stylusPoints);
 }
 
 /// <summary>
@@ -370,6 +347,42 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
     //    _userInitiated = false;
     //    GetEditingCoordinator().InvalidateBehaviorCursor(this);
     //}
+}
+
+void InkCollectionBehavior::StylusInput(QSharedPointer<StylusPointCollection> stylusPoints)
+{
+    if (stylusPoints->Description()->HasProperty(Stylus::StylusPointIdPropertyInfo)) {
+        for (StylusPoint const & sp : *stylusPoints) {
+            int touchId = sp.GetPropertyValue(Stylus::StylusPointIdPropertyInfo);
+            QSharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
+            if (c == nullptr) {
+                c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
+            }
+            c->AddItem(sp);
+        }
+    } else {
+        QSharedPointer<StylusPointCollection>& c = _stylusPoints[0];
+        if (c == nullptr) {
+            c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
+        }
+        c->Add(*stylusPoints);
+        return;
+    }
+
+    StylusDevice * sd = Stylus::CurrentDevice;
+    for (StylusGroup const & g : sd->StylusGroups()) {
+        if (g.pointIds.size() == 1) {
+            continue;
+        }
+        for (int id : g.newPointIds) {
+            _stylusPoints.remove(id);
+        }
+        QRectF shape = g.bound;
+        QPointF c = shape.center();
+        shape.translate(-c);
+        StylusShape s(shape);
+        GetInkCanvas().Strokes()->Erase({c}, s);
+    }
 }
 
 /// <summary>

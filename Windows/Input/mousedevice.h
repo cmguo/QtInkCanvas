@@ -7,6 +7,7 @@
 
 class UIElement;
 class MouseDevice;
+class QGraphicsSceneMouseEvent;
 
 class MouseEvent : public RoutedEvent
 {
@@ -35,6 +36,8 @@ public:
     static MouseEvent QueryCursorEvent;
 
     static void UpdateCursor(UIElement* element);
+
+    static void SetLastInput(QGraphicsSceneMouseEvent& input);
 
     static int GetTimestamp();
 };

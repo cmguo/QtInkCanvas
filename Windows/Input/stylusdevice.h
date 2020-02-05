@@ -33,6 +33,10 @@ public:
 
     static StylusDevice* GetDevice(QTouchDevice* device);
 
+    static StylusDevice* GetDevice(int id);
+
+    static void SetLastInput(QTouchEvent& input);
+
     static QSharedPointer<StylusPointDescription> DefaultPointDescription();
 
     static StylusEvent StylusDownEvent;
@@ -41,7 +45,9 @@ public:
 
     static StylusEvent StylusUpEvent;
 
-    static StylusPointPropertyInfo StylusIdPropertyInfo;
+    static StylusPointPropertyInfo StylusPointIdPropertyInfo;
+
+    static StylusDevice* CurrentDevice;
 
 private:
     static QMap<QTouchDevice*, StylusDevice*> devices_;
@@ -50,13 +56,21 @@ private:
 class QTouchEvent;
 class QInputEvent;
 
+class StylusGroup {
+public:
+    int groupId = 0;
+    QRectF bound;
+    QVector<int> pointIds;
+    QVector<int> newPointIds;
+};
+
 class StylusDevice : public InputDevice
 {
     Q_OBJECT
 public:
     StylusDevice(QTouchDevice * device, int id);
 
-    void SetLastPoints(QList<QTouchEvent::TouchPoint> const & points);
+    void SetLastPoints(QList<QTouchEvent::TouchPoint> const & points, bool reset);
 
     virtual int Id() override;
 
@@ -80,11 +94,15 @@ public:
 
     virtual QVector<int> PacketData(QEvent& event) override;
 
+    QMap<int, StylusGroup> const & StylusGroups() { return lastGroups_; }
+
 private:
     int id_;
     QTouchDevice * device_;
     QSharedPointer<StylusPointDescription> description_;
     QList<QTouchEvent::TouchPoint> lastPoints_;
+    QMap<int, StylusGroup> lastGroups_;
+    QMap<int, int> groupMap_;
 };
 
 #endif // STYLUSDEVICE_H

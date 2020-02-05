@@ -175,6 +175,8 @@ protected:
     //[SecurityCritical, SecurityTreatAsSafe]
     virtual void StylusInputEnd(bool commit);
 
+    void StylusInput(QSharedPointer<StylusPointCollection> stylusPoints);
+
     /// <summary>
     /// ApplyTransformToCursor
     /// </summary>

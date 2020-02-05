@@ -35,7 +35,7 @@ private:
 public:
     StylusShape();
 
-    StylusShape(QPolygonF polygon);
+    StylusShape(QPolygonF const & polygon);
 
     ///<summary>
     /// constructor for a StylusShape.

@@ -440,7 +440,7 @@ bool UIElement::sceneEvent(QEvent *event)
             rh->route->handle(*event, rh->handlers);
             if (!event->isAccepted() && rh->route->type2()) {
                 RoutedEventAndHandlers* rh2 = store->bytype.value(rh->route->type2(), nullptr);
-                if (rh2)
+                if (rh2) // if not handle touch event, not transfer to mouse event
                     rh->route->handle2(*event, rh2->handlers);
             }
             handled = event->isAccepted();

@@ -3,6 +3,8 @@
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
 #include "Windows/Input/StylusPlugIns/stylusplugin.h"
 #include "Windows/Input/StylusPlugIns/stylusplugincollection.h"
+#include "Windows/Input/stylusdevice.h"
+#include "Windows/Input/mousedevice.h"
 #include "Windows/uielement.h"
 
 #include <QTouchEvent>
@@ -45,6 +47,7 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
+        Stylus::SetLastInput(static_cast<QTouchEvent&>(*event));
         customDatas_.clear();
         for (StylusPlugInCollection* pic : stylusPlugIns_) {
             RawStylusInput stylusInput(static_cast<QTouchEvent&>(*event), transform_, pic);
@@ -56,6 +59,7 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     case QEvent::GraphicsSceneMousePress:
     case QEvent::GraphicsSceneMouseMove:
     case QEvent::GraphicsSceneMouseRelease:
+        Mouse::SetLastInput(static_cast<QGraphicsSceneMouseEvent&>(*event));
         customDatas_.clear();
         for (StylusPlugInCollection* pic : stylusPlugIns_) {
             RawStylusInput stylusInput(static_cast<QGraphicsSceneMouseEvent&>(*event), transform_, pic);

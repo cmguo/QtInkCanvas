@@ -9,9 +9,9 @@ StylusShape::StylusShape()
 
 }
 
-StylusShape::StylusShape(QPolygonF polygon)
+StylusShape::StylusShape(QPolygonF const & polygon)
 {
-    m_vertices = polygon;
+    m_vertices = polygon.mid(0, polygon.size() - 1);
 }
 
 StylusShape::StylusShape(StylusTip tip, double width, double height, double rotation)

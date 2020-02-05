@@ -772,11 +772,13 @@ QSharedPointer<Stroke> Stroke::Copy(QSharedPointer<StylusPointCollection> source
         // now set the end points
         //
         StylusPoint tempEnd = (*stylusPoints)[stylusPoints->size() - 1];
-        tempEnd = endPoint;
+        tempEnd.SetX(endPoint.x());
+        tempEnd.SetY(endPoint.y());
         stylusPoints->SetItem(stylusPoints->size() - 1, tempEnd);
 
         StylusPoint tempBegin = (*stylusPoints)[0];
-        tempBegin = begPoint;
+        tempBegin.SetX(begPoint.x());
+        tempBegin.SetY(begPoint.y());
         stylusPoints->SetItem(0, tempBegin);
     }
 

@@ -32,8 +32,7 @@ void EraserBehavior::SetClip(const QPolygonF &shape)
         _clipStroke.reset();
     } else {
         QPointF c = shape.boundingRect().center();
-        QPolygonF shape2 = shape.translated(-c);
-        StylusShape ss(shape2.mid(0, shape.size() - 1));
+        StylusShape ss(shape.translated(-c));
         _clipStroke.reset(new ErasingStroke(ss));
         _clipStroke->MoveTo({c});
     }

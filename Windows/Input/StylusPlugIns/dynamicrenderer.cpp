@@ -189,6 +189,44 @@ public:
     {
         _isReset = value;
     }
+    void Add(int id, Visual* v)
+    {
+        v->setData(1000, id);
+        _strokeCV->Children().Add(v);
+    }
+    void Remove(int id)
+    {
+        if (_strokeCV == nullptr)
+            return;
+        _strokeNodeIterator.erase(id);
+        QVector<Visual*> toRemove;
+        for (Visual* v : _strokeCV->Children()) {
+            if (v->data(1000) == id) {
+                toRemove.append(v);
+            }
+        }
+        for (Visual* v : toRemove) {
+            _strokeCV->Children().Remove(v);
+            delete v;
+        }
+    }
+    void AddGroup(int id, Visual * v)
+    {
+        v->setData(10000, id);
+        _strokeCV->Children().Add(v);
+    }
+    Visual * RemoveGroup(int id)
+    {
+        if (_strokeCV == nullptr)
+            return nullptr;
+        for (Visual* v : _strokeCV->Children()) {
+            if (v->data(10000) == id) {
+                _strokeCV->Children().Remove(v);
+                return v;
+            }
+        }
+        return nullptr;
+    }
     StrokeNodeIterator& GetStrokeNodeIterator(int id)
     {
         auto i = _strokeNodeIterator.find(id);
@@ -832,13 +870,13 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
 {
     // If no points or not hooked up to element then do nothing.
     //qDebug() << "DynamicRenderer::RenderPackets" << stylusPoints->size();
-    if (stylusPoints->size() == 0 || _applicationDispatcher == nullptr)
+    if (stylusPoints == nullptr || _applicationDispatcher == nullptr)
         return;
 
     QMap<int, QSharedPointer<StylusPointCollection>> collections;
-    if (stylusPoints->Description()->HasProperty(Stylus::StylusIdPropertyInfo)) {
+    if (stylusPoints->Description()->HasProperty(Stylus::StylusPointIdPropertyInfo)) {
         for (StylusPoint const & sp : *stylusPoints) {
-            int touchId = sp.GetPropertyValue(Stylus::StylusIdPropertyInfo);
+            int touchId = sp.GetPropertyValue(Stylus::StylusPointIdPropertyInfo);
             QSharedPointer<StylusPointCollection>& c = collections[touchId];
             if (c == nullptr) {
                 c.reset(new StylusPointCollection(stylusPoints->Description()));
@@ -913,7 +951,7 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
                 // onDraw called above).
                 if (si->StrokeCV() != nullptr)
                 {
-                    si->StrokeCV()->Children().Add(visual);
+                    si->Add((*i).first, visual);
                 }
             }
             else
@@ -974,6 +1012,34 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
             }
         }
     } // for
+
+    StylusDevice* sd = Stylus::GetDevice(si->StylusId());
+    if (sd == nullptr)
+        return;
+    for (StylusGroup const & g : sd->StylusGroups()) {
+        if (g.pointIds.size() == 1) {
+            continue;
+        }
+        for (int id : g.newPointIds) {
+            si->Remove(id);
+        }
+        if (si->StrokeCV() == nullptr)
+        {
+            // Create new container visual for this stroke and add our incremental rendering visual to it.
+            si->SetStrokeCV(new ContainerVisual());
+            //
+            if (!si->GetDrawingAttributes()->IsHighlighter())
+            {
+                si->StrokeCV()->SetOpacity(si->Opacity());
+            }
+            _mainRawInkContainerVisual->Children().Add(si->StrokeCV());
+        }        Visual* v = si->RemoveGroup(g.groupId);
+        DrawingVisual* dv = v ? static_cast<DrawingVisual*>(v) : new DrawingVisual;
+        std::unique_ptr<DrawingContext> dc(dv->RenderOpen());
+        dc->DrawRectangle(Qt::white, QPen(Qt::black), g.bound);
+        dc->Close();
+        si->AddGroup(g.groupId, dv);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////
