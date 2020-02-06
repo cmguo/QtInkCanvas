@@ -53,6 +53,16 @@ StylusDevice *Stylus::GetDevice(int id)
     return nullptr;
 }
 
+QSizeF Stylus::GetGroupSize()
+{
+    return groupSize_;
+}
+
+void Stylus::SetGroupSize(const QSizeF &size)
+{
+    groupSize_ = size;
+}
+
 void Stylus::SetLastInput(QTouchEvent& input)
 {
     CurrentDevice = GetDevice(input.device());
@@ -72,6 +82,7 @@ QSharedPointer<StylusPointDescription> Stylus::DefaultPointDescription()
 }
 
 QMap<QTouchDevice*, StylusDevice*> Stylus::devices_;
+QSizeF Stylus::groupSize_;
 
 StylusEvent Stylus::StylusDownEvent(QEvent::TouchBegin, QEvent::GraphicsSceneMousePress);
 
@@ -97,6 +108,11 @@ StylusDevice::StylusDevice(QTouchDevice * device, int id)
 
 void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, bool reset)
 {
+    QSizeF gs = Stylus::GetGroupSize();
+    if (gs.isEmpty()) {
+        lastPoints_ = points;
+        return;
+    }
     if (reset) {
         lastGroups_.clear();
         groupMap_.clear();
@@ -121,7 +137,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
                 break;
             }
             QRectF bound = United(g.bound, tp.pos());
-            if (bound.width() <= 100 && bound.height() <= 100) {
+            if (bound.width() <= gs.width() && bound.height() <= gs.height()) {
                 gid = g.groupId;
                 g.bound = bound;
                 break;
@@ -147,7 +163,16 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
         StylusGroup & g = lastGroups_[gid];
         if (g.pointIds.size() == 1) {
             lastPoints_.append(tp);
+        }
+    }
+    for (StylusGroup & g : lastGroups_) {
+        if (g.pointIds.size() == 1) {
             g.newPointIds.clear();
+        } else {
+            if (g.bound.width() * gs.height() < g.bound.height() * gs.width())
+                g.bound.setWidth(g.bound.height() * gs.width() / gs.height());
+            else
+                g.bound.setHeight(g.bound.width() * gs.height() / gs.width());
         }
     }
 }

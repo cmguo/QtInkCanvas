@@ -31,6 +31,7 @@ public:
 
 private:
     QMutex mutex_;
+    UIElement * element_;
     QList<StylusPlugInCollection*> stylusPlugIns_;
     QTransform transform_;
     RawStylusActions action_;

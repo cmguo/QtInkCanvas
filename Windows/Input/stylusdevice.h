@@ -35,6 +35,10 @@ public:
 
     static StylusDevice* GetDevice(int id);
 
+    static void SetGroupSize(QSizeF const & size);
+
+    static QSizeF GetGroupSize();
+
     static void SetLastInput(QTouchEvent& input);
 
     static QSharedPointer<StylusPointDescription> DefaultPointDescription();
@@ -51,6 +55,7 @@ public:
 
 private:
     static QMap<QTouchDevice*, StylusDevice*> devices_;
+    static QSizeF groupSize_;
 };
 
 class QTouchEvent;

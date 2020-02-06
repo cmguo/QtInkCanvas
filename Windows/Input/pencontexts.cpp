@@ -6,12 +6,14 @@
 #include "Windows/Input/stylusdevice.h"
 #include "Windows/Input/mousedevice.h"
 #include "Windows/uielement.h"
+#include "Windows/Controls/inkcanvas.h"
 
 #include <QTouchEvent>
 #include <QGraphicsSceneMouseEvent>
 
 PenContexts::PenContexts(UIElement * element)
     : mutex_(QMutex::Recursive)
+    , element_(element)
 {
     if (Mouse::PrimaryDevice == nullptr)
         Mouse::PrimaryDevice = new MouseDevice;
@@ -45,6 +47,8 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
 {
     switch (event->type()) {
     case QEvent::TouchBegin:
+        Stylus::SetGroupSize(qobject_cast<InkCanvas*>(element_)->EraserShape()->BoundingBox().size() * 2);
+        Q_FALLTHROUGH();
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
         Stylus::SetLastInput(static_cast<QTouchEvent&>(*event));
