@@ -117,9 +117,9 @@ ImageDrawing::~ImageDrawing()
 {
 }
 
-void ImageDrawing::SetImageSource(QPixmap pixmap)
+void ImageDrawing::SetImageSource(QImage image)
 {
-    image_ = pixmap;
+    image_ = image;
 }
 
 void ImageDrawing::SetRect(QRectF r)
@@ -129,12 +129,12 @@ void ImageDrawing::SetRect(QRectF r)
 
 QRectF ImageDrawing::Bounds()
 {
-    return QRectF();
+    return rect_;
 }
 
 void ImageDrawing::Draw(QPainter &painer)
 {
-
+    painer.drawImage(rect_, image_);
 }
 
 

@@ -621,7 +621,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawImage(
 ///     The Rect into which the ImageSource will be fit.
 /// </param>
 void DrawingDrawingContext::DrawImage(
-    QPixmap imageSource,
+    QImage imageSource,
     QRectF const & rectangle)
 {
 
@@ -646,7 +646,7 @@ void DrawingDrawingContext::DrawImage(
 /// </param>
 /// <param name="rectangleAnimations"> Optional AnimationClock for rectangle. </param>
 void DrawingDrawingContext::DrawImage(
-    QPixmap imageSource,
+    QImage imageSource,
     QRectF const & rectangle,
     AnimationClock * rectangleAnimations)
 {

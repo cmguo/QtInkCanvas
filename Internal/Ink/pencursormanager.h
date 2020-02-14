@@ -20,6 +20,7 @@ class StylusShape;
 /// </summary>
 class PenCursorManager
 {
+    static QImage EraserImage;
     //-------------------------------------------------------------------------------
     //
     // Methods
@@ -46,6 +47,10 @@ public:
     /// <param name="tranform">Transform</param>
     /// <returns></returns>
     static QCursor GetPointEraserCursor(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
+
+    static QCursor GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
+
+    static QImage GetEraserImage();
 
     /// <summary>
     /// Create a stroke eraser cursor

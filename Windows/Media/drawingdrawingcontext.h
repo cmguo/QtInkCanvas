@@ -260,7 +260,7 @@ public:
     ///     The QRectF const & into which the ImageSource will be fit.
     /// </param>
     virtual void DrawImage(
-        QPixmap imageSource,
+        QImage imageSource,
         QRectF const & rectangle) override;
 
     /// <summary>
@@ -276,7 +276,7 @@ public:
     /// </param>
     /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
     virtual void DrawImage(
-        QPixmap imageSource,
+        QImage imageSource,
         QRectF const & rectangle,
         AnimationClock * rectangleAnimations) override;
 

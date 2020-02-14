@@ -3,6 +3,7 @@
 #include "Internal/Ink/strokenodeiterator.h"
 #include "Internal/Ink/strokenodeoperations.h"
 #include "Internal/Ink/strokerenderer.h"
+#include "Internal/Ink/pencursormanager.h"
 #include "Windows/Ink/drawingattributes.h"
 #include "Windows/Media/geometry.h"
 #include "Windows/Media/drawingcontext.h"
@@ -1036,7 +1037,8 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         }        Visual* v = si->RemoveGroup(g.groupId);
         DrawingVisual* dv = v ? static_cast<DrawingVisual*>(v) : new DrawingVisual;
         std::unique_ptr<DrawingContext> dc(dv->RenderOpen());
-        dc->DrawRectangle(Qt::white, QPen(Qt::black), g.bound);
+        //dc->DrawRectangle(Qt::white, QPen(Qt::black), g.bound);
+        dc->DrawImage(PenCursorManager::GetEraserImage(), g.bound);
         dc->Close();
         si->AddGroup(g.groupId, dv);
     }

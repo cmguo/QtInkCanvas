@@ -83,7 +83,7 @@ public:
 
     virtual ~ImageDrawing() override;
 
-    void SetImageSource(QPixmap);
+    void SetImageSource(QImage);
 
     void SetRect(QRectF);
 
@@ -92,7 +92,7 @@ public:
     virtual void Draw(QPainter& painer) override;
 
 private:
-    QPixmap image_;
+    QImage image_;
     QRectF rect_;
 };
 

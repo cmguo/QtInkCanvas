@@ -94,3 +94,6 @@ win32 {
     LIBS += -ladvapi32
     #LIBS += -L$$PWD -lmshwgst
 }
+
+RESOURCES += \
+    inkcanvas.qrc

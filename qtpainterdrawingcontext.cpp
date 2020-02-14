@@ -92,15 +92,15 @@ void QtPainterDrawingContext::DrawGeometry(QBrush brush, QPen pen, Geometry *geo
     painter_.setBrush(oldBrush);
 }
 
-void QtPainterDrawingContext::DrawImage(QPixmap imageSource, const QRectF &rectangle)
+void QtPainterDrawingContext::DrawImage(QImage imageSource, const QRectF &rectangle)
 {
     DrawImage(imageSource, rectangle, nullptr);
 }
 
-void QtPainterDrawingContext::DrawImage(QPixmap imageSource, const QRectF &rectangle, AnimationClock *rectangleAnimations)
+void QtPainterDrawingContext::DrawImage(QImage imageSource, const QRectF &rectangle, AnimationClock *rectangleAnimations)
 {
     (void) rectangleAnimations;
-    painter_.drawPixmap(rectangle.toRect(), imageSource);
+    painter_.drawImage(rectangle, imageSource);
 }
 
 void QtPainterDrawingContext::DrawDrawing(Drawing *drawing)

@@ -73,11 +73,11 @@ public:
         Geometry * geometry) override;
 
     virtual void DrawImage(
-        QPixmap imageSource,
+        QImage imageSource,
         QRectF const & rectangle) override;
 
     virtual void DrawImage(
-        QPixmap imageSource,
+        QImage imageSource,
         QRectF const & rectangle,
         AnimationClock * rectangleAnimations) override;
 

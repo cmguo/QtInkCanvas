@@ -710,7 +710,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spine, double beginRadi
     double s2 = (-B - tmp)/(2.0f * A);
     double findex;
 
-    if (DoubleUtil::IsBetweenZeroAndOne(s1) && DoubleUtil::IsBetweenZeroAndOne(s1))
+    if (DoubleUtil::IsBetweenZeroAndOne(s1) && DoubleUtil::IsBetweenZeroAndOne(s2))
     {
         findex = qMin(s1, s2);
     }

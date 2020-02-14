@@ -21,6 +21,8 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+QImage PenCursorManager::EraserImage;
+
 /// <summary>
 /// Create a pen cursor from DrawingAttributes object
 /// </summary>
@@ -47,9 +49,6 @@ QCursor PenCursorManager::GetPenCursor(QSharedPointer<DrawingAttributes> drawing
 /// <returns></returns>
 QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY)
 {
-    Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");
-    Debug::Assert(tranform.isInvertible(), "The transform has to be invertable.");
-
     // Create a DA with IsHollow being set. A point eraser will be rendered to a hollow stroke.
     QSharedPointer<DrawingAttributes> da(new DrawingAttributes);
     if (stylusShape.metaObject()->inherits(&RectangleStylusShape::staticMetaObject))
@@ -81,6 +80,24 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
 
     // Forward to GetPenCursor.
     return GetPenCursor(da, true, false/*isRightToLeft*/, dpiScaleX, dpiScaleY);
+}
+
+QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY)
+{
+    Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");
+    Debug::Assert(tranform.isInvertible(), "The transform has to be invertable.");
+
+    std::unique_ptr<ImageDrawing> eraserDrawing(new ImageDrawing);
+    eraserDrawing->SetImageSource(GetEraserImage().transformed(tranform, Qt::SmoothTransformation));
+    eraserDrawing->SetRect(tranform.mapRect(stylusShape.BoundingBox()));
+    return CreateCursorFromDrawing(*eraserDrawing, QPointF(0, 0));
+}
+
+QImage PenCursorManager::GetEraserImage()
+{
+    if (EraserImage.isNull())
+        EraserImage.load(":/inkcanvas/eraser.png");
+    return EraserImage;
 }
 
 /// <summary>
