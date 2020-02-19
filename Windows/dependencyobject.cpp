@@ -14,6 +14,8 @@ DependencyObject::DependencyObject()
 void DependencyObject::SetValue(DependencyProperty const * prop, QVariant value)
 {
     QVariant old = props_.value(prop);
+    if (value == old)
+        return;
     props_[prop] = value;
     prop->Changed(*this, old, value);
 }

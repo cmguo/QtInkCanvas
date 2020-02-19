@@ -52,9 +52,11 @@ void Mouse::UpdateCursor(UIElement* element)
     args.SetRoutedEvent(Mouse::QueryCursorEvent);
     element->RaiseEvent(args);
     if (args.Handled()) {
+#ifdef WIN32
         if (args.Cursor() == QCursor())
-            element->unsetCursor();
+            element->unsetCursor(); // not work on macosx
         else
+#endif
             element->setCursor(args.Cursor());
     }
 }
