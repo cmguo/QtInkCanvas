@@ -67,12 +67,14 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     case QEvent::GraphicsSceneMouseMove:
     case QEvent::GraphicsSceneMouseRelease:
         Mouse::SetLastInput(static_cast<QGraphicsSceneMouseEvent&>(*event));
-        customDatas_.clear();
-        for (StylusPlugInCollection* pic : stylusPlugIns_) {
-            RawStylusInput stylusInput(static_cast<QGraphicsSceneMouseEvent&>(*event), transform_, pic);
-            pic->FireRawStylusInput(stylusInput);
-            action_ = stylusInput.Actions();
-            customDatas_.append(stylusInput.CustomDataList());
+        if (static_cast<QGraphicsSceneMouseEvent&>(*event).source() == Qt::MouseEventNotSynthesized) {
+            customDatas_.clear();
+            for (StylusPlugInCollection* pic : stylusPlugIns_) {
+                RawStylusInput stylusInput(static_cast<QGraphicsSceneMouseEvent&>(*event), transform_, pic);
+                pic->FireRawStylusInput(stylusInput);
+                action_ = stylusInput.Actions();
+                customDatas_.append(stylusInput.CustomDataList());
+            }
         }
         break;
     default:
