@@ -228,6 +228,13 @@ public:
         }
         return nullptr;
     }
+    QList<int> strokeKeys()
+    {
+        QList<int> keys;
+        for (auto const & e : _strokeNodeIterator)
+            keys.append(e.first);
+        return keys;
+    }
     StrokeNodeIterator& GetStrokeNodeIterator(int id)
     {
         auto i = _strokeNodeIterator.find(id);
@@ -888,12 +895,14 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         collections.insert(0, stylusPoints);
     }
 
+    QList<int> old = si->strokeKeys();
     auto i = collections.keyValueBegin();
     for (; i != collections.keyValueEnd(); ++i) {
         // Get a collection of ink nodes built from the new stylusPoints.
         si->SetStrokeNodeIterator((*i).first, si->GetStrokeNodeIterator((*i).first).GetIteratorForNextSegment((*i).second));
         if (si->GetStrokeNodeIterator((*i).first) != nullptr)
         {
+            old.removeOne((*i).first);
             // Create a PathGeometry representing the contour of the ink increment
             Geometry* strokeGeometry = nullptr;
             QRectF bounds;
@@ -1014,11 +1023,17 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         }
     } // for
 
+    for (int id : old) {
+        si->Remove(id);
+    }
+
     StylusDevice* sd = Stylus::GetDevice(si->StylusId());
     if (sd == nullptr)
         return;
     for (StylusGroup const & g : sd->StylusGroups()) {
-        if (g.pointIds.size() == 1) {
+        if (g.pointIds.size() <= 2) {
+            Visual* v = si->RemoveGroup(g.groupId);
+            if (v) delete v;
             continue;
         }
         for (int id : g.newPointIds) {
@@ -1034,7 +1049,8 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
                 si->StrokeCV()->SetOpacity(si->Opacity());
             }
             _mainRawInkContainerVisual->Children().Add(si->StrokeCV());
-        }        Visual* v = si->RemoveGroup(g.groupId);
+        }
+        Visual* v = si->RemoveGroup(g.groupId);
         DrawingVisual* dv = v ? static_cast<DrawingVisual*>(v) : new DrawingVisual;
         std::unique_ptr<DrawingContext> dc(dv->RenderOpen());
         //dc->DrawRectangle(Qt::white, QPen(Qt::black), g.bound);

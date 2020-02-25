@@ -65,6 +65,7 @@ class StylusGroup {
 public:
     int groupId = 0;
     QRectF bound;
+    QVector<int> allPointIds;
     QVector<int> pointIds;
     QVector<int> newPointIds;
 };

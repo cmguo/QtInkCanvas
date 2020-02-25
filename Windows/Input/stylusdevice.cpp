@@ -108,6 +108,7 @@ StylusDevice::StylusDevice(QTouchDevice * device, int id)
 
 void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, bool reset)
 {
+    //qDebug() << points;
     QSizeF gs = Stylus::GetGroupSize();
     if (gs.isEmpty()) {
         lastPoints_ = points;
@@ -119,6 +120,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
     }
     for (StylusGroup & g : lastGroups_) {
         g.bound = QRectF();
+        g.pointIds.clear();
         g.newPointIds.clear();
     }
     for (QTouchEvent::TouchPoint const & tp : points) {
@@ -126,12 +128,14 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
         if (gid) {
             StylusGroup & g = lastGroups_[gid];
             g.bound = United(g.bound, tp.pos());
+            g.pointIds.append(tp.id());
         }
     }
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
         if (gid) continue;
         for (StylusGroup & g : lastGroups_) {
+            if(g.pointIds.isEmpty()) continue;
             if (g.bound.contains(tp.pos())) {
                 gid = g.groupId;
                 break;
@@ -150,9 +154,10 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
             g.bound = QRectF(tp.pos(), tp.pos());
         }
         StylusGroup & g = lastGroups_[gid];
-        if (g.pointIds.size() == 1 && g.newPointIds.empty()) {
+        if (g.allPointIds.size() == 2 && g.newPointIds.empty()) {
             g.newPointIds.append(g.pointIds);
         }
+        g.allPointIds.append(tp.id());
         g.pointIds.append(tp.id());
         g.newPointIds.append(tp.id());
         groupMap_.insert(tp.id(), gid);
@@ -161,12 +166,13 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
         StylusGroup & g = lastGroups_[gid];
-        if (g.pointIds.size() == 1) {
+        if (g.allPointIds.size() <= 2) {
             lastPoints_.append(tp);
         }
     }
+    //qDebug() << "----" << lastPoints_;
     for (StylusGroup & g : lastGroups_) {
-        if (g.pointIds.size() == 1) {
+        if (g.allPointIds.size() <= 2) {
             g.newPointIds.clear();
         } else {
             if (g.bound.width() * gs.height() < g.bound.height() * gs.width())

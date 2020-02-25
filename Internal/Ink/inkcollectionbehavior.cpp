@@ -352,13 +352,24 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
 void InkCollectionBehavior::StylusInput(QSharedPointer<StylusPointCollection> stylusPoints)
 {
     if (stylusPoints->Description()->HasProperty(Stylus::StylusPointIdPropertyInfo)) {
+        QList<int> old = _stylusPoints.keys();
         for (StylusPoint const & sp : *stylusPoints) {
             int touchId = sp.GetPropertyValue(Stylus::StylusPointIdPropertyInfo);
             QSharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
             if (c == nullptr) {
                 c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
+            } else {
+                old.removeOne(touchId);
             }
             c->AddItem(sp);
+        }
+        for (int id : old) {
+            QSharedPointer<StylusPointCollection> spc = _stylusPoints.take(id);
+            QSharedPointer<Stroke> stroke(new Stroke(spc, _strokeDrawingAttributes));
+            //we don't add the stroke to the InkCanvas stroke collection until RaiseStrokeCollected
+            //since this might be a gesture and in some modes, gestures don't get added
+            InkCanvasStrokeCollectedEventArgs argsStroke(stroke);
+            GetInkCanvas().RaiseGestureOrStrokeCollected(argsStroke, _userInitiated);
         }
     } else {
         QSharedPointer<StylusPointCollection>& c = _stylusPoints[0];
@@ -371,7 +382,7 @@ void InkCollectionBehavior::StylusInput(QSharedPointer<StylusPointCollection> st
 
     StylusDevice * sd = Stylus::CurrentDevice;
     for (StylusGroup const & g : sd->StylusGroups()) {
-        if (g.pointIds.size() == 1) {
+        if (g.pointIds.size() <= 2) {
             continue;
         }
         for (int id : g.newPointIds) {
