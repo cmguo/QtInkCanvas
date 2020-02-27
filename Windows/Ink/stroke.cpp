@@ -1528,7 +1528,7 @@ QSharedPointer<StrokeCollection> Stroke::Erase(QVector<StrokeIntersection> cutAt
     if(cutAt.size() == 0)
     {
         QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
-        strokes->AddItem(sharedFromThis()); //clip and erase always return clones for this condition
+        strokes->AddItem(Clone()); //clip and erase always return clones for this condition
         return strokes;
     }
 
