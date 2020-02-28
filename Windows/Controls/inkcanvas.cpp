@@ -2654,7 +2654,7 @@ void InkCanvas::_OnQueryCursor(QueryCursorEventArgs& e)
 /// </summary>
 void InkCanvas::UpdateCursor()
 {
-    if ( IsMouseOver() )
+    //if ( IsMouseOver() )
     {
         Mouse::UpdateCursor(this);
     }
