@@ -175,10 +175,19 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
         if (g.allPointIds.size() <= 2) {
             g.newPointIds.clear();
         } else {
-            if (g.bound.width() * gs.height() < g.bound.height() * gs.width())
-                g.bound.setWidth(g.bound.height() * gs.width() / gs.height());
-            else
-                g.bound.setHeight(g.bound.width() * gs.height() / gs.width());
+            QPointF c = g.bound.center();
+            QSizeF s = g.bound.size();
+            if (s.width() > gs.width() || s.height() > gs.height()) {
+                s = gs;
+            } else if (s.width() < gs.width() / 5 && s.height() < gs.height() / 5) {
+                s = gs / 5;
+            } else if (s.width() * gs.height() < s.height() * gs.width()) {
+                s.setWidth(s.height() * gs.width() / gs.height());
+            } else {
+                s.setHeight(s.width() * gs.height() / gs.width());
+            }
+            g.bound.setSize(s);
+            g.bound.moveCenter(c);
         }
     }
 }
