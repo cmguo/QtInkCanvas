@@ -2203,12 +2203,26 @@ void InkCanvas::_RegisterClipboardHandlers()
     */
     QWidget* widget = scene()->views().first();
     if (!widget->property("inkcanvasshortcut").isValid()) {
-        new QShortcut(QKeySequence(QKeySequence::Copy), widget);
-        new QShortcut(QKeySequence(QKeySequence::Cut), widget);
-        new QShortcut(QKeySequence(QKeySequence::Paste), widget);
-        new QShortcut(QKeySequence(QKeySequence::SelectAll), widget);
-        new QShortcut(QKeySequence(QKeySequence::Delete), widget);
-        new QShortcut(QKeySequence(QKeySequence::Deselect), widget);
+        QKeySequence::StandardKey keys[] = {
+            QKeySequence::Copy,
+            QKeySequence::Cut,
+            QKeySequence::Paste,
+            QKeySequence::SelectAll,
+            QKeySequence::Delete,
+            QKeySequence::Cancel
+        };
+        for (QObject * c : widget->children()) {
+            QShortcut * shortcut = qobject_cast<QShortcut *>(c);
+            if (!shortcut) continue;
+            for (QKeySequence::StandardKey & k : keys) {
+                if (k != QKeySequence::UnknownKey && shortcut->key().matches(k))
+                    k = QKeySequence::UnknownKey;
+            }
+        }
+        for (QKeySequence::StandardKey k : keys) {
+            if (k != QKeySequence::UnknownKey)
+                new QShortcut(k, widget);
+        }
         widget->setProperty("inkcanvasshortcut", true);
     }
     for (QObject * c : widget->children()) {
@@ -2507,7 +2521,7 @@ void InkCanvas::_OnCommandExecuted()
                 Paste();
             } catch (...) {
             }
-        } else if (shortcut->key().matches(QKeySequence::Deselect)) {
+        } else if (shortcut->key().matches(QKeySequence::Cancel)) {
             ClearSelectionRaiseSelectionChanging();
         }
     }
