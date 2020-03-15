@@ -106,6 +106,14 @@ StylusDevice::StylusDevice(QTouchDevice * device, int id)
     description_ = Stylus::DefaultPointDescription();
 }
 
+#define ERASER_FINGER_MIN_COUNT 3
+
+#ifdef QT_DEBUG
+#define MULTIPLE_STROKES_IN_ONE_GROUP 1
+#else
+#define MULTIPLE_STROKES_IN_ONE_GROUP 0
+#endif
+
 void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, bool reset)
 {
     //qDebug() << points;
@@ -154,7 +162,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
             g.bound = QRectF(tp.pos(), tp.pos());
         }
         StylusGroup & g = lastGroups_[gid];
-        if (g.allPointIds.size() == 2 && g.newPointIds.empty()) {
+        if (g.allPointIds.size() == (ERASER_FINGER_MIN_COUNT - 1) && g.newPointIds.empty()) {
             g.newPointIds.append(g.pointIds);
         }
         g.allPointIds.append(tp.id());
@@ -166,13 +174,17 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
         StylusGroup & g = lastGroups_[gid];
-        if (g.allPointIds.size() <= 2) {
+#if MULTIPLE_STROKES_IN_ONE_GROUP
+        if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT) {
+#else
+        if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT && tp.id() == gid) {
+#endif
             lastPoints_.append(tp);
         }
     }
     //qDebug() << "----" << lastPoints_;
     for (StylusGroup & g : lastGroups_) {
-        if (g.allPointIds.size() <= 2) {
+        if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT) {
             g.newPointIds.clear();
         } else {
             QPointF c = g.bound.center();
