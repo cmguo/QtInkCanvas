@@ -1,4 +1,4 @@
-QT += gui widgets
+QT += gui widgets svg
 
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY

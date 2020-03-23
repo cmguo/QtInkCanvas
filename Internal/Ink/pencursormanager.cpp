@@ -21,7 +21,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-QImage PenCursorManager::EraserImage;
+QSvgRenderer PenCursorManager::EraserImage;
 
 /// <summary>
 /// Create a pen cursor from DrawingAttributes object
@@ -87,17 +87,18 @@ QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, QMatri
     Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");
     Debug::Assert(tranform.isInvertible(), "The transform has to be invertable.");
 
-    std::unique_ptr<ImageDrawing> eraserDrawing(new ImageDrawing);
-    eraserDrawing->SetImageSource(GetEraserImage().transformed(tranform, Qt::SmoothTransformation));
-    eraserDrawing->SetRect(tranform.mapRect(stylusShape.BoundingBox()));
+    std::unique_ptr<Drawing> eraserDrawing(GetEraserImage(tranform.mapRect(stylusShape.BoundingBox())));
     return CreateCursorFromDrawing(*eraserDrawing, QPointF(0, 0));
 }
 
-QImage PenCursorManager::GetEraserImage()
+Drawing* PenCursorManager::GetEraserImage(QRectF const & bound)
 {
-    if (EraserImage.isNull())
-        EraserImage.load(":/inkcanvas/eraser.png");
-    return EraserImage;
+    if (!EraserImage.isValid())
+        EraserImage.load(QString(":/inkcanvas/eraser.svg"));
+    std::unique_ptr<SvgImageDrawing> drawing(new SvgImageDrawing);
+    drawing->SetImageSource(&EraserImage);
+    drawing->SetRect(bound);
+    return drawing.release();
 }
 
 /// <summary>

@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QDebug>
 
+#include <QtSvg/QSvgRenderer>
+
 //static int count = 0;
 
 Drawing::Drawing()
@@ -138,3 +140,31 @@ void ImageDrawing::Draw(QPainter &painer)
 }
 
 
+
+SvgImageDrawing::SvgImageDrawing()
+{
+}
+
+SvgImageDrawing::~SvgImageDrawing()
+{
+}
+
+void SvgImageDrawing::SetImageSource(QSvgRenderer *renderer)
+{
+    renderer_ = renderer;
+}
+
+void SvgImageDrawing::SetRect(QRectF r)
+{
+    rect_ = r;
+}
+
+QRectF SvgImageDrawing::Bounds()
+{
+    return rect_;
+}
+
+void SvgImageDrawing::Draw(QPainter &painer)
+{
+    renderer_->render(&painer, rect_);
+}

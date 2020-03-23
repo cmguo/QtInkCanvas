@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="80px" viewBox="0 0 48 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>01 通用/图标/48px/eraser</title>
+    <desc>Created with Sketch.</desc>
+    <g id="01-通用/图标/48px/eraser" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" stroke="#D1D1D1" fill="#F4F4F4" x="0.5" y="0.5" width="47" height="79" rx="7"></rect>
+        <rect id="矩形" fill="#E5E5E5" x="12" y="27" width="24" height="6" rx="3"></rect>
+        <rect id="矩形" fill="#E5E5E5" x="12" y="37" width="24" height="6" rx="3"></rect>
+        <rect id="矩形" fill="#E5E5E5" x="12" y="47" width="24" height="6" rx="3"></rect>
+    </g>
+</svg>

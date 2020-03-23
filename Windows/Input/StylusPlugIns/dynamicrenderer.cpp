@@ -1054,7 +1054,7 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
         DrawingVisual* dv = v ? static_cast<DrawingVisual*>(v) : new DrawingVisual;
         std::unique_ptr<DrawingContext> dc(dv->RenderOpen());
         //dc->DrawRectangle(Qt::white, QPen(Qt::black), g.bound);
-        dc->DrawImage(PenCursorManager::GetEraserImage(), g.bound);
+        dc->DrawDrawing(PenCursorManager::GetEraserImage(g.bound));
         dc->Close();
         si->AddGroup(g.groupId, dv);
     }

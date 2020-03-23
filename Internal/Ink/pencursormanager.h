@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 #include <QMatrix>
 #include <QPointF>
+#include <QtSvg/QSvgRenderer>
 
 class DrawingAttributes;
 class Drawing;
@@ -20,7 +21,7 @@ class StylusShape;
 /// </summary>
 class PenCursorManager
 {
-    static QImage EraserImage;
+    static QSvgRenderer EraserImage;
     //-------------------------------------------------------------------------------
     //
     // Methods
@@ -50,7 +51,7 @@ public:
 
     static QCursor GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
 
-    static QImage GetEraserImage();
+    static Drawing* GetEraserImage(QRectF const & bound);
 
     /// <summary>
     /// Create a stroke eraser cursor

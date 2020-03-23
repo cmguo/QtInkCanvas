@@ -8,6 +8,7 @@
 
 class DrawingContext;
 class QPainter;
+class QSvgRenderer;
 
 // namespace System.Windows.Media
 
@@ -93,6 +94,26 @@ public:
 
 private:
     QImage image_;
+    QRectF rect_;
+};
+
+class SvgImageDrawing : public Drawing
+{
+public:
+    SvgImageDrawing();
+
+    virtual ~SvgImageDrawing() override;
+
+    void SetImageSource(QSvgRenderer * renderer);
+
+    void SetRect(QRectF);
+
+    virtual QRectF Bounds() override;
+
+    virtual void Draw(QPainter& painer) override;
+
+private:
+    QSvgRenderer * renderer_;
     QRectF rect_;
 };
 
