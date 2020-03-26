@@ -41,9 +41,9 @@ public:
     /// <param name="i">Index</param>
     /// <returns>StylusPoint</returns>
     /// <remarks>The Index is within the bounds</remarks>
-    QPointF XY(int i) const
+    QPointF const & XY(int i) const
     {
-        return QPointF(_points[i].Point.x(), _points[i].Point.y());
+        return _points[i].Point;
     }
 
 

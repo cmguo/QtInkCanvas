@@ -79,13 +79,13 @@ void CuspData::SetTanLinks(double rError)
         {
             if (_nodes[j] - _nodes[i] >= rError)
             {
-                CDataPoint cdp = _points[i];
-                cdp.TanNext = j;
-                _points[i] = cdp;
+                //CDataPoint cdp = _points[i];
+                _points[i].TanNext = j;
+                //_points[i] = cdp;
 
-                CDataPoint cdp2 = _points[j];
-                cdp2.TanPrev = i;
-                _points[j] = cdp2;
+                //CDataPoint cdp2 = _points[j];
+                _points[j].TanPrev = i;
+                //_points[j] = cdp2;
                 break;
             }
         }
@@ -96,9 +96,9 @@ void CuspData::SetTanLinks(double rError)
             {
                 if (_nodes[i] - _nodes[j] >= rError)
                 {
-                    CDataPoint cdp = _points[i];
-                    cdp.TanPrev = j;
-                    _points[i] = cdp;
+                    //CDataPoint cdp = _points[i];
+                    _points[i].TanPrev = j;
+                    //_points[i] = cdp;
                     break;
                 }
             }
@@ -106,16 +106,16 @@ void CuspData::SetTanLinks(double rError)
 
         if (0 > _points[i].TanNext)
         {
-            CDataPoint cdp = _points[i];
-            cdp.TanNext = count - 1;
-            _points[i] = cdp;
+            //CDataPoint cdp = _points[i];
+            _points[i].TanNext = count - 1;
+            //_points[i] = cdp;
         }
 
         if (0 > _points[i].TanPrev)
         {
-            CDataPoint cdp = _points[i];
-            cdp.TanPrev = 0;
-            _points[i] = cdp;
+            //CDataPoint cdp = _points[i];
+            _points[i].TanPrev = 0;
+            //_points[i] = cdp;
         }
     }
 }
