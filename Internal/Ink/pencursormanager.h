@@ -49,6 +49,8 @@ public:
     /// <returns></returns>
     static QCursor GetPointEraserCursor(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
 
+    static QCursor GetPointEraserCursor1(double dpiScaleX, double dpiScaleY);
+
     static QCursor GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
 
     static Drawing* GetEraserImage(QRectF const & bound);

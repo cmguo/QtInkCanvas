@@ -82,6 +82,13 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
     return GetPenCursor(da, true, false/*isRightToLeft*/, dpiScaleX, dpiScaleY);
 }
 
+QCursor PenCursorManager::GetPointEraserCursor1(double dpiScaleX, double dpiScaleY)
+{
+    static QPixmap eraserPixmap(":/inkcanvas/erasercursor.svg");
+    static QCursor eraserCursor(eraserPixmap);
+    return eraserCursor;
+}
+
 QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY)
 {
     Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");

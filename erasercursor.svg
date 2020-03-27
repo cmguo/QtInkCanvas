@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>橡皮最小</title>
+    <desc>Created with Sketch.</desc>
+    <g id="橡皮最小" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" stroke="#E3E3E3" fill="#F4F4F4" x="3.5" y="0.5" width="9" height="15" rx="2"></rect>
+        <g id="编组" transform="translate(5.000000, 5.000000)" fill="#ECECEC" stroke="#E3E3E3" stroke-width="3">
+            <rect id="矩形" x="1.5" y="3.5" width="3" height="1" rx="0.5"></rect>
+            <rect id="矩形" x="1.5" y="1.5" width="3" height="1" rx="0.5"></rect>
+            <rect id="矩形" x="1.5" y="5.5" width="3" height="1" rx="0.5"></rect>
+        </g>
+    </g>
+</svg>

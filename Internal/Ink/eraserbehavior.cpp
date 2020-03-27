@@ -286,7 +286,8 @@ QCursor EraserBehavior::GetCurrentCursor()
     {
         if ( GetEditingCoordinator().UserIsEditing() == false )
         {
-            return QCursor(Qt::ArrowCursor);
+            qreal dpi = QApplication::primaryScreen()->devicePixelRatio();
+            return PenCursorManager::GetPointEraserCursor1(dpi, dpi);
         }
         if ( _cachedStylusShape == nullptr )
         {

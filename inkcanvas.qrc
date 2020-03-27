@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/inkcanvas">
         <file>eraser.svg</file>
+        <file>erasercursor.svg</file>
     </qresource>
 </RCC>
