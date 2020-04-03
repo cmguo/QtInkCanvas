@@ -48,7 +48,7 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     switch (event->type()) {
     case QEvent::TouchBegin:
         if (qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::Ink)
-            Stylus::SetGroupSize(qobject_cast<InkCanvas*>(element_)->EraserShape()->BoundingBox().size() * 6);
+            Stylus::SetGroupSize(qobject_cast<InkCanvas*>(element_)->EraserShape()->BoundingBox().size());
         else
             Stylus::SetGroupSize(QSizeF());
         Q_FALLTHROUGH();

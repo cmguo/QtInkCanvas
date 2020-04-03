@@ -60,7 +60,7 @@ QSizeF Stylus::GetGroupSize()
 
 void Stylus::SetGroupSize(const QSizeF &size)
 {
-    groupSize_ = size;
+    groupSize_ = size * 10;
 }
 
 void Stylus::SetLastInput(QTouchEvent& input)
@@ -118,6 +118,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
 {
     //qDebug() << points;
     QSizeF gs = Stylus::GetGroupSize();
+    //qDebug() << "group size" << gs;
     if (gs.isEmpty()) {
         lastPoints_ = points;
         return;
@@ -149,6 +150,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
                 break;
             }
             QRectF bound = United(g.bound, tp.pos());
+            //qDebug() << "new point" << tp << bound;
             if (bound.width() <= gs.width() && bound.height() <= gs.height()) {
                 gid = g.groupId;
                 g.bound = bound;
