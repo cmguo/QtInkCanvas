@@ -2500,7 +2500,7 @@ void InkCanvas::_OnCommandExecuted()
         }
     }
     */
-    if (!scene() && scene()->mouseGrabberItem() != this)
+    if (!scene() || scene()->mouseGrabberItem() != this)
         return;
     QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
     if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {
