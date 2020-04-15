@@ -263,7 +263,7 @@ void Bezier::AddParabola(CuspData & data, int from)
     double ss = 1 / s;
     const double third = 1.0 / 3.0;
     QPointF P = (tt * ss) * data.XY(from + 1);
-    QPointF B = third * (P + (1 - s * tt) * data.XY(from) - (t * ss) * data.XY(from + 1));
+    QPointF B = third * (P + (1 - s * tt) * data.XY(from) - (t * ss) * data.XY(from + 2));
 
     AddBezierPoint(B);
     B = third * (P - (s * tt) * data.XY(from) + (1 - t * ss) * data.XY(from + 2));
