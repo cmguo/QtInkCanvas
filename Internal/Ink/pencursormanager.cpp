@@ -94,7 +94,8 @@ QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, QMatri
     Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");
     Debug::Assert(tranform.isInvertible(), "The transform has to be invertable.");
 
-    std::unique_ptr<Drawing> eraserDrawing(GetEraserImage(tranform.mapRect(stylusShape.BoundingBox())));
+    QRectF rect = QPolygonF(stylusShape.GetVerticesAsVectors()).boundingRect();
+    std::unique_ptr<Drawing> eraserDrawing(GetEraserImage(tranform.mapRect(rect)));
     return CreateCursorFromDrawing(*eraserDrawing, QPointF(0, 0));
 }
 
