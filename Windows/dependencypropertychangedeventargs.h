@@ -22,7 +22,7 @@ enum class OperationType
 
 // namespace System.Windows
 
-class DependencyPropertyChangedEventArgs
+class DependencyPropertyChangedEventArgs : public EventArgs
 {
 public:
     enum PrivateFlag

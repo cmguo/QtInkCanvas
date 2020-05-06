@@ -592,13 +592,13 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
 /// <returns>A double which represents the location for cutting</returns>
 double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beginRadius, double endRadius, QPointF const &hitBegin, QPointF const &hitEnd)
 {
-    // First handle the special case when the spineQPointF const &is (0,0). In other words, this is the case
+    // First handle the special case when the spineVector is (0,0). In other words, this is the case
     // when the stylus stays at the the location but pressure changes.
     if (DoubleUtil::IsZero(spineVector.x()) && DoubleUtil::IsZero(spineVector.y()))
     {
         Debug::Assert(DoubleUtil::AreClose(beginRadius, endRadius) == false);
 
-        QPointF const &nearest = GetNearest(hitBegin, hitEnd);
+        QPointF nearest = GetNearest(hitBegin, hitEnd);
         double radius;
         if (nearest.x() == 0)
         {

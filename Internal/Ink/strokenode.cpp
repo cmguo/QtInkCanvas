@@ -183,7 +183,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
         if (IsEllipse())
         {
             QRectF bounds = GetBounds();
-            //add instructions to arc from D to A
+            //add instructions to arc from B to C
             abPoints.append(quad.B());
             abPoints.append(StrokeRenderer::ArcToMarker);
             abPoints.append(QPointF(bounds.width(), bounds.height()));
@@ -258,7 +258,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
                 }
 #endif
             }
-            //finally, add the D point
+            //finally, add the C point
             dcPoints.append(quad.C());
 
 #if DEBUG_RENDERING_FEEDBACK
