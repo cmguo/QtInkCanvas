@@ -32,7 +32,7 @@ private:
     /// <param name="x">x
     /// <param name="y">y
 public:
-    StylusPoint() {}
+    StylusPoint() : StylusPoint(0, 0) {}
 
     StylusPoint(QPointF const & p)
         : StylusPoint(p.x(), p.y())

@@ -347,7 +347,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                             }
 #endif
 
-                            if (union_.contains(intersection))
+                            if (!DoubleUtil::IsNaN(intersection.x()) && union_.contains(intersection))
                             {
                                 abPoints.append(intersection);
 #if DEBUG_RENDERING_FEEDBACK
@@ -422,7 +422,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                             }
 #endif
 
-                            if (union_.contains(intersection))
+                            if (!DoubleUtil::IsNaN(intersection.x()) && union_.contains(intersection))
                             {
                                 dcPoints.append(intersection);
 #if DEBUG_RENDERING_FEEDBACK
@@ -545,7 +545,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
                         node12.adjust(-1.0, -1.0, 1.0, 1.0);
                         //make sure we're not off in space
-                        if (node12.contains(intersection))
+                        if (!DoubleUtil::IsNaN(intersection.x()) && node12.contains(intersection))
                         {
                             abPoints.append(intersection);
 #if DEBUG_RENDERING_FEEDBACK
@@ -590,7 +590,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
                         node12.adjust(-1.0, -1.0, 1.0, 1.0);
                         //make sure we're not off in space
-                        if (node12.contains(intersection))
+                        if (!DoubleUtil::IsNaN(intersection.x()) && node12.contains(intersection))
                         {
                             dcPoints.append(intersection);
 #if DEBUG_RENDERING_FEEDBACK
