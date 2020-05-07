@@ -371,7 +371,7 @@ void InkCollectionBehavior::StylusInput(QSharedPointer<StylusPointCollection> st
             InkCanvasStrokeCollectedEventArgs argsStroke(stroke);
             GetInkCanvas().RaiseGestureOrStrokeCollected(argsStroke, _userInitiated);
         }
-    } else {
+    } else if (stylusPoints->count() > 0) {
         QSharedPointer<StylusPointCollection>& c = _stylusPoints[0];
         if (c == nullptr) {
             c.reset(new StylusPointCollection(stylusPoints->Description(), 100));

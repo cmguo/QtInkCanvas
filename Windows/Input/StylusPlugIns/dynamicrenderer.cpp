@@ -891,7 +891,7 @@ void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylus
             }
             c->AddItem(sp);
         }
-    } else {
+    } else if (stylusPoints->count() > 0) {
         collections.insert(0, stylusPoints);
     }
 
