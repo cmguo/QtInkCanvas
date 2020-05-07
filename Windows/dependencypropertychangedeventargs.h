@@ -3,6 +3,7 @@
 
 #include "effectivevalueentry.h"
 #include "dependencyobject.h"
+#include "eventargs.h"
 
 #include <QVariant>
 
