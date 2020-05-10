@@ -2,12 +2,52 @@
 #include "Windows/Media/streamgeometry.h"
 
 #include <QtMath>
+#include <QThread>
 #include <QDebug>
+
+// from Qt Src 5.12.4
+
+class QPainterPathPrivate
+{
+public:
+    QAtomicInt ref;
+    QVector<QPainterPath::Element> elements;
+};
+
+//
+static thread_local QVector<QPainterPath::Element> sharedPathElements;
+
+class QPainterPath2
+{
+public:
+    QScopedPointer<QPainterPathPrivate, QPainterPathPrivateDeleter> d_ptr;
+
+public:
+    static void begin(QPainterPath &path)
+    {
+        sharedPathElements.append(reinterpret_cast<QPainterPath2 const &>(path)
+                                  .d_ptr->elements);
+        reinterpret_cast<QPainterPath2 const &>(path)
+                .d_ptr->elements.swap(sharedPathElements);
+        // sharedPathElements now is empty
+        sharedPathElements.clear();
+    }
+    static void end(QPainterPath &path)
+    {
+        qtVectorPathForPath(path);
+        path.boundingRect();
+        reinterpret_cast<QPainterPath2 const &>(path)
+                .d_ptr->elements.swap(sharedPathElements);
+        // sharedPathElements now is not empty
+        sharedPathElements.clear();
+    }
+};
 
 QtStreamGeometryContext::QtStreamGeometryContext(StreamGeometry* geometry)
     : geometry_(geometry)
 {
     path_.setFillRule(Qt::FillRule::WindingFill);
+    QPainterPath2::begin(path_);
 }
 
 void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFilled, bool isClosed)
@@ -148,6 +188,7 @@ void QtStreamGeometryContext::DisposeCore()
             path_.closeSubpath();
         isStarted_ = false;
     }
+    QPainterPath2::end(path_);
     geometry_->Close(path_);
     path_ = QPainterPath();
 }

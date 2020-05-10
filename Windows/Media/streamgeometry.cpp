@@ -16,7 +16,7 @@ StreamGeometry::~StreamGeometry()
 
 void StreamGeometry::SetFillRule(FillRule value)
 {
-
+    path_.setFillRule(value == FillRule::EvenOdd ? Qt::OddEvenFill : Qt::WindingFill);
 }
 
 StreamGeometryContext &StreamGeometry::Open()
