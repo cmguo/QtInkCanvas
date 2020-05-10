@@ -118,6 +118,7 @@ void DrawingAttributes::SetStylusTipTransform(QMatrix const & value)
     //underneath us
     // Validation of value is done in EPC
     SetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform, value);
+    drawingShape_.reset();
 }
 
 /// <summary>
@@ -143,6 +144,7 @@ void DrawingAttributes::SetHeight(double value)
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
     SetExtendedPropertyBackedProperty(KnownIds::StylusHeight, value);
+    drawingShape_.reset();
 }
 
 /// <summary>
@@ -167,6 +169,7 @@ void DrawingAttributes::SetWidth(double value)
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
     SetExtendedPropertyBackedProperty(KnownIds::StylusWidth, value);
+    drawingShape_.reset();
 }
 
 /// <summary>
@@ -327,6 +330,8 @@ ExtendedPropertyCollection* DrawingAttributes::CopyPropertyData()
 /// </summary>
 StylusShape * DrawingAttributes::GetStylusShape()
 {
+    if (drawingShape_)
+        return drawingShape_.get();
     StylusShape * s;
     if (GetStylusTip() == StylusTip::Rectangle)
     {
