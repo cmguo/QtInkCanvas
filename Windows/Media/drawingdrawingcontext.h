@@ -1,6 +1,8 @@
 #ifndef DRAWINGDRAWINGCONTEXT_H
 #define DRAWINGDRAWINGCONTEXT_H
 
+#include "InkCanvas_global.h"
+
 #include "drawingcontext.h"
 #include "geometry.h"
 
@@ -13,7 +15,7 @@ class DrawingGroup;
 /// <summary>
 /// Creates DrawingGroup content to represent the Draw calls made to this DrawingContext
 /// </summary>
-class DrawingDrawingContext : public DrawingContext
+class INKCANVAS_EXPORT DrawingDrawingContext : public DrawingContext
 {
     //#region Constructors
 
