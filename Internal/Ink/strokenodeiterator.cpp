@@ -156,7 +156,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QVector<QPointF
 /// </summary>
 /// <param name="index"></param>
 /// <returns></returns>
-StrokeNode StrokeNodeIterator::operator[](int index)
+StrokeNode StrokeNodeIterator::operator[](int index) const
 {
     return GetNode(index, (index == 0 ? -1 : index - 1));
 }
@@ -166,7 +166,7 @@ StrokeNode StrokeNodeIterator::operator[](int index)
 /// previousIndex can be -1 to signify it should be empty (first strokeNode)
 /// </summary>
 /// <returns></returns>
-StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex)
+StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex) const
 {
     if (_stylusPoints == nullptr||  index < 0 || index >= _stylusPoints->size() || previousIndex < -1 || previousIndex >= index)
     {

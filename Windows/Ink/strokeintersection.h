@@ -197,8 +197,8 @@ public:
     static QVector<StrokeFIndices> GetHitSegments(QVector<StrokeIntersection> & intersections);
 
 
-    static QVector<StrokeIntersection> GetClippedHitSegments(QVector<StrokeIntersection> & intersections,
-                                                        QVector<StrokeIntersection> & clip);
+    static QList<StrokeIntersection> GetClippedHitSegments(QList<StrokeIntersection> & intersections,
+                                                        QList<StrokeIntersection> & clip);
 
 private:
     StrokeFIndices _hitSegment;

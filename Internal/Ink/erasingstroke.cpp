@@ -9,11 +9,17 @@
 /// Constructor for incremental erasing
 /// </summary>
 /// <param name="erasingShape">The shape of the eraser's tip</param>
-ErasingStroke::ErasingStroke(StylusShape& erasingShape)
+ErasingStroke::ErasingStroke(StylusShape& erasingShape, const QPolygonF &clipShape)
     : _nodeIterator(erasingShape)
 {
     ////System.Diagnostics.Debug.Assert(erasingShape != null);
     //_nodeIterator = new StrokeNodeIterator(erasingShape);
+    if (!clipShape.empty()) {
+        QPointF c = clipShape.boundingRect().center();
+        StylusShape ss(clipShape.translated(-c));
+        _clipStroke.reset(new ErasingStroke(ss, {}));
+        _clipStroke->MoveTo({c});
+    }
 }
 
 /// <summary>
@@ -21,8 +27,8 @@ ErasingStroke::ErasingStroke(StylusShape& erasingShape)
 /// </summary>
 /// <param name="erasingShape">The shape of the eraser's tip</param>
 /// <param name="path">the spine of the erasing stroke</param>
-ErasingStroke::ErasingStroke(StylusShape &erasingShape, QVector<QPointF> const & path)
-    : ErasingStroke(erasingShape)
+ErasingStroke::ErasingStroke(StylusShape &erasingShape, QVector<QPointF> const & path, const QPolygonF &clipShape)
+    : ErasingStroke(erasingShape, clipShape)
 {
     MoveTo(path);
 }
@@ -68,7 +74,7 @@ void ErasingStroke::MoveTo(QVector<QPointF>const & path)
 /// </summary>
 /// <param name="iterator">the stroke nodes to iterate</param>
 /// <returns>true if the strokes intersect, false otherwise</returns>
-bool ErasingStroke::HitTest(StrokeNodeIterator iterator)
+bool ErasingStroke::HitTest(StrokeNodeIterator const & iterator)
 {
     ////System.Diagnostics.Debug.Assert(iterator != null);
 
@@ -107,7 +113,7 @@ bool ErasingStroke::HitTest(StrokeNodeIterator iterator)
 /// <param name="iterator"></param>
 /// <param name="intersections"></param>
 /// <returns></returns>
-bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersection> & intersections)
+bool ErasingStroke::EraseTest(StrokeNodeIterator const & iterator, QList<StrokeIntersection> & intersections)
 {
     //System.Diagnostics.Debug.Assert(iterator != null);
     //System.Diagnostics.Debug.Assert(intersections != null);
@@ -230,6 +236,15 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator iterator, QList<StrokeIntersect
             intersections.append(StrokeIntersection(segment.BeginFIndex(), StrokeFIndices::AfterLast,
                                     StrokeFIndices::BeforeFirst, segment.EndFIndex()));
         }
+
+        if (_clipStroke) {
+            QList<StrokeIntersection> clipAt;
+            if (_clipStroke->EraseTest(iterator, clipAt)) {
+                QVector<StrokeIntersection> vec(clipAt.toVector());
+                intersections = StrokeIntersection::GetClippedHitSegments(intersections, clipAt);
+            }
+        }
+
     }
     return (eraseAt.size() != 0);
 }

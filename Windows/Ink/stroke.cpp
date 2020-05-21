@@ -1228,7 +1228,7 @@ bool Stroke::HitTest(QVector<QPointF> const & path, StylusShape &stylusShape)
         return false;
     }
 
-    ErasingStroke erasingStroke(stylusShape);
+    ErasingStroke erasingStroke(stylusShape, {});
     erasingStroke.MoveTo(path);
 
     QRectF erasingBounds = erasingStroke.Bounds();
@@ -1476,7 +1476,7 @@ QVector<StrokeIntersection> Stroke::EraseTest(QVector<QPointF> const& path, Styl
         return QVector<StrokeIntersection>();
     }
 
-    ErasingStroke erasingStroke(shape, path);
+    ErasingStroke erasingStroke(shape, path, {});
     QList<StrokeIntersection> intersections;
     erasingStroke.EraseTest(StrokeNodeIterator::GetIterator(*this, *GetDrawingAttributes()), intersections);
     return intersections.toVector();

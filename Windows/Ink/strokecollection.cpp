@@ -763,6 +763,11 @@ QRectF StrokeCollection::GetBounds()
     return bounds;
 }
 
+void StrokeCollection::SetClip(const QPolygonF &clipShape)
+{
+    clipShape_ = clipShape;
+}
+
 // ISSUE-2004/12/13-XIAOTU: In M8.2, the following two tap-hit APIs return the top-hit stroke,
 // giving preference to non-highlighter strokes. We have decided not to treat highlighter and
 // non-highlighter differently and only return the top-hit stroke. But there are two remaining
@@ -936,7 +941,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
     }
 
     // validate input
-    ErasingStroke* erasingStroke = new ErasingStroke(stylusShape, path);
+    std::unique_ptr<ErasingStroke> erasingStroke(new ErasingStroke(stylusShape, path, clipShape_));
     QRectF erasingBounds = erasingStroke->Bounds();
     if (erasingBounds.isEmpty())
     {
@@ -1084,7 +1089,7 @@ void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& e
         return;
     }
 
-    ErasingStroke* erasingStroke = new ErasingStroke(eraserShape, eraserPath);
+    std::unique_ptr<ErasingStroke> erasingStroke(new ErasingStroke(eraserShape, eraserPath, clipShape_));
     for (int i = 0; i < size(); i++)
     {
         QSharedPointer<Stroke> stroke = (*this)[i];
@@ -1180,7 +1185,7 @@ IncrementalStrokeHitTester* StrokeCollection::GetIncrementalStrokeHitTester(Styl
     //{
     //    throw std::runtime_error("eraserShape");
     //}
-    return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape);
+    return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape, clipShape_);
 }
 
 

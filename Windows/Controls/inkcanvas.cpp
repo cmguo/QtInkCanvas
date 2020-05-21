@@ -581,7 +581,7 @@ void InkCanvas::SetEraserShape(StylusShape * value)
 
 void InkCanvas::SetEraseClip(QPolygonF const & shape)
 {
-    GetEditingCoordinator().GetEraserBehavior()->SetClip(shape);
+    Strokes()->SetClip(shape);
 }
 
 

@@ -105,14 +105,14 @@ public:
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
-    StrokeNode operator[](int index);
+    StrokeNode operator[](int index) const;
 
     /// <summary>
     /// Gets a StrokeNode at the specified index that connects to a stroke at the previousIndex
     /// previousIndex can be -1 to signify it should be empty (first strokeNode)
     /// </summary>
     /// <returns></returns>
-    StrokeNode GetNode(int index, int previousIndex);
+    StrokeNode GetNode(int index, int previousIndex) const;
 
     friend bool operator!=(StrokeNodeIterator const & l, nullptr_t)
     {

@@ -172,7 +172,7 @@ public:
     /// </summary>
     /// <param name="strokes">strokes to hit-test for erasing</param>
     /// <param name="eraserShape">erasing shape</param>
-    IncrementalStrokeHitTester(QSharedPointer<StrokeCollection>strokes, StylusShape& eraserShape);
+    IncrementalStrokeHitTester(QSharedPointer<StrokeCollection>strokes, StylusShape& eraserShape, const QPolygonF &clipShape);
 
     /// <summary>
     /// The implementation behind the public methods AddPoint/AddPoints
@@ -188,7 +188,6 @@ public:
 
 private:
     ErasingStroke _erasingStroke;
-
 };
 
 
@@ -283,8 +282,6 @@ public:
     /// </summary>
     /// <returns></returns>
     QSharedPointer<StrokeCollection> GetPointEraseResults();
-
-    void Clip(QVector<StrokeIntersection> & clip);
 
 private:
     QSharedPointer<Stroke>         _stroke;

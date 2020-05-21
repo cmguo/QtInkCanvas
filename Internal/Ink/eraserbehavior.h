@@ -30,8 +30,6 @@ public:
 
     //#endregion Constructors
 
-    void SetClip(QPolygonF const & shape);
-
     //-------------------------------------------------------------------------------
     //
     // Protected Methods
@@ -150,7 +148,6 @@ private:
     QCursor                          _cachedPointEraserCursor;
     StylusShape*                     _cachedStylusShape = nullptr;
     QSharedPointer<StylusPointCollection>           _stylusPoints = nullptr;
-    std::unique_ptr<ErasingStroke> _clipStroke;
 
     //#endregion Fields
 };

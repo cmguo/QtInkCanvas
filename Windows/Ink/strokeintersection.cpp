@@ -70,10 +70,10 @@ QVector<StrokeFIndices> StrokeIntersection::GetHitSegments(QVector<StrokeInterse
 }
 
 
-QVector<StrokeIntersection> StrokeIntersection::GetClippedHitSegments(QVector<StrokeIntersection> &intersections,
-                                                                      QVector<StrokeIntersection> &clip)
+QList<StrokeIntersection> StrokeIntersection::GetClippedHitSegments(QList<StrokeIntersection> &intersections,
+                                                                      QList<StrokeIntersection> &clip)
 {
-    QVector<StrokeIntersection> result;
+    QList<StrokeIntersection> result;
     int j = 0;
     for (StrokeIntersection & si : intersections) {
         while (j < clip.size() && clip[j].HitSegment().EndFIndex() <= si.HitSegment().BeginFIndex()) {

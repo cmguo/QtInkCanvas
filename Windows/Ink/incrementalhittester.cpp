@@ -431,9 +431,9 @@ void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArg
 /// </summary>
 /// <param name="strokes">strokes to hit-test for erasing</param>
 /// <param name="eraserShape">erasing shape</param>
-IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeCollection> strokes, StylusShape& eraserShape)
+IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeCollection> strokes, StylusShape& eraserShape, const QPolygonF &clipShape)
     : IncrementalHitTester(strokes)
-    , _erasingStroke(eraserShape)
+    , _erasingStroke(eraserShape, clipShape)
 {
     //Debug::Assert(eraserShape != nullptr);
 
@@ -712,9 +712,4 @@ void StrokeInfo::Invalidate()
 QSharedPointer<StrokeCollection> StrokeHitEventArgs::GetPointEraseResults()
 {
     return _stroke->Erase(_hitFragments);
-}
-
-void StrokeHitEventArgs::Clip(QVector<StrokeIntersection> &fragments)
-{
-    _hitFragments = StrokeIntersection::GetClippedHitSegments(_hitFragments, fragments);
 }

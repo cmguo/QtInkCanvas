@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QUuid>
 #include <QSharedPointer>
+#include <QPolygonF>
 
 class StrokeCollectionChangedEventArgs;
 class NotifyCollectionChangedEventArgs;
@@ -296,6 +297,8 @@ public:
     //  2. Since we are only returning the top-hit stroke, should we use Stroke as the return type?
     //
 
+    void SetClip(const QPolygonF &clipShape);
+
     /// <summary>
     /// Tap-hit. Hit tests all strokes within a point, and returns a StrokeCollection for these strokes.Internally does Stroke.HitTest(Point, 1pxlRectShape).
     /// </summary>
@@ -409,6 +412,7 @@ private:
 private:
     //  In v1, these were called Ink.ExtendedProperties
     ExtendedPropertyCollection* _extendedProperties = nullptr;
+    QPolygonF clipShape_;
 
     /// <summary>
     /// Constants for the PropertyChanged event
