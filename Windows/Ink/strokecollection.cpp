@@ -28,6 +28,12 @@ StrokeCollection::StrokeCollection(StrokeCollection const & o)
 
 }
 
+StrokeCollection::~StrokeCollection()
+{
+    for (QObject * c : children())
+        c->setParent(nullptr);
+}
+
 /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
 StrokeCollection::StrokeCollection(QVector<QSharedPointer<Stroke>> const & strokes)
 {
@@ -306,7 +312,15 @@ void StrokeCollection::RemoveItem(int index)
 bool StrokeCollection::RemoveItem(QSharedPointer<Stroke> stroke)
 {
     int index = IndexOf(stroke);
-    if (index < 0) return false;
+    if (index < 0) {
+        if (!children().isEmpty()) {
+            // try in other collections
+            QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
+            strokes->AddItem(stroke);
+            Remove(strokes);
+        }
+        return false;
+    }
     RemoveItem(index);
     return true;
 }
@@ -401,6 +415,25 @@ void StrokeCollection::Remove(QSharedPointer<StrokeCollection> strokes)
 
     QVector<int> indexes = GetStrokeIndexes(strokes);
 
+    if (indexes.size() == 0 && !children().isEmpty()) {
+        for (QObject * c : children()) {
+            StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
+            QSharedPointer<StrokeCollection> ss(new StrokeCollection);
+            for (QSharedPointer<Stroke> & s : static_cast<QList<QSharedPointer<Stroke>>&>(*strokes)) {
+                if (cc->contains(s)) {
+                    ss->append(s);
+                    s = nullptr;
+                }
+            }
+            if (ss->size() > 0) {
+                cc->Remove(ss);
+                strokes->removeAll(nullptr);
+            }
+        }
+        if ( strokes->size() == 0 )
+            return;
+        indexes = GetStrokeIndexes(strokes);
+    }
 
     for ( int x = indexes.size() - 1; x >= 0; x-- )
     {
@@ -481,6 +514,16 @@ void StrokeCollection::Replace(QSharedPointer<StrokeCollection> strokesToReplace
     QVector<int> indexes = GetStrokeIndexes(strokesToReplace);
     if ( indexes.size() == 0 )
     {
+        if (!children().isEmpty()) {
+            for (QObject * c : children()) {
+                try {
+                    qobject_cast<StrokeCollection*>(c)
+                            ->Replace(strokesToReplace, strokesToReplaceWith);
+                    return;
+                } catch (std::exception &) {
+                }
+            }
+        }
         throw std::runtime_error("strokesToReplace");
     }
 

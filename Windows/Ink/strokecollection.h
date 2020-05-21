@@ -45,6 +45,8 @@ public:
 
     StrokeCollection(StrokeCollection const & o);
 
+    ~StrokeCollection();
+
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
     /// <param name="compress">Flag if set to true the data will be compressed, which can

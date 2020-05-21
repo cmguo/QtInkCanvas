@@ -133,6 +133,19 @@ IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> stro
     //_strokes.StrokesChangedInternal += new StrokeCollectionChangedEventHandler(OnStrokesChanged);
     QObject::connect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
                         this, &IncrementalHitTester::OnStrokesChanged);
+
+    if (!strokes->children().isEmpty()) {
+        for (QObject * c : strokes->children()) {
+            StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
+            for (int x = 0; x < cc->Count(); x++)
+            {
+                QSharedPointer<Stroke> stroke = (*cc)[x];
+                _strokeInfos.append(new StrokeInfo(stroke));
+            }
+            QObject::connect(cc, &StrokeCollection::StrokesChangedInternal,
+                                this, &IncrementalHitTester::OnStrokesChanged);
+        }
+    }
 }
 
 
@@ -155,7 +168,21 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
     if (added->Count() > 0)
     {
         int firstIndex = _strokes->indexOf((*added)[0]);
+        int previousCount = 0;
+        if (firstIndex < 0 && !_strokes->children().isEmpty()) {
+            previousCount = _strokes->Count();
+            for (QObject * c : _strokes->children()) {
+                StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
+                int firstIndex = cc->indexOf((*added)[0]);
+                if (firstIndex < 0) {
+                    previousCount += cc->Count();
+                } else {
+                    break;
+                }
+            }
+        }
         Debug::Assert(firstIndex + added->Count() == args.Index());
+        firstIndex += previousCount;
         for (int i = 0; i < added->Count(); i++)
         {
             _strokeInfos.insert(firstIndex, new StrokeInfo((*added)[i]));
@@ -195,6 +222,29 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
     //validate our cache
     if (_strokes->Count() != _strokeInfos.size())
     {
+        if (!_strokes->children().isEmpty()) {
+            int count = 0;
+            for (; count < _strokes->Count(); count++) {
+                if (_strokeInfos[count]->GetStroke() != (*_strokes)[count])
+                    break;
+            }
+            if (count == _strokes->Count()) {
+                for (QObject * c : _strokes->children()) {
+                    StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
+                    for (int i = 0; i < cc->Count(); i++) {
+                        if (_strokeInfos[count + i]->GetStroke() != (*cc)[i]) {
+                            count = -1;
+                            break;
+                        }
+                    }
+                    if (count < 0)
+                        break;
+                    count += cc->Count();
+                }
+            }
+            if (count == _strokeInfos.size())
+                return;
+        }
         Debug::Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
         RebuildStrokeInfoCache();
         return;
