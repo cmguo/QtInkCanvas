@@ -28,6 +28,7 @@ Stroke::Stroke()
 
 Stroke::~Stroke()
 {
+    delete _extendedProperties;
     SetGeometry(nullptr);
 }
 
@@ -427,7 +428,7 @@ void Stroke::RemovePropertyData(QUuid const & propertyDataId)
 /// Allows retrieval of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-QVariant Stroke::GetPropertyData(QUuid const & propertyDataId)
+QVariant Stroke::GetPropertyData(QUuid const & propertyDataId) const
 {
     return ExtendedProperties()[propertyDataId];
 }
@@ -435,7 +436,7 @@ QVariant Stroke::GetPropertyData(QUuid const & propertyDataId)
 /// <summary>
 /// Allows retrieval of a Array of guids that are contained in the EPC
 /// </summary>
-QVector<QUuid> Stroke::GetPropertyDataIds()
+QVector<QUuid> Stroke::GetPropertyDataIds() const
 {
     return ExtendedProperties().GetGuidArray();
 }
@@ -444,7 +445,7 @@ QVector<QUuid> Stroke::GetPropertyDataIds()
 /// Allows the checking of objects in the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-bool Stroke::ContainsPropertyData(QUuid const & propertyDataId)
+bool Stroke::ContainsPropertyData(QUuid const & propertyDataId) const
 {
     return ExtendedProperties().Contains(propertyDataId);
 }
@@ -543,6 +544,17 @@ ExtendedPropertyCollection& Stroke::ExtendedProperties()
     if (_extendedProperties == nullptr)
     {
         _extendedProperties = new ExtendedPropertyCollection;
+    }
+
+    return *_extendedProperties;
+}
+
+const ExtendedPropertyCollection &Stroke::ExtendedProperties() const
+{
+    if (_extendedProperties == nullptr)
+    {
+        static ExtendedPropertyCollection emptyProperties;
+        return emptyProperties;
     }
 
     return *_extendedProperties;

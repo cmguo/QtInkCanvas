@@ -84,7 +84,7 @@ public:
     /// <summary>
     /// helper used to get the length between two points
     /// </summary>
-    double GetDistanceBetweenPoints(QPointF const & p1, QPointF const & p2);
+    static double GetDistanceBetweenPoints(QPointF const & p1, QPointF const & p2);
 
     /// <summary>
     /// helper for adding a StylusPoint to the BezierStylusPoints
@@ -112,18 +112,18 @@ public:
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QUuid const & propertyDataId);
+    QVariant GetPropertyData(QUuid const & propertyDataId) const;
 
     /// <summary>
     /// Allows retrieval of a Array of guids that are contained in the EPC
     /// </summary>
-    QVector<QUuid> GetPropertyDataIds();
+    QVector<QUuid> GetPropertyDataIds() const;
 
     /// <summary>
     /// Allows the checking of objects in the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QUuid const & propertyDataId);
+    bool ContainsPropertyData(QUuid const & propertyDataId) const;
 
     /// <summary>
     /// Allows an application to configure the rendering state
@@ -135,7 +135,7 @@ public:
     /// If the stroke has been deleted, the 'set' will no-op.
     /// </remarks>
     /// <value>The drawing attributes associated with the current stroke.</value>
-    QSharedPointer<DrawingAttributes> GetDrawingAttributes()
+    QSharedPointer<DrawingAttributes> GetDrawingAttributes() const
     {
         return _drawingAttributes;
     }
@@ -145,7 +145,7 @@ public:
     /// <summary>
     /// StylusPoints
     /// </summary>
-    QSharedPointer<StylusPointCollection> StylusPoints()
+    QSharedPointer<StylusPointCollection> StylusPoints() const
     {
         return _stylusPoints;
     }
@@ -261,6 +261,8 @@ public:
     /// ExtendedProperties
     /// </summary>
     ExtendedPropertyCollection& ExtendedProperties();
+
+    ExtendedPropertyCollection const & ExtendedProperties() const;
 
 private:
     /// <summary>

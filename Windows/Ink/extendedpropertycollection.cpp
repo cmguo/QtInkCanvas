@@ -53,7 +53,7 @@ bool ExtendedPropertyCollection::Equals(ExtendedPropertyCollection const & that)
 /// </summary>
 /// <param name="attributeId">Attribute identifier</param>
 /// <returns>True if attribute is set in the mask, false otherwise</returns>
-bool ExtendedPropertyCollection::Contains(QUuid const & attributeId)
+bool ExtendedPropertyCollection::Contains(QUuid const & attributeId) const
 {
     for (int x = 0; x < _extendedProperties.size(); x++)
     {
@@ -81,7 +81,7 @@ bool ExtendedPropertyCollection::Contains(QUuid const & attributeId)
 /// <returns>Copy of the ExtendedPropertyCollection</returns>
 /// <remarks>Any reference types held in the collection will only be deep copied (e.g. Arrays).
 /// </remarks>
-ExtendedPropertyCollection* ExtendedPropertyCollection::Clone()
+ExtendedPropertyCollection* ExtendedPropertyCollection::Clone() const
 {
     ExtendedPropertyCollection* copied = new ExtendedPropertyCollection();
     for (int x = 0; x < _extendedProperties.size(); x++)
@@ -144,7 +144,7 @@ void ExtendedPropertyCollection::Remove(QUuid const& id)
 ///     <paramref>Guid[]</paramref> is of type <see cref="System.Int32"/>.
 ///     <seealso cref="System.Collections.ICollection.Count"/>
 /// </value>
-QVector<QUuid> ExtendedPropertyCollection::GetGuidArray()
+QVector<QUuid> ExtendedPropertyCollection::GetGuidArray() const
 {
     if (_extendedProperties.size() > 0)
     {
@@ -170,9 +170,9 @@ QVector<QUuid> ExtendedPropertyCollection::GetGuidArray()
 /// <remarks>
 /// Note that you can access extended properties via this indexer.
 /// </remarks>
-QVariant ExtendedPropertyCollection::operator[](QUuid const& attributeId)
+QVariant ExtendedPropertyCollection::operator[](QUuid const& attributeId) const
 {
-        ExtendedProperty* ep = GetExtendedPropertyById(attributeId);
+        ExtendedProperty* ep = const_cast<ExtendedPropertyCollection*>(this)->GetExtendedPropertyById(attributeId);
         if (ep == nullptr )
         {
             throw std::runtime_error("attributeId");

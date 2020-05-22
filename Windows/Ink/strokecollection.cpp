@@ -26,13 +26,17 @@ StrokeCollection::StrokeCollection(StrokeCollection const & o)
     : Collection<QSharedPointer<Stroke>>(o)
     , _extendedProperties(o._extendedProperties)
 {
-
+    if (_extendedProperties)
+        _extendedProperties = _extendedProperties->Clone();
 }
 
 StrokeCollection::~StrokeCollection()
 {
+    delete _extendedProperties;
+#if STROKE_COLLECTION_MULTIPLE_LAYER
     for (QObject * c : children())
         c->setParent(nullptr);
+#endif
 }
 
 /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
@@ -185,7 +189,7 @@ void StrokeCollection::RemovePropertyData(QUuid const & propertyDataId)
 /// Allows retrieval of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId)
+QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId) const
 {
     if ( propertyDataId == QUuid() )
     {
@@ -198,7 +202,7 @@ QVariant StrokeCollection::GetPropertyData(QUuid const & propertyDataId)
 /// <summary>
 /// Allows retrieval of a Array of QUuid const &s that are contained in the EPC
 /// </summary>
-QVector<QUuid> StrokeCollection::GetPropertyDataIds()
+QVector<QUuid> StrokeCollection::GetPropertyDataIds() const
 {
     return _extendedProperties->GetGuidArray();
 }
@@ -207,7 +211,7 @@ QVector<QUuid> StrokeCollection::GetPropertyDataIds()
 /// Allows the checking of objects in the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-bool StrokeCollection::ContainsPropertyData(QUuid const & propertyDataId)
+bool StrokeCollection::ContainsPropertyData(QUuid const & propertyDataId) const
 {
     return _extendedProperties->Contains(propertyDataId);
 }
@@ -578,6 +582,16 @@ ExtendedPropertyCollection& StrokeCollection::ExtendedProperties()
     if ( _extendedProperties == nullptr )
     {
         _extendedProperties = new ExtendedPropertyCollection();
+    }
+    return *_extendedProperties;
+}
+
+const ExtendedPropertyCollection &StrokeCollection::ExtendedProperties() const
+{
+    if ( _extendedProperties == nullptr )
+    {
+        static ExtendedPropertyCollection emptyProperties;
+        return emptyProperties;
     }
     return *_extendedProperties;
 }

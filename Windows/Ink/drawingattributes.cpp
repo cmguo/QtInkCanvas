@@ -29,6 +29,7 @@ DrawingAttributes::DrawingAttributes(ExtendedPropertyCollection* extendedPropert
 
 DrawingAttributes::~DrawingAttributes()
 {
+    delete _extendedProperties;
 }
 
 /// <summary>
@@ -415,7 +416,7 @@ void DrawingAttributes::SetHeightChangedForCompatabity(bool value)
 /// objects contain the same drawing attributes</summary>
 bool DrawingAttributes::Equals(DrawingAttributes const & that) const
 {
-    return (_extendedProperties == that._extendedProperties);
+    return (*_extendedProperties == *that._extendedProperties);
 }
 
 

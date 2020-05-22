@@ -363,7 +363,7 @@ QVariant ExtendedPropertySerializer::DecodeAttribute(QUuid const &guid, QIODevic
 /// <param name="compressionAlgorithm"></param>
 /// <param name="fTag"></param>
 #endif
-uint ExtendedPropertySerializer::EncodeAsISF(ExtendedPropertyCollection& attributes, QIODevice& stream, GuidList& guidList, quint8 compressionAlgorithm, bool fTag)
+uint ExtendedPropertySerializer::EncodeAsISF(ExtendedPropertyCollection const & attributes, QIODevice& stream, GuidList& guidList, quint8 compressionAlgorithm, bool fTag)
 {
     uint cbWrite = 0;
 

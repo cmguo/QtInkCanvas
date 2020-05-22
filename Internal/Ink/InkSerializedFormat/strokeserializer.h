@@ -228,7 +228,7 @@ public:
     /// For details on how this is strored please refer to the spec.
     /// </summary>
     static void BuildStrokeDescriptor(
-        Stroke& stroke,
+        Stroke const& stroke,
         GuidList& guidList,
         StrokeCollectionSerializer::StrokeLookupEntry& strokeLookupEntry,
         StrokeDescriptor*& strokeDescriptor,

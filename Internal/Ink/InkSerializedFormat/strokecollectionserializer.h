@@ -349,7 +349,7 @@ private:
     /// </summary>
     /// <param name="stroke"></param>
     /// <param name="guidList"></param>
-    void BuildStrokeGuidList(QSharedPointer<Stroke> stroke, GuidList& guidList);
+    void BuildStrokeGuidList(Stroke const& stroke, GuidList& guidList);
 
 
     quint8 GetCompressionAlgorithm();

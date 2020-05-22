@@ -600,7 +600,7 @@ uint StrokeSerializer::EncodeStroke(
 /// For details on how this is strored please refer to the spec.
 /// </summary>
 void StrokeSerializer::BuildStrokeDescriptor(
-    Stroke& stroke,
+    Stroke const& stroke,
     GuidList& guidList,
     StrokeCollectionSerializer::StrokeLookupEntry& strokeLookupEntry,
     StrokeDescriptor*& strokeDescriptor,

@@ -54,7 +54,7 @@ public:
     /// </summary>
     /// <param name="attributeId">Attribute identifier</param>
     /// <returns>True if attribute is set in the mask, false otherwise</returns>
-    bool Contains(QUuid const & attributeId);
+    bool Contains(QUuid const & attributeId) const;
 
     /// <summary>
     /// Copies the ExtendedPropertyCollection
@@ -62,7 +62,7 @@ public:
     /// <returns>Copy of the ExtendedPropertyCollection</returns>
     /// <remarks>Any reference types held in the collection will only be deep copied (e.g. Arrays).
     /// </remarks>
-    ExtendedPropertyCollection* Clone();
+    ExtendedPropertyCollection* Clone() const;
 
     /// <summary>
     /// Add
@@ -82,7 +82,7 @@ public:
     ///     <paramref>Guid[]</paramref> is of type <see cref="System.Int32"/>.
     ///     <seealso cref="System.Collections.ICollection.Count"/>
     /// </value>
-    QVector<QUuid> GetGuidArray();
+    QVector<QUuid> GetGuidArray() const;
 
     /// <summary>
     /// Generic accessor for the ExtendedPropertyCollection.
@@ -93,7 +93,7 @@ public:
     /// <remarks>
     /// Note that you can access extended properties via this indexer.
     /// </remarks>
-    QVariant operator[](QUuid const& attributeId);
+    QVariant operator[](QUuid const& attributeId) const;
     void Set(QUuid const& attributeId, QVariant value);
 
     /// <summary>
@@ -149,7 +149,7 @@ private:
 
 
     //used to optimize across Contains / Index calls
-    int _optimisticIndex = -1;
+    mutable int _optimisticIndex = -1;
 };
 
 #endif // EXTENDEDPROPERTYCOLLECTION_H

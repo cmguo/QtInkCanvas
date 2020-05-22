@@ -322,7 +322,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
     _metricTable.clear();
 
     // First make sure this ink is empty
-    if (0 != _coreStrokes.size() || _coreStrokes.ExtendedProperties().Count() != 0)
+    if (0 != _coreStrokes.size() || const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties().Count() != 0)
     {
         throw std::runtime_error(("ISF decoder cannot operate on non-empty ink container"));
     }
@@ -1801,10 +1801,10 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             throw std::runtime_error(("Calculated ISF stream size != actual stream size"));
 
         // Save global ink properties
-        if (_coreStrokes.ExtendedProperties().Count() > 0)
+        if (const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties().Count() > 0)
         {
             localEncodedSize = cumulativeEncodedSize;
-            cumulativeEncodedSize += ExtendedPropertySerializer::EncodeAsISF(_coreStrokes.ExtendedProperties(), localStream, guidList, GetCompressionAlgorithm(), true);
+            cumulativeEncodedSize += ExtendedPropertySerializer::EncodeAsISF(const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties(), localStream, guidList, GetCompressionAlgorithm(), true);
             localEncodedSize = cumulativeEncodedSize - localEncodedSize;
             if (localEncodedSize != 0)
                 qDebug() << ("Encoded Global Ink Attributes Table: size=") << localEncodedSize;
@@ -2123,7 +2123,7 @@ GuidList StrokeCollectionSerializer::BuildGuidList()
     //int i = 0;
 
     // First go through the list of ink properties
-    auto& attributes = _coreStrokes.ExtendedProperties();
+    auto& attributes = const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties();
     //for (i = 0; i < attributes.size(); i++)
     for (QUuid const & id : attributes.GetGuidArray())
     {
@@ -2133,7 +2133,7 @@ GuidList StrokeCollectionSerializer::BuildGuidList()
     // Next go through all the strokes
     for (int j = 0; j < _coreStrokes.size(); j++)
     {
-        BuildStrokeGuidList(_coreStrokes[j], guidList);
+        BuildStrokeGuidList(*_coreStrokes[j], guidList);
     }
 
     return guidList;
@@ -2145,31 +2145,31 @@ GuidList StrokeCollectionSerializer::BuildGuidList()
 /// </summary>
 /// <param name="stroke"></param>
 /// <param name="guidList"></param>
-void StrokeCollectionSerializer::BuildStrokeGuidList(QSharedPointer<Stroke> stroke, GuidList& guidList)
+void StrokeCollectionSerializer::BuildStrokeGuidList(Stroke const& stroke, GuidList& guidList)
 {
     int i = 0;
 
     // First drawing attributes
     //      Ignore the default Guids/attributes in the DrawingAttributes
     int count;
-    QVector<QUuid> guids = ExtendedPropertySerializer::GetUnknownGuids(stroke->GetDrawingAttributes()->ExtendedProperties(), count);
+    QVector<QUuid> guids = ExtendedPropertySerializer::GetUnknownGuids(stroke.GetDrawingAttributes()->ExtendedProperties(), count);
 
     for (i = 0; i < count; i++)
     {
         guidList.Add(guids[i]);
     }
 
-    QVector<QUuid> descriptionGuids = stroke->StylusPoints()->Description()->GetStylusPointPropertyIds();
+    QVector<QUuid> descriptionGuids = stroke.StylusPoints()->Description()->GetStylusPointPropertyIds();
     for (i = 0; i < descriptionGuids.size(); i++)
     {
         guidList.Add(descriptionGuids[i]);
     }
 
-    if (stroke->ExtendedProperties().Count() > 0)
+    if (stroke.ExtendedProperties().Count() > 0)
     {
         // Add the ExtendedProperty guids in the list
-        //for (i = 0; i < stroke->ExtendedProperties().size(); i++)
-        for (QUuid const & id : stroke->GetPropertyDataIds())
+        //for (i = 0; i < stroke.ExtendedProperties().size(); i++)
+        for (QUuid const & id : stroke.GetPropertyDataIds())
         {
             guidList.Add(id);
         }

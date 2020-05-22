@@ -164,7 +164,7 @@ public:
     /// <param name="compressionAlgorithm"></param>
     /// <param name="fTag"></param>
 #endif
-    static uint EncodeAsISF(ExtendedPropertyCollection& attributes, QIODevice& stream, GuidList& guidList, quint8 compressionAlgorithm, bool fTag);
+    static uint EncodeAsISF(ExtendedPropertyCollection const & attributes, QIODevice& stream, GuidList& guidList, quint8 compressionAlgorithm, bool fTag);
 
     /// <summary>
     /// Retrieve the guids for the custom attributes that are not known by

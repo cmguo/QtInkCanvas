@@ -49,9 +49,7 @@ public:
 
     StrokeCollection(StrokeCollection const & o);
 
-#if STROKE_COLLECTION_MULTIPLE_LAYER
     ~StrokeCollection();
-#endif
 
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
@@ -92,18 +90,18 @@ public:
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QUuid const & propertyDataId);
+    QVariant GetPropertyData(QUuid const & propertyDataId) const;
 
     /// <summary>
     /// Allows retrieval of a Array of QUuid const &s that are contained in the EPC
     /// </summary>
-    QVector<QUuid> GetPropertyDataIds();
+    QVector<QUuid> GetPropertyDataIds() const;
 
     /// <summary>
     /// Allows the checking of objects in the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QUuid const & propertyDataId);
+    bool ContainsPropertyData(QUuid const & propertyDataId) const;
 
     /// <summary>
     /// Applies the specified transform matrix on every stroke in the collection.
@@ -194,6 +192,8 @@ public:
 
     /// <summary>Collection of extended properties on this StrokeCollection</summary>
     ExtendedPropertyCollection& ExtendedProperties();
+
+    ExtendedPropertyCollection const & ExtendedProperties() const;
 
     operator QVariantList();
 
