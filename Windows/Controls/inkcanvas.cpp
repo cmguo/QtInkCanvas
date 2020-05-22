@@ -2159,6 +2159,17 @@ QSharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(QSharedPointer<Strok
         {
             validStrokes->AddItem(stroke);
         }
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+        else
+        {
+            for (QObject * c : superset->children()) {
+                if (qobject_cast<StrokeCollection*>(c)->contains(stroke)) {
+                    validStrokes->AddItem(stroke);
+                    break;
+                }
+            }
+        }
+#endif
     }
 
     return validStrokes;
