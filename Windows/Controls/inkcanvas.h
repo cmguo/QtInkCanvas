@@ -481,7 +481,9 @@ public:
     StylusShape* EraserShape();
     void SetEraserShape(StylusShape * value);
 
-    void SetEraseClip(QPolygonF const & shape);
+#if STROKE_COLLECTION_EDIT_MASK
+    void SetEditMask(QPolygonF const & shape);
+#endif
 
     /// <summary>
     /// ActiveEditingMode

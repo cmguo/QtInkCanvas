@@ -6,6 +6,7 @@
 #include "Windows/Ink/extendedpropertycollection.h"
 #include "Windows/Ink/stylusshape.h"
 #include "Internal/Ink/lasso.h"
+#include "Internal/Ink/erasingstroke.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Windows/Input/styluspoint.h"
 #include "Internal/Ink/strokerenderer.h"
@@ -313,12 +314,14 @@ bool StrokeCollection::RemoveItem(QSharedPointer<Stroke> stroke)
 {
     int index = IndexOf(stroke);
     if (index < 0) {
+#if STROKE_COLLECTION_MULTIPLE_LAYER
         if (!children().isEmpty()) {
             // try in other collections
             QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
             strokes->AddItem(stroke);
             Remove(strokes);
         }
+#endif
         return false;
     }
     RemoveItem(index);
@@ -415,11 +418,12 @@ void StrokeCollection::Remove(QSharedPointer<StrokeCollection> strokes)
 
     QVector<int> indexes = GetStrokeIndexes(strokes);
 
+#if STROKE_COLLECTION_MULTIPLE_LAYER
     if (indexes.size() == 0 && !children().isEmpty()) {
         for (QObject * c : children()) {
             StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
             QSharedPointer<StrokeCollection> ss(new StrokeCollection);
-            for (QSharedPointer<Stroke> & s : static_cast<QList<QSharedPointer<Stroke>>&>(*strokes)) {
+            for (QSharedPointer<Stroke> & s : static_cast<QVector<QSharedPointer<Stroke>>&>(*strokes)) {
                 if (cc->contains(s)) {
                     ss->append(s);
                     s = nullptr;
@@ -434,6 +438,7 @@ void StrokeCollection::Remove(QSharedPointer<StrokeCollection> strokes)
             return;
         indexes = GetStrokeIndexes(strokes);
     }
+#endif
 
     for ( int x = indexes.size() - 1; x >= 0; x-- )
     {
@@ -806,10 +811,31 @@ QRectF StrokeCollection::GetBounds()
     return bounds;
 }
 
-void StrokeCollection::SetClip(const QPolygonF &clipShape)
+#if STROKE_COLLECTION_EDIT_MASK
+
+void StrokeCollection::SetEditMask(const QPolygonF &clipShape)
 {
-    clipShape_ = clipShape;
+    makeShape_ = clipShape;
+    if (mask_) {
+        delete mask_;
+        mask_ = nullptr;
+    }
 }
+
+ErasingStroke *StrokeCollection::GetEditMask()
+{
+    if (mask_)
+        return mask_;
+    if (!makeShape_.empty()) {
+        QPointF c = makeShape_.boundingRect().center();
+        StylusShape ss(makeShape_.translated(-c));
+        mask_ = new ErasingStroke(ss);
+        mask_->MoveTo({c});
+    }
+    return mask_;
+}
+
+#endif
 
 // ISSUE-2004/12/13-XIAOTU: In M8.2, the following two tap-hit APIs return the top-hit stroke,
 // giving preference to non-highlighter strokes. We have decided not to treat highlighter and
@@ -984,8 +1010,8 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
     }
 
     // validate input
-    std::unique_ptr<ErasingStroke> erasingStroke(new ErasingStroke(stylusShape, path, clipShape_));
-    QRectF erasingBounds = erasingStroke->Bounds();
+    ErasingStroke erasingStroke(stylusShape, path);
+    QRectF erasingBounds = erasingStroke.Bounds();
     if (erasingBounds.isEmpty())
     {
         return QSharedPointer<StrokeCollection>();
@@ -1000,7 +1026,7 @@ QSharedPointer<StrokeCollection> StrokeCollection::HitTest(QVector<QPointF> cons
 //#pragma warning disable 1634, 1691
 //#pragma warning suppress 6506
         if (erasingBounds.intersects(stroke->GetBounds()) &&
-            erasingStroke->HitTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes())))
+            erasingStroke.HitTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes())))
         {
             hits->append(stroke);
         }
@@ -1132,17 +1158,33 @@ void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& e
         return;
     }
 
-    std::unique_ptr<ErasingStroke> erasingStroke(new ErasingStroke(eraserShape, eraserPath, clipShape_));
+    ErasingStroke erasingStroke(eraserShape, eraserPath);
     for (int i = 0; i < size(); i++)
     {
         QSharedPointer<Stroke> stroke = (*this)[i];
 
-        QList<StrokeIntersection> intersections;
-        erasingStroke->EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), intersections);
-        QSharedPointer<StrokeCollection> eraseResult = stroke->Erase(intersections.toVector());
+        QVector<StrokeIntersection> intersections;
+        erasingStroke.EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), intersections);
+#if STROKE_COLLECTION_EDIT_MASK
+        if (GetEditMask()) {
+            QVector<StrokeIntersection> mask;
+            mask_->EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), mask);
+            if (!mask.isEmpty())
+                intersections = StrokeIntersection::GetMaskedHitSegments(intersections, mask);
+        }
+        if (intersections.isEmpty())
+            continue;
+#endif
+        QSharedPointer<StrokeCollection> eraseResult = stroke->Erase(intersections);
 
         UpdateStrokeCollection(stroke, eraseResult, i);
     }
+
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+    for (QObject * c : children()) {
+        qobject_cast<StrokeCollection*>(c)->Erase(eraserPath, eraserShape);
+    }
+#endif
 }
 
 static bool operator<(QColor l, QColor r)
@@ -1228,7 +1270,7 @@ IncrementalStrokeHitTester* StrokeCollection::GetIncrementalStrokeHitTester(Styl
     //{
     //    throw std::runtime_error("eraserShape");
     //}
-    return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape, clipShape_);
+    return new IncrementalStrokeHitTester(sharedFromThis(), eraserShape);
 }
 
 
@@ -1261,6 +1303,11 @@ QSharedPointer<StrokeCollection> StrokeCollection::PointHitTest(QPointF const & 
             hits->append(stroke);
         }
     }
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+    for (QObject * c : children()) {
+         hits->append(*qobject_cast<StrokeCollection*>(c)->PointHitTest(point, shape));
+    }
+#endif
 
     return hits;
 }

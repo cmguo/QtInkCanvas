@@ -1,20 +1,20 @@
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
-#include <QList>
+#include <QVector>
 
 template <typename T>
-class Collection : protected QList<T>
+class Collection : protected QVector<T>
 {
 public:
     T const & operator[](int index) const
     {
-        return QList<T>::at(index);
+        return QVector<T>::at(index);
     }
 
     int size() const
     {
-        return QList<T>::size();
+        return QVector<T>::size();
     }
 
     int count() const
@@ -22,36 +22,36 @@ public:
         return size();
     }
 
-    typename QList<T>::const_iterator begin() const
+    typename QVector<T>::const_iterator begin() const
     {
-        return QList<T>::begin();
+        return QVector<T>::begin();
     }
 
-    typename QList<T>::const_iterator end() const
+    typename QVector<T>::const_iterator end() const
     {
-        return QList<T>::end();
+        return QVector<T>::end();
     }
 
-    using QList<T>::at;
+    using QVector<T>::at;
 
-    using QList<T>::indexOf;
+    using QVector<T>::indexOf;
 
-    using QList<T>::contains;
+    using QVector<T>::contains;
 
-    using QList<T>::empty;
+    using QVector<T>::empty;
 
-    using QList<T>::startsWith;
+    using QVector<T>::startsWith;
 
-    using QList<T>::endsWith;
+    using QVector<T>::endsWith;
 
-    using QList<T>::constFirst;
+    using QVector<T>::constFirst;
 
-    using QList<T>::constLast;
+    using QVector<T>::constLast;
 
 protected:
     T & at(int index)
     {
-        return QList<T>::operator[](index);
+        return QVector<T>::operator[](index);
     }
 };
 

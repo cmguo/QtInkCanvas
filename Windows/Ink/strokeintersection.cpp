@@ -70,33 +70,33 @@ QVector<StrokeFIndices> StrokeIntersection::GetHitSegments(QVector<StrokeInterse
 }
 
 
-QList<StrokeIntersection> StrokeIntersection::GetClippedHitSegments(QList<StrokeIntersection> &intersections,
-                                                                      QList<StrokeIntersection> &clip)
+QVector<StrokeIntersection> StrokeIntersection::GetMaskedHitSegments(QVector<StrokeIntersection> &intersections,
+                                                                      QVector<StrokeIntersection> &mask)
 {
-    QList<StrokeIntersection> result;
+    QVector<StrokeIntersection> result;
     int j = 0;
     for (StrokeIntersection & si : intersections) {
-        while (j < clip.size() && clip[j].HitSegment().EndFIndex() <= si.HitSegment().BeginFIndex()) {
+        while (j < mask.size() && mask[j].HitSegment().EndFIndex() <= si.HitSegment().BeginFIndex()) {
             ++j;
         }
-        if (j >= clip.size()) {
+        if (j >= mask.size()) {
             result.append(si);
             continue;
         }
-        if (clip[j].HitSegment().EndFIndex() >= si.HitSegment().EndFIndex()) {
-            if (clip[j].HitSegment().BeginFIndex() >= si.HitSegment().EndFIndex()) {
-            } else if (clip[j].HitSegment().BeginFIndex() > si.HitSegment().BeginFIndex()) {
+        if (mask[j].HitSegment().EndFIndex() >= si.HitSegment().EndFIndex()) {
+            if (mask[j].HitSegment().BeginFIndex() >= si.HitSegment().EndFIndex()) {
+            } else if (mask[j].HitSegment().BeginFIndex() > si.HitSegment().BeginFIndex()) {
                 result.append(si);
-                result.back().SetHitEnd(clip[j].HitSegment().BeginFIndex());
+                result.back().SetHitEnd(mask[j].HitSegment().BeginFIndex());
             }
-        } else if (clip[j].HitSegment().BeginFIndex() < si.HitSegment().BeginFIndex()) {
+        } else if (mask[j].HitSegment().BeginFIndex() < si.HitSegment().BeginFIndex()) {
             result.append(si);
-            result.back().SetHitBegin(clip[j].HitSegment().EndFIndex());
+            result.back().SetHitBegin(mask[j].HitSegment().EndFIndex());
         } else {
             result.append(si);
-            result.back().SetHitEnd(clip[j].HitSegment().BeginFIndex());
+            result.back().SetHitEnd(mask[j].HitSegment().BeginFIndex());
             result.append(si);
-            result.back().SetHitBegin(clip[j].HitSegment().EndFIndex());
+            result.back().SetHitBegin(mask[j].HitSegment().EndFIndex());
         }
     }
     return result;

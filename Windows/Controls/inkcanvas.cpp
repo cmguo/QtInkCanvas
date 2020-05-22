@@ -579,11 +579,12 @@ void InkCanvas::SetEraserShape(StylusShape * value)
     }
 }
 
-void InkCanvas::SetEraseClip(QPolygonF const & shape)
+#if STROKE_COLLECTION_EDIT_MASK
+void InkCanvas::SetEditMask(QPolygonF const & shape)
 {
-    Strokes()->SetClip(shape);
+    Strokes()->SetEditMask(shape);
 }
-
+#endif
 
 DependencyProperty const * const InkCanvas::ActiveEditingModeProperty =
         new DependencyProperty(QVariant::fromValue(InkCanvasEditingMode::Ink), &OnActiveEditingModePropertyChanged);
@@ -2500,7 +2501,7 @@ void InkCanvas::_OnCommandExecuted()
         }
     }
     */
-    if (!scene() || scene()->mouseGrabberItem() != this)
+    if (!scene()/* || scene()->mouseGrabberItem() != this*/)
         return;
     QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
     if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {

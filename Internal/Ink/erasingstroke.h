@@ -22,14 +22,14 @@ public:
     /// Constructor for incremental erasing
     /// </summary>
     /// <param name="erasingShape">The shape of the eraser's tip</param>
-    ErasingStroke(StylusShape& erasingShape, const QPolygonF &clipShape);
+    ErasingStroke(StylusShape& erasingShape);
 
     /// <summary>
     /// Constructor for static (atomic) erasing
     /// </summary>
     /// <param name="erasingShape">The shape of the eraser's tip</param>
     /// <param name="path">the spine of the erasing stroke</param>
-    ErasingStroke(StylusShape &erasingShape, QVector<QPointF> const & path, const QPolygonF &clipShape);
+    ErasingStroke(StylusShape &erasingShape, QVector<QPointF> const & path);
 
     /// <summary>
     /// Generates stroke nodes along a given path.
@@ -57,7 +57,7 @@ public:
     /// <param name="iterator"></param>
     /// <param name="intersections"></param>
     /// <returns></returns>
-    bool EraseTest(StrokeNodeIterator const & iterator, QList<StrokeIntersection>& intersections);
+    bool EraseTest(StrokeNodeIterator const & iterator, QVector<StrokeIntersection>& intersections);
 
 
 private:
@@ -65,9 +65,8 @@ private:
 
 private:
     StrokeNodeIterator      _nodeIterator;
-    QList<StrokeNode>       _erasingStrokeNodes;
+    QVector<StrokeNode>     _erasingStrokeNodes;
     QRectF                  _bounds;
-    std::unique_ptr<ErasingStroke> _clipStroke;
 
 #if POINTS_FILTER_TRACE
     int                     _totalPointsAdded = 0;

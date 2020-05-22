@@ -23,7 +23,7 @@ StylusPointCollection::StylusPointCollection(int initialCapacity)
     {
         throw std::runtime_error("initialCapacity");
     }
-    QList<StylusPoint>::reserve(initialCapacity);
+    QVector<StylusPoint>::reserve(initialCapacity);
 }
 
 /// <summary>
@@ -87,7 +87,7 @@ StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylus
 StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
     : StylusPointCollection()
 {
-    QList<StylusPoint> stylusPoints;
+    QVector<StylusPoint> stylusPoints;
     for (QPointF point : points)
     {
         //this can throw (since point.X or Y can be beyond our range)

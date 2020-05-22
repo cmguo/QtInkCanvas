@@ -104,6 +104,7 @@ void IncrementalHitTester::EndHitTesting()
         for ( int i = 0; i < count; i++)
         {
             _strokeInfos[i]->Detach();
+            delete _strokeInfos[i];
         }
         _strokeInfos.clear();// = nullptr;
     }
@@ -124,7 +125,11 @@ IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> stro
     for (int x = 0; x < strokes->Count(); x++)
     {
         QSharedPointer<Stroke> stroke = (*strokes)[x];
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+        _strokeInfos.append(new StrokeInfo(strokes, stroke));
+#else
         _strokeInfos.append(new StrokeInfo(stroke));
+#endif
     }
 
     _strokes = strokes;
@@ -134,18 +139,20 @@ IncrementalHitTester::IncrementalHitTester(QSharedPointer<StrokeCollection> stro
     QObject::connect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
                         this, &IncrementalHitTester::OnStrokesChanged);
 
+#if STROKE_COLLECTION_MULTIPLE_LAYER
     if (!strokes->children().isEmpty()) {
         for (QObject * c : strokes->children()) {
             StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
             for (int x = 0; x < cc->Count(); x++)
             {
                 QSharedPointer<Stroke> stroke = (*cc)[x];
-                _strokeInfos.append(new StrokeInfo(stroke));
+                _strokeInfos.append(new StrokeInfo(cc->sharedFromThis(), stroke));
             }
             QObject::connect(cc, &StrokeCollection::StrokesChangedInternal,
                                 this, &IncrementalHitTester::OnStrokesChanged);
         }
     }
+#endif
 }
 
 
@@ -168,24 +175,34 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
     if (added->Count() > 0)
     {
         int firstIndex = _strokes->indexOf((*added)[0]);
+#if STROKE_COLLECTION_MULTIPLE_LAYER
         int previousCount = 0;
+        QSharedPointer<StrokeCollection> collection = _strokes;
         if (firstIndex < 0 && !_strokes->children().isEmpty()) {
             previousCount = _strokes->Count();
             for (QObject * c : _strokes->children()) {
                 StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
-                int firstIndex = cc->indexOf((*added)[0]);
+                firstIndex = cc->indexOf((*added)[0]);
                 if (firstIndex < 0) {
                     previousCount += cc->Count();
                 } else {
+                    collection = cc->sharedFromThis();
                     break;
                 }
             }
         }
+#endif
         Debug::Assert(firstIndex + added->Count() == args.Index());
+#if STROKE_COLLECTION_MULTIPLE_LAYER
         firstIndex += previousCount;
+#endif
         for (int i = 0; i < added->Count(); i++)
         {
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+            _strokeInfos.insert(firstIndex, new StrokeInfo(collection, (*added)[i]));
+#else
             _strokeInfos.insert(firstIndex, new StrokeInfo((*added)[i]));
+#endif
             firstIndex++;
         }
     }
@@ -222,6 +239,7 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
     //validate our cache
     if (_strokes->Count() != _strokeInfos.size())
     {
+#if STROKE_COLLECTION_MULTIPLE_LAYER
         if (!_strokes->children().isEmpty()) {
             int count = 0;
             for (; count < _strokes->Count(); count++) {
@@ -245,6 +263,7 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
             if (count == _strokeInfos.size())
                 return;
         }
+#endif
         Debug::Assert(false, "Benign assert.  IncrementalHitTester's _strokeInfos cache is out of sync, rebuilding.");
         RebuildStrokeInfoCache();
         return;
@@ -282,7 +301,11 @@ void IncrementalHitTester::RebuildStrokeInfoCache()
         if (!found)
         {
             //we didn't find an existing strokeInfo
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+            newStrokeInfos.append(new StrokeInfo(_strokes, stroke));
+#else
             newStrokeInfos.append(new StrokeInfo(stroke));
+#endif
         }
     }
 
@@ -294,6 +317,7 @@ void IncrementalHitTester::RebuildStrokeInfoCache()
         if (strokeInfo != nullptr)
         {
             strokeInfo->Detach();
+            delete strokeInfo;
         }
     }
 
@@ -481,9 +505,9 @@ void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArg
 /// </summary>
 /// <param name="strokes">strokes to hit-test for erasing</param>
 /// <param name="eraserShape">erasing shape</param>
-IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeCollection> strokes, StylusShape& eraserShape, const QPolygonF &clipShape)
+IncrementalStrokeHitTester::IncrementalStrokeHitTester(QSharedPointer<StrokeCollection> strokes, StylusShape& eraserShape)
     : IncrementalHitTester(strokes)
-    , _erasingStroke(eraserShape, clipShape)
+    , _erasingStroke(eraserShape)
 {
     //Debug::Assert(eraserShape != nullptr);
 
@@ -519,7 +543,7 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
     // Do nothing if there's nobody listening to the events
     //if (StrokeHit != nullptr)
     //{
-        QList<StrokeIntersection> eraseAt;
+        QVector<StrokeIntersection> eraseAt;
 
         // Test stroke by stroke and collect the results.
         for (int x = 0; x < StrokeInfos().count(); x++)
@@ -533,6 +557,23 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
                 continue;
             }
 
+#if STROKE_COLLECTION_EDIT_MASK
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+            QSharedPointer<StrokeCollection> collection = strokeInfo->GetCollection();
+#else
+            QSharedPointer<StrokeCollection> collection = _strokes;
+#endif
+            ErasingStroke* mask = collection->GetEditMask();
+            if (mask) {
+                QVector<StrokeIntersection> maskAt;
+                if (mask->EraseTest(StrokeNodeIterator::GetIterator(*strokeInfo->GetStroke(), *strokeInfo->GetStroke()->GetDrawingAttributes()), maskAt)) {
+                    eraseAt = StrokeIntersection::GetMaskedHitSegments(eraseAt, maskAt);
+                }
+                if (eraseAt.isEmpty())
+                    continue;
+            }
+#endif
+
             // Create an event args to raise after done with hit-testing
             // We don't fire these events right away because user is expected to
             // modify the stroke collection in her event handler, and that would
@@ -542,7 +583,7 @@ void IncrementalStrokeHitTester::AddPointsCore(QVector<QPointF> const & points)
             //    strokeHitEventArgCollection = new List<StrokeHitEventArgs>();
             //}
             //qDebug() << "StrokeHitEventArgs" << eraseAt;
-            strokeHitEventArgCollection.append(StrokeHitEventArgs(strokeInfo->GetStroke(), eraseAt.toVector()));
+            strokeHitEventArgCollection.append(StrokeHitEventArgs(strokeInfo->GetStroke(), eraseAt));
             // We must clear eraseAt or it will contain invalid results for the next strokes
             eraseAt.clear();
         }
@@ -578,8 +619,18 @@ void IncrementalStrokeHitTester::OnStrokeHit(StrokeHitEventArgs& eventArgs)
 /// <summary>
 /// StrokeInfo
 /// </summary>
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+StrokeInfo::StrokeInfo(QSharedPointer<Stroke> stroke)
+    : StrokeInfo(nullptr, stroke)
+{
+}
+
+StrokeInfo::StrokeInfo(QSharedPointer<StrokeCollection> collection, QSharedPointer<Stroke> stroke)
+    :_collection(collection), _stroke(stroke)
+#else
 StrokeInfo::StrokeInfo(QSharedPointer<Stroke> stroke)
     :_stroke(stroke)
+#endif
 {
     Debug::Assert(stroke != nullptr);
     //_stroke = stroke;

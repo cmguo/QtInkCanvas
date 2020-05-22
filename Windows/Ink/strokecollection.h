@@ -19,8 +19,12 @@ class StylusShape;
 class Stroke;
 class DrawingContext;
 class ExtendedPropertyCollection;
+class ErasingStroke;
 
 // namespace System.Windows.Ink
+
+#define STROKE_COLLECTION_MULTIPLE_LAYER 1
+#define STROKE_COLLECTION_EDIT_MASK 1
 
 class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<QSharedPointer<Stroke>>, public QEnableSharedFromThis<StrokeCollection>
 {
@@ -45,7 +49,9 @@ public:
 
     StrokeCollection(StrokeCollection const & o);
 
+#if STROKE_COLLECTION_MULTIPLE_LAYER
     ~StrokeCollection();
+#endif
 
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
@@ -299,7 +305,11 @@ public:
     //  2. Since we are only returning the top-hit stroke, should we use Stroke as the return type?
     //
 
-    void SetClip(const QPolygonF &clipShape);
+#if STROKE_COLLECTION_EDIT_MASK
+    void SetEditMask(const QPolygonF &clipShape);
+
+    ErasingStroke * GetEditMask();
+#endif
 
     /// <summary>
     /// Tap-hit. Hit tests all strokes within a point, and returns a StrokeCollection for these strokes.Internally does Stroke.HitTest(Point, 1pxlRectShape).
@@ -414,7 +424,10 @@ private:
 private:
     //  In v1, these were called Ink.ExtendedProperties
     ExtendedPropertyCollection* _extendedProperties = nullptr;
-    QPolygonF clipShape_;
+#if STROKE_COLLECTION_EDIT_MASK
+    QPolygonF makeShape_;
+    ErasingStroke * mask_ = nullptr;
+#endif
 
     /// <summary>
     /// Constants for the PropertyChanged event

@@ -100,7 +100,7 @@ private:
 
 
     /// <summary> Reference to the stroke collection under test </summary>
-private:
+protected:
     QSharedPointer<StrokeCollection> _strokes;
     /// <summary> A collection of helper objects mapped to the stroke colection</summary>
     QList<StrokeInfo*> _strokeInfos;
@@ -172,7 +172,7 @@ public:
     /// </summary>
     /// <param name="strokes">strokes to hit-test for erasing</param>
     /// <param name="eraserShape">erasing shape</param>
-    IncrementalStrokeHitTester(QSharedPointer<StrokeCollection>strokes, StylusShape& eraserShape, const QPolygonF &clipShape);
+    IncrementalStrokeHitTester(QSharedPointer<StrokeCollection>strokes, StylusShape& eraserShape);
 
     /// <summary>
     /// The implementation behind the public methods AddPoint/AddPoints
@@ -303,9 +303,17 @@ public:
     /// <summary>
     /// StrokeInfo
     /// </summary>
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+    StrokeInfo(QSharedPointer<StrokeCollection> collection, QSharedPointer<Stroke> stroke);
+#endif
+
     StrokeInfo(QSharedPointer<Stroke> stroke);
 
     ~StrokeInfo() { Detach(); }
+
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+    QSharedPointer<StrokeCollection> GetCollection() { return _collection; }
+#endif
 
     /// <summary>The stroke object associated with this helper structure</summary>
     QSharedPointer<Stroke> GetStroke() { return _stroke; }
@@ -385,6 +393,9 @@ private slots:
     void Invalidate();
 
 private:
+#if STROKE_COLLECTION_MULTIPLE_LAYER
+    QSharedPointer<StrokeCollection> _collection;
+#endif
     QSharedPointer<Stroke>      _stroke;
     QRectF                      _bounds;
     double                      _hitWeight = 0;
