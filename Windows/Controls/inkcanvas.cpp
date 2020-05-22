@@ -2501,7 +2501,8 @@ void InkCanvas::_OnCommandExecuted()
         }
     }
     */
-    if (!scene()/* || scene()->mouseGrabberItem() != this*/)
+    if (!scene() || (scene()->focusItem() != this
+                     && !this->isAncestorOf(scene()->focusItem())))
         return;
     QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
     if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {

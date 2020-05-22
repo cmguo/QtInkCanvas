@@ -53,6 +53,7 @@ UIElement::UIElement()
     setData(ITEM_DATA_RECT, QRectF());
     setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
+    setFlag(ItemIsFocusable);
 }
 
 UIElement::~UIElement()
@@ -276,9 +277,9 @@ bool UIElement::IsStylusCaptured()
     return true;
 }
 
-bool UIElement::IsAncestorOf(UIElement*)
+bool UIElement::IsAncestorOf(UIElement* child)
 {
-    return false;
+    return isAncestorOf(child);
 }
 
 void UIElement::ReleaseStylusCapture()
