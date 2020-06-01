@@ -249,14 +249,15 @@ ExtendedProperty* ExtendedPropertyCollection::GetExtendedPropertyById(QUuid cons
     //
     // The last call to .Contains sets this index
     //
-    if (_optimisticIndex != -1 &&
-        _optimisticIndex < _extendedProperties.size() &&
-        _extendedProperties[_optimisticIndex].Id() == id)
+    int optimisticIndex = _optimisticIndex; // for thread safe
+    if (optimisticIndex != -1 &&
+        optimisticIndex < _extendedProperties.size() &&
+        _extendedProperties[optimisticIndex].Id() == id)
     {
-        return &_extendedProperties[_optimisticIndex];
+        return &_extendedProperties[optimisticIndex];
     }
 
-        //we didn't find the ep optimistically, perform linear lookup
+    //we didn't find the ep optimistically, perform linear lookup
     for (int i = 0; i < _extendedProperties.size(); i++)
     {
         if (_extendedProperties[i].Id() == id)
