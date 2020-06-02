@@ -3,11 +3,9 @@
 
 #include "InkCanvas_global.h"
 
-#include "stylustip.h"
-
-#include <QMatrix>
-#include <QPointF>
-#include <QObject>
+#include "Windows/Ink/stylustip.h"
+#include "Collections/Generic/array.h"
+#include "Windows/Media/matrix.h"
 
 // namespace System.Windows.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -21,22 +19,23 @@ INKCANVAS_BEGIN_NAMESPACE
 /// There are 2540 himetric units per inch.
 /// This means that 53 high metric units is equivalent to 53/2540*96 in avalon.
 /// </remarks>
-class INKCANVAS_EXPORT StylusShape : public QObject
+class INKCANVAS_EXPORT StylusShape
 {
-    Q_OBJECT
 private:
     double    m_width;
     double    m_height;
     double    m_rotation;
-    QVector<QPointF>   m_vertices;
+    Array<Point>   m_vertices;
     StylusTip m_tip;
-    QMatrix    _transform;
+    Matrix    _transform;
 
 
 public:
     StylusShape();
 
+#if STROKE_COLLECTION_EDIT_MASK
     StylusShape(QPolygonF const & polygon);
+#endif
 
     ///<summary>
     /// constructor for a StylusShape.
@@ -63,17 +62,17 @@ public:
     /// GetVerticesAsVectors
     /// </summary>
     /// <returns></returns>
-    QVector<QPointF> GetVerticesAsVectors();
+    Array<Vector> GetVerticesAsVectors();
 
 
     /// <summary>
     /// This is the transform on the StylusShape
     /// </summary>
-    QMatrix Transform()
+    Matrix Transform()
     {
         return _transform;
     }
-    void SetTransform(QMatrix const & value)
+    void SetTransform(Matrix const & value)
     {
         //System.Diagnostics.Debug.Assert(value.HasInverse);
         _transform = value;
@@ -82,28 +81,28 @@ public:
     ///<summary>
     /// A helper property.
     ///</summary>
-    bool IsEllipse() { return m_vertices.isEmpty(); }
+    bool IsEllipse() { return m_vertices.empty(); }
 
     ///<summary>
     /// A helper property.
     ///</summary>
-    bool IsPolygon() { return !m_vertices.isEmpty(); }
+    bool IsPolygon() { return !m_vertices.empty(); }
 
     /// <summary>
     /// Generally, there's no need for the shape's bounding box.
     /// We use it to approximate v2 shapes with a rectangle for v1.
     /// </summary>
-    QRectF BoundingBox();
+    Rect BoundingBox();
 
     /// <summary>TBS</summary>
     void ComputeRectangleVertices();
 
 
     /// <summary> A transform might make the vertices in counter-clockwise order Fix it if this is the case.</summary>
-    void FixCounterClockwiseVertices(QVector<QPointF> & vertices);
+    void FixCounterClockwiseVertices(Array<Vector> & vertices);
 
 
-    QVector<QPointF> GetBezierControlPoints();
+    Array<Point> GetBezierControlPoints();
 
 };
 

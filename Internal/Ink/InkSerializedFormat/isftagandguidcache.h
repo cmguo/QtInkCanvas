@@ -3,7 +3,7 @@
 
 #include "InkCanvas_global.h"
 
-#include <QUuid>
+#include "guid.h"
 
 // namespace MS.Internal.Ink.InkSerializedFormat
 
@@ -49,9 +49,9 @@ public:
         ExtendedTransformTable = 31,
     };
 
-        // See comments for KnownQUuidBaseIndex to determine ranges of tags/Guids/indices
-    static constexpr uint MaximumPossibleKnownTags = 50;
-    static constexpr uint KnownTagCount = MaximumPossibleKnownTags;
+        // See comments for KnownGuidBaseIndex to determine ranges of tags/Guids/indices
+    static constexpr unsigned int MaximumPossibleKnownTags = 50;
+    static constexpr unsigned int KnownTagCount = MaximumPossibleKnownTags;
 };
 
 class KnownIdCache
@@ -59,12 +59,12 @@ class KnownIdCache
 public:
     // This id table includes the original Guids that were hardcoded
     //      into ISF for the TabletPC v1 release
-    static QUuid OriginalISFIdTable[];
-    static uint OriginalISFIdTableLength;
+    static Guid OriginalISFIdTable[];
+    static unsigned int OriginalISFIdTableLength;
 
-    // Size of data used by identified by specified QUuid/Id
-    static uint OriginalISFIdPersistenceSize[];
-    static uint TabletInternalIdTableLength;
+    // Size of data used by identified by specified Guid/Id
+    static unsigned int OriginalISFIdPersistenceSize[];
+    static unsigned int TabletInternalIdTableLength;
 
     enum OriginalISFIdIndex
     {
@@ -95,7 +95,7 @@ public:
         WordAlternates = 24,
         CharAlternates = 25,
         InkMetrics = 26,
-        QUuideStructure = 27,
+        GuideStructure = 27,
         Timestamp = 28,
         Language = 29,
         Transparency = 30,
@@ -111,7 +111,7 @@ public:
 
     // This id table includes the Guids that used the persistence APIs
     //      - meaning they didn't have the data type information encoded in ISF
-    static QUuid TabletInternalIdTable[];
+    static Guid TabletInternalIdTable[];
 
         // lookup indices for table of Guids used with non-Automation APIs
     enum TabletInternalIdIndex
@@ -131,24 +131,24 @@ public:
             static_cast<KnownTagCache::KnownTagIndex>(KnownTagCache::MaximumPossibleKnownTags);
 
         // The maximum value that can be encoded into a single byte is 127.
-        // To improve the chances of storing all of the Guids in the ISF QUuid table
+        // To improve the chances of storing all of the Guids in the ISF Guid table
         //      with single-byte lookups, the Guids are broken into two ranges
         // 0-50 known tags
         // 50-100 known Guids (reserved)
         // 101-127 custom Guids (user-defined Guids)
-        // 128-... more custom Guids, but requiring multiples bytes for QUuid table lookup
+        // 128-... more custom Guids, but requiring multiples bytes for Guid table lookup
 
         // These values aren't currently used, so comment them out
-    // static uint KnownQUuidIndexLimit = MaximumPossibleKnownQUuidIndex;
-    static constexpr uint MaximumPossibleKnownGuidIndex = 100;
-    static constexpr uint CustomGuidBaseIndex = MaximumPossibleKnownGuidIndex;
+    // static uint KnownGuidIndexLimit = MaximumPossibleKnownGuidIndex;
+    static constexpr unsigned int MaximumPossibleKnownGuidIndex = 100;
+    static constexpr unsigned int CustomGuidBaseIndex = MaximumPossibleKnownGuidIndex;
 
     // This id table includes the Guids that have been added to ISF as ExtendedProperties
     //      Note that they are visible to 3rd party applications
-    static QUuid ExtendedISFIdTable[];
+    static Guid ExtendedISFIdTable[];
 };
 
-static KnownTagCache::KnownTagIndex operator+(KnownTagCache::KnownTagIndex l, KnownIdCache::OriginalISFIdIndex r)
+inline KnownTagCache::KnownTagIndex operator+(KnownTagCache::KnownTagIndex l, KnownIdCache::OriginalISFIdIndex r)
 {
     return static_cast<KnownTagCache::KnownTagIndex>(static_cast<int>(l) + static_cast<int>(r));
 }

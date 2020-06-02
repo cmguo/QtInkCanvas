@@ -2,8 +2,7 @@
 #define CONTOURSEGMENT_H
 
 #include "Internal/doubleutil.h"
-
-#include <QPointF>
+#include "Windows/point.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -16,11 +15,11 @@ public:
     /// </summary>
     /// <param name="begin">segment's begin point</param>
     /// <param name="end">segment's end point</param>
-    ContourSegment(QPointF const &begin, QPointF const &end)
+    ContourSegment(Point const &begin, Point const &end)
     {
         _begin = begin;
-        _vector = DoubleUtil::AreClose(begin, end) ? QPointF(0, 0) : (end - begin);
-        _radius = QPointF(0, 0);
+        _vector = DoubleUtil::AreClose(begin, end) ? Vector(0, 0) : (end - begin);
+        _radius = Point(0, 0);
     }
 
     /// <summary>
@@ -29,7 +28,7 @@ public:
     /// <param name="begin">arc's begin point</param>
     /// <param name="end">arc's end point</param>
     /// <param name="center">arc's center</param>
-    ContourSegment(QPointF const &begin, QPointF const &end, QPointF const &center)
+    ContourSegment(Point const &begin, Point const &end, Point const &center)
     {
         _begin = begin;
         _vector = end - begin;
@@ -37,25 +36,25 @@ public:
     }
 
     /// <summary> Tells whether the segment is arc or straight </summary>
-    bool IsArc() const { return (_radius.x() != 0) || (_radius.y() != 0); }
+    bool IsArc() const { return (_radius.X() != 0) || (_radius.Y() != 0); }
 
-    /// <summary> Returns the begin QPointF &of the segment </summary>
-    QPointF const & Begin() const { return _begin; }
+    /// <summary> Returns the begin Point &of the segment </summary>
+    Point const & Begin() const { return _begin; }
 
-    /// <summary> Returns the end QPointF &of the segment </summary>
-    QPointF End() const { return _begin + _vector; }
+    /// <summary> Returns the end Point &of the segment </summary>
+    Point End() const { return _begin + _vector; }
 
-    /// <summary> Returns the QPointF from Begin to End </summary>
-    QPointF const & Vector() const { return _vector; }
+    /// <summary> Returns the Point from Begin to End </summary>
+    Vector const & GetVector() const { return _vector; }
 
-    /// <summary> Returns the QPointF from Begin to the center of the circle
-    /// (zero QPointF for linear segments </summary>
-    QPointF Radius() const { return _radius; }
+    /// <summary> Returns the Point from Begin to the center of the circle
+    /// (zero Point for linear segments </summary>
+    Vector Radius() const { return _radius; }
 
 private:
-    QPointF  _begin;
-    QPointF  _vector;
-    QPointF  _radius;
+    Point  _begin;
+    Vector  _vector;
+    Vector  _radius;
 };
 
 INKCANVAS_END_NAMESPACE

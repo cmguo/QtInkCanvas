@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "Windows/Input/styluspointpropertyinfo.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/styluspointproperty.h"

@@ -1,7 +1,5 @@
 #include "Internal/Ink/strokefindices.h"
 
-#include <QString>
-
 INKCANVAS_BEGIN_NAMESPACE
 
 StrokeFIndices StrokeFIndices::s_empty(AfterLast, BeforeFirst);
@@ -13,12 +11,14 @@ StrokeFIndices::StrokeFIndices(double beginFIndex, double endFIndex)
     _endFIndex = endFIndex;
 }
 
+#ifdef INKCANVAS_QT
 QString StrokeFIndices::ToString() const
 {
-    return "{" + GetStringRepresentation(_beginFIndex) + "," + GetStringRepresentation(_endFIndex) + "}";
+    return QString("{") + GetStringRepresentation(_beginFIndex) + "," + GetStringRepresentation(_endFIndex) + "}";
 }
+#endif
 
-QString StrokeFIndices::GetStringRepresentation(double fIndex)
+char const * StrokeFIndices::GetStringRepresentation(double fIndex)
 {
     if (DoubleUtil::AreClose(fIndex, BeforeFirst))
     {
@@ -28,7 +28,8 @@ QString StrokeFIndices::GetStringRepresentation(double fIndex)
     {
         return "AfterLast";
     }
-    return QString("%1").arg(fIndex);
+    return "";
+    //return QString("%1").arg(fIndex);
 }
 
 INKCANVAS_END_NAMESPACE

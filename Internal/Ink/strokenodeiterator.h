@@ -33,7 +33,7 @@ public:
     /// If using the strokes drawing attributes, pass stroke.DrawingAttributes for the second
     /// argument.  If using an overridden DA, use that instance.
     /// </summary>
-    static StrokeNodeIterator GetIterator(QSharedPointer<StylusPointCollection> stylusPoints, DrawingAttributes& drawingAttributes);
+    static StrokeNodeIterator GetIterator(SharedPointer<StylusPointCollection> stylusPoints, DrawingAttributes& drawingAttributes);
 
 
     /// <summary>
@@ -68,7 +68,7 @@ public:
     /// <param name="stylusPoints"></param>
     /// <param name="operations"></param>
     /// <param name="usePressure"></param>
-    StrokeNodeIterator(QSharedPointer<StylusPointCollection> stylusPoints,
+    StrokeNodeIterator(SharedPointer<StylusPointCollection> stylusPoints,
                                 std::unique_ptr<StrokeNodeOperations>&& operations,
                                 bool usePressure);
 
@@ -78,7 +78,7 @@ public:
     /// </summary>
     /// <param name="stylusPoints">StylusPointCollection</param>
     /// <returns>yields StrokeNode objects one by one</returns>
-    StrokeNodeIterator GetIteratorForNextSegment(QSharedPointer<StylusPointCollection> stylusPoints);
+    StrokeNodeIterator GetIteratorForNextSegment(SharedPointer<StylusPointCollection> stylusPoints);
 
     /// <summary>
     /// Generates (enumerates) StrokeNode objects for a stroke increment
@@ -87,7 +87,7 @@ public:
     /// </summary>
     /// <param name="points">an array of points representing a stroke increment</param>
     /// <returns>yields StrokeNode objects one by one</returns>
-    StrokeNodeIterator GetIteratorForNextSegment(QVector<QPointF> const & points);
+    StrokeNodeIterator GetIteratorForNextSegment(Array<Point> const & points);
 
     /// <summary>
     /// The count of strokenodes that can be iterated across
@@ -98,7 +98,7 @@ public:
         {
             return 0;
         }
-        return _stylusPoints->size();
+        return _stylusPoints->Count();
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public:
     }
 
 private:
-    QSharedPointer<StylusPointCollection>  _stylusPoints;
+    SharedPointer<StylusPointCollection>  _stylusPoints;
     std::unique_ptr<StrokeNodeOperations>   _operations;
     bool                    _usePressure;
 };

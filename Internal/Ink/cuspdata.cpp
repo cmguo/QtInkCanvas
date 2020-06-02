@@ -1,9 +1,20 @@
 #include "Internal/Ink/cuspdata.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspoint.h"
-#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/doubleutil.h"
 #include "Internal/debug.h"
+
+#ifndef INKCANVAS_CORE
+#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
+#else
+class StrokeCollectionSerializer
+{
+public:
+    //#region Constants (Static Fields)
+    static constexpr double AvalonToHimetricMultiplier = 2540.0 / 96.0;
+    static constexpr double HimetricToAvalonMultiplier = 96.0 / 2540.0;
+};
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -21,28 +32,28 @@ CuspData::CuspData()
 void CuspData::Analyze(StylusPointCollection & stylusPoints, double rSpan)
 {
     // If the count is less than 1, return
-    if ((stylusPoints.size() == 0))
+    if ((stylusPoints.Count() == 0))
         return;
 
-    _points.reserve(stylusPoints.size());
-    _nodes.reserve(stylusPoints.size());
+    _points.reserve(stylusPoints.Count());
+    _nodes.reserve(stylusPoints.Count());
 
     // Construct the lists of data points and nodes
-    _nodes.push_back(0);
+    _nodes.Add(0);
     CDataPoint cdp0;
     cdp0.Index = 0;
     //convert from Avalon to Himetric
-    QPointF point = stylusPoints[0];
-    point *= StrokeCollectionSerializer::AvalonToHimetricMultiplier;
+    Point point = stylusPoints[0];
+    point = Vector(point) * StrokeCollectionSerializer::AvalonToHimetricMultiplier;
     cdp0.Point = point;
-    _points.push_back(cdp0);
+    _points.Add(cdp0);
 
     //drop duplicates
     int index = 0;
-    for (int i = 1; i < stylusPoints.size(); i++)
+    for (int i = 1; i < stylusPoints.Count(); i++)
     {
-        if (!qFuzzyCompare(stylusPoints[i].X(), stylusPoints[i - 1].X()) ||
-            !qFuzzyCompare(stylusPoints[i].Y(), stylusPoints[i - 1].Y()))
+        if (!DoubleUtil::AreClose(stylusPoints[i].X(), stylusPoints[i - 1].X()) ||
+            !DoubleUtil::AreClose(stylusPoints[i].Y(), stylusPoints[i - 1].Y()))
         {
             //this is a unique point, add it
             index++;
@@ -51,12 +62,12 @@ void CuspData::Analyze(StylusPointCollection & stylusPoints, double rSpan)
             cdp.Index = index;
 
             //convert from Avalon to Himetric
-            QPointF point2 = stylusPoints[i];
-            point2 *= StrokeCollectionSerializer::AvalonToHimetricMultiplier;
+            Point point2 = stylusPoints[i];
+            point2 = Vector(point) * StrokeCollectionSerializer::AvalonToHimetricMultiplier;
             cdp.Point = point2;
 
-            _points.insert(index, cdp);
-            _nodes.insert(index, _nodes[index - 1] + Length(XY(index) - XY(index - 1)));
+            _points.Insert(index, cdp);
+            _nodes.Insert(index, _nodes[index - 1] + (XY(index) - XY(index - 1)).Length());
         }
     }
 
@@ -142,7 +153,7 @@ int CuspData::GetNextCusp(int iCurrent)
         return last;
 
     // Perform a binary search
-    int s = 0, e = _cusps.size();
+    int s = 0, e = _cusps.Count();
     int m = (s + e) / 2;
 
     while (s < m)
@@ -168,7 +179,7 @@ int CuspData::GetNextCusp(int iCurrent)
 /// <param name="bReverse">Forward or reverse tangent</param>
 /// <param name="bIsCusp">Whether the current idex is a cusp StylusPoint</param>
 /// <returns>Return whether the tangent computation succeeded</returns>
-bool CuspData::Tangent(QPointF & ptT, int nAt, int nPrevCusp, int nNextCusp, bool bReverse, bool bIsCusp)
+bool CuspData::Tangent(Vector & ptT, int nAt, int nPrevCusp, int nNextCusp, bool bReverse, bool bIsCusp)
 {
     // Tangent is computed as the unit vector along
     // PT = (P1 - P0) + (P2 - P0) + (P3 - P0)
@@ -233,12 +244,12 @@ bool CuspData::Tangent(QPointF & ptT, int nAt, int nPrevCusp, int nNextCusp, boo
         ptT = XY(i_1) + XY(i_2) + 0.5 * XY(i_3) - 2.5 * XY(nAt);
     }
 
-    if (qFuzzyIsNull(QPointF::dotProduct(ptT, ptT)))
+    if (DoubleUtil::IsZero(ptT.LengthSquared()))
     {
         return false;
     }
 
-    ptT /= sqrt(QPointF::dotProduct(ptT, ptT));
+    ptT.Normalize();
     return true;
 }
 
@@ -252,14 +263,14 @@ bool CuspData::Tangent(QPointF & ptT, int nAt, int nPrevCusp, int nNextCusp, boo
 /// <returns>"Curvature"</returns>
 double CuspData::GetCurvature(int iPrev, int iCurrent, int iNext)
 {
-    QPointF V = XY(iCurrent) - XY(iPrev);
-    QPointF W = XY(iNext) - XY(iCurrent);
-    double r = sqrt(QPointF::dotProduct(V, V) * (QPointF::dotProduct(W, W)));
+    Vector V = XY(iCurrent) - XY(iPrev);
+    Vector W = XY(iNext) - XY(iCurrent);
+    double r = V.Length() * W.Length();
 
-    if (qFuzzyIsNull(r))
+    if (DoubleUtil::IsZero(r))
         return 0;
 
-    return 1 - QPointF::dotProduct(V, W) / r;
+    return 1 - V * W / r;
 }
 
 
@@ -269,14 +280,14 @@ double CuspData::GetCurvature(int iPrev, int iCurrent, int iNext)
 void CuspData::FindAllCusps()
 {
     // Clear the existing cusp indices
-    _cusps.clear();
+    _cusps.Clear();
 
     // There is nothing to find out from
     if (1 > Count())
         return;
 
     // First StylusPoint is always a cusp
-    _cusps.push_back(0);
+    _cusps.Add(0);
 
     int iPrev = 0, iNext = 0, iCuspPrev = 0;
 
@@ -287,9 +298,9 @@ void CuspData::FindAllCusps()
     {
         // Point count is zero, thus, there can't be any cusps
         if (0 == Count())
-            _cusps.clear();
+            _cusps.Clear();
         else if (1 < Count()) // Last StylusPoint is always a cusp
-            _cusps.push_back(iNext);
+            _cusps.Add(iNext);
 
         return;
     }
@@ -335,7 +346,7 @@ void CuspData::FindAllCusps()
             }
 
             // Save the Index with max curvature
-            _cusps.push_back(iMaxCurv);
+            _cusps.Add(iMaxCurv);
 
             // Continue the search with next StylusPoint
             iPoint = m + 1;
@@ -351,7 +362,7 @@ void CuspData::FindAllCusps()
     }
 
     // If everything went right, add the last StylusPoint to the list of cusps
-    _cusps.push_back(Count() - 1);
+    _cusps.Add(Count() - 1);
 }
 
 
@@ -404,21 +415,21 @@ void CuspData::SetLinks(double rSpan)
         return;
 
     // Set up the links to next and previous probe
-    double rL = XY(0).x();
-    double rT = XY(0).y();
+    double rL = XY(0).X();
+    double rT = XY(0).Y();
     double rR = rL;
     double rB = rT;
 
     for (int i = 0; i < count; ++i)
     {
-        UpdateMinMax(XY(i).x(), rL, rR);
-        UpdateMinMax(XY(i).y(), rT, rB);
+        UpdateMinMax(XY(i).X(), rL, rR);
+        UpdateMinMax(XY(i).Y(), rT, rB);
     }
 
     rR -= rL;
     rB -= rT;
-    _dist = qAbs(rR) + qAbs(rB);
-    if (false == qFuzzyIsNull(rSpan))
+    _dist = Math::Abs(rR) + Math::Abs(rB);
+    if (false == DoubleUtil::IsZero(rSpan))
         _span = rSpan;
     else if (0 < _dist)
     {

@@ -3,7 +3,9 @@
 
 #include "Windows/Input/styluspointpropertyids.h"
 
+#ifdef INKCANVAS_QT
 #include <QString>
+#endif
 
 // namespace System.Windows.Input
 INKCANVAS_BEGIN_NAMESPACE
@@ -15,7 +17,7 @@ public:
     /// Instance data
     /// </summary>
 private:
-    QUuid _id;
+    Guid _id;
     bool _isButton;
 
     /// <summary>
@@ -26,7 +28,7 @@ private:
 public:
     StylusPointProperty() {}
 
-    StylusPointProperty(QUuid const & identifier, bool isButton)
+    StylusPointProperty(Guid const & identifier, bool isButton)
     {
         Initialize(identifier, isButton);
     }
@@ -47,13 +49,13 @@ public:
     /// <param name="identifier">identifier
     /// <param name="isButton">isButton
 private:
-    void Initialize(QUuid const & identifier, bool isButton);
+    void Initialize(Guid const & identifier, bool isButton);
 
 public:
     /// <summary>
     /// Id
     /// </summary>
-    QUuid Id() const
+    Guid Id() const
     {
         return _id;
     }
@@ -66,6 +68,7 @@ public:
         return _isButton;
     }
 
+#ifdef INKCANVAS_QT
     /// <summary>
     /// Returns a human readable string representation
     /// </summary>
@@ -77,6 +80,8 @@ public:
             _isButton +
             "}";
     }
+#endif
+
 };
 
 INKCANVAS_END_NAMESPACE

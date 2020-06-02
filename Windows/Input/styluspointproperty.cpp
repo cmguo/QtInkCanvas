@@ -1,8 +1,10 @@
 #include "Windows/Input/styluspointproperty.h"
 
+#include <stdexcept>
+
 INKCANVAS_BEGIN_NAMESPACE
 
-void StylusPointProperty::Initialize(QUuid const & identifier, bool isButton)
+void StylusPointProperty::Initialize(Guid const & identifier, bool isButton)
 {
     //
     // validate isButton for known guids

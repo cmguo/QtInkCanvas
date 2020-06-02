@@ -2,8 +2,6 @@
 #include "Windows/Ink/events.h"
 #include "Internal/debug.h"
 
-#include <QVector>
-
 INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
@@ -32,7 +30,7 @@ bool ExtendedPropertyCollection::Equals(ExtendedPropertyCollection const & that)
     for (int x = 0; x < that.Count(); x++)
     {
         bool cont = false;
-        for (int i = 0; i < _extendedProperties.size(); i++)
+        for (int i = 0; i < _extendedProperties.Count(); i++)
         {
             if (_extendedProperties[i] == that[x])
             {
@@ -55,9 +53,9 @@ bool ExtendedPropertyCollection::Equals(ExtendedPropertyCollection const & that)
 /// </summary>
 /// <param name="attributeId">Attribute identifier</param>
 /// <returns>True if attribute is set in the mask, false otherwise</returns>
-bool ExtendedPropertyCollection::Contains(QUuid const & attributeId) const
+bool ExtendedPropertyCollection::Contains(Guid const & attributeId) const
 {
-    for (int x = 0; x < _extendedProperties.size(); x++)
+    for (int x = 0; x < _extendedProperties.Count(); x++)
     {
         if (_extendedProperties[x].Id() == attributeId)
         {
@@ -86,7 +84,7 @@ bool ExtendedPropertyCollection::Contains(QUuid const & attributeId) const
 ExtendedPropertyCollection* ExtendedPropertyCollection::Clone() const
 {
     ExtendedPropertyCollection* copied = new ExtendedPropertyCollection();
-    for (int x = 0; x < _extendedProperties.size(); x++)
+    for (int x = 0; x < _extendedProperties.Count(); x++)
     {
         copied->Add(_extendedProperties[x]);
     }
@@ -98,7 +96,7 @@ ExtendedPropertyCollection* ExtendedPropertyCollection::Clone() const
 /// </summary>
 /// <param name="id">Id</param>
 /// <param name="value">value</param>
-void ExtendedPropertyCollection::Add(QUuid const& id, QVariant value)
+void ExtendedPropertyCollection::Add(Guid const& id, Variant const & value)
 {
     if (Contains(id))
     {
@@ -116,7 +114,7 @@ void ExtendedPropertyCollection::Add(QUuid const& id, QVariant value)
 /// Remove
 /// </summary>
 /// <param name="id">id</param>
-void ExtendedPropertyCollection::Remove(QUuid const& id)
+void ExtendedPropertyCollection::Remove(Guid const& id)
 {
     if (!Contains(id))
     {
@@ -127,31 +125,33 @@ void ExtendedPropertyCollection::Remove(QUuid const& id)
     Debug::Assert(propertyToRemove != nullptr );
     ExtendedPropertiesChangedEventArgs eventArgs(*propertyToRemove, ExtendedProperty::Empty );
 
-    _extendedProperties.removeOne(*propertyToRemove);
+    _extendedProperties.Remove(*propertyToRemove);
 
     //
     // this value is bogus now
     //
     _optimisticIndex = -1;
 
+#ifdef INKCANVAS_QT
     // fire notification event
     //if (this.Changed != nullptr )
     {
         Changed(eventArgs);
     }
+#endif
 }
 
 /// <value>
-///     Retrieve the QUuid const& array of ExtendedProperty Ids  in the collection.
+///     Retrieve the Guid const& array of ExtendedProperty Ids  in the collection.
 ///     <paramref>Guid[]</paramref> is of type <see cref="System.Int32"/>.
 ///     <seealso cref="System.Collections.ICollection.Count"/>
 /// </value>
-QVector<QUuid> ExtendedPropertyCollection::GetGuidArray() const
+Array<Guid> ExtendedPropertyCollection::GetGuidArray() const
 {
-    if (_extendedProperties.size() > 0)
+    if (_extendedProperties.Count() > 0)
     {
-        QVector<QUuid> guids(_extendedProperties.size());
-        for (int i = 0; i < _extendedProperties.size(); i++)
+        Array<Guid> guids(_extendedProperties.Count());
+        for (int i = 0; i < _extendedProperties.Count(); i++)
         {
             guids[i] = (*this)[i].Id();
         }
@@ -159,7 +159,7 @@ QVector<QUuid> ExtendedPropertyCollection::GetGuidArray() const
     }
     else
     {
-        return QVector<QUuid>();
+        return Array<Guid>();
     }
 }
 
@@ -172,7 +172,7 @@ QVector<QUuid> ExtendedPropertyCollection::GetGuidArray() const
 /// <remarks>
 /// Note that you can access extended properties via this indexer.
 /// </remarks>
-QVariant ExtendedPropertyCollection::operator[](QUuid const& attributeId) const
+Variant ExtendedPropertyCollection::operator[](Guid const& attributeId) const
 {
         ExtendedProperty* ep = const_cast<ExtendedPropertyCollection*>(this)->GetExtendedPropertyById(attributeId);
         if (ep == nullptr )
@@ -182,31 +182,32 @@ QVariant ExtendedPropertyCollection::operator[](QUuid const& attributeId) const
         return ep->Value();
 }
 
-void ExtendedPropertyCollection::Set(QUuid const& attributeId, QVariant value)
+void ExtendedPropertyCollection::Set(Guid const& attributeId, Variant const & value)
 {
-    if (value.isNull() )
+    if (value == nullptr )
     {
         throw std::runtime_error("value");
     }
-    for (int i = 0; i < _extendedProperties.size(); i++)
+    for (int i = 0; i < _extendedProperties.Count(); i++)
     {
         ExtendedProperty& currentProperty = _extendedProperties[i];
 
         if (currentProperty.Id() == attributeId)
         {
-            QVariant oldValue = currentProperty.Value();
+            Variant oldValue = currentProperty.Value();
             //this will raise events
             currentProperty.SetValue(value);
 
+#ifdef INKCANVAS_QT
             //raise change if anyone is listening
             //if (this.Changed != nullptr )
             {
                 ExtendedPropertiesChangedEventArgs eventArgs(
                         ExtendedProperty(currentProperty.Id(), oldValue), //old prop
                         currentProperty);                                   //new prop
-
                 Changed( eventArgs);
             }
+#endif
             return;
         }
     }
@@ -227,21 +228,22 @@ void ExtendedPropertyCollection::Add(ExtendedProperty const & extendedProperty)
 {
     Debug::Assert(!Contains(extendedProperty.Id()), "ExtendedProperty already belongs to the collection");
 
-    _extendedProperties.append(extendedProperty);
-
+    _extendedProperties.Add(extendedProperty);
+#ifdef INKCANVAS_QT
     // fire notification event
     //if (this.Changed != nullptr )
     {
         ExtendedPropertiesChangedEventArgs eventArgs(ExtendedProperty::Empty, extendedProperty);
         Changed(eventArgs);
     }
+#endif
 }
 
 /// <summary>
 /// Private helper for getting an EP out of our internal collection
 /// </summary>
 /// <param name="id">id</param>
-ExtendedProperty* ExtendedPropertyCollection::GetExtendedPropertyById(QUuid const& id)
+ExtendedProperty* ExtendedPropertyCollection::GetExtendedPropertyById(Guid const& id)
 {
     //
     // a typical pattern is to first check if
@@ -253,14 +255,14 @@ ExtendedProperty* ExtendedPropertyCollection::GetExtendedPropertyById(QUuid cons
     //
     int optimisticIndex = _optimisticIndex; // for thread safe
     if (optimisticIndex != -1 &&
-        optimisticIndex < _extendedProperties.size() &&
+        optimisticIndex < _extendedProperties.Count() &&
         _extendedProperties[optimisticIndex].Id() == id)
     {
         return &_extendedProperties[optimisticIndex];
     }
 
     //we didn't find the ep optimistically, perform linear lookup
-    for (int i = 0; i < _extendedProperties.size(); i++)
+    for (int i = 0; i < _extendedProperties.Count(); i++)
     {
         if (_extendedProperties[i].Id() == id)
         {

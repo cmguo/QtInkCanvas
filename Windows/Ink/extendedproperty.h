@@ -3,8 +3,10 @@
 
 #include "InkCanvas_global.h"
 
-#include <QUuid>
-#include <QVariant>
+#include "guid.h"
+#include "variant.h"
+
+#include <stdexcept>
 
 // namespace System.Windows.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -20,7 +22,7 @@ public:
     /// <param name="id">Identifier of attribute</param>
     /// <param name="value">Attribute value - not that the Type for value is tied to the id</param>
     /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
-    ExtendedProperty(QUuid const & id, QVariant value);
+    ExtendedProperty(Guid const & id, Variant const & value);
 
     /// <summary>Returns a value that can be used to store and lookup
     /// ExtendedProperty QVariants in a hash table</summary>
@@ -102,16 +104,18 @@ public:
         return !(first == second);
     }
 
+#ifdef INKCANVAS_QT
     /// <summary>
     /// Returns a debugger-friendly version of the ExtendedProperty
     /// </summary>
     /// <returns></returns>
     QString ToString();
+#endif
 
     /// <summary>
     /// Retrieve the Identifier, or key, for Drawing Attribute key/value pair
     /// </summary>
-    QUuid const & Id() const
+    Guid const & Id() const
     {
         return _id;
     }
@@ -120,13 +124,13 @@ public:
     /// </summary>
     /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
     /// <remarks>Value can be null.</remarks>
-    QVariant const & Value() const
+    Variant const & Value() const
     {
        return _value;
     }
-    void SetValue(QVariant const & value)
+    void SetValue(Variant const & value)
     {
-        if (value.isNull())
+        if (value == nullptr)
         {
             throw std::runtime_error("value");
         }
@@ -141,7 +145,7 @@ private:
     ExtendedProperty();
 
     /// <summary>
-    /// Creates a copy of the QUuid and Value
+    /// Creates a copy of the Guid and Value
     /// </summary>
     /// <returns></returns>
     /*
@@ -151,7 +155,7 @@ private:
         // the only properties we accept are value types or arrays of
         // value types with the exception of string.
         //
-        QUuid QUuid = _id; //QUuid is a ValueType that copies on assignment
+        Guid Guid = _id; //Guid is a ValueType that copies on assignment
         Type type = _value.GetType();
 
         //
@@ -163,7 +167,7 @@ private:
             //
             // either ValueType or string is passed by value
             //
-            return new ExtendedProperty(QUuid, _value);
+            return new ExtendedProperty(Guid, _value);
         }
         else if (type.IsArray)
         {
@@ -176,7 +180,7 @@ private:
                 //
                 Array newArray = Array.CreateInstance(elementType, ((Array)_value).Length);
                 Array.Copy((Array)_value, newArray, ((Array)_value).Length);
-                return new ExtendedProperty(QUuid, newArray);
+                return new ExtendedProperty(Guid, newArray);
             }
         }
         //
@@ -187,8 +191,8 @@ private:
     */
 
 private:
-    QUuid _id;                // id of attribute
-    QVariant _value;             // data in attribute
+    Guid _id;                // id of attribute
+    Variant _value;             // data in attribute
 };
 
 INKCANVAS_END_NAMESPACE

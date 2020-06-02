@@ -2,10 +2,8 @@
 #define QUAD_H
 
 #include "InkCanvas_global.h"
-
-#include <QPointF>
-#include <QRectF>
-#include <QList>
+#include "Windows/rect.h"
+#include "Collections/Generic/list.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -20,30 +18,30 @@ public:
     static Quad Empty() { return s_empty; }
 
     /// <summary> Constructor </summary>
-    Quad(QPointF a, QPointF b, QPointF c, QPointF d)
+    Quad(Point a, Point b, Point c, Point d)
     {
         _A = a; _B = b; _C = c; _D = d;
     }
 
     /// <summary> The A vertex of the quad </summary>
 public:
-    QPointF& A() { return _A; }
-    void SetA(QPointF const& value) { _A = value; }
+    Point& A() { return _A; }
+    void SetA(Point const& value) { _A = value; }
 
     /// <summary> The B vertex of the quad </summary>
-    QPointF& B() { return _B; }
-    void SetB(QPointF const& value) { _B = value; }
+    Point& B() { return _B; }
+    void SetB(Point const& value) { _B = value; }
 
     /// <summary> The C vertex of the quad </summary>
-    QPointF& C() { return _C; }
-    void SetC(QPointF const& value) { _C = value; }
+    Point& C() { return _C; }
+    void SetC(Point const& value) { _C = value; }
 
     /// <summary> The D vertex of the quad </summary>
-    QPointF& D() { return _D; }
-    void SetD(QPointF const& value) { _D = value; }
+    Point& D() { return _D; }
+    void SetD(Point const& value) { _D = value; }
 
     // Returns quad's vertex by index where A is of the index 0, B - is 1, etc
-    QPointF & operator[](int index)
+    Point & operator[](int index)
     {
         switch (index)
         {
@@ -62,25 +60,25 @@ public:
         return (_A == _B) && (_C == _D);
     }
 
-    void GetPoints(QList<QPointF> & pointBuffer)
+    void GetPoints(List<Point> & pointBuffer)
     {
-        pointBuffer.append(_A);
-        pointBuffer.append(_B);
-        pointBuffer.append(_C);
-        pointBuffer.append(_D);
+        pointBuffer.Add(_A);
+        pointBuffer.Add(_B);
+        pointBuffer.Add(_C);
+        pointBuffer.Add(_D);
     }
 
     /// <summary> Returns the bounds of the quad </summary>
-    QRectF Bounds()
+    Rect Bounds()
     {
-        return IsEmpty() ? QRectF() : QRectF(_A, _B).normalized().united(QRectF(_C, _D).normalized());
+        return IsEmpty() ? Rect() : Rect::Union(Rect(_A, _B), Rect(_C, _D));
     }
 
 private:
-    QPointF _A;
-    QPointF _B;
-    QPointF _C;
-    QPointF _D;
+    Point _A;
+    Point _B;
+    Point _C;
+    Point _D;
 };
 
 INKCANVAS_END_NAMESPACE

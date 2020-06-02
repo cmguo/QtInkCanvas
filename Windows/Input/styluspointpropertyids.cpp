@@ -2,138 +2,138 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-bool StylusPointPropertyIds::IsKnownId(QUuid const & QUuid)
+bool StylusPointPropertyIds::IsKnownId(Guid const & Guid)
 {
-    if (QUuid == X ||
-        QUuid == Y ||
-        QUuid == Z ||
-        QUuid == Width ||
-        QUuid == Height ||
-        QUuid == SystemTouch ||
-        QUuid == PacketStatus ||
-        QUuid == SerialNumber ||
-        QUuid == NormalPressure ||
-        QUuid == TangentPressure ||
-        QUuid == ButtonPressure ||
-        QUuid == XTiltOrientation ||
-        QUuid == YTiltOrientation ||
-        QUuid == AzimuthOrientation ||
-        QUuid == AltitudeOrientation ||
-        QUuid == TwistOrientation ||
-        QUuid == PitchRotation ||
-        QUuid == RollRotation ||
-        QUuid == YawRotation ||
-        QUuid == TipButton ||
-        QUuid == BarrelButton ||
-        QUuid == SecondaryTipButton)
+    if (Guid == X ||
+        Guid == Y ||
+        Guid == Z ||
+        Guid == Width ||
+        Guid == Height ||
+        Guid == SystemTouch ||
+        Guid == PacketStatus ||
+        Guid == SerialNumber ||
+        Guid == NormalPressure ||
+        Guid == TangentPressure ||
+        Guid == ButtonPressure ||
+        Guid == XTiltOrientation ||
+        Guid == YTiltOrientation ||
+        Guid == AzimuthOrientation ||
+        Guid == AltitudeOrientation ||
+        Guid == TwistOrientation ||
+        Guid == PitchRotation ||
+        Guid == RollRotation ||
+        Guid == YawRotation ||
+        Guid == TipButton ||
+        Guid == BarrelButton ||
+        Guid == SecondaryTipButton)
     {
         return true;
     }
     return false;
 }
 
-QString StylusPointPropertyIds::GetStringRepresentation(QUuid const & QUuid)
+char const * StylusPointPropertyIds::GetStringRepresentation(Guid const & Guid)
 {
-    if (QUuid == X)
+    if (Guid == X)
     {
         return "X";
     }
-    if (QUuid == Y)
+    if (Guid == Y)
     {
         return "Y";
     }
-    if (QUuid == Z)
+    if (Guid == Z)
     {
         return "Z";
     }
-    if (QUuid == Width)
+    if (Guid == Width)
     {
         return "Width";
     }
-    if (QUuid == Height)
+    if (Guid == Height)
     {
         return "Height";
     }
-    if (QUuid == SystemTouch)
+    if (Guid == SystemTouch)
     {
         return "SystemTouch";
     }
-    if (QUuid == PacketStatus)
+    if (Guid == PacketStatus)
     {
         return "PacketStatus";
     }
-    if (QUuid == SerialNumber)
+    if (Guid == SerialNumber)
     {
         return "SerialNumber";
     }
-    if (QUuid == NormalPressure)
+    if (Guid == NormalPressure)
     {
         return "NormalPressure";
     }
-    if (QUuid == TangentPressure)
+    if (Guid == TangentPressure)
     {
         return "TangentPressure";
     }
-    if (QUuid == ButtonPressure)
+    if (Guid == ButtonPressure)
     {
         return "ButtonPressure";
     }
-    if (QUuid == XTiltOrientation)
+    if (Guid == XTiltOrientation)
     {
         return "XTiltOrientation";
     }
-    if (QUuid == YTiltOrientation)
+    if (Guid == YTiltOrientation)
     {
         return "YTiltOrientation";
     }
-    if (QUuid == AzimuthOrientation)
+    if (Guid == AzimuthOrientation)
     {
         return "AzimuthOrientation";
     }
-    if (QUuid == AltitudeOrientation)
+    if (Guid == AltitudeOrientation)
     {
         return "AltitudeOrientation";
     }
-    if (QUuid == TwistOrientation)
+    if (Guid == TwistOrientation)
     {
         return "TwistOrientation";
     }
-    if (QUuid == PitchRotation)
+    if (Guid == PitchRotation)
     {
         return "PitchRotation";
     }
-    if (QUuid == RollRotation)
+    if (Guid == RollRotation)
     {
         return "RollRotation";
     }
-    if (QUuid == AltitudeOrientation)
+    if (Guid == AltitudeOrientation)
     {
         return "AltitudeOrientation";
     }
-    if (QUuid == YawRotation)
+    if (Guid == YawRotation)
     {
         return "YawRotation";
     }
-    if (QUuid == TipButton)
+    if (Guid == TipButton)
     {
         return "TipButton";
     }
-    if (QUuid == BarrelButton)
+    if (Guid == BarrelButton)
     {
         return "BarrelButton";
     }
-    if (QUuid == SecondaryTipButton)
+    if (Guid == SecondaryTipButton)
     {
         return "SecondaryTipButton";
     }
     return "Unknown";
 }
 
-bool StylusPointPropertyIds::IsKnownButton(QUuid const & QUuid)
+bool StylusPointPropertyIds::IsKnownButton(Guid const & Guid)
 {
-    if (QUuid == TipButton ||
-        QUuid == BarrelButton ||
-        QUuid == SecondaryTipButton)
+    if (Guid == TipButton ||
+        Guid == BarrelButton ||
+        Guid == SecondaryTipButton)
     {
         return true;
     }

@@ -18,7 +18,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(Stroke & stroke, DrawingAttri
     //    throw std::runtime_error("drawingAttributes");
     //}
 
-    QSharedPointer<StylusPointCollection> stylusPoints =
+    SharedPointer<StylusPointCollection> stylusPoints =
         drawingAttributes.FitToCurve() ? stroke.GetBezierStylusPoints() : stroke.StylusPoints();
 
     return GetIterator(stylusPoints, drawingAttributes);
@@ -28,7 +28,7 @@ StrokeNodeIterator StrokeNodeIterator::GetIterator(Stroke & stroke, DrawingAttri
 /// If using the strokes drawing attributes, pass stroke.DrawingAttributes for the second
 /// argument.  If using an overridden DA, use that instance.
 /// </summary>
-StrokeNodeIterator StrokeNodeIterator::GetIterator(QSharedPointer<StylusPointCollection> stylusPoints, DrawingAttributes& drawingAttributes)
+StrokeNodeIterator StrokeNodeIterator::GetIterator(SharedPointer<StylusPointCollection> stylusPoints, DrawingAttributes& drawingAttributes)
 {
     if (stylusPoints == nullptr)
     {
@@ -80,7 +80,7 @@ StrokeNodeIterator::StrokeNodeIterator(DrawingAttributes& drawingAttributes)
 /// <param name="stylusPoints"></param>
 /// <param name="operations"></param>
 /// <param name="usePressure"></param>
-StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> stylusPoints,
+StrokeNodeIterator::StrokeNodeIterator(SharedPointer<StylusPointCollection> stylusPoints,
                             std::unique_ptr<StrokeNodeOperations>&& operations,
                             bool usePressure)
     : _stylusPoints(stylusPoints)
@@ -103,20 +103,20 @@ StrokeNodeIterator::StrokeNodeIterator(QSharedPointer<StylusPointCollection> sty
 /// </summary>
 /// <param name="stylusPoints">StylusPointCollection</param>
 /// <returns>yields StrokeNode objects one by one</returns>
-StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<StylusPointCollection> stylusPoints)
+StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(SharedPointer<StylusPointCollection> stylusPoints)
 {
     if (stylusPoints == nullptr)
     {
         throw std::runtime_error("stylusPoints");
     }
 
-    if (_stylusPoints != nullptr && _stylusPoints->size() > 0 && stylusPoints->size() > 0)
+    if (_stylusPoints != nullptr && _stylusPoints->Count() > 0 && stylusPoints->Count() > 0)
     {
         //insert the previous last point, but we need insert a compatible
         //previous point.  The easiest way to do this is to clone a point
         //(since StylusPoint is a struct, we get get one out to get a copy
         StylusPoint sp = (*stylusPoints)[0];
-        StylusPoint lastStylusPoint = (*_stylusPoints)[_stylusPoints->size() - 1];
+        StylusPoint lastStylusPoint = (*_stylusPoints)[_stylusPoints->Count() - 1];
         sp.SetX(lastStylusPoint.X());
         sp.SetY(lastStylusPoint.Y());
         sp.SetPressureFactor(lastStylusPoint.PressureFactor());
@@ -135,17 +135,17 @@ StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QSharedPointer<
 /// </summary>
 /// <param name="points">an array of points representing a stroke increment</param>
 /// <returns>yields StrokeNode objects one by one</returns>
-StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(QVector<QPointF> const & points)
+StrokeNodeIterator StrokeNodeIterator::GetIteratorForNextSegment(Array<Point> const & points)
 {
     //if (points == nullptr)
     //{
     //    throw std::runtime_error("points");
     //}
-    QSharedPointer<StylusPointCollection> newStylusPoints(new StylusPointCollection(points));
-    if (_stylusPoints != nullptr && _stylusPoints->size() > 0)
+    SharedPointer<StylusPointCollection> newStylusPoints(new StylusPointCollection(points));
+    if (_stylusPoints != nullptr && _stylusPoints->Count() > 0)
     {
         //insert the previous last point
-        newStylusPoints->InsertItem(0, const_cast<StylusPoint&>((*_stylusPoints)[_stylusPoints->size() - 1]));
+        newStylusPoints->InsertItem(0, const_cast<StylusPoint&>((*_stylusPoints)[_stylusPoints->Count() - 1]));
     }
 
     return StrokeNodeIterator(  newStylusPoints,
@@ -170,7 +170,7 @@ StrokeNode StrokeNodeIterator::operator[](int index) const
 /// <returns></returns>
 StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex) const
 {
-    if (_stylusPoints == nullptr||  index < 0 || index >= _stylusPoints->size() || previousIndex < -1 || previousIndex >= index)
+    if (_stylusPoints == nullptr||  index < 0 || index >= _stylusPoints->Count() || previousIndex < -1 || previousIndex >= index)
     {
         throw new std::runtime_error("");
     }
@@ -193,7 +193,7 @@ StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex) const
     }
 
     //we use previousIndex+1 because index can skip ahead
-    return StrokeNode(_operations.get(), previousIndex + 1, nodeData, lastNodeData, index == _stylusPoints->size() - 1 /*Is this the last node?*/);
+    return StrokeNode(_operations.get(), previousIndex + 1, nodeData, lastNodeData, index == _stylusPoints->Count() - 1 /*Is this the last node?*/);
 }
 
 INKCANVAS_END_NAMESPACE

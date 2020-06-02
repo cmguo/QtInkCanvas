@@ -3,11 +3,8 @@
 
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/doubleutil.h"
-
-#include <QRectF>
-#include <QPointF>
-#include <QVector>
-#include <QList>
+#include "Collections/Generic/array.h"
+#include "Windows/rect.h"
 
 // namespace System.Windows.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -100,7 +97,7 @@ public:
         _inSegment.SetEndFIndex(value);
     }
 
-
+#ifdef INKCANVAS_QT
     /// <summary>
     /// ToString
     /// </summary>
@@ -111,7 +108,7 @@ public:
                     + StrokeFIndices::GetStringRepresentation(_inSegment.EndFIndex())    + ","
                     + StrokeFIndices::GetStringRepresentation(_hitSegment.EndFIndex())   + "}";
     }
-
+#endif
 
     /// <summary>
     /// Equals
@@ -190,16 +187,16 @@ public:
     /// <summary>
     /// Get the "in-segments" of the intersections.
     /// </summary>
-    static QVector<StrokeFIndices> GetInSegments(QVector<StrokeIntersection> & intersections);
+    static Array<StrokeFIndices> GetInSegments(Array<StrokeIntersection> & intersections);
 
     /// <summary>
     /// Get the "hit-segments"
     /// </summary>
-    static QVector<StrokeFIndices> GetHitSegments(QVector<StrokeIntersection> & intersections);
+    static Array<StrokeFIndices> GetHitSegments(Array<StrokeIntersection> & intersections);
 
 
-    static QVector<StrokeIntersection> GetMaskedHitSegments(QVector<StrokeIntersection> & intersections,
-                                                        QVector<StrokeIntersection> & clip);
+    static Array<StrokeIntersection> GetMaskedHitSegments(Array<StrokeIntersection> & intersections,
+                                                        Array<StrokeIntersection> & clip);
 
 private:
     StrokeFIndices _hitSegment;

@@ -4,11 +4,8 @@
 #include "InkCanvas_global.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointproperties.h"
-
-#include <QPointF>
-#include <QVector>
-#include <QMap>
-#include <QSharedPointer>
+#include "Windows/point.h"
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -25,8 +22,8 @@ private:
     double _x;
     double _y;
     float _pressureFactor;
-    QVector<int> _additionalValues;
-    mutable QSharedPointer<StylusPointDescription> _stylusPointDescription;
+    Array<int> _additionalValues;
+    mutable SharedPointer<StylusPointDescription> _stylusPointDescription;
 
     /// <summary>
     /// StylusPoint
@@ -36,8 +33,8 @@ private:
 public:
     StylusPoint() : StylusPoint(0, 0) {}
 
-    StylusPoint(QPointF const & p)
-        : StylusPoint(p.x(), p.y())
+    StylusPoint(Point const & p)
+        : StylusPoint(p.X(), p.Y())
     {
     }
 
@@ -61,8 +58,8 @@ public:
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="additionalValues">additionalValues
     StylusPoint(double x, double y, float pressureFactor,
-                QSharedPointer<StylusPointDescription> stylusPointDescription,
-                QVector<int> const & additionalValues);
+                SharedPointer<StylusPointDescription> stylusPointDescription,
+                Array<int> const & additionalValues);
 
     /// <summary>
     /// ctor
@@ -71,8 +68,8 @@ public:
         double x,
         double y,
         float pressureFactor,
-        QSharedPointer<StylusPointDescription> stylusPointDescription,
-        QVector<int> const & additionalValues,
+        SharedPointer<StylusPointDescription> stylusPointDescription,
+        Array<int> const & additionalValues,
         bool validateAdditionalData,
         bool validatePressureFactor);
 
@@ -117,9 +114,9 @@ public:
     /// <summary>
     /// Describes the properties this StylusPoint contains
     /// </summary>
-    QSharedPointer<StylusPointDescription> Description() const;
+    SharedPointer<StylusPointDescription> Description() const;
 
-    void SetDescription(QSharedPointer<StylusPointDescription> value);
+    void SetDescription(SharedPointer<StylusPointDescription> value);
 
     /// <summary>
     /// Returns true if this StylusPoint supports the specified property
@@ -152,18 +149,18 @@ public:
     /// Explicit cast converter between StylusPoint and Point
     /// </summary>
     /// <param name="stylusPoint">stylusPoint
-    operator QPointF() const
+    operator Point() const
     {
-        return QPointF(_x, _y);
+        return Point(_x, _y);
     }
 
     /// <summary>
     /// Allows languages that don't support operator overloading
     /// to convert to a point
     /// </summary>
-    QPointF ToPoint() const
+    Point ToPoint() const
     {
-        return QPointF(_x, _y);
+        return Point(_x, _y);
     }
 
     /// <summary>
@@ -257,18 +254,20 @@ public:
     /// <returns>
     /// int - the HashCode for this StylusPoint
     /// </returns>
-    uint GetHashCode() const;
+    int GetHashCode() const;
 
+#ifdef INKCANVAS_QT
     friend uint qHash(StylusPoint const & o)
     {
         return o.GetHashCode();
     }
+#endif
 
     /// <summary>
     /// Used by the StylusPointCollection.ToHimetricArray method
     /// </summary>
     /// <returns></returns>
-    QVector<int> GetAdditionalData() const
+    Array<int> GetAdditionalData() const
     {
         //return a direct ref
         return _additionalValues;
@@ -285,7 +284,7 @@ public:
     /// <summary>
     /// GetPacketData - returns avalon space packet data with true pressure if it exists
     /// </summary>
-    QVector<int> GetPacketData() const;
+    Array<int> GetPacketData() const;
 
     /// <summary>
     /// helper to determine if a stroke has default pressure

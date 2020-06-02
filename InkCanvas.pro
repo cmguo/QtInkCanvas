@@ -18,13 +18,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+DEFINES += STROKE_COLLECTION_EDIT_MASK=1
+DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=1
+
 DEFINES += DEBUG_RENDERING_FEEDBACK=0
 DEFINES += DEBUG_LASSO_FEEDBACK=0
 DEFINES += DEBUG_OUTPUT=0
 DEFINES += OLD_ISF=0
 
 SOURCES += \
-    collection.cpp \
+    double.cpp \
     eventargs.cpp \
     notifycollectionchangedeventargs.cpp \
     qtpainterdrawingcontext.cpp \
@@ -32,7 +35,8 @@ SOURCES += \
 
 HEADERS += \
     InkCanvas_global.h \
-    collection.h \
+    cmath.h \
+    double.h \
     eventargs.h \
     notifycollectionchangedeventargs.h \
     qtpainterdrawingcontext.h \
@@ -41,6 +45,7 @@ HEADERS += \
 include(Windows/Windows.pri)
 include(Internal/Internal.pri)
 include(Activities/Activities.pri)
+include(Collections/Collections.pri)
 
 includes.files = $$PWD/*.h
 includes.windows.files = $$PWD/Windows/*.h

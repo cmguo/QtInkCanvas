@@ -11,11 +11,11 @@ ExtendedProperty ExtendedProperty::Empty;
 /// <param name="id">Identifier of attribute</param>
 /// <param name="value">Attribute value - not that the Type for value is tied to the id</param>
 /// <exception cref="System.ArgumentException">Value type must be compatible with attribute Id</exception>
-ExtendedProperty::ExtendedProperty(QUuid const & id, QVariant value)
+ExtendedProperty::ExtendedProperty(Guid const & id, Variant const & value)
 {
-    if (id.isNull())
+    if (id== Guid::Empty)
     {
-        throw std::runtime_error("(SR.Get(SRID.InvalidQUuid)");
+        throw std::runtime_error("(SR.Get(SRID.InvalidGuid)");
     }
     _id = id;
     _value = value;
@@ -24,6 +24,8 @@ ExtendedProperty::ExtendedProperty(QUuid const & id, QVariant value)
 ExtendedProperty::ExtendedProperty()
 {
 }
+
+#ifdef INKCANVAS_QT
 
 QString ExtendedProperty::ToString()
 {
@@ -42,5 +44,7 @@ QString ExtendedProperty::ToString()
     //}
     return KnownIds::ConvertToString(Id()) + "," + Value().toString();
 }
+
+#endif
 
 INKCANVAS_END_NAMESPACE

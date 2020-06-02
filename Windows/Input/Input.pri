@@ -1,4 +1,26 @@
-include(StylusPlugIns/StylusPlugIns.pri)
+!inkcanvas_core: include(StylusPlugIns/StylusPlugIns.pri)
+
+HEADERS += \
+    $$PWD/styluspoint.h \
+    $$PWD/styluspointcollection.h \
+    $$PWD/styluspointdescription.h \
+    $$PWD/styluspointproperties.h \
+    $$PWD/styluspointproperty.h \
+    $$PWD/styluspointpropertyids.h \
+    $$PWD/styluspointpropertyinfo.h \
+    $$PWD/styluspointpropertyinfodefaults.h
+
+SOURCES += \
+    $$PWD/styluspoint.cpp \
+    $$PWD/styluspointcollection.cpp \
+    $$PWD/styluspointdescription.cpp \
+    $$PWD/styluspointproperties.cpp \
+    $$PWD/styluspointproperty.cpp \
+    $$PWD/styluspointpropertyids.cpp \
+    $$PWD/styluspointpropertyinfo.cpp \
+    $$PWD/styluspointpropertyinfodefaults.cpp
+
+!inkcanvas_core: {
 
 HEADERS += \
     $$PWD/inputdevice.h \
@@ -11,14 +33,6 @@ HEADERS += \
     $$PWD/querycursoreventargs.h \
     $$PWD/stylusdevice.h \
     $$PWD/styluseventargs.h \
-    $$PWD/styluspoint.h \
-    $$PWD/styluspointcollection.h \
-    $$PWD/styluspointdescription.h \
-    $$PWD/styluspointproperties.h \
-    $$PWD/styluspointproperty.h \
-    $$PWD/styluspointpropertyids.h \
-    $$PWD/styluspointpropertyinfo.h \
-    $$PWD/styluspointpropertyinfodefaults.h
 
 SOURCES += \
     $$PWD/inputdevice.cpp \
@@ -31,11 +45,5 @@ SOURCES += \
     $$PWD/querycursoreventargs.cpp \
     $$PWD/stylusdevice.cpp \
     $$PWD/styluseventargs.cpp \
-    $$PWD/styluspoint.cpp \
-    $$PWD/styluspointcollection.cpp \
-    $$PWD/styluspointdescription.cpp \
-    $$PWD/styluspointproperties.cpp \
-    $$PWD/styluspointproperty.cpp \
-    $$PWD/styluspointpropertyids.cpp \
-    $$PWD/styluspointpropertyinfo.cpp \
-    $$PWD/styluspointpropertyinfodefaults.cpp
+
+}

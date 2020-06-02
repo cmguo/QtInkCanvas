@@ -1,8 +1,11 @@
 #include "Internal/Ink/strokenode.h"
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/Ink/strokerenderer.h"
-#include "Windows/Media/drawingcontext.h"
 #include "Internal/debug.h"
+
+#ifndef INKCANVAS_CORE
+#include "Windows/Media/drawingcontext.h"
+#endif
 
 #define pink darkYellow
 #define wheat magenta
@@ -47,8 +50,8 @@ StrokeNode::StrokeNode(
     _isLastNode = isLastNode;
 }
 
-void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
-                                        QList<QPointF> & dcPoints
+void StrokeNode::GetPointsAtStartOfSegment(List<Point> & abPoints,
+                                        List<Point> & dcPoints
 #if DEBUG_RENDERING_FEEDBACK
                                         , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
@@ -59,21 +62,21 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
         Quad quad = ConnectingQuad();
         if (IsEllipse())
         {
-            QRectF startNodeBounds = _operations->GetNodeBounds(_lastNode);
+            Rect startNodeBounds = _operations->GetNodeBounds(_lastNode);
 
             //add instructions to arc from D to A
-            abPoints.append(quad.D());
-            abPoints.append(StrokeRenderer::ArcToMarker);
-            abPoints.append(QPointF(startNodeBounds.width(), startNodeBounds.height()));
-            abPoints.append(quad.A());
+            abPoints.Add(quad.D());
+            abPoints.Add(StrokeRenderer::ArcToMarker);
+            abPoints.Add(Point(startNodeBounds.Width(), startNodeBounds.Height()));
+            abPoints.Add(quad.A());
 
             //simply start at D
-            dcPoints.append(quad.D());
+            dcPoints.Add(quad.D());
 
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), startNodeBounds.width() / 2, startNodeBounds.height() / 2);
+                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), startNodeBounds.Width() / 2, startNodeBounds.Height() / 2);
                 debugDC.DrawEllipse(QBrush(Qt::red), Qt::NoPen, quad.A(), feedbackSize, feedbackSize);
                 debugDC.DrawEllipse(QBrush(Qt::blue), Qt::NoPen, quad.D(), feedbackSize, feedbackSize);
             }
@@ -83,7 +86,7 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
         {
             //we're interested in the A, D points as well as the
             //nodecountour points between them
-            QRectF endNodeRect = _operations->GetNodeBounds(_thisNode);
+            Rect endNodeRect = _operations->GetNodeBounds(_thisNode);
 
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
@@ -91,23 +94,23 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                 debugDC.DrawRectangle(QBrush(), QPen(Qt::pink , feedbackSize / 2), _operations->GetNodeBounds(_lastNode));
             }
 #endif
-            QVector<QPointF> vertices = _operations->GetVertices();
+            Array<Vector> vertices = _operations->GetVertices();
             double pressureFactor = _lastNode.PressureFactor();
-            int maxCount = vertices.size() * 2;
+            int maxCount = vertices.Length() * 2;
             int i = 0;
             bool dIsInEndNode = true;
             for (; i < maxCount; i++)
             {
                 //look for the d point first
-                QPointF point = _lastNode.Position() + (vertices[i % vertices.size()] * pressureFactor);
+                Point point = _lastNode.Position() + (vertices[i % vertices.Length()] * pressureFactor);
                 if (point == quad.D())
                 {
                     //ab always starts with the D position (only add if it's not in endNode's bounds)
-                    if (!endNodeRect.contains(quad.D()))
+                    if (!endNodeRect.Contains(quad.D()))
                     {
                         dIsInEndNode = false;
-                        abPoints.append(quad.D());
-                        dcPoints.append(quad.D());
+                        abPoints.Add(quad.D());
+                        dcPoints.Add(quad.D());
                     }
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
@@ -130,14 +133,14 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
             //now look for the A position
             //advance i
             i++;
-            for (int j = 0; i < maxCount && j < vertices.size(); i++, j++)
+            for (int j = 0; i < maxCount && j < vertices.Length(); i++, j++)
             {
                 //look for the A point now
-                QPointF point = _lastNode.Position() + (vertices[i % vertices.size()] * pressureFactor);
+                Point point = _lastNode.Position() + (vertices[i % vertices.Length()] * pressureFactor);
                 //add everything in between to ab as long as it's not already in endNode's bounds
-                if (!endNodeRect.contains(point))
+                if (!endNodeRect.Contains(point))
                 {
-                    abPoints.append(point);
+                    abPoints.Add(point);
 #if DEBUG_RENDERING_FEEDBACK
                 if (showFeedback)
                 {
@@ -147,11 +150,11 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
                 }
                 if (dIsInEndNode)
                 {
-                    Debug::Assert(!endNodeRect.contains(point));
+                    Debug::Assert(!endNodeRect.Contains(point));
 
                     //add the first point after d, clockwise
                     dIsInEndNode = false;
-                    dcPoints.append(point);
+                    dcPoints.Add(point);
                 }
                 if (point == quad.A())
                 {
@@ -172,8 +175,8 @@ void StrokeNode::GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
 /// <summary>
 /// GetPointsAtEndOfSegment
 /// </summary>
-void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
-                                        QList<QPointF>& dcPoints
+void StrokeNode::GetPointsAtEndOfSegment(  List<Point> &abPoints,
+                                        List<Point>& dcPoints
 #if DEBUG_RENDERING_FEEDBACK
                                         , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
@@ -184,18 +187,18 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
         Quad quad = ConnectingQuad();
         if (IsEllipse())
         {
-            QRectF bounds = GetBounds();
+            Rect bounds = GetBounds();
             //add instructions to arc from B to C
-            abPoints.append(quad.B());
-            abPoints.append(StrokeRenderer::ArcToMarker);
-            abPoints.append(QPointF(bounds.width(), bounds.height()));
-            abPoints.append(quad.C());
+            abPoints.Add(quad.B());
+            abPoints.Add(StrokeRenderer::ArcToMarker);
+            abPoints.Add(Point(bounds.Width(), bounds.Height()));
+            abPoints.Add(quad.C());
 
             //don't add to the dc points
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
             {
-                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _thisNode.Position(), bounds.width() / 2, bounds.height() / 2);
+                debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _thisNode.Position(), bounds.Width() / 2, bounds.Height() / 2);
                 debugDC.DrawEllipse(QBrush(Qt::green), Qt::NoPen, quad.B(), feedbackSize, feedbackSize);
                 debugDC.DrawEllipse(QBrush(Qt::yellow), Qt::NoPen, quad.C(), feedbackSize, feedbackSize);
             }
@@ -212,16 +215,16 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
             //we're interested in the B, C points as well as the
             //nodecountour points between them
             double pressureFactor = _thisNode.PressureFactor();
-            QVector<QPointF> vertices = _operations->GetVertices();
-            int maxCount = vertices.size() * 2;
+            Array<Vector> vertices = _operations->GetVertices();
+            int maxCount = vertices.Length() * 2;
             int i = 0;
             for (; i < maxCount; i++)
             {
                 //look for the d point first
-                QPointF point = _thisNode.Position() + (vertices[i % vertices.size()] * pressureFactor);
+                Point point = _thisNode.Position() + (vertices[i % vertices.Length()] * pressureFactor);
                 if (point == quad.B())
                 {
-                    abPoints.append(quad.B());
+                    abPoints.Add(quad.B());
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
@@ -242,16 +245,16 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
             //now look for the C position
             //advance i
             i++;
-            for (int j = 0; i < maxCount && j < vertices.size(); i++, j++)
+            for (int j = 0; i < maxCount && j < vertices.Length(); i++, j++)
             {
                 //look for the c point last
-                QPointF point = _thisNode.Position() + (vertices[i % vertices.size()] * pressureFactor);
+                Point point = _thisNode.Position() + (vertices[i % vertices.Length()] * pressureFactor);
                 if (point == quad.C())
                 {
                     break;
                 }
                 //only add to ab if we didn't find C
-                abPoints.append(point);
+                abPoints.Add(point);
 
 #if DEBUG_RENDERING_FEEDBACK
                 if (showFeedback)
@@ -261,7 +264,7 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 #endif
             }
             //finally, add the C point
-            dcPoints.append(quad.C());
+            dcPoints.Add(quad.C());
 
 #if DEBUG_RENDERING_FEEDBACK
             if (showFeedback)
@@ -278,8 +281,8 @@ void StrokeNode::GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
 /// </summary>
 void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                                         double angleBetweenNodes,
-                                        QList<QPointF> & abPoints,
-                                        QList<QPointF> & dcPoints,
+                                        List<Point> & abPoints,
+                                        List<Point> & dcPoints,
                                         bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
                                         , DrawingContext& debugDC, double feedbackSize, bool showFeedback
@@ -297,20 +300,20 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
             {
                 if (IsEllipse())
                 {
-                    QRectF node1Bounds = _operations->GetNodeBounds(previous._lastNode);
-                    QRectF node2Bounds = _operations->GetNodeBounds(_lastNode);
-                    QRectF node3Bounds = _operations->GetNodeBounds(_thisNode);
+                    Rect node1Bounds = _operations->GetNodeBounds(previous._lastNode);
+                    Rect node2Bounds = _operations->GetNodeBounds(_lastNode);
+                    Rect node3Bounds = _operations->GetNodeBounds(_thisNode);
 #if DEBUG_RENDERING_FEEDBACK
                     if (showFeedback)
                     {
-                        debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), node2Bounds.width() / 2, node2Bounds.height() / 2);
+                        debugDC.DrawEllipse(QBrush(), QPen(Qt::pink, feedbackSize / 2), _lastNode.Position(), node2Bounds.Width() / 2, node2Bounds.Height() / 2);
                     }
 #endif
                     if (angleBetweenNodes == 0.0 || ((quad1.B() == quad2.A()) && (quad1.C() == quad2.D())))
                     {
                         //quads connections are the same, just add them
-                        abPoints.append(quad1.B());
-                        dcPoints.append(quad1.C());
+                        abPoints.Add(quad1.B());
+                        dcPoints.Add(quad1.C());
 #if DEBUG_RENDERING_FEEDBACK
                         if (showFeedback)
                         {
@@ -325,7 +328,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         //this part is easy
                         if (quad1.B() == quad2.A())
                         {
-                            abPoints.append(quad1.B());
+                            abPoints.Add(quad1.B());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -335,10 +338,9 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         }
                         else
                         {
-                            QPointF intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
-                            QRectF union_ = node1Bounds | node2Bounds;
-                            //union_.Inflate(1.0, 1.0);
-                            union_.adjust(-1.0, -1.0, 1.0, 1.0);
+                            Point intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
+                            Rect union_ = Rect::Union(node1Bounds, node2Bounds);
+                            union_.Inflate(1.0, 1.0);
                             //make sure we're not off in space
 
 #if DEBUG_RENDERING_FEEDBACK
@@ -349,9 +351,9 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                             }
 #endif
 
-                            if (!DoubleUtil::IsNaN(intersection.x()) && union_.contains(intersection))
+                            if (union_.Contains(intersection))
                             {
-                                abPoints.append(intersection);
+                                abPoints.Add(intersection);
 #if DEBUG_RENDERING_FEEDBACK
                                 if (showFeedback)
                                 {
@@ -370,7 +372,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 
                         if (quad1.C() == quad2.D())
                         {
-                            dcPoints.append(quad1.C());
+                            dcPoints.Add(quad1.C());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -381,10 +383,10 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         else
                         {
                             //add instructions to arc from quad1.C to quad2.D in reverse order (since we walk this array backwards to render)
-                            dcPoints.append(quad1.C());
-                            dcPoints.append(QPointF(node2Bounds.width(), node2Bounds.height()));
-                            dcPoints.append(StrokeRenderer::ArcToMarker);
-                            dcPoints.append(quad2.D());
+                            dcPoints.Add(quad1.C());
+                            dcPoints.Add(Point(node2Bounds.Width(), node2Bounds.Height()));
+                            dcPoints.Add(StrokeRenderer::ArcToMarker);
+                            dcPoints.Add(quad2.D());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -400,7 +402,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         //this part is easy
                         if (quad1.C() == quad2.D())
                         {
-                            dcPoints.append(quad1.C());
+                            dcPoints.Add(quad1.C());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -410,10 +412,9 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         }
                         else
                         {
-                            QPointF intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
-                            QRectF union_ = node1Bounds | node2Bounds;
-                            //union_.Inflate(1.0, 1.0);
-                            union_.adjust(-1.0, -1.0, 1.0, 1.0);
+                            Point intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
+                            Rect union_ = Rect::Union(node1Bounds, node2Bounds);
+                            union_.Inflate(1.0, 1.0);
                             //make sure we're not off in space
 
 #if DEBUG_RENDERING_FEEDBACK
@@ -424,9 +425,9 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                             }
 #endif
 
-                            if (!DoubleUtil::IsNaN(intersection.x()) && union_.contains(intersection))
+                            if (union_.Contains(intersection))
                             {
-                                dcPoints.append(intersection);
+                                dcPoints.Add(intersection);
 #if DEBUG_RENDERING_FEEDBACK
                                 if (showFeedback)
                                 {
@@ -445,7 +446,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 
                         if (quad1.B() == quad2.A())
                         {
-                            abPoints.append(quad1.B());
+                            abPoints.Add(quad1.B());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -457,10 +458,10 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                         else
                         {
                             //we need to arc between quad1.B and quad2.A along node2
-                            abPoints.append(quad1.B());
-                            abPoints.append(StrokeRenderer::ArcToMarker);
-                            abPoints.append(QPointF(node2Bounds.width(), node2Bounds.height()));
-                            abPoints.append(quad2.A());
+                            abPoints.Add(quad1.B());
+                            abPoints.Add(StrokeRenderer::ArcToMarker);
+                            abPoints.Add(Point(node2Bounds.Width(), node2Bounds.Height()));
+                            abPoints.Add(quad2.A());
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -479,11 +480,11 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     int indexC = -1;
                     int indexD = -1;
 
-                    QVector<QPointF> vertices = _operations->GetVertices();
+                    Array<Vector> vertices = _operations->GetVertices();
                     double pressureFactor = _lastNode.PressureFactor();
-                    for (int i = 0; i < vertices.size(); i++)
+                    for (int i = 0; i < vertices.Length(); i++)
                     {
-                        QPointF point = _lastNode.Position() + (vertices[i % vertices.size()] * pressureFactor);
+                        Point point = _lastNode.Position() + (vertices[i % vertices.Length()] * pressureFactor);
                         if (point == quad2.A())
                         {
                             indexA = i;
@@ -520,36 +521,36 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     }
 #endif
 
-                    QRectF node3Rect = _operations->GetNodeBounds(_thisNode);
+                    Rect node3Rect = _operations->GetNodeBounds(_thisNode);
                     //take care of a-b first
                     if (indexA == indexB)
                     {
                         //quad connection is the same, just add it
-                        if (!node3Rect.contains(quad1.B()))
+                        if (!node3Rect.Contains(quad1.B()))
                         {
-                            abPoints.append(quad1.B());
+                            abPoints.Add(quad1.B());
                         }
                     }
                     else if ((indexA == 0 && indexB == 3) || ((indexA != 3 || indexB != 0) && (indexA > indexB)))
                     {
-                        if (!node3Rect.contains(quad1.B()))
+                        if (!node3Rect.Contains(quad1.B()))
                         {
-                            abPoints.append(quad1.B());
+                            abPoints.Add(quad1.B());
                         }
-                        if (!node3Rect.contains(quad2.A()))
+                        if (!node3Rect.Contains(quad2.A()))
                         {
-                            abPoints.append(quad2.A());
+                            abPoints.Add(quad2.A());
                         }
                     }
                     else
                     {
-                        QPointF intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
-                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
-                        node12.adjust(-1.0, -1.0, 1.0, 1.0);
+                        Point intersection = GetIntersection(quad1.A(), quad1.B(), quad2.A(), quad2.B());
+                        Rect node12 = Rect::Union(_operations->GetNodeBounds(previous._lastNode), _operations->GetNodeBounds(_lastNode));
+                        node12.Inflate(1.0, 1.0);
                         //make sure we're not off in space
-                        if (!DoubleUtil::IsNaN(intersection.x()) && node12.contains(intersection))
+                        if (node12.Contains(intersection))
                         {
-                            abPoints.append(intersection);
+                            abPoints.Add(intersection);
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -570,31 +571,31 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
                     if (indexC == indexD)
                     {
                         //quad connection is the same, just add it
-                        if (!node3Rect.contains(quad1.C()))
+                        if (!node3Rect.Contains(quad1.C()))
                         {
-                            dcPoints.append(quad1.C());
+                            dcPoints.Add(quad1.C());
                         }
                     }
                     else if ((indexC == 0 && indexD == 3) || ((indexC != 3 || indexD != 0) && (indexC > indexD)))
                     {
-                        if (!node3Rect.contains(quad1.C()))
+                        if (!node3Rect.Contains(quad1.C()))
                         {
-                            dcPoints.append(quad1.C());
+                            dcPoints.Add(quad1.C());
                         }
-                        if (!node3Rect.contains(quad2.D()))
+                        if (!node3Rect.Contains(quad2.D()))
                         {
-                            dcPoints.append(quad2.D());
+                            dcPoints.Add(quad2.D());
                         }
                     }
                     else
                     {
-                        QPointF intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
-                        QRectF node12 = _operations->GetNodeBounds(previous._lastNode) | _operations->GetNodeBounds(_lastNode);
-                        node12.adjust(-1.0, -1.0, 1.0, 1.0);
+                        Point intersection = GetIntersection(quad1.D(), quad1.C(), quad2.D(), quad2.C());
+                        Rect node12 = Rect::Union(_operations->GetNodeBounds(previous._lastNode), _operations->GetNodeBounds(_lastNode));
+                        node12.Inflate(1.0, 1.0);
                         //make sure we're not off in space
-                        if (!DoubleUtil::IsNaN(intersection.x()) && node12.contains(intersection))
+                        if (node12.Contains(intersection))
                         {
-                            dcPoints.append(intersection);
+                            dcPoints.Add(intersection);
 #if DEBUG_RENDERING_FEEDBACK
                             if (showFeedback)
                             {
@@ -621,14 +622,14 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 /// and should only be called if that assumption is valid
 /// </summary>
 /// <returns></returns>
-QPointF StrokeNode::GetIntersection(QPointF line1Start, QPointF line1End, QPointF line2Start, QPointF line2End)
+Point StrokeNode::GetIntersection(Point line1Start, Point line1End, Point line2Start, Point line2End)
 {
-    double a1 = line1End.y() - line1Start.y();
-    double b1 = line1Start.x() - line1End.x();
-    double c1 = (line1End.x() * line1Start.y()) - (line1Start.x() * line1End.y());
-    double a2 = line2End.y() - line2Start.y();
-    double b2 = line2Start.x() - line2End.x();
-    double c2 = (line2End.x() * line2Start.y()) - (line2Start.x() * line2End.y());
+    double a1 = line1End.Y() - line1Start.Y();
+    double b1 = line1Start.X() - line1End.X();
+    double c1 = (line1End.X() * line1Start.Y()) - (line1Start.X() * line1End.Y());
+    double a2 = line2End.Y() - line2Start.Y();
+    double b2 = line2Start.X() - line2End.X();
+    double c2 = (line2End.X() * line2Start.Y()) - (line2Start.X() * line2End.Y());
 
     double d = (a1 * b2) - (a2 * b1);
     if (d != 0.0)
@@ -638,48 +639,48 @@ QPointF StrokeNode::GetIntersection(QPointF line1Start, QPointF line1End, QPoint
 
         //capture the min and max points
         double line1XMin, line1XMax, line1YMin, line1YMax, line2XMin, line2XMax, line2YMin, line2YMax;
-        if (line1Start.x() < line1End.x())
+        if (line1Start.X() < line1End.X())
         {
-            line1XMin = floor(line1Start.x());
-            line1XMax = ceil(line1End.x());
+            line1XMin = floor(line1Start.X());
+            line1XMax = ceil(line1End.X());
         }
         else
         {
-            line1XMin = floor(line1End.x());
-            line1XMax = ceil(line1Start.x());
+            line1XMin = floor(line1End.X());
+            line1XMax = ceil(line1Start.X());
         }
 
-        if (line2Start.x() < line2End.x())
+        if (line2Start.X() < line2End.X())
         {
-            line2XMin = floor(line2Start.x());
-            line2XMax = ceil(line2End.x());
+            line2XMin = floor(line2Start.X());
+            line2XMax = ceil(line2End.X());
         }
         else
         {
-            line2XMin = floor(line2End.x());
-            line2XMax = ceil(line2Start.x());
+            line2XMin = floor(line2End.X());
+            line2XMax = ceil(line2Start.X());
         }
 
-        if (line1Start.y() < line1End.y())
+        if (line1Start.Y() < line1End.Y())
         {
-            line1YMin = floor(line1Start.y());
-            line1YMax = ceil(line1End.y());
+            line1YMin = floor(line1Start.Y());
+            line1YMax = ceil(line1End.Y());
         }
         else
         {
-            line1YMin = floor(line1End.y());
-            line1YMax = ceil(line1Start.y());
+            line1YMin = floor(line1End.Y());
+            line1YMax = ceil(line1Start.Y());
         }
 
-        if (line2Start.y() < line2End.y())
+        if (line2Start.Y() < line2End.Y())
         {
-            line2YMin = floor(line2Start.y());
-            line2YMax = ceil(line2End.y());
+            line2YMin = floor(line2Start.Y());
+            line2YMax = ceil(line2End.Y());
         }
         else
         {
-            line2YMin = floor(line2End.y());
-            line2YMax = ceil(line2Start.y());
+            line2YMin = floor(line2End.Y());
+            line2YMax = ceil(line2Start.Y());
         }
 
 
@@ -690,17 +691,17 @@ QPointF StrokeNode::GetIntersection(QPointF line1Start, QPointF line1End, QPoint
             (line2XMin <= x && x <= line2XMax) &&
             (line2YMin <= y && y <= line2YMax))
         {
-            return QPointF(x, y);
+            return Point(x, y);
         }
     }
 
-    if ((long)line1End.x() == (long)line2Start.x() &&
-        (long)line1End.y() == (long)line2Start.y())
+    if ((long)line1End.X() == (long)line2Start.X() &&
+        (long)line1End.Y() == (long)line2Start.Y())
     {
-        return QPointF(line1End.x(), line1End.y());
+        return Point(line1End.X(), line1End.Y());
     }
 
-    return QPointF(nan(""), nan(""));
+    return Point(nan(""), nan(""));
 }
 
 /// <summary>
@@ -717,7 +718,7 @@ bool StrokeNode::HitTest(StrokeNode hitNode)
         return false;
     }
 
-    QList<ContourSegment> hittingContour = hitNode.GetContourSegments();
+    List<ContourSegment> hittingContour = hitNode.GetContourSegments();
 
     return _operations->HitTest(_lastNode, _thisNode, ConnectingQuad(), hittingContour);
 }
@@ -735,7 +736,7 @@ StrokeFIndices StrokeNode::CutTest(StrokeNode hitNode)
         return StrokeFIndices::Empty();
     }
 
-    QList<ContourSegment> hittingContour = hitNode.GetContourSegments();
+    List<ContourSegment> hittingContour = hitNode.GetContourSegments();
 
     // If the node contours intersect, the result is a pair of findices
     // this segment should be cut at to let the hitNode's contour through it.
@@ -751,7 +752,7 @@ StrokeFIndices StrokeNode::CutTest(StrokeNode hitNode)
 /// <param name="begin"></param>
 /// <param name="end"></param>
 /// <returns></returns>
-StrokeFIndices StrokeNode::CutTest(QPointF begin, QPointF end)
+StrokeFIndices StrokeNode::CutTest(Point begin, Point end)
 {
     if (IsValid() == false)
     {
@@ -762,7 +763,7 @@ StrokeFIndices StrokeNode::CutTest(QPointF begin, QPointF end)
     // this segment should be cut at to let the hitNode's contour through it.
     StrokeFIndices cutAt = _operations->CutTest(_lastNode, _thisNode, ConnectingQuad(), begin, end);
 
-    Debug::Assert(!qIsNaN(cutAt.BeginFIndex()) && !qIsNaN(cutAt.EndFIndex()));
+    Debug::Assert(!Double::IsNaN(cutAt.BeginFIndex()) && !Double::IsNaN(cutAt.EndFIndex()));
 
     // Bind the found findices to the node and return the result
     return BindFIndicesForLassoHitTest(cutAt);
@@ -867,7 +868,7 @@ Quad & StrokeNode::ConnectingQuad()
 /// and connecting quadrangle (_lastNode is excluded)
 /// Used for hit-testing a stroke against an other stroke (stroke and point erasing)
 /// </summary>
-QList<ContourSegment> StrokeNode::GetContourSegments()
+List<ContourSegment> StrokeNode::GetContourSegments()
 {
     Debug::Assert(IsValid());
 
@@ -885,7 +886,7 @@ QList<ContourSegment> StrokeNode::GetContourSegments()
 /// </summary>
 /// <param name="findex">A local findex between the previous index and this one (ex: between 2.0 and 3.0)</param>
 /// <returns>Point on the spine</returns>
-QPointF StrokeNode::GetPointAt(double findex)
+Point StrokeNode::GetPointAt(double findex)
 {
     Debug::Assert(IsValid());
 
@@ -914,14 +915,14 @@ QPointF StrokeNode::GetPointAt(double findex)
     double floor = ::floor(findex);
     findex = findex - floor;
 
-    double xDiff = (_thisNode.Position().x() - _lastNode.Position().x()) * findex;
-    double yDiff = (_thisNode.Position().y() - _lastNode.Position().y()) * findex;
+    double xDiff = (_thisNode.Position().X() - _lastNode.Position().X()) * findex;
+    double yDiff = (_thisNode.Position().Y() - _lastNode.Position().Y()) * findex;
 
     //
     // return the previous point plus the delta's
     //
-    return QPointF(   _lastNode.Position().x() + xDiff,
-                        _lastNode.Position().y() + yDiff);
+    return Point(   _lastNode.Position().X() + xDiff,
+                        _lastNode.Position().Y() + yDiff);
 }
 
 INKCANVAS_END_NAMESPACE

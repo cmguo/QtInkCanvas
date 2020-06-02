@@ -6,9 +6,9 @@
 #include "extendedproperty.h"
 #include "eventargs.h"
 
-#include <QUuid>
-#include <QVariant>
-#include <QSharedPointer>
+#include "guid.h"
+#include "variant.h"
+#include "sharedptr.h"
 
 // namespace System.Windows.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -16,20 +16,20 @@ INKCANVAS_BEGIN_NAMESPACE
 class StrokeCollectionChangedEventArgs : public EventArgs
 {
 private:
-    QSharedPointer<StrokeCollection> _added;
-    QSharedPointer<StrokeCollection> _removed;
+    SharedPointer<StrokeCollection> _added;
+    SharedPointer<StrokeCollection> _removed;
     int _index = -1;
 
 public:
     /// <summary>Constructor</summary>
-    StrokeCollectionChangedEventArgs(QSharedPointer<StrokeCollection> added, QSharedPointer<StrokeCollection> removed, int index) :
+    StrokeCollectionChangedEventArgs(SharedPointer<StrokeCollection> added, SharedPointer<StrokeCollection> removed, int index) :
         StrokeCollectionChangedEventArgs(added, removed)
     {
         _index = index;
     }
 
     /// <summary>Constructor</summary>
-    StrokeCollectionChangedEventArgs(QSharedPointer<StrokeCollection> added, QSharedPointer<StrokeCollection> removed)
+    StrokeCollectionChangedEventArgs(SharedPointer<StrokeCollection> added, SharedPointer<StrokeCollection> removed)
         : _added(added)
         , _removed(removed)
     {
@@ -42,21 +42,21 @@ public:
     }
 
     /// <summary>Set of strokes that where added, result may be an empty collection</summary>
-    QSharedPointer<StrokeCollection> Added()
+    SharedPointer<StrokeCollection> Added()
     {
         if ( _added == nullptr )
         {
-            _added = QSharedPointer<StrokeCollection>(new StrokeCollection());
+            _added = SharedPointer<StrokeCollection>(new StrokeCollection());
         }
         return _added;
     }
 
     /// <summary>Set of strokes that where removed, result may be an empty collection</summary>
-    QSharedPointer<StrokeCollection> Removed()
+    SharedPointer<StrokeCollection> Removed()
     {
         if ( _removed == nullptr )
         {
-            _removed = QSharedPointer<StrokeCollection>(new StrokeCollection());
+            _removed = SharedPointer<StrokeCollection>(new StrokeCollection());
         }
         return _removed;
     }
@@ -77,17 +77,17 @@ public:
 class PropertyDataChangedEventArgs : public EventArgs
 {
 private:
-    QUuid _propertyGuid;
-    QVariant _newValue;
-    QVariant _previousValue;
+    Guid _propertyGuid;
+    Variant _newValue;
+    Variant _previousValue;
 
 public:
     /// <summary>Constructor</summary>
-    PropertyDataChangedEventArgs(QUuid propertyGuid,
-                                        QVariant newValue,
-                                        QVariant previousValue)
+    PropertyDataChangedEventArgs(Guid propertyGuid,
+                                        Variant newValue,
+                                        Variant previousValue)
     {
-        if ( newValue.isNull() && previousValue.isNull() )
+        if ( newValue == nullptr && previousValue == nullptr )
         {
             throw std::runtime_error("newValue, previousValue");
         }
@@ -98,9 +98,9 @@ public:
     }
 
     /// <summary>
-    /// Gets the property QUuid that represents the DrawingAttribute that changed
+    /// Gets the property Guid that represents the DrawingAttribute that changed
     /// </summary>
-    QUuid PropertyGuid()
+    Guid PropertyGuid()
     {
         return _propertyGuid;
     }
@@ -108,7 +108,7 @@ public:
     /// <summary>
     /// Gets the new value of the DrawingAttribute
     /// </summary>
-    QVariant NewValue()
+    Variant NewValue()
     {
         return _newValue;
     }
@@ -116,7 +116,7 @@ public:
     /// <summary>
     /// Gets the previous value of the DrawingAttribute
     /// </summary>
-    QVariant PreviousValue()
+    Variant PreviousValue()
     {
         return _previousValue;
     }
@@ -125,7 +125,7 @@ public:
 
 
 /// <summary>
-/// Event Arg used when the Custom attributes associated with an QVariant have changed.
+/// Event Arg used when the Custom attributes associated with an Variant have changed.
 /// </summary>
 class ExtendedPropertiesChangedEventArgs : public EventArgs
 {
@@ -181,7 +181,7 @@ public:
     /// <remarks>
     /// This must be so InkCanvas can instance it
     /// </remarks>
-    DrawingAttributesReplacedEventArgs(QSharedPointer<DrawingAttributes> newDrawingAttributes, QSharedPointer<DrawingAttributes> previousDrawingAttributes)
+    DrawingAttributesReplacedEventArgs(SharedPointer<DrawingAttributes> newDrawingAttributes, SharedPointer<DrawingAttributes> previousDrawingAttributes)
         : _newDrawingAttributes(newDrawingAttributes)
         , _previousDrawingAttributes(previousDrawingAttributes)
     {
@@ -200,7 +200,7 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<DrawingAttributes> NewDrawingAttributes()
+    SharedPointer<DrawingAttributes> NewDrawingAttributes()
     {
         return _newDrawingAttributes;
     }
@@ -208,14 +208,14 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<DrawingAttributes> PreviousDrawingAttributes()
+    SharedPointer<DrawingAttributes> PreviousDrawingAttributes()
     {
         return _previousDrawingAttributes;
     }
 
 private:
-    QSharedPointer<DrawingAttributes> _newDrawingAttributes;
-    QSharedPointer<DrawingAttributes> _previousDrawingAttributes;
+    SharedPointer<DrawingAttributes> _newDrawingAttributes;
+    SharedPointer<DrawingAttributes> _previousDrawingAttributes;
 };
 
 
@@ -231,7 +231,7 @@ public:
     /// <remarks>
     /// This must be so InkCanvas can instance it
     /// </remarks>
-    StylusPointsReplacedEventArgs(QSharedPointer<StylusPointCollection> newStylusPoints, QSharedPointer<StylusPointCollection> previousStylusPoints)
+    StylusPointsReplacedEventArgs(SharedPointer<StylusPointCollection> newStylusPoints, SharedPointer<StylusPointCollection> previousStylusPoints)
         : _newStylusPoints(newStylusPoints)
         , _previousStylusPoints(previousStylusPoints)
     {
@@ -250,7 +250,7 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<StylusPointCollection> NewStylusPoints()
+    SharedPointer<StylusPointCollection> NewStylusPoints()
     {
         return _newStylusPoints;
     }
@@ -258,27 +258,27 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<StylusPointCollection> PreviousStylusPoints()
+    SharedPointer<StylusPointCollection> PreviousStylusPoints()
     {
         return _previousStylusPoints;
     }
 
 private:
-    QSharedPointer<StylusPointCollection> _newStylusPoints;
-    QSharedPointer<StylusPointCollection> _previousStylusPoints;
+    SharedPointer<StylusPointCollection> _newStylusPoints;
+    SharedPointer<StylusPointCollection> _previousStylusPoints;
 };
 
 class PropertyChangedEventArgs : public EventArgs
 {
 private:
-    QString propertyName;
+    char const * propertyName;
 
 public:
     /// <devdoc>
     /// <para>Initializes a new instance of the <see cref='System.ComponentModel.PropertyChangedEventArgs'/>
     /// class.</para>
     /// </devdoc>
-    PropertyChangedEventArgs(QString propertyName)
+    PropertyChangedEventArgs(char const * propertyName)
         : propertyName(propertyName)
     {
         //propertyName = propertyName;
@@ -287,7 +287,7 @@ public:
     /// <devdoc>
     ///    <para>Indicates the name of the property that changed.</para>
     /// </devdoc>
-    virtual QString PropertyName() {
+    char const * PropertyName() {
         return propertyName;
     }
 };

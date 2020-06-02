@@ -2,14 +2,13 @@
 #define STROKECOLLECTION_H
 
 #include "InkCanvas_global.h"
-#include "collection.h"
-
-#include <QVector>
-#include <QList>
-#include <QObject>
-#include <QUuid>
-#include <QSharedPointer>
-#include <QPolygonF>
+#include "Collections/ObjectModel/collection.h"
+#include "Collections/Generic/list.h"
+#include "Collections/Generic/array.h"
+#include "Windows/rect.h"
+#include "sharedptr.h"
+#include "guid.h"
+#include "variant.h"
 
 // namespace System.Windows.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -24,12 +23,22 @@ class DrawingContext;
 class ExtendedPropertyCollection;
 class ErasingStroke;
 
+#ifdef INKCANVAS_QT
 #define STROKE_COLLECTION_MULTIPLE_LAYER 1
 #define STROKE_COLLECTION_EDIT_MASK 1
+#else
+#define STROKE_COLLECTION_MULTIPLE_LAYER 0
+#define STROKE_COLLECTION_EDIT_MASK 0
+#endif
 
-class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<QSharedPointer<Stroke>>, public QEnableSharedFromThis<StrokeCollection>
+#ifndef INKCANVAS_CORE
+class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
 {
     Q_OBJECT
+#else
+class INKCANVAS_EXPORT StrokeCollection : public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
+{
+#endif
 public:
     /// <summary>
     /// The string used to designate the native persistence format
@@ -41,17 +50,19 @@ public:
     StrokeCollection();
 
     /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
-    StrokeCollection(QVector<QSharedPointer<Stroke>> const & strokes);
+    StrokeCollection(Collection<SharedPointer<Stroke>> const & strokes);
 
+#ifndef INKCANVAS_CORE
     /// <summary>Creates a collection from ISF data in the specified stream</summary>
     /// <param name="stream">Stream of ISF data</param>
     StrokeCollection(QIODevice * stream);
-
+#endif
 
     StrokeCollection(StrokeCollection const & o);
 
     ~StrokeCollection();
 
+#ifndef INKCANVAS_CORE
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
     /// <param name="compress">Flag if set to true the data will be compressed, which can
@@ -72,6 +83,7 @@ private:
     /// Private helper to read from a stream to the end and get a byte[]
     /// </summary>
     QIODevice* GetSeekableStream(QIODevice * stream);
+#endif
 
 public:
     /// <summary>
@@ -79,30 +91,30 @@ public:
     /// </summary>
     /// <param name="propertyDataId"></param>
     /// <param name="propertyData"></param>
-    void AddPropertyData(QUuid const & propertyDataId, QVariant propertyData);
+    void AddPropertyData(Guid const & propertyDataId, Variant const & propertyData);
 
     /// <summary>
     /// Allows removal of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    void RemovePropertyData(QUuid const & propertyDataId);
+    void RemovePropertyData(Guid const & propertyDataId);
 
     /// <summary>
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QUuid const & propertyDataId) const;
+    Variant GetPropertyData(Guid const & propertyDataId) const;
 
     /// <summary>
-    /// Allows retrieval of a Array of QUuid const &s that are contained in the EPC
+    /// Allows retrieval of a Array of Guid const &s that are contained in the EPC
     /// </summary>
-    QVector<QUuid> GetPropertyDataIds() const;
+    Array<Guid> GetPropertyDataIds() const;
 
     /// <summary>
     /// Allows the checking of objects in the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QUuid const & propertyDataId) const;
+    bool ContainsPropertyData(Guid const & propertyDataId) const;
 
     /// <summary>
     /// Applies the specified transform matrix on every stroke in the collection.
@@ -115,12 +127,12 @@ public:
     /// cause each individual Stroke to be modified.
     /// If the StrokesChanged event fires, the changed parameter will be a pointer to 'this'
     /// collection, so any changes made to the changed event args will affect 'this' collection.</remarks>
-    void Transform(QMatrix const & transformMatrix, bool applyToStylusTip);
+    void Transform(Matrix & transformMatrix, bool applyToStylusTip);
 
     /// <summary>
     /// Performs a deep copy of the StrokeCollection.
     /// </summary>
-    virtual QSharedPointer<StrokeCollection> Clone();
+    virtual SharedPointer<StrokeCollection> Clone();
 
     /// <summary>
     /// called by base class Collection&lt;T&gt; when the list is being cleared;
@@ -128,40 +140,36 @@ public:
     /// </summary>
     void ClearItems();
 
-    void AddItem(QSharedPointer<Stroke> stroke);
-
     /// <summary>
     /// called by base class RemoveAt or Remove methods
     /// </summary>
     void RemoveItem(int index);
 
-    bool RemoveItem(QSharedPointer<Stroke> stroke);
+    bool RemoveItem(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// called by base class Insert, Add methods
     /// </summary>
-    void InsertItem(int index, QSharedPointer<Stroke> stroke);
+    void InsertItem(int index, SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// called by base class set_Item method
     /// </summary>
-    void SetItem(int index, QSharedPointer<Stroke> stroke);
+    void SetItem(int index, SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Gets the index of the stroke, or -1 if it is not found
     /// </summary>
     /// <param name="stroke">stroke</param>
     /// <returns></returns>
-    int IndexOf(QSharedPointer<Stroke> stroke);
-
-    int Count();
+    int IndexOf(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Remove a set of Stroke objects to the collection
     /// </summary>
     /// <param name="strokes">The strokes to remove from the collection</param>
     /// <remarks>Changes to the collection trigger a StrokesChanged event.</remarks>
-    void Remove(QSharedPointer<StrokeCollection> strokes);
+    void Remove(SharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Add a set of Stroke objects to the collection
@@ -169,26 +177,28 @@ public:
     /// <param name="strokes">The strokes to add to the collection</param>
     /// <remarks>The items are added to the collection at the end of the list.
     /// If the item already exists in the collection, then the item is not added again.</remarks>
-    void Add(QSharedPointer<StrokeCollection> strokes);
+    void Add(SharedPointer<StrokeCollection> strokes);
+
+    using Collection::Add;
 
     /// <summary>
     /// Replace
     /// </summary>
     /// <param name="strokeToReplace"></param>
     /// <param name="strokesToReplaceWith"></param>
-    void Replace(QSharedPointer<Stroke> strokeToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith);
+    void Replace(SharedPointer<Stroke> strokeToReplace, SharedPointer<StrokeCollection> strokesToReplaceWith);
 
     /// <summary>
     /// Replace
     /// </summary>
     /// <param name="strokesToReplace"></param>
     /// <param name="strokesToReplaceWith"></param>
-    void Replace(QSharedPointer<StrokeCollection> strokesToReplace, QSharedPointer<StrokeCollection> strokesToReplaceWith);
+    void Replace(SharedPointer<StrokeCollection> strokesToReplace, SharedPointer<StrokeCollection> strokesToReplaceWith);
 
     /// <summary>
     /// called by StrokeCollectionSerializer during Load, bypasses Change notification
     /// </summary>
-    void AddWithoutEvent(QSharedPointer<Stroke>stroke);
+    void AddWithoutEvent(SharedPointer<Stroke>stroke);
 
 
     /// <summary>Collection of extended properties on this StrokeCollection</summary>
@@ -196,6 +206,7 @@ public:
 
     ExtendedPropertyCollection const & ExtendedProperties() const;
 
+#ifdef INKCANVAS_QT
     operator QVariantList();
 
 signals:
@@ -217,7 +228,7 @@ signals:
     /// Event that notifies listeners whenever a change occurs in the propertyData
     /// </summary>
     /// <value>PropertyDataChangedEventHandler</value>
-    void PropertyDataChanged(QUuid const & propName);
+    void PropertyDataChanged(Guid const & propName);
 
     /// <summary>
     /// INotifyPropertyChanged.PropertyChanged event, explicitly implemented
@@ -228,6 +239,7 @@ signals:
     /// INotifyCollectionChanged.CollectionChanged event, explicitly implemented
     /// </summary>
     void CollectionChanged(StrokeCollectionChangedEventArgs& e);
+#endif
 
 protected:
     /// <summary>Method called on derived classes whenever a drawing attributes
@@ -247,16 +259,15 @@ protected:
     /// </summary>
     /// <remarks>Derived classes should call this method (their base class)
     /// to ensure that event listeners are notified</remarks>
-    virtual void OnPropertyDataChanged(QUuid const & propName);
+    virtual void OnPropertyDataChanged(Guid const & propName);
 
     /// <summary>
     /// Method called when a property change occurs to the StrokeCollection
     /// </summary>
     /// <param name="e">The EventArgs specifying the name of the changed property.</param>
-    /// <remarks>To follow the QUuid const &elines, this method should take a PropertyChangedEventArgs
+    /// <remarks>To follow the Guid const &elines, this method should take a PropertyChangedEventArgs
     /// instance, but every other INotifyPropertyChanged implementation follows this pattern.</remarks>
-    virtual void OnPropertyChanged(QByteArray const & propName);
-
+    virtual void OnPropertyChanged(char const * propName);
 
     /// <summary>
     /// Private helper that starts searching for stroke at index,
@@ -267,7 +278,7 @@ protected:
     /// this produces closer to O(n), if they are not in order, it is no worse
     /// </summary>
 private:
-    int OptimisticIndexOf(int startingIndex, QSharedPointer<Stroke> stroke);
+    int OptimisticIndexOf(int startingIndex, SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Private helper that returns an array of indexes where the specified
@@ -276,26 +287,28 @@ private:
     /// The indexes are sorted from smallest to largest
     /// </summary>
     /// <returns></returns>
-    QVector<int> GetStrokeIndexes(QSharedPointer<StrokeCollection> strokes);
+    Array<int> GetStrokeIndexes(SharedPointer<StrokeCollection> strokes);
 
     // This function will invoke OnStrokesChanged method.
     //      addedStrokes    -   the collection which contains the added strokes during the previous op.
     //      removedStrokes  -   the collection which contains the removed strokes during the previous op.
-    void RaiseStrokesChanged(QSharedPointer<StrokeCollection> addedStrokes, QSharedPointer<StrokeCollection> removedStrokes, int index);
+    void RaiseStrokesChanged(SharedPointer<StrokeCollection> addedStrokes, SharedPointer<StrokeCollection> removedStrokes, int index);
 
+#ifdef INKCANVAS_QT
 signals:
     // The private PropertyChanged event
     void _propertyChanged(QByteArray const & propName);
 
     // private CollectionChanged event raiser
     void _collectionChanged(NotifyCollectionChangedEventArgs& e);    // Custom 'user-defined' attributes assigned to this collection
+#endif
 
 public:
     /// <summary>
     /// Calculates the combined bounds of all strokes in the collection
     /// </summary>
     /// <returns></returns>
-    QRectF GetBounds();
+    Rect GetBounds();
 
     // ISSUE-2004/12/13-XIAOTU: In M8.2, the following two tap-hit APIs return the top-hit stroke,
     // giving preference to non-highlighter strokes. We have decided not to treat highlighter and
@@ -316,7 +329,7 @@ public:
     /// Tap-hit. Hit tests all strokes within a point, and returns a StrokeCollection for these strokes.Internally does Stroke.HitTest(Point, 1pxlRectShape).
     /// </summary>
     /// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
-    QSharedPointer<StrokeCollection> HitTest(QPointF const & point);
+    SharedPointer<StrokeCollection> HitTest(Point const & point);
 
     /// <summary>
     /// Tap-hit
@@ -324,7 +337,7 @@ public:
     /// <param name="point">The central point</param>
     /// <param name="diameter">The diameter value of the circle</param>
     /// <returns>A StrokeCollection that either empty or contains the top hit stroke</returns>
-    QSharedPointer<StrokeCollection> HitTest(QPointF const & point, double diameter);
+    SharedPointer<StrokeCollection> HitTest(Point const & point, double diameter);
 
     /// <summary>
     /// Hit-testing with lasso
@@ -333,7 +346,7 @@ public:
     /// <param name="percentageWithinLasso">the margin value to tell whether a stroke
     /// is in or outside of the rect</param>
     /// <returns>collection of strokes found inside the rectangle</returns>
-    QSharedPointer<StrokeCollection> HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinLasso);
+    SharedPointer<StrokeCollection> HitTest(List<Point> const & lassoPoints, int percentageWithinLasso);
 
 
     /// <summary>
@@ -343,7 +356,7 @@ public:
     /// <param name="percentageWithinBounds">the percentage of the stroke that must be within
     /// the bounds to be considered hit</param>
     /// <returns>collection of strokes found inside the rectangle</returns>
-    QSharedPointer<StrokeCollection> HitTest(QRectF const & bounds, int percentageWithinBounds);
+    SharedPointer<StrokeCollection> HitTest(Rect const & bounds, int percentageWithinBounds);
 
 
     /// <summary>
@@ -352,32 +365,32 @@ public:
     /// <param name="path"></param>
     /// <param name="stylusShape"></param>
     /// <returns></returns>
-    QSharedPointer<StrokeCollection> HitTest(QVector<QPointF> const & path, StylusShape& stylusShape);
+    SharedPointer<StrokeCollection> HitTest(List<Point> const & path, StylusShape& stylusShape);
 
     /// <summary>
     /// Clips out all ink outside a given lasso
     /// </summary>
     /// <param name="lassoPoints">lasso</param>
-    void Clip(QVector<QPointF> const & lassoPoints);
+    void Clip(List<Point> const & lassoPoints);
 
     /// <summary>
     /// Clips out all ink outside a given rectangle.
     /// </summary>
     /// <param name="bounds">rectangle to clip with</param>
-    void Clip(QRectF const & bounds);
+    void Clip(Rect const & bounds);
 
     /// <summary>
     /// Erases all ink inside a lasso
     /// </summary>
     /// <param name="lassoPoints">lasso to erase within</param>
-    void Erase(QVector<QPointF> const & lassoPoints);
+    void Erase(List<Point> const & lassoPoints);
 
 
     /// <summary>
     /// Erases all ink inside a given rectangle
     /// </summary>
     /// <param name="bounds">rectangle to erase within</param>
-    void Erase(QRectF const & bounds);
+    void Erase(Rect const & bounds);
 
 
     /// <summary>
@@ -385,7 +398,7 @@ public:
     /// </summary>
     /// <param name="eraserShape">Shape of the eraser</param>
     /// <param name="eraserPath">a path making the spine of the erasing stroke </param>
-    void Erase(QVector<QPointF> const & eraserPath, StylusShape& eraserShape);
+    void Erase(List<Point> const & eraserPath, StylusShape& eraserShape);
 
     /// <summary>
     /// Render the StrokeCollection under the specified DrawingContext.
@@ -418,15 +431,15 @@ private:
     /// <summary>
     /// Return all hit strokes that the StylusShape intersects and returns them in a StrokeCollection
     /// </summary>
-    QSharedPointer<StrokeCollection> PointHitTest(QPointF const & point, StylusShape& shape);
+    SharedPointer<StrokeCollection> PointHitTest(Point const & point, StylusShape& shape);
 
-    void UpdateStrokeCollection(QSharedPointer<Stroke> original, QSharedPointer<StrokeCollection> toReplace, int& index);
+    void UpdateStrokeCollection(SharedPointer<Stroke> original, SharedPointer<StrokeCollection> toReplace, int& index);
 
 private:
     //  In v1, these were called Ink.ExtendedProperties
     ExtendedPropertyCollection* _extendedProperties = nullptr;
 #if STROKE_COLLECTION_EDIT_MASK
-    QPolygonF makeShape_;
+    QPolygonF maskShape_;
     ErasingStroke * mask_ = nullptr;
 #endif
 
@@ -443,6 +456,8 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
+#ifdef INKCANVAS_QT
+
 #include "Windows/dependencyproperty.h"
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -450,12 +465,14 @@ INKCANVAS_BEGIN_NAMESPACE
 class StrokeCollectionDefaultValueFactory : public DefaultValueFactory
 {
 private:
-    virtual QVariant DefaultValue() override
+    virtual Variant DefaultValue() override
     {
-        return QVariant::fromValue(QSharedPointer<StrokeCollection>(new StrokeCollection));
+        return Variant::fromValue(SharedPointer<StrokeCollection>(new StrokeCollection));
     }
 };
 
 INKCANVAS_END_NAMESPACE
+
+#endif
 
 #endif // STROKECOLLECTION_H

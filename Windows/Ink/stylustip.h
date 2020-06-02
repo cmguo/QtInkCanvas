@@ -3,7 +3,9 @@
 
 #include "InkCanvas_global.h"
 
+#ifndef INKCANVAS_CORE
 #include <QMetaType>
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 

@@ -11,24 +11,26 @@ StylusShape::StylusShape()
 
 }
 
+#if STROKE_COLLECTION_EDIT_MASK
 StylusShape::StylusShape(QPolygonF const & polygon)
 {
     m_vertices = polygon.mid(0, polygon.size() - 1);
 }
+#endif
 
 StylusShape::StylusShape(StylusTip tip, double width, double height, double rotation)
 {
-    if (qIsNaN(width) || qIsInf(width) || width < DrawingAttributes::MinWidth || width > DrawingAttributes::MaxWidth)
+    if (Double::IsNaN(width) || Double::IsInfinity(width) || width < DrawingAttributes::MinWidth || width > DrawingAttributes::MaxWidth)
     {
         throw std::runtime_error("width");
     }
 
-    if (qIsNaN(height) || qIsInf(height) || height < DrawingAttributes::MinHeight || height > DrawingAttributes::MaxHeight)
+    if (Double::IsNaN(height) || Double::IsInfinity(height) || height < DrawingAttributes::MinHeight || height > DrawingAttributes::MaxHeight)
     {
         throw std::runtime_error("height");
     }
 
-    if (qIsNaN(rotation) || qIsInf(rotation))
+    if (Double::IsNaN(rotation) || Double::IsInfinity(rotation))
     {
         throw std::runtime_error("rotation");
     }
@@ -44,7 +46,7 @@ StylusShape::StylusShape(StylusTip tip, double width, double height, double rota
     //
     m_width = width;
     m_height = height;
-    m_rotation = qIsNull(rotation) ? 0 : (rotation - floor(rotation / 360) * 360);
+    m_rotation = rotation == 0 ? 0 : Mod(rotation, 360);
     m_tip = tip;
     if (tip == StylusTip::Rectangle)
     {
@@ -53,27 +55,27 @@ StylusShape::StylusShape(StylusTip tip, double width, double height, double rota
 }
 
 
-QVector<QPointF> StylusShape::GetVerticesAsVectors()
+Array<Vector> StylusShape::GetVerticesAsVectors()
 {
-    QVector<QPointF> vertices;
+    Array<Vector> vertices;
 
-    if (!m_vertices.isEmpty())
+    if (!m_vertices.empty())
     {
         // For a Rectangle
-        vertices.resize(m_vertices.size());
+        vertices.resize(m_vertices.Length());
 
-        if (_transform.isIdentity())
+        if (_transform.IsIdentity())
         {
-            for (int i = 0; i < vertices.size(); i++)
+            for (int i = 0; i < vertices.Length(); i++)
             {
                 vertices[i] = m_vertices[i];
             }
         }
         else
         {
-            for (int i = 0; i < vertices.size(); i++)
+            for (int i = 0; i < vertices.Length(); i++)
             {
-                vertices[i] = _transform.map(m_vertices[i]);
+                vertices[i] = _transform.Transform(m_vertices[i]);
             }
 
             // A transform might make the vertices in counter-clockwise order
@@ -87,9 +89,9 @@ QVector<QPointF> StylusShape::GetVerticesAsVectors()
         // For ellipse
 
         // The transform is already applied on these points.
-        QVector<QPointF> p = GetBezierControlPoints();
-        vertices.resize(p.size());
-        for (int i = 0; i < vertices.size(); i++)
+        Array<Point> p = GetBezierControlPoints();
+        vertices.resize(p.Length());
+        for (int i = 0; i < vertices.Length(); i++)
         {
             vertices[i] = p[i];
         }
@@ -97,21 +99,21 @@ QVector<QPointF> StylusShape::GetVerticesAsVectors()
     return vertices;
 }
 
-QRectF StylusShape::BoundingBox()
+Rect StylusShape::BoundingBox()
 {
-    QRectF bbox;
+    Rect bbox;
 
     if (IsPolygon())
     {
-        for (QPointF vertex : m_vertices)
+        for (Point vertex : m_vertices)
         {
-            bbox = United(bbox, vertex);
+            bbox.Union(vertex);
         }
     }
     //
     else //if (DoubleUtil.IsZero(m_rotation) || DoubleUtil.AreClose(m_width, m_height))
     {
-        bbox = QRectF(-(m_width * 0.5), -(m_height * 0.5), m_width, m_height);
+        bbox = Rect(-(m_width * 0.5), -(m_height * 0.5), m_width, m_height);
     }
     //else
     //{
@@ -123,37 +125,37 @@ QRectF StylusShape::BoundingBox()
 
 void StylusShape::ComputeRectangleVertices()
 {
-    QPointF topLeft(-(m_width * 0.5), -(m_height * 0.5));
-    m_vertices = QVector<QPointF>( { topLeft,
-                                topLeft + QPointF(m_width, 0),
-                                topLeft + QPointF(m_width, m_height),
-                                topLeft + QPointF(0, m_height)});
+    Point topLeft(-(m_width * 0.5), -(m_height * 0.5));
+    m_vertices = Array<Point>( { topLeft,
+                                topLeft + Vector(m_width, 0),
+                                topLeft + Vector(m_width, m_height),
+                                topLeft + Vector(0, m_height)});
     if (false == DoubleUtil::IsZero(m_rotation))
     {
-        QMatrix rotationTransform;
-        rotationTransform.rotate(m_rotation);
-        for (QPointF & p : m_vertices)
-            p = rotationTransform.map(p);
+        Matrix rotationTransform;
+        rotationTransform.Rotate(m_rotation);
+        for (Point & p : m_vertices)
+            p = rotationTransform.Transform(p);
     }
 }
 
 
 /// <summary> A transform might make the vertices in counter-clockwise order Fix it if this is the case.</summary>
-void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
+void StylusShape::FixCounterClockwiseVertices(Array<Vector> & vertices)
 {
     // The method should only called for Rectangle case.
-    Debug::Assert(vertices.size() == 4);
+    Debug::Assert(vertices.Length() == 4);
 
-    QPointF prevVertex = vertices[vertices.size() - 1];
+    Point prevVertex = vertices[vertices.Length() - 1];
     int counterClockIndex = 0, clockWiseIndex = 0;
 
-    for (int i = 0; i < vertices.size(); i++)
+    for (int i = 0; i < vertices.Length(); i++)
     {
-        QPointF vertex = vertices[i];
-        QPointF edge = vertex - prevVertex;
+        Point vertex = vertices[i];
+        Vector edge = vertex - prevVertex;
 
         // Verify that the next vertex is on the right side off the edge vector.
-        double det = Determinant(edge, vertices[(i + 1) % vertices.size()] - vertex);
+        double det = Vector::Determinant(edge, (Point)vertices[(i + 1) % vertices.Length()] - vertex);
         if (0 > det)
         {
             counterClockIndex++;
@@ -167,15 +169,15 @@ void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
     }
 
     // Assert the transform will make it either clockwise or counter-clockwise.
-    Debug::Assert(clockWiseIndex == vertices.size() || counterClockIndex == vertices.size());
+    Debug::Assert(clockWiseIndex == vertices.Length() || counterClockIndex == vertices.Length());
 
-    if (counterClockIndex == vertices.size())
+    if (counterClockIndex == vertices.Length())
     {
         // Make it Clockwise
-        int lastIndex = vertices.size() -1;
-        for (int j = 0; j < vertices.size()/2; j++)
+        int lastIndex = vertices.Length() -1;
+        for (int j = 0; j < vertices.Length()/2; j++)
         {
-            QPointF tmp = vertices[j];
+            Point tmp = vertices[j];
             vertices[j] = vertices[lastIndex - j];
             vertices[lastIndex-j] = tmp;
         }
@@ -183,7 +185,7 @@ void StylusShape::FixCounterClockwiseVertices(QVector<QPointF> & vertices)
 }
 
 
-QVector<QPointF> StylusShape::GetBezierControlPoints()
+Array<Point> StylusShape::GetBezierControlPoints()
 {
     Debug::Assert(m_tip == StylusTip::Ellipse);
 
@@ -195,38 +197,38 @@ QVector<QPointF> StylusShape::GetBezierControlPoints()
     double borderMagicX = radiusX * ArcAsBezier;
     double borderMagicY = radiusY * ArcAsBezier;
 
-    QVector<QPointF> controlPoints = {
-        QPointF(    -radiusX, -borderMagicY),
-        QPointF(-borderMagicX,     -radiusY),
-        QPointF(            0,     -radiusY),
-        QPointF( borderMagicX,     -radiusY),
-        QPointF(     radiusX, -borderMagicY),
-        QPointF(     radiusX,             0),
-        QPointF(     radiusX,  borderMagicY),
-        QPointF( borderMagicX,      radiusY),
-        QPointF(            0,      radiusY),
-        QPointF(-borderMagicX,      radiusY),
-        QPointF(    -radiusX,  borderMagicY),
-        QPointF(    -radiusX,             0)};
+    Array<Point> controlPoints = {
+        Point(    -radiusX, -borderMagicY),
+        Point(-borderMagicX,     -radiusY),
+        Point(            0,     -radiusY),
+        Point( borderMagicX,     -radiusY),
+        Point(     radiusX, -borderMagicY),
+        Point(     radiusX,             0),
+        Point(     radiusX,  borderMagicY),
+        Point( borderMagicX,      radiusY),
+        Point(            0,      radiusY),
+        Point(-borderMagicX,      radiusY),
+        Point(    -radiusX,  borderMagicY),
+        Point(    -radiusX,             0)};
 
     //
 
-    QMatrix transform;
-    if (!qIsNull(m_rotation))
+    Matrix transform;
+    if (m_rotation != 0)
     {
-        transform.rotate(m_rotation);
+        transform.Rotate(m_rotation);
     }
 
-    if (_transform.isIdentity() == false)
+    if (_transform.IsIdentity() == false)
     {
         transform *= _transform;
     }
 
-    if (transform.isIdentity() == false)
+    if (transform.IsIdentity() == false)
     {
-        for (int i = 0; i < controlPoints.size(); i++)
+        for (int i = 0; i < controlPoints.Length(); i++)
         {
-            controlPoints[i] = transform.map(controlPoints[i]);
+            controlPoints[i] = transform.Transform(controlPoints[i]);
         }
     }
 

@@ -4,7 +4,9 @@
 #include "InkCanvas_global.h"
 #include "geometry.h"
 
+#ifndef INKCANVAS_CORE
 #include <QPainterPath>
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -40,17 +42,23 @@ public:
 
     StreamGeometryContext &Open();
 
+#ifndef INKCANVAS_CORE
     void Close(QPainterPath & path);
 
     QPainterPath path() { return path_; }
+#endif
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
     StreamGeometryContext * context_ = nullptr;
+#ifndef INKCANVAS_CORE
     QPainterPath path_;
+#endif
 };
 
 INKCANVAS_END_NAMESPACE

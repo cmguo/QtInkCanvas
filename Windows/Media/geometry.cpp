@@ -1,7 +1,9 @@
 #include "Windows/Media/geometry.h"
 
+#ifndef INKCANVAS_CORE
 #include <QPainter>
 #include <QDebug>
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -35,6 +37,8 @@ bool Geometry::releaseOwn(void *owner)
     return owner_ == nullptr;
 }
 
+#ifndef INKCANVAS_CORE
+
 PathGeometry::PathGeometry()
 {
 }
@@ -54,94 +58,107 @@ PathGeometry* PathGeometry::Combine(Geometry * geometry)
     return this;
 }
 
-QRectF PathGeometry::Bounds()
+Rect PathGeometry::Bounds()
 {
     return path_.boundingRect();
 }
 
-void PathGeometry::Draw(QPainter &painter)
+void PathGeometry::Draw(Painter &painter)
 {
     painter.drawPath(path_);
 }
+
+#endif
 
 GeometryGroup::~GeometryGroup()
 {
     for (Geometry* g : children_)
         delete g;
-    children_.clear();
+    children_.Clear();
 }
 
-QList<Geometry*>& GeometryGroup::Children()
+List<Geometry*>& GeometryGroup::Children()
 {
     return children_;
 }
 
-QRectF GeometryGroup::Bounds()
+Rect GeometryGroup::Bounds()
 {
-    QRectF bounds;
+    Rect bounds;
     for (Geometry* g : children_)
-        bounds |= g->Bounds();
+        bounds.Union(g->Bounds());
     return bounds;
 }
 
+#ifndef INKCANVAS_CORE
 void GeometryGroup::Draw(QPainter &painter)
 {
     for (Geometry* g : children_)
         g->Draw(painter);
 }
+#endif
 
-LineGeometry::LineGeometry(QPointF point0, QPointF point1)
-    : line_(point0, point1)
+LineGeometry::LineGeometry(Point const & point0, Point const & point1)
+    : start_(point0)
+    , end_(point1)
 {
 }
 
-QRectF LineGeometry::Bounds()
+Rect LineGeometry::Bounds()
 {
-    return QRectF(line_.p1(), line_.p2());
+    return Rect(start_, end_);
 }
 
-void LineGeometry::Draw(QPainter &painter)
+#ifndef INKCANVAS_CORE
+void LineGeometry::Draw(Painter &painter)
 {
-    painter.drawLine(line_);
+    painter.drawLine(start_, end_);
 }
+#endif
 
-RectangleGeometry::RectangleGeometry(QRectF rectangle)
+RectangleGeometry::RectangleGeometry(Rect rectangle)
     : RectangleGeometry(rectangle, 0, 0)
 {
 }
-RectangleGeometry::RectangleGeometry(QRectF rectangle, double radiusX, double radiusY)
+RectangleGeometry::RectangleGeometry(Rect rectangle, double radiusX, double radiusY)
     : rectangle_(rectangle)
     , radius_(radiusX, radiusY)
 {
 }
 
-QRectF RectangleGeometry::Bounds()
+Rect RectangleGeometry::Bounds()
 {
     return rectangle_;
 }
 
+#ifndef INKCANVAS_CORE
 void RectangleGeometry::Draw(QPainter &painter)
 {
-    if (radius_.isEmpty())
+    if (radius_.Empty())
         painter.drawRect(rectangle_);
     else
-        painter.drawRoundedRect(rectangle_, radius_.width(), radius_.height());
+        painter.drawRoundedRect(rectangle_, radius_.Width(), radius_.Height());
 }
+#endif
 
-EllipseGeometry::EllipseGeometry(QPointF center, double radiusX, double radiusY)
+EllipseGeometry::EllipseGeometry(Point center, double radiusX, double radiusY)
     : rectangle_(0, 0, radiusX, radiusY)
 {
+#ifndef INKCANVAS_CORE
     rectangle_.moveCenter(center);
+#endif
 }
 
-QRectF EllipseGeometry::Bounds()
+Rect EllipseGeometry::Bounds()
 {
     return rectangle_;
 }
 
+#ifndef INKCANVAS_CORE
 void EllipseGeometry::Draw(QPainter &painter)
 {
     painter.drawEllipse(rectangle_);
 }
+#endif
 
 INKCANVAS_END_NAMESPACE

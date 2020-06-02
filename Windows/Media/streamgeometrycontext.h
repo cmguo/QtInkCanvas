@@ -2,9 +2,7 @@
 #define STREAMGEOMETRYCONTEXT_H
 
 #include "geometry.h"
-
-#include <QPointF>
-#include <QList>
+#include "Collections/Generic/list.h"
 
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE
@@ -44,48 +42,48 @@ public:
     /// <summary>
     /// BeginFigure - Start a new figure.
     /// </summary>
-    virtual void BeginFigure(QPointF const & startPoint, bool isFilled, bool isClosed) = 0;
+    virtual void BeginFigure(Point const & startPoint, bool isFilled, bool isClosed) = 0;
 
     /// <summary>
-    /// LineTo - append a LineTo to the current figure.
+    /// LineTo - Add a LineTo to the current figure.
     /// </summary>
-    virtual void LineTo(QPointF const & point, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void LineTo(Point const & point, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
-    /// QuadraticBezierTo - append a QuadraticBezierTo to the current figure.
+    /// QuadraticBezierTo - Add a QuadraticBezierTo to the current figure.
     /// </summary>
-    virtual void QuadraticBezierTo(QPointF const & point1, QPointF const & point2, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void QuadraticBezierTo(Point const & point1, Point const & point2, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
     /// BezierTo - apply a BezierTo to the current figure.
     /// </summary>
-    virtual void BezierTo(QPointF const & point1, QPointF const & point2, QPointF const & point3, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void BezierTo(Point const & point1, Point const & point2, Point const & point3, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
-    /// PolyLineTo - append a PolyLineTo to the current figure.
+    /// PolyLineTo - Add a PolyLineTo to the current figure.
     /// </summary>
-    virtual void PolyLineTo(QList<QPointF> const & points, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void PolyLineTo(List<Point> const & points, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
-    /// PolyQuadraticBezierTo - append a PolyQuadraticBezierTo to the current figure.
+    /// PolyQuadraticBezierTo - Add a PolyQuadraticBezierTo to the current figure.
     /// </summary>
-    virtual void PolyQuadraticBezierTo(QList<QPointF> const & points, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void PolyQuadraticBezierTo(List<Point> const & points, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
-    /// PolyBezierTo - append a PolyBezierTo to the current figure.
+    /// PolyBezierTo - Add a PolyBezierTo to the current figure.
     /// </summary>
-    virtual void PolyBezierTo(QList<QPointF> const & points, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void PolyBezierTo(List<Point> const & points, bool isStroked, bool isSmoothJoin) = 0;
 
     /// <summary>
-    /// ArcTo - append an ArcTo to the current figure.
+    /// ArcTo - Add an ArcTo to the current figure.
     /// </summary>
 
     // Special case this one. Bringing in sweep direction requires code-gen changes.
     //
 #if !PBTCOMPILER
-    virtual void ArcTo(QPointF const & point, QSizeF const & size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void ArcTo(Point const & point, Size const & size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin) = 0;
 #else
-    virtual void ArcTo(QPointF const & point, QSizeF const & size, double rotationAngle, bool isLargeArc, bool sweepDirection, bool isStroked, bool isSmoothJoin) = 0;
+    virtual void ArcTo(Point const & point, Size const & size, double rotationAngle, bool isLargeArc, bool sweepDirection, bool isStroked, bool isSmoothJoin) = 0;
 #endif
 
 

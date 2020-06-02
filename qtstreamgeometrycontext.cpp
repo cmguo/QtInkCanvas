@@ -87,7 +87,7 @@ void QtStreamGeometryContext::BezierTo(const QPointF &point1, const QPointF &poi
     path_.cubicTo(point1, point2, point3);
 }
 
-void QtStreamGeometryContext::PolyLineTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyLineTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
     for (QPointF const & pt : points) {
@@ -96,19 +96,19 @@ void QtStreamGeometryContext::PolyLineTo(const QList<QPointF> &points, bool isSt
     }
 }
 
-void QtStreamGeometryContext::PolyQuadraticBezierTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyQuadraticBezierTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
-    for (int i = 0; i < points.size(); i += 2) {
+    for (int i = 0; i < points.Count(); i += 2) {
         //qDebug() << "PolyQuadraticBezierTo" << points[i] << points[i + 1];
         path_.quadTo(points[i], points[i + 1]);
     }
 }
 
-void QtStreamGeometryContext::PolyBezierTo(const QList<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyBezierTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
-    for (int i = 0; i < points.size(); i += 3) {
+    for (int i = 0; i < points.Count(); i += 3) {
         //qDebug() << "PolyBezierTo" << points[i] << points[i + 1] << points[i + 2];
         path_.cubicTo(points[i], points[i + 1], points[i + 2]);
     }

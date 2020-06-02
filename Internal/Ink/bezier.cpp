@@ -1,9 +1,20 @@
 #include "Internal/Ink/bezier.h"
 #include "Internal/Ink/cuspdata.h"
-#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Internal/doubleutil.h"
 #include "Windows/Input/styluspoint.h"
 #include "Internal/debug.h"
+
+#ifndef INKCANVAS_CORE
+#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
+#else
+class StrokeCollectionSerializer
+{
+public:
+    //#region Constants (Static Fields)
+    static constexpr double AvalonToHimetricMultiplier = 2540.0 / 96.0;
+    static constexpr double HimetricToAvalonMultiplier = 96.0 / 2540.0;
+};
+#endif
 
 #define checked(x) x
 
@@ -26,7 +37,7 @@ Bezier::Bezier()
 bool Bezier::ConstructBezierState(StylusPointCollection & stylusPoints, double fitError)
 {
     // If the point count is zero, the curve cannot be constructed
-    if (stylusPoints.size() == 0)
+    if (stylusPoints.Count() == 0)
         return false;
 
     // Compile list of distinct points and their nodes
@@ -41,13 +52,13 @@ bool Bezier::ConstructBezierState(StylusPointCollection & stylusPoints, double f
 /// Flatten bezier with a given resolution
 /// </summary>
 /// <param name="tolerance">tolerance</param>
-QList<QPointF> Bezier::Flatten(double tolerance)
+List<Point> Bezier::Flatten(double tolerance)
 {
-    QList<QPointF> points;
+    List<Point> points;
 
     // First point
-    QPointF vector = GetBezierPoint(0);
-    points.push_back(vector);
+    Point vector = GetBezierPoint(0);
+    points.Add(vector);
 
     int last = BezierPointCount() - 4;
 
@@ -63,9 +74,9 @@ QList<QPointF> Bezier::Flatten(double tolerance)
     }
 
     //convert from himetric to Avalon
-    for (int x = 0; x < points.size(); x++)
+    for (int x = 0; x < points.Count(); x++)
     {
-        QPointF p = points[x];
+        Vector p = points[x];
         p *= StrokeCollectionSerializer::HimetricToAvalonMultiplier;
         points[x] = p;
     }
@@ -118,11 +129,11 @@ bool Bezier::ExtendingRange(double error, CuspData & data, int from, int next_cu
 /// </summary>
 /// <param name="data">In: Data points</param>
 /// <param name="from">In: Index of the first point</param>
-/// <param name="tanStart">In: Unit tangent QPointF at the start</param>
+/// <param name="tanStart">In: Unit tangent Point at the start</param>
 /// <param name="to">In: Index of the last point, updated here</param>
-/// <param name="tanEnd">In: Unit tangent QPointF at the end</param>
+/// <param name="tanEnd">In: Unit tangent Point at the end</param>
 /// <returns>True if the segment was added</returns>
-bool Bezier::AddBezierSegment(CuspData & data, int from, QPointF & tanStart, int to, QPointF & tanEnd)
+bool Bezier::AddBezierSegment(CuspData & data, int from, Vector & tanStart, int to, Vector & tanEnd)
 {
     switch (to - from)
     {
@@ -185,8 +196,8 @@ bool Bezier::ConstructFromData(CuspData & data, double fitError)
     int next_cusp = 0;
     int prev_cusp = 0;
     bool is_a_cusp = true;
-    QPointF tanEnd(0, 0);
-    QPointF tanStart(0, 0);
+    Vector tanEnd(0, 0);
+    Vector tanStart(0, 0);
 
     for (int from = 0; !done; from = to)
     {
@@ -264,8 +275,8 @@ void Bezier::AddParabola(CuspData & data, int from)
     double tt = 1 / t;
     double ss = 1 / s;
     const double third = 1.0 / 3.0;
-    QPointF P = (tt * ss) * data.XY(from + 1);
-    QPointF B = third * (P + (1 - s * tt) * data.XY(from) - (t * ss) * data.XY(from + 2));
+    Vector P = (tt * ss) * data.XY(from + 1);
+    Vector B = third * (P + (1 - s * tt) * data.XY(from) - (t * ss) * data.XY(from + 2));
 
     AddBezierPoint(B);
     B = third * (P - (s * tt) * data.XY(from) + (1 - t * ss) * data.XY(from + 2));
@@ -295,11 +306,11 @@ void Bezier::AddLine(CuspData & data, int from, int to)
 /// </summary>
 /// <param name="data">In: Data points</param>
 /// <param name="from">In: Index of the first point</param>
-/// <param name="V">In: Unit tangent QPointF at the start</param>
+/// <param name="V">In: Unit tangent Point at the start</param>
 /// <param name="to">In: Index of the last point, updated here</param>
-/// <param name="W">In: Unit tangent QPointF at the end</param>
+/// <param name="W">In: Unit tangent Point at the end</param>
 /// <returns>Return true segment added</returns>
-bool Bezier::AddLeastSquares(CuspData & data, int from, QPointF & V, int to, QPointF & W)
+bool Bezier::AddLeastSquares(CuspData & data, int from, Vector & V, int to, Vector & W)
 {
     /* To do: When there is a cusp at either one of the ends, we'll get a
     better approximation if we use a construction without  a prescribed
@@ -328,7 +339,7 @@ bool Bezier::AddLeastSquares(CuspData & data, int from, QPointF & V, int to, QPo
         b1 = -V*A*Sum(f0j + f1j)*f1j - V*B*Sum(f2j + f3j)*f1j + Sum(f1j*Pj*V)
         b2 = -W*A*Sum(f0j + f1j)*f2j - W*B*Sum(f2j + f3j)*f2j + Sum(f2j*Pj*W)
 
-    V and W ae unit QPointFs, so V*V = W*W = 1.
+    V and W ae unit Points, so V*V = W*W = 1.
     For computational efficiency, we will break b1 and b2 into 3 sums each, and add
     them up at the end
 
@@ -361,23 +372,23 @@ bool Bezier::AddLeastSquares(CuspData & data, int from, QPointF & V, int to, QPo
 
         b11 -= (f0j + f1j) * f1j;
         b12 -= (f2j + f3j) * f1j;
-        b1 += f1j * QPointF::dotProduct(data.XY(j), V);
+        b1 += f1j * (data.XY(j) * V);
 
         b21 -= (f0j + f1j) * f2j;
         b22 -= (f2j + f3j) * f2j;
-        b2 += f2j * QPointF::dotProduct(data.XY(j), W);
+        b2 += f2j * (data.XY(j) * W);
     }
 
-    a12 *= QPointF::dotProduct(V, W);
-    b1 += QPointF::dotProduct(V, data.XY(from)) * b11 + QPointF::dotProduct(V, data.XY(to)) * b12;
-    b2 += QPointF::dotProduct(W, data.XY(from)) * b21 + QPointF::dotProduct(W, data.XY(to)) * b22;
+    a12 *= (V * W);
+    b1 += (V * data.XY(from)) * b11 + (V * data.XY(to)) * b12;
+    b2 += (W * data.XY(from)) * b21 + (W * data.XY(to)) * b22;
 
     // Solve the equations
     double s = b1 * a22 - b2 * a12;
     double u = b2 * a11 - b1 * a12;
     double det = a11 * a22 - a12 * a12;
-    bool accept = (qAbs(det) > qAbs(s) * DBL_EPSILON &&
-                    qAbs(det) > qAbs(u) * DBL_EPSILON);
+    bool accept = (Math::Abs(det) > Math::Abs(s) * DBL_EPSILON &&
+                    Math::Abs(det) > Math::Abs(u) * DBL_EPSILON);
 
     if (accept)
     {
@@ -423,13 +434,13 @@ bool Bezier::CoCubic(CuspData & data, int i[], double fitError)
     double d23 = d04 / (data.Node(i[3]) - data.Node(i[2]));
     double d24 = d04 / (data.Node(i[4]) - data.Node(i[2]));
     double d34 = d04 / (data.Node(i[4]) - data.Node(i[3]));
-    QPointF P =  d01 * d02 * d03 * data.XY(i[0]) -
+    Vector P =  d01 * d02 * d03 * data.XY(i[0]) -
                 d01 * d12 * d13 * d14 * data.XY(i[1]) +
                 d02 * d12 * d23 * d24 * data.XY(i[2]) -
                 d03 * d13 * d23 * d34 * data.XY(i[3]) +
                 d14 * d24 * d34 * data.XY(i[4]);
 
-    return (QPointF::dotProduct(P, P) < fitError);
+    return ((P * P) < fitError);
 }
 
 
@@ -437,9 +448,9 @@ bool Bezier::CoCubic(CuspData & data, int i[], double fitError)
 /// Add Bezier point to the output buffer
 /// </summary>
 /// <param name="point">In: The point to add</param>
-void Bezier::AddBezierPoint(QPointF const & point)
+void Bezier::AddBezierPoint(Vector const & point)
 {
-    _bezierControlPoints.push_back(point);
+    _bezierControlPoints.Add(point);
 }
 
 
@@ -450,7 +461,7 @@ void Bezier::AddBezierPoint(QPointF const & point)
 /// <param name="index">In: The index of the point to add</param>
 void Bezier::AddSegmentPoint(CuspData & data, int index)
 {
-    _bezierControlPoints.push_back(data.XY(index));
+    _bezierControlPoints.Add(data.XY(index));
 }
 
 
@@ -460,16 +471,16 @@ void Bezier::AddSegmentPoint(CuspData & data, int index)
 /// <param name="iFirst">Index of Bezier segment's first point</param>
 /// <param name="t">Parameter value t</param>
 /// <returns>Return the point at parameter t on the curve</returns>
-QPointF Bezier::DeCasteljau(int iFirst, double t)
+Vector Bezier::DeCasteljau(int iFirst, double t)
 {
     // Using the de Casteljau algorithm.  See "Curves & Surfaces for Computer
     // Aided Design" for the theory
     double s = 1.0 - t;
 
     // Level 1
-    QPointF Q0 = s * GetBezierPoint(iFirst) + t * GetBezierPoint(iFirst + 1);
-    QPointF Q1 = s * GetBezierPoint(iFirst + 1) + t * GetBezierPoint(iFirst + 2);
-    QPointF Q2 = s * GetBezierPoint(iFirst + 2) + t * GetBezierPoint(iFirst + 3);
+    Vector Q0 = s * GetBezierPoint(iFirst) + t * GetBezierPoint(iFirst + 1);
+    Vector Q1 = s * GetBezierPoint(iFirst + 1) + t * GetBezierPoint(iFirst + 2);
+    Vector Q2 = s * GetBezierPoint(iFirst + 2) + t * GetBezierPoint(iFirst + 3);
 
     // Level 2
     Q0 = s * Q0 + t * Q1;
@@ -486,12 +497,12 @@ QPointF Bezier::DeCasteljau(int iFirst, double t)
 /// <param name="tolerance">tolerance</param>
 /// <param name="points"></param>
 /// <returns></returns>
-void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & points)
+void Bezier::FlattenSegment(int iFirst, double tolerance, List<Point> & points)
 {
     // We use forward differencing.  It is much faster than subdivision
     int i, k;
     int nPoints = 1;
-    QPointF Q[4];
+    Vector Q[4];
 
     // The number of points is determined by the "curvedness" of this segment,
     // which is a heuristic: it's the maximum of the 2 medians of the triangles
@@ -504,7 +515,7 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
         // Get the longer median
         Q[0] = (GetBezierPoint(i - 1) + GetBezierPoint(i + 1)) * 0.5 - GetBezierPoint(i);
 
-        double r = Length(Q[0]);
+        double r = Q[0].Length();
 
         if (r > rCurv)
             rCurv = r;
@@ -517,8 +528,8 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
     // ratio, but not less than 3.
     if (rCurv <= 0.5 * tolerance)  // Flat segment
     {
-        QPointF vector = GetBezierPoint(iFirst + 3);
-        points.push_back(vector);
+        Point vector = GetBezierPoint(iFirst + 3);
+        points.Add(vector);
         return;
     }
 
@@ -535,7 +546,7 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
     for (i = 1; i <= 3; i++)
     {
         Q[i] = DeCasteljau(iFirst, i * d);
-        points.push_back(Q[i]);
+        points.Add(Q[i]);
     }
 
     // Replace points in the buffer with differences of various levels
@@ -549,7 +560,7 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
         for (k = 1; k <= 3; k++)
             Q[k] += Q[k - 1];
 
-        points.push_back(Q[3]);
+        points.Add(Q[3]);
     }
 }
 

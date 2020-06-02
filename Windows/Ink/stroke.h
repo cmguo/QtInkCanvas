@@ -2,19 +2,25 @@
 #define STROKE_H
 
 #include "InkCanvas_global.h"
-#include "drawingattributes.h"
+#include "Windows/Ink/drawingattributes.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Media/geometry.h"
+#include "Collections/Generic/list.h"
+#include <sharedptr.h>
 
-#include <QList>
+#ifdef INKCANVAS_QT
 #include <QMap>
 #include <QObject>
+#endif
+
+#ifndef INKCANVAS_CORE
+class DrawingContext;
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
 class Geometry;
 class StrokeFIndices;
-class DrawingContext;
 class StrokeCollection;
 class StrokeIntersection;
 class Lasso;
@@ -25,9 +31,14 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
-class INKCANVAS_EXPORT Stroke : public QObject, public QEnableSharedFromThis<Stroke>
+#ifdef INKCANVAS_QT
+class INKCANVAS_EXPORT Stroke : public QObject, public EnableSharedFromThis<Stroke>
 {
     Q_OBJECT
+#else
+class INKCANVAS_EXPORT Stroke : public EnableSharedFromThis<Stroke>
+{
+#endif
 public:
     Stroke();
 
@@ -35,14 +46,14 @@ public:
     /// <remarks>
     /// </remarks>
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
-    Stroke(QSharedPointer<StylusPointCollection> stylusPoints);
+    Stroke(SharedPointer<StylusPointCollection> stylusPoints);
 
     /// <summary>Create a stroke from a StylusPointCollection</summary>
     /// <remarks>
     /// </remarks>
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
     /// <param name="drawingAttributes">drawingAttributes</param>
-    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes);
+    Stroke(SharedPointer<StylusPointCollection> stylusPoints, SharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>Create a stroke from a StylusPointCollection</summary>
     /// <remarks>
@@ -50,7 +61,7 @@ public:
     /// <param name="stylusPoints">StylusPointCollection that makes up the stroke</param>
     /// <param name="drawingAttributes">drawingAttributes</param>
     /// <param name="extendedProperties">extendedProperties</param>
-    Stroke(QSharedPointer<StylusPointCollection> stylusPoints, QSharedPointer<DrawingAttributes> drawingAttributes, ExtendedPropertyCollection* extendedProperties);
+    Stroke(SharedPointer<StylusPointCollection> stylusPoints, SharedPointer<DrawingAttributes> drawingAttributes, ExtendedPropertyCollection* extendedProperties);
 
     Stroke(Stroke const & o);
 
@@ -65,35 +76,35 @@ public:
     /// <summary>Returns a new stroke that has a deep copy.</summary>
     /// <remarks>Deep copied data includes points, point description, drawing attributes, and transform</remarks>
     /// <returns>Deep copy of current stroke</returns>
-    virtual QSharedPointer<Stroke> Clone() { return QSharedPointer<Stroke>(new Stroke(*this)); }
+    virtual SharedPointer<Stroke> Clone() { return SharedPointer<Stroke>(new Stroke(*this)); }
 
     /// <summary>Transforms the ink and also changes the StylusTip</summary>
     /// <param name="transformMatrix">Matrix to transform the stroke by</param>
     /// <param name="applyToStylusTip">Boolean if true the transform matrix will be applied to StylusTip</param>
-    virtual void Transform(QMatrix transformMatrix, bool applyToStylusTip);
+    virtual void Transform(Matrix & transformMatrix, bool applyToStylusTip);
 
     /// <summary>
     /// Returns a Bezier smoothed version of the StylusPoints
     /// </summary>
     /// <returns></returns>
-    QSharedPointer<StylusPointCollection> GetBezierStylusPoints();
+    SharedPointer<StylusPointCollection> GetBezierStylusPoints();
 
     /// <summary>
     /// Interpolate packet / pressure data from _stylusPoints
     /// </summary>
-    QSharedPointer<StylusPointCollection> GetInterpolatedStylusPoints(QList<QPointF> & bezierPoints);
+    SharedPointer<StylusPointCollection> GetInterpolatedStylusPoints(List<Point> & bezierPoints);
 
     /// <summary>
     /// helper used to get the length between two points
     /// </summary>
-    static double GetDistanceBetweenPoints(QPointF const & p1, QPointF const & p2);
+    static double GetDistanceBetweenPoints(Point const & p1, Point const & p2);
 
     /// <summary>
     /// helper for adding a StylusPoint to the BezierStylusPoints
     /// </summary>
     void AddInterpolatedBezierPoint(StylusPointCollection & bezierStylusPoints,
-                                            QPointF & bezierPoint,
-                                            QVector<int> const & additionalData,
+                                            Point & bezierPoint,
+                                            Array<int> const & additionalData,
                                             float pressure);
 
     /// <summary>
@@ -101,31 +112,31 @@ public:
     /// </summary>
     /// <param name="propertyDataId"></param>
     /// <param name="propertyData"></param>
-    void AddPropertyData(QUuid const & propertyDataId, QVariant propertyData);
+    void AddPropertyData(Guid const & propertyDataId, Variant const & propertyData);
 
 
     /// <summary>
     /// Allows removal of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    void RemovePropertyData(QUuid const & propertyDataId);
+    void RemovePropertyData(Guid const & propertyDataId);
 
     /// <summary>
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QUuid const & propertyDataId) const;
+    Variant GetPropertyData(Guid const & propertyDataId) const;
 
     /// <summary>
     /// Allows retrieval of a Array of guids that are contained in the EPC
     /// </summary>
-    QVector<QUuid> GetPropertyDataIds() const;
+    Array<Guid> GetPropertyDataIds() const;
 
     /// <summary>
     /// Allows the checking of objects in the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QUuid const & propertyDataId) const;
+    bool ContainsPropertyData(Guid const & propertyDataId) const;
 
     /// <summary>
     /// Allows an application to configure the rendering state
@@ -137,22 +148,24 @@ public:
     /// If the stroke has been deleted, the 'set' will no-op.
     /// </remarks>
     /// <value>The drawing attributes associated with the current stroke.</value>
-    QSharedPointer<DrawingAttributes> GetDrawingAttributes() const
+    SharedPointer<DrawingAttributes> GetDrawingAttributes() const
     {
         return _drawingAttributes;
     }
 
-    void SetDrawingAttributes(QSharedPointer<DrawingAttributes> value);
+    void SetDrawingAttributes(SharedPointer<DrawingAttributes> value);
 
     /// <summary>
     /// StylusPoints
     /// </summary>
-    QSharedPointer<StylusPointCollection> StylusPoints() const
+    SharedPointer<StylusPointCollection> StylusPoints() const
     {
         return _stylusPoints;
     }
 
-    void SetStylusPoints(QSharedPointer<StylusPointCollection> value);
+    void SetStylusPoints(SharedPointer<StylusPointCollection> value);
+
+#ifdef INKCANVAS_QT
 
 signals:
     /// <summary>Event that is fired when a drawing attribute is changed.</summary>
@@ -193,10 +206,14 @@ signals:
     /// </summary>
     void PropertyChanged(QByteArray const & propName);
 
+#endif
+
 protected:
     virtual void OnDrawingAttributesChanged(PropertyDataChangedEventArgs& e)
     {
+#ifdef INKCANVAS_QT
         emit DrawingAttributesChanged(e);
+#endif
     }
 
     /// <summary>
@@ -206,7 +223,9 @@ protected:
     /// <param name="e">DrawingAttributesReplacedEventArgs to raise the event with</param>
     virtual void OnDrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e)
     {
+#ifdef INKCANVAS_QT
         emit DrawingAttributesReplaced(e);
+#endif
     }
 
     /// <summary>
@@ -215,7 +234,9 @@ protected:
     /// <param name="e">EventArgs</param>
     virtual void OnStylusPointsReplaced(StylusPointsReplacedEventArgs& e)
     {
+#ifdef INKCANVAS_QT
         emit StylusPointsReplaced(e);
+#endif
     }
 
     /// <summary>
@@ -234,7 +255,9 @@ protected:
     /// to ensure that event listeners are notified</remarks>
     virtual void OnPropertyDataChanged(PropertyDataChangedEventArgs& e)
     {
+#ifdef INKCANVAS_QT
         emit PropertyDataChanged(e);
+#endif
     }
 
 
@@ -244,7 +267,9 @@ protected:
     /// </summary>
     virtual void OnInvalidated(EventArgs& e)
     {
+#ifdef INKCANVAS_QT
         emit Invalidated(e);
+#endif
     }
 
     /// <summary>
@@ -253,9 +278,11 @@ protected:
     /// <param name="e">The EventArgs specifying the name of the changed property.</param>
     /// <remarks>To follow the guidelines, this method should take a PropertyChangedEventArgs
     /// instance, but every other INotifyPropertyChanged implementation follows this pattern.</remarks>
-    virtual void OnPropertyChanged(QByteArray const & propName)
+    virtual void OnPropertyChanged(char const * propName)
     {
+#ifdef INKCANVAS_QT
         emit PropertyChanged(propName);
+#endif
     }
 
 public:
@@ -271,25 +298,25 @@ private:
     /// Clip
     /// </summary>
     /// <param name="cutAt">Fragment markers for clipping</param>
-    QSharedPointer<StrokeCollection> Clip(QVector<StrokeFIndices> cutAt);
+    SharedPointer<StrokeCollection> Clip(Array<StrokeFIndices> const & cutAt);
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="cutAt">Fragment markers for clipping</param>
     /// <returns>Survived fragments of current Stroke as a StrokeCollection</returns>
-    QSharedPointer<StrokeCollection> Erase(QVector<StrokeFIndices> cutAt);
+    SharedPointer<StrokeCollection> Erase(Array<StrokeFIndices> const & cutAt);
 
 
     /// <summary>
     /// Creates a new stroke from a subset of the points
     /// </summary>
-    QSharedPointer<Stroke> Copy(QSharedPointer<StylusPointCollection> sourceStylusPoints, double beginFIndex, double endFIndex);
+    SharedPointer<Stroke> Copy(SharedPointer<StylusPointCollection> sourceStylusPoints, double beginFIndex, double endFIndex);
 
     /// <summary>
     /// helper that will generate a new point between two points at an findex
     /// </summary>
-    QPointF GetIntermediatePoint(StylusPoint const & p1, StylusPoint const & p2, double findex);
+    Point GetIntermediatePoint(StylusPoint const & p1, StylusPoint const & p2, double findex);
 
 
 #ifdef DEBUG__
@@ -335,7 +362,9 @@ public:
     /// Computes the bounds of the stroke in the default rendering context
     /// </summary>
     /// <returns></returns>
-    virtual QRectF GetBounds();
+    virtual Rect GetBounds();
+
+#ifndef INKCANVAS_CORE
 
     /// <summary>
     /// Render the Stroke under the specified DrawingContext. The draw method is a
@@ -344,22 +373,22 @@ public:
     /// <param name="context"></param>
     void Draw(DrawingContext & context);
 
-
     /// <summary>
     /// Render the StrokeCollection under the specified DrawingContext. This draw method uses the
     /// passing in drawing attribute to override that on the stroke.
     /// </summary>
     /// <param name="drawingContext"></param>
     /// <param name="drawingAttributes"></param>
-    void Draw(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes> drawingAttributes);
+    void Draw(DrawingContext & drawingContext, SharedPointer<DrawingAttributes> drawingAttributes);
 
+#endif
 
     /// <summary>
     /// Clip with rect. Calculate the after-clipping Strokes. Only the "in-segments" are left after this operation.
     /// </summary>
     /// <param name="bounds">A Rect to clip with</param>
     /// <returns>The after-clipping strokes.</returns>
-    QSharedPointer<StrokeCollection> GetClipResult(QRectF const & bounds);
+    SharedPointer<StrokeCollection> GetClipResult(Rect const & bounds);
 
 
     /// <summary>
@@ -367,7 +396,7 @@ public:
     /// </summary>
     /// <param name="lassoPoints">The lasso points to clip with</param>
     /// <returns>The after-clipping strokes</returns>
-    QSharedPointer<StrokeCollection> GetClipResult(QVector<QPointF> const & lassoPoints);
+    SharedPointer<StrokeCollection> GetClipResult(List<Point> const & lassoPoints);
 
 
     /// <summary>
@@ -375,14 +404,14 @@ public:
     /// </summary>
     /// <param name="bounds">A Rect to clip with</param>
     /// <returns>The after-erasing strokes</returns>
-    QSharedPointer<StrokeCollection> GetEraseResult(QRectF const & bounds);
+    SharedPointer<StrokeCollection> GetEraseResult(Rect const & bounds);
 
     /// <summary>
     /// Erase with lasso points.
     /// </summary>
     /// <param name="lassoPoints">Lasso points to erase with</param>
     /// <returns>The after-erasing strokes</returns>
-    QSharedPointer<StrokeCollection> GetEraseResult(QVector<QPointF> const & lassoPoints);
+    SharedPointer<StrokeCollection> GetEraseResult(List<Point> const & lassoPoints);
 
     /// <summary>
     /// Erase with an eraser with passed in shape
@@ -390,7 +419,7 @@ public:
     /// <param name="eraserPath">The path to erase</param>
     /// <param name="eraserShape">Shape of the eraser</param>
     /// <returns></returns>
-    QSharedPointer<StrokeCollection> GetEraseResult(QVector<QPointF> const & eraserPath, StylusShape& eraserShape);
+    SharedPointer<StrokeCollection> GetEraseResult(List<Point> const & eraserPath, StylusShape& eraserShape);
 
 
     /// <summary>
@@ -398,7 +427,7 @@ public:
     /// </summary>
     /// <param name="point">The location to do the hitest</param>
     /// <returns>True is this stroke is hit, false otherwise</returns>
-    bool HitTest(QPointF const & point);
+    bool HitTest(Point const & point);
 
     /// <summary>
     /// Tap-hit. Hit tests with a point.
@@ -406,7 +435,7 @@ public:
     /// <param name="point">The location to do the hittest</param>
     /// <param name="diameter">diameter of the tip</param>
     /// <returns>true if hit, false otherwise</returns>
-    bool HitTest(QPointF const & point, double diameter);
+    bool HitTest(Point const & point, double diameter);
 
     /// <summary>
     /// Check whether a certain percentage of the stroke is within the Rect passed in.
@@ -414,7 +443,7 @@ public:
     /// <param name="bounds"></param>
     /// <param name="percentageWithinBounds"></param>
     /// <returns></returns>
-    bool HitTest(QRectF const & bounds, int percentageWithinBounds);
+    bool HitTest(Rect const & bounds, int percentageWithinBounds);
 
     /// <summary>
     /// Check whether a certain percentage of the stroke is within the lasso
@@ -422,14 +451,14 @@ public:
     /// <param name="lassoPoints"></param>
     /// <param name="percentageWithinLasso"></param>
     /// <returns></returns>
-    bool HitTest(QVector<QPointF> const & lassoPoints, int percentageWithinLasso);
+    bool HitTest(List<Point> const & lassoPoints, int percentageWithinLasso);
     /// <summary>
     ///
     /// </summary>
     /// <param name="path"></param>
     /// <param name="stylusShape"></param>
     /// <returns></returns>
-    bool HitTest(QVector<QPointF> const & path, StylusShape& stylusShape);
+    bool HitTest(List<Point> const & path, StylusShape& stylusShape);
 
     /// <summary>
     /// The core functionality to draw a stroke. The function can be called from the following code paths.
@@ -454,7 +483,9 @@ public:
     /// <param name="drawingContext">DrawingContext to draw on</param>
     /// <param name="drawingAttributes">DrawingAttributes to draw with</param>
 protected:
-    virtual void DrawCore(DrawingContext & drawingContext, QSharedPointer<DrawingAttributes>  drawingAttributes);
+#ifndef INKCANVAS_CORE
+    virtual void DrawCore(DrawingContext & drawingContext, SharedPointer<DrawingAttributes>  drawingAttributes);
+#endif
 
     /// <summary>
     /// Returns the Geometry of this stroke.
@@ -467,15 +498,17 @@ protected:
     /// </summary>
     /// <param name="drawingAttributes"></param>
     /// <returns></returns>
-    Geometry * GetGeometry(QSharedPointer<DrawingAttributes> drawingAttributes);
+    Geometry * GetGeometry(SharedPointer<DrawingAttributes> drawingAttributes);
 
 public:
+#ifndef INKCANVAS_CORE
     /// <summary>
     /// our code - StrokeVisual.OnRender and StrokeCollection.Draw - always calls this
     /// so we can assume the correct opacity has already been pushed on dc. The flag drawAsHollow is set
     /// to true when this function is called from Renderer and this.IsSelected == true.
     /// </summary>
-    void DrawInternal(DrawingContext & dc, QSharedPointer<DrawingAttributes> DrawingAttributes, bool drawAsHollow);
+    void DrawInternal(DrawingContext & dc, SharedPointer<DrawingAttributes> DrawingAttributes, bool drawAsHollow);
+#endif
 
 public:
     /// <summary>
@@ -496,7 +529,7 @@ public:
     /// <summary>
     /// Set the bounds
     /// </summary>
-    void SetBounds(QRectF const & newBounds)
+    void SetBounds(Rect const & newBounds)
     {
         //System.Diagnostics.Debug.Assert(newBounds.IsEmpty == false);
         _cachedBounds = newBounds;
@@ -506,13 +539,13 @@ public:
     /// <param name="shape"></param>
     /// <param name="path"></param>
     /// <returns>StrokeIntersection array for these segments</returns>
-    QVector<StrokeIntersection> EraseTest(QVector<QPointF> const &, StylusShape &shape);
+    Array<StrokeIntersection> EraseTest(List<Point> const &, StylusShape &shape);
 
     /// <summary>
     /// Hit tests all segments within the lasso loops
     /// </summary>
     /// <returns> a StrokeIntersection array for these segments</returns>
-    QVector<StrokeIntersection> HitTest(Lasso & lasso);
+    Array<StrokeIntersection> HitTest(Lasso & lasso);
 
 
     /// <summary>
@@ -520,14 +553,14 @@ public:
     /// </summary>
     /// <param name="cutAt">Array of intersections indicating the erasing locations</param>
     /// <returns></returns>
-    QSharedPointer<StrokeCollection> Erase(QVector<StrokeIntersection> cutAt);
+    SharedPointer<StrokeCollection> Erase(Array<StrokeIntersection> cutAt);
 
     /// <summary>
     /// Calculate the after-clipping Strokes. Only the "in-segments" are left after this operation.
     /// </summary>
     /// <param name="cutAt">Array of intersections indicating the clipping locations</param>
     /// <returns>The resulting StrokeCollection</returns>
-    QSharedPointer<StrokeCollection> Clip(QVector<StrokeIntersection> cutAt);
+    SharedPointer<StrokeCollection> Clip(Array<StrokeIntersection> cutAt);
 
     static constexpr double TapHitPointSize = 1.0;
     static constexpr double TapHitRotation = 0;
@@ -547,16 +580,16 @@ public:
     /// narrower/shorter.
     /// </summary>
 private:
-    static void CalcHollowTransforms(QSharedPointer<DrawingAttributes> originalDa, QMatrix & innerTransform, QMatrix & outerTransform);
+    static void CalcHollowTransforms(SharedPointer<DrawingAttributes> originalDa, Matrix & innerTransform, Matrix & outerTransform);
 
 private:
         // Custom attributes associated with this stroke
     ExtendedPropertyCollection* _extendedProperties = nullptr;
 
         // Drawing attributes associated with this stroke
-    QSharedPointer<DrawingAttributes> _drawingAttributes;
+    SharedPointer<DrawingAttributes> _drawingAttributes;
 
-    QSharedPointer<StylusPointCollection> _stylusPoints;
+    SharedPointer<StylusPointCollection> _stylusPoints;
 
 private:
     Geometry * _cachedGeometry     = nullptr;
@@ -565,7 +598,7 @@ private:
     bool _cloneStylusPoints  = true;
     bool _delayRaiseInvalidated  = false;
     static constexpr double  HollowLineSize      = 1.0;
-    QRectF _cachedBounds;
+    Rect _cachedBounds;
 
     static constexpr char const * DrawingAttributesName = "DrawingAttributes";
     static constexpr char const * StylusPointsName = "StylusPoints";
@@ -580,14 +613,14 @@ class MatrixHelper
 {
 public:
     //returns true if any member is NaN
-    static bool ContainsNaN(QMatrix & matrix)
+    static bool ContainsNaN(Matrix const & matrix)
     {
-        if (qIsNaN(matrix.m11()) ||
-            qIsNaN(matrix.m12()) ||
-            qIsNaN(matrix.m21()) ||
-            qIsNaN(matrix.m22()) ||
-            qIsNaN(matrix.dx()) ||
-            qIsNaN(matrix.dy()))
+        if (Double::IsNaN(matrix.M11()) ||
+            Double::IsNaN(matrix.M12()) ||
+            Double::IsNaN(matrix.M21()) ||
+            Double::IsNaN(matrix.M22()) ||
+            Double::IsNaN(matrix.OffsetX()) ||
+            Double::IsNaN(matrix.OffsetY()))
         {
             return true;
         }
@@ -595,14 +628,14 @@ public:
     }
 
     //returns true if any member is negative or positive infinity
-    static bool ContainsInfinity(QMatrix & matrix)
+    static bool ContainsInfinity(Matrix const & matrix)
     {
-        if (qIsInf(matrix.m11()) ||
-            qIsInf(matrix.m12()) ||
-            qIsInf(matrix.m21()) ||
-            qIsInf(matrix.m22()) ||
-            qIsInf(matrix.dx()) ||
-            qIsInf(matrix.dy()))
+        if (Double::IsInfinity(matrix.M11()) ||
+            Double::IsInfinity(matrix.M12()) ||
+            Double::IsInfinity(matrix.M21()) ||
+            Double::IsInfinity(matrix.M22()) ||
+            Double::IsInfinity(matrix.OffsetX()) ||
+            Double::IsInfinity(matrix.OffsetY()))
         {
             return true;
         }
@@ -620,7 +653,7 @@ class IEnumerablePointHelper
     /// Returns the count of an IEumerable of Points by trying to cast
     /// to an ICollection of Points
     /// </summary>
-    static int GetCount(IEnumerable<QPointF> ienum)
+    static int GetCount(IEnumerable<Point> ienum)
     {
         Debug.Assert(ienum != null);
         ICollection<Point> icol = ienum as ICollection<Point>;
@@ -639,7 +672,7 @@ class IEnumerablePointHelper
     /// <summary>
     /// Returns a Point[] for a given IEnumerable of Points.
     /// </summary>
-    static Point[] GetPointArray(QList<QPointF> const & ienum)
+    static Point[] GetPointArray(List<Point> const & ienum)
     {
         Debug.Assert(ienum != null);
         Point[] points = ienum as Point[];

@@ -2,10 +2,21 @@
 #include "Windows/Input/styluspoint.h"
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointproperties.h"
-#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Ink/events.h"
 #include "Internal/debug.h"
+
+#ifndef INKCANVAS_CORE
+#include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
+#else
+class StrokeCollectionSerializer
+{
+public:
+    //#region Constants (Static Fields)
+    static constexpr double AvalonToHimetricMultiplier = 2540.0 / 96.0;
+    static constexpr double HimetricToAvalonMultiplier = 96.0 / 2540.0;
+};
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -25,14 +36,14 @@ StylusPointCollection::StylusPointCollection(int initialCapacity)
     {
         throw std::runtime_error("initialCapacity");
     }
-    QVector<StylusPoint>::reserve(initialCapacity);
+    SetCapacity(initialCapacity);
 }
 
 /// <summary>
 /// StylusPointCollection
 /// </summary>
 /// <param name="stylusPointDescription">stylusPointDescription
-StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription)
+StylusPointCollection::StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription)
 {
     if (nullptr == stylusPointDescription)
     {
@@ -46,14 +57,14 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 /// </summary>
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="initialCapacity">initialCapacity
-StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity)
+StylusPointCollection::StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity)
     : StylusPointCollection (stylusPointDescription)
 {
     if (initialCapacity < 0)
     {
         throw std::runtime_error("initialCapacity");
     }
-    reserve(initialCapacity);
+    SetCapacity(initialCapacity);
 }
 
 
@@ -61,11 +72,11 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
 /// StylusPointCollection
 /// </summary>
 /// <param name="stylusPoints">stylusPoints
-StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylusPoints)
+StylusPointCollection::StylusPointCollection(List<StylusPoint> const & stylusPoints)
     //: this() //don't call the base ctor, we want to use the first sp
 {
-    QVector<StylusPoint> points(stylusPoints);
-    if (points.size() == 0)
+    List<StylusPoint> points(stylusPoints);
+    if (points.Count() == 0)
     {
         throw std::runtime_error("stylusPoints");
     }
@@ -75,10 +86,10 @@ StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylus
     //
     _stylusPointDescription = points[0].Description();
 
-    reserve(points.size());
-    for (int x = 0; x < points.size(); x++)
+    SetCapacity(points.Count());
+    for (int x = 0; x < points.Count(); x++)
     {
-        push_back(points[x]);
+        Add(points[x]);
     }
 }
 
@@ -86,25 +97,25 @@ StylusPointCollection::StylusPointCollection(QVector<StylusPoint> const & stylus
 /// StylusPointCollection
 /// </summary>
 /// <param name="points">points
-StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
+StylusPointCollection::StylusPointCollection(Array<Point> const & points)
     : StylusPointCollection()
 {
-    QVector<StylusPoint> stylusPoints;
-    for (QPointF point : points)
+    List<StylusPoint> stylusPoints;
+    for (Point point : points)
     {
         //this can throw (since point.X or Y can be beyond our range)
         //don't add to our collection until after we instance
         //all of the styluspoints and we know the ranges are valid
-        stylusPoints.push_back(StylusPoint(point));
+        stylusPoints.Add(StylusPoint(point));
     }
 
-    if (stylusPoints.size() == 0)
+    if (stylusPoints.Count() == 0)
     {
         throw std::runtime_error("points");
     }
 
-    reserve(stylusPoints.size());
-    append(stylusPoints);
+    SetCapacity(stylusPoints.Count());
+    Items().AddRange(stylusPoints);
 }
 
 /// <summary>
@@ -114,7 +125,7 @@ StylusPointCollection::StylusPointCollection(QVector<QPointF> const & points)
 /// <param name="rawPacketData">rawPacketData
 /// <param name="tabletToView">tabletToView
 /// <param name="tabletToViewMatrix">tabletToView
-StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData, QMatrix const & tabletToView, QMatrix const & tabletToViewMatrix)
+StylusPointCollection::StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription, Array<int> rawPacketData, Matrix const & tabletToView, Matrix const & tabletToViewMatrix)
 {
     if (nullptr == stylusPointDescription)
     {
@@ -123,25 +134,25 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
     _stylusPointDescription = stylusPointDescription;
 
     int lengthPerPoint = stylusPointDescription->GetInputArrayLengthPerPoint();
-    int logicalPointCount = rawPacketData.size() / lengthPerPoint;
-    Debug::Assert(0 == rawPacketData.size() % lengthPerPoint, "Invalid assumption about packet length, there shouldn't be any remainder");
+    int logicalPointCount = rawPacketData.Length() / lengthPerPoint;
+    Debug::Assert(0 == rawPacketData.Length() % lengthPerPoint, "Invalid assumption about packet length, there shouldn't be any remainder");
 
     //
     // set our capacity and validate
     //
-    reserve(logicalPointCount);
+    SetCapacity(logicalPointCount);
     for (int count = 0, i = 0; count < logicalPointCount; count++, i += lengthPerPoint)
     {
 
         //first, determine the x, y values by xf-ing them
-        QPointF p(rawPacketData[i], rawPacketData[i + 1]);
+        Point p(rawPacketData[i], rawPacketData[i + 1]);
         //if (tabletToView != nullptr)
         //{
         //    p = tabletToView.map(p);
         //}
         //else
         {
-            p = tabletToViewMatrix.map(p);
+            p = tabletToViewMatrix.Transform(p);
         }
 
         int startIndex = 2;
@@ -152,19 +163,19 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
             startIndex++;
         }
 
-        QVector<int> data;
+        Array<int> data;
         int dataLength = lengthPerPoint - startIndex;
         if (dataLength > 0)
         {
             //copy the rest of the data
             data.resize(dataLength);
-            for (int localIndex = 0, rawArrayIndex = i + startIndex; localIndex < data.size(); localIndex++, rawArrayIndex++)
+            for (int localIndex = 0, rawArrayIndex = i + startIndex; localIndex < data.Length(); localIndex++, rawArrayIndex++)
             {
                 data[localIndex] = rawPacketData[rawArrayIndex];
             }
         }
 
-        StylusPoint newPoint(p.x(), p.y(), StylusPoint::DefaultPressure, _stylusPointDescription, data, false, false);
+        StylusPoint newPoint(p.X(), p.Y(), StylusPoint::DefaultPressure, _stylusPointDescription, data, false, false);
         if (containsTruePressure)
         {
             //use the algoritm to set pressure in StylusPoint
@@ -173,7 +184,7 @@ StylusPointCollection::StylusPointCollection(QSharedPointer<StylusPointDescripti
         }
 
         //this does not go through our virtuals
-        push_back(newPoint);
+        Items().Add(newPoint);
     }
 }
 
@@ -192,16 +203,16 @@ void StylusPointCollection::Add(StylusPointCollection & stylusPoints)
 
     // cache count outside of the loop, so if this SPC is ever passed
     // we don't loop forever
-    int count = stylusPoints.size();
+    int count = stylusPoints.Count();
     for (int x = 0; x < count; x++)
     {
         StylusPoint stylusPoint = stylusPoints[x];
         stylusPoint.SetDescription(_stylusPointDescription);
         //this does not go through our virtuals
-        push_back(stylusPoint);
+        this->Items().Add(stylusPoint);
     }
 
-    if (stylusPoints.size() > 0)
+    if (stylusPoints.Count() > 0)
     {
         OnChanged();
     }
@@ -210,7 +221,7 @@ void StylusPointCollection::Add(StylusPointCollection & stylusPoints)
 /// <summary>
 /// Read only access to the StylusPointDescription shared by the StylusPoints in this collection
 /// </summary>
-QSharedPointer<StylusPointDescription> StylusPointCollection::Description()
+SharedPointer<StylusPointDescription> StylusPointCollection::Description()
 {
     if (nullptr == _stylusPointDescription)
     {
@@ -227,7 +238,7 @@ void StylusPointCollection::ClearItems()
 {
     if (CanGoToZero())
     {
-        clear();
+        Collection::ClearItems();
         OnChanged();
     }
     else
@@ -242,9 +253,9 @@ void StylusPointCollection::ClearItems()
 /// </summary>
 void StylusPointCollection::RemoveItem(int index)
 {
-    if (this->size() > 1 || CanGoToZero())
+    if (this->Count() > 1 || CanGoToZero())
     {
-        removeAt(index);
+        this->Items().RemoveAt(index);
         OnChanged();
     }
     else
@@ -252,11 +263,6 @@ void StylusPointCollection::RemoveItem(int index)
         throw std::runtime_error("");
     }
 
-}
-
-void StylusPointCollection::AddItem(StylusPoint const &stylusPoint)
-{
-    InsertItem(size(), stylusPoint);
 }
 
 /// <summary>
@@ -272,7 +278,7 @@ void StylusPointCollection::InsertItem(int index, StylusPoint const & stylusPoin
     }
 
     //stylusPoint.SetDescription(_stylusPointDescription);
-    insert(index, stylusPoint);
+    Collection<StylusPoint>::InsertItem(index, stylusPoint);
     at(index).SetDescription(_stylusPointDescription);
 
     OnChanged();
@@ -300,19 +306,19 @@ void StylusPointCollection::SetItem(int index, StylusPoint const & stylusPoint)
 /// <summary>
 /// Clone
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusPointCollection::Clone()
+SharedPointer<StylusPointCollection> StylusPointCollection::Clone()
 {
-    return Clone(QMatrix(), Description(), size());
+    return Clone(Matrix(), Description(), Count());
 }
 
 /// <summary>
 /// Explicit cast converter between StylusPointCollection and Point[]
 /// </summary>
 /// <param name="stylusPoints">stylusPoints
-StylusPointCollection::operator QVector<QPointF>()
+StylusPointCollection::operator Array<Point>()
 {
-    QVector<QPointF> points(size());
-    for (int i = 0; i < size(); i++)
+    Array<Point> points(Count());
+    for (int i = 0; i < Count(); i++)
     {
         points[i] = (*this)[i];
     }
@@ -324,53 +330,53 @@ StylusPointCollection::operator QVector<QPointF>()
 /// </summary>
 /// <param name="count">The maximum count of points to clone (used by GestureRecognizer)
 /// <returns></returns>
-QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(int count)
+SharedPointer<StylusPointCollection> StylusPointCollection::Clone(int count)
 {
-    if (count > size() || count < 1)
+    if (count > Count() || count < 1)
     {
         throw std::runtime_error("count");
     }
 
-    return Clone(QMatrix(), Description(), count);
+    return Clone(Matrix(), Description(), count);
 
 }
 
 /// <summary>
 /// Clone with a transform, used by input
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse)
+SharedPointer<StylusPointCollection> StylusPointCollection::Clone(Matrix const & transform, SharedPointer<StylusPointDescription> descriptionToUse)
 {
-    return Clone(transform, descriptionToUse, size());
+    return Clone(transform, descriptionToUse, Count());
 }
 
 
 /// <summary>
 /// clone implementation
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count)
+SharedPointer<StylusPointCollection> StylusPointCollection::Clone(Matrix const & transform, SharedPointer<StylusPointDescription> descriptionToUse, int count)
 {
-    Debug::Assert(count <= size());
+    Debug::Assert(count <= Count());
     //
     // We don't need to copy our _stylusPointDescription because it is immutable
     // and we don't need to copy our StylusPoints, because they are structs.
     //
-    QSharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(descriptionToUse, count));
+    SharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(descriptionToUse, count));
 
-    bool isIdentity = transform.isIdentity();
+    bool isIdentity = transform.IsIdentity();
     for (int x = 0; x < count; x++)
     {
         if (isIdentity)
         {
-            newCollection->push_back((*this)[x]);
+            newCollection->Items().Add((*this)[x]);
         }
         else
         {
-            QPointF point;
+            Point point;
             StylusPoint stylusPoint = (*this)[x];
             point = stylusPoint;
-            point = transform.map(point);
+            point = transform.Transform(point);
             stylusPoint = point;
-            newCollection->push_back(stylusPoint);
+            newCollection->Items().Add(stylusPoint);
         }
     }
     return newCollection;
@@ -382,28 +388,30 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Clone(QMatrix const
 /// <param name="e">
 void StylusPointCollection::OnChanged()
 {
+#ifdef INKCANVAS_QT
     emit Changed();
+#endif
 }
 
 /// <summary>
 /// Transform the StylusPoints in this collection by the specified transform
 /// </summary>
 /// <param name="transform">transform
-void StylusPointCollection::Transform(QMatrix const & transform)
+void StylusPointCollection::Transform(Matrix const & transform)
 {
-    QPointF point;
-    for (int i = 0; i < size(); i++)
+    Point point;
+    for (int i = 0; i < Count(); i++)
     {
         StylusPoint stylusPoint = (*this)[i];
         point = stylusPoint;
-        point = transform.map(point);
+        point = transform.Transform(point);
         stylusPoint = point;
 
         //this does not go through our virtuals
         at(i) = stylusPoint;
     }
 
-    if (size() > 0)
+    if (Count() > 0)
     {
         OnChanged();
     }
@@ -413,27 +421,27 @@ void StylusPointCollection::Transform(QMatrix const & transform)
 /// Reformat
 /// </summary>
 /// <param name="subsetToReformatTo">subsetToReformatTo
-QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo)
+SharedPointer<StylusPointCollection> StylusPointCollection::Reformat(SharedPointer<StylusPointDescription> subsetToReformatTo)
 {
-    return Reformat(subsetToReformatTo, QMatrix());
+    return Reformat(subsetToReformatTo, Matrix());
 }
 
 /// <summary>
 /// Helper that transforms and scales in one go
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform)
+SharedPointer<StylusPointCollection> StylusPointCollection::Reformat(SharedPointer<StylusPointDescription> subsetToReformatTo, Matrix const & transform)
 {
     if (!subsetToReformatTo->IsSubsetOf(Description()))
     {
         throw std::runtime_error("subsetToReformatTo");
     }
 
-    QSharedPointer<StylusPointDescription> subsetToReformatToWithCurrentMetrics =
+    SharedPointer<StylusPointDescription> subsetToReformatToWithCurrentMetrics =
         StylusPointDescription::GetCommonDescription(subsetToReformatTo,
                                                     Description()); //preserve metrics from this spd
 
     if (StylusPointDescription::AreCompatible(Description(), subsetToReformatToWithCurrentMetrics) &&
-        transform.isIdentity())
+        transform.IsIdentity())
     {
         //subsetToReformatTo might have different x, y, p metrics
         return Clone(transform, subsetToReformatToWithCurrentMetrics);
@@ -442,14 +450,14 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPoi
     //
     // we really need to reformat this...
     //
-    QSharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(subsetToReformatToWithCurrentMetrics, size()));
+    SharedPointer<StylusPointCollection> newCollection(new StylusPointCollection(subsetToReformatToWithCurrentMetrics, Count()));
     int additionalDataCount = subsetToReformatToWithCurrentMetrics->GetExpectedAdditionalDataCount();
 
-    QVector<StylusPointPropertyInfo> properties
+    List<StylusPointPropertyInfo> properties
             = subsetToReformatToWithCurrentMetrics->GetStylusPointProperties();
-    bool isIdentity = transform.isIdentity();
+    bool isIdentity = transform.IsIdentity();
 
-    for (int i = 0; i < size(); i++)
+    for (int i = 0; i < Count(); i++)
     {
         StylusPoint stylusPoint = (*this)[i];
 
@@ -459,13 +467,13 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPoi
 
         if (!isIdentity)
         {
-            QPointF p(xCoord, yCoord);
-            p = transform.map(p);
-            xCoord = p.x();
-            yCoord = p.y();
+            Point p(xCoord, yCoord);
+            p = transform.Transform(p);
+            xCoord = p.X();
+            yCoord = p.Y();
         }
 
-        QVector<int> newData;
+        Array<int> newData;
         if (additionalDataCount > 0)
         {
             //don't init, we'll do that below
@@ -475,13 +483,13 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPoi
         StylusPoint newStylusPoint(xCoord, yCoord, pressure, subsetToReformatToWithCurrentMetrics, newData, false, false);
 
         //start at 3, skipping x, y, pressure
-        for (int x = StylusPointDescription::RequiredCountOfProperties/*3*/; x < properties.size(); x++)
+        for (int x = StylusPointDescription::RequiredCountOfProperties/*3*/; x < properties.Count(); x++)
         {
             int value = stylusPoint.GetPropertyValue(properties[x]);
             newStylusPoint.SetPropertyValue(properties[x], value, false/*copy on write*/);
         }
         //bypass validation
-        newCollection->push_back(newStylusPoint);
+        newCollection->Items().Add(newStylusPoint);
     }
     return newCollection;
 }
@@ -490,25 +498,25 @@ QSharedPointer<StylusPointCollection> StylusPointCollection::Reformat(QSharedPoi
 /// Returns this StylusPointCollection as a flat integer array in the himetric coordiate space
 /// </summary>
 /// <returns></returns>
-QVector<int> StylusPointCollection::ToHiMetricArray()
+Array<int> StylusPointCollection::ToHiMetricArray()
 {
     //
     // X and Y are in Avalon units, we need to convert to HIMETRIC
     //
     int lengthPerPoint = Description()->GetOutputArrayLengthPerPoint();
-    QVector<int> output(lengthPerPoint * size());
-    for (int i = 0, x = 0; i < size(); i++, x += lengthPerPoint)
+    Array<int> output(lengthPerPoint * Count());
+    for (int i = 0, x = 0; i < Count(); i++, x += lengthPerPoint)
     {
         StylusPoint stylusPoint = (*this)[i];
-        output[x] = qRound(stylusPoint.X() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
-        output[x + 1] = qRound(stylusPoint.Y() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
+        output[x] = Math::Round(stylusPoint.X() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
+        output[x + 1] = Math::Round(stylusPoint.Y() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
         output[x + 2] = stylusPoint.GetPropertyValue(StylusPointProperties::NormalPressure);
 
         if (lengthPerPoint > StylusPointDescription::RequiredCountOfProperties/*3*/)
         {
-            QVector<int> additionalData = stylusPoint.GetAdditionalData();
+            List<int> additionalData = stylusPoint.GetAdditionalData();
             int countToCopy = lengthPerPoint - StylusPointDescription::RequiredCountOfProperties;/*3*/
-            Debug::Assert(additionalData.size() == countToCopy);
+            Debug::Assert(additionalData.Count() == countToCopy);
 
             for (int y = 0; y < countToCopy; y++)
             {
@@ -532,9 +540,9 @@ QVector<int> StylusPointCollection::ToHiMetricArray()
 /// pressure was non-default
 ///
 /// </summary>
-void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, bool & shouldPersistPressure)
+void StylusPointCollection::ToISFReadyArrays(Array<Array<int>> & output, bool & shouldPersistPressure)
 {
-    Debug::Assert(size() != 0, "Why are we serializing an empty StylusPointCollection???");
+    Debug::Assert(Count() != 0, "Why are we serializing an empty StylusPointCollection???");
     //
     // X and Y are in Avalon units, we need to convert to HIMETRIC
     //
@@ -553,7 +561,7 @@ void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, boo
     output.resize(lengthPerPoint);
     for (int x = 0; x < lengthPerPoint; x++)
     {
-        output[x] = QVector<int>(size());
+        output[x] = Array<int>(Count());
     }
 
     //
@@ -566,11 +574,11 @@ void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, boo
     shouldPersistPressure =
         !StylusPointPropertyInfo::AreCompatible(pressureInfo, StylusPointPropertyInfoDefaults::NormalPressure);
 
-    for (int b = 0; b < size(); b++)
+    for (int b = 0; b < Count(); b++)
     {
         StylusPoint stylusPoint = (*this)[b];
-        output[0][b] = qRound(stylusPoint.X() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
-        output[1][b] = qRound(stylusPoint.Y() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
+        output[0][b] = Math::Round(stylusPoint.X() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
+        output[1][b] = Math::Round(stylusPoint.Y() * StrokeCollectionSerializer::AvalonToHimetricMultiplier);
         output[2][b] = stylusPoint.GetPropertyValue(StylusPointProperties::NormalPressure);
         //
         // it's not necessary to check HasDefaultPressure if
@@ -582,11 +590,11 @@ void StylusPointCollection::ToISFReadyArrays(QVector<QVector<int>> & output, boo
         }
         if (lengthPerPoint > StylusPointDescription::RequiredCountOfProperties)
         {
-            QVector<int> additionalData = stylusPoint.GetAdditionalData();
+            List<int> additionalData = stylusPoint.GetAdditionalData();
             int countToCopy = lengthPerPoint - StylusPointDescription::RequiredCountOfProperties;/*3*/
             Debug::Assert(   Description()->ButtonCount() > 0 ?
-                            additionalData.size() -1 == countToCopy :
-                            additionalData.size() == countToCopy);
+                            additionalData.Count() -1 == countToCopy :
+                            additionalData.Count() == countToCopy);
 
             for (int y = 0; y < countToCopy; y++)
             {
@@ -613,12 +621,13 @@ bool StylusPointCollection::CanGoToZero()
     CancelEventArgs e;
     //e.Cancel = false;
 
+#ifdef INKCANVAS_QT
     //
     // call the listeners
     //
     emit CountGoingToZero(e);
     Debug::Assert(e.Cancel(), "This event should always be cancelled");
-
+#endif
     return !e.Cancel();
 
 }

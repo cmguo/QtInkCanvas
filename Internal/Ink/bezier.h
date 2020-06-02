@@ -2,9 +2,8 @@
 #define BEZIER_H
 
 #include "Windows/Input/styluspointcollection.h"
-
-#include <QList>
-#include <QPointF>
+#include "Collections/Generic/list.h"
+#include "Windows/point.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -30,7 +29,7 @@ public:
     /// Flatten bezier with a given resolution
     /// </summary>
     /// <param name="tolerance">tolerance</param>
-    QList<QPointF> Flatten(double tolerance);
+    List<Point> Flatten(double tolerance);
 
 
     /// <summary>
@@ -56,7 +55,7 @@ public:
     /// <param name="to">In: Index of the last point, updated here</param>
     /// <param name="tanEnd">In: Unit tangent vector at the end</param>
     /// <returns>True if the segment was added</returns>
-    bool AddBezierSegment(CuspData & data, int from, QPointF & tanStart, int to, QPointF & tanEnd);
+    bool AddBezierSegment(CuspData & data, int from, Vector & tanStart, int to, Vector & tanEnd);
 
 
     /// <summary>
@@ -94,7 +93,7 @@ public:
     /// <param name="to">In: Index of the last point, updated here</param>
     /// <param name="W">In: Unit tangent vector at the end</param>
     /// <returns>Return true segment added</returns>
-    bool AddLeastSquares(CuspData & data, int from, QPointF & V, int to, QPointF & W);
+    bool AddLeastSquares(CuspData & data, int from, Vector & V, int to, Vector & W);
 
 
     /// <summary>
@@ -110,7 +109,7 @@ public:
     /// Add Bezier point to the output buffer
     /// </summary>
     /// <param name="point">In: The point to add</param>
-    void AddBezierPoint(QPointF const & point);
+    void AddBezierPoint(Vector const & point);
 
 
     /// <summary>
@@ -126,7 +125,7 @@ public:
     /// <param name="iFirst">Index of Bezier segment's first point</param>
     /// <param name="t">Parameter value t</param>
     /// <returns>Return the point at parameter t on the curve</returns>
-    QPointF DeCasteljau(int iFirst, double t);
+    Vector DeCasteljau(int iFirst, double t);
 
     /// <summary>
     ///  Flatten a Bezier segment within given resolution
@@ -135,14 +134,14 @@ public:
     /// <param name="tolerance">tolerance</param>
     /// <param name="points"></param>
     /// <returns></returns>
-    void FlattenSegment(int iFirst, double tolerance, QList<QPointF> & points);
+    void FlattenSegment(int iFirst, double tolerance, List<Point> & points);
 
     /// <summary>
     /// Returns a single bezier control point at index
     /// </summary>
     /// <param name="index">Index</param>
     /// <returns></returns>
-    QPointF GetBezierPoint(int index)
+    Vector GetBezierPoint(int index)
     {
         return _bezierControlPoints[index];
     }
@@ -153,12 +152,12 @@ public:
     /// </summary>
     int BezierPointCount()
     {
-        return _bezierControlPoints.size();
+        return _bezierControlPoints.Count();
     }
 
     // Bezier points
 private:
-    QList<QPointF> _bezierControlPoints;
+    List<Point> _bezierControlPoints;
 };
 
 INKCANVAS_END_NAMESPACE

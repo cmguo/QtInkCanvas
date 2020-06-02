@@ -2,10 +2,12 @@
 #define EXTENDEDPROPERTYCOLLECTION_H
 
 #include "Windows/Ink/extendedproperty.h"
+#include "Collections/Generic/list.h"
+#include "Collections/Generic/array.h"
 
-#include <QUuid>
-#include <QVariant>
+#ifdef INKCANVAS_QT
 #include <QObject>
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -16,9 +18,14 @@ class ExtendedPropertiesChangedEventArgs;
 /// in a collection to enable aggregate operations and assignment to Ink object
 /// model objects, such StrokeCollection and Stroke.
 /// </summary>
+#ifdef INKCANVAS_QT
 class ExtendedPropertyCollection : public QObject //does not implement ICollection, we don't need it
 {
     Q_OBJECT
+#else
+class ExtendedPropertyCollection //does not implement ICollection, we don't need it
+{
+#endif
 public:
     /// <summary>
     /// Create a new empty ExtendedPropertyCollection
@@ -56,7 +63,7 @@ public:
     /// </summary>
     /// <param name="attributeId">Attribute identifier</param>
     /// <returns>True if attribute is set in the mask, false otherwise</returns>
-    bool Contains(QUuid const & attributeId) const;
+    bool Contains(Guid const & attributeId) const;
 
     /// <summary>
     /// Copies the ExtendedPropertyCollection
@@ -71,20 +78,20 @@ public:
     /// </summary>
     /// <param name="id">Id</param>
     /// <param name="value">value</param>
-    void Add(QUuid const& id, QVariant value);
+    void Add(Guid const& id, Variant const & value);
 
     /// <summary>
     /// Remove
     /// </summary>
     /// <param name="id">id</param>
-    void Remove(QUuid const& id);
+    void Remove(Guid const& id);
 
     /// <value>
-    ///     Retrieve the QUuid const& array of ExtendedProperty Ids  in the collection.
+    ///     Retrieve the Guid const& array of ExtendedProperty Ids  in the collection.
     ///     <paramref>Guid[]</paramref> is of type <see cref="System.Int32"/>.
     ///     <seealso cref="System.Collections.ICollection.Count"/>
     /// </value>
-    QVector<QUuid> GetGuidArray() const;
+    Array<Guid> GetGuidArray() const;
 
     /// <summary>
     /// Generic accessor for the ExtendedPropertyCollection.
@@ -95,8 +102,8 @@ public:
     /// <remarks>
     /// Note that you can access extended properties via this indexer.
     /// </remarks>
-    QVariant operator[](QUuid const& attributeId) const;
-    void Set(QUuid const& attributeId, QVariant value);
+    Variant operator[](Guid const& attributeId) const;
+    void Set(Guid const& attributeId, Variant const & value);
 
     /// <summary>
     /// Generic accessor for the ExtendedPropertyCollection.
@@ -124,14 +131,16 @@ public:
     /// </value>
     int Count() const
     {
-        return _extendedProperties.size();
+        return _extendedProperties.Count();
     }
 
+#ifdef INKCANVAS_QT
 signals:
     /// <summary>
     /// Event fired whenever a ExtendedProperty is modified in the collection
     /// </summary>
     void Changed(ExtendedPropertiesChangedEventArgs&);
+#endif
 
 private:
     /// <summary>
@@ -143,11 +152,11 @@ private:
     /// Private helper for getting an EP out of our internal collection
     /// </summary>
     /// <param name="id">id</param>
-    ExtendedProperty* GetExtendedPropertyById(QUuid const& id);
+    ExtendedProperty* GetExtendedPropertyById(Guid const& id);
 
     // the set of ExtendedProperties stored in this collection
 private:
-    QList<ExtendedProperty> _extendedProperties;
+    List<ExtendedProperty> _extendedProperties;
 
 
     //used to optimize across Contains / Index calls

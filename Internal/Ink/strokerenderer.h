@@ -3,10 +3,13 @@
 
 #include "InkCanvas_global.h"
 
-#include <QPointF>
-#include <QList>
+#include "Collections/Generic/list.h"
+#include "Windows/rect.h"
+#include "Windows/Media/matrix.h"
+
+#ifdef INKCANVAS_QT
 #include <QColor>
-#include <QTransform>
+#endif
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -18,7 +21,6 @@ class Geometry;
 class Stroke;
 class StreamGeometryContext;
 class StrokeNode;
-
 
 class StrokeRenderer
 {
@@ -33,10 +35,10 @@ public:
     /// </summary>
     static void CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iterator,
                                                    DrawingAttributes& drawingAttributes,
-                                                   QTransform::TransformationType stylusTipMatrixType,
+                                                   MatrixTypes stylusTipMatrixType,
                                                    bool calculateBounds,
                                                    Geometry*& geometry,
-                                                   QRectF& bounds);
+                                                   Rect& bounds);
 
 
     /// <summary>
@@ -57,7 +59,7 @@ public:
 #endif
                                                bool calculateBounds,
                                                Geometry*& geometry,
-                                               QRectF& bounds);
+                                               Rect& bounds);
 
 private:
     /// <summary>
@@ -65,12 +67,12 @@ private:
     /// </summary>
     static void RenderTwoStrokeNodes(   StreamGeometryContext& context,
                                                 StrokeNode& strokeNodePrevious,
-                                                QRectF const & strokeNodePreviousBounds,
+                                                Rect const & strokeNodePreviousBounds,
                                                 StrokeNode& strokeNodeCurrent,
-                                                QRectF const & strokeNodeCurrentBounds,
-                                                QList<QPointF>& pointBuffer1,
-                                                QList<QPointF>& pointBuffer2,
-                                                QList<QPointF>& pointBuffer3
+                                                Rect const & strokeNodeCurrentBounds,
+                                                List<Point>& pointBuffer1,
+                                                List<Point>& pointBuffer2,
+                                                List<Point>& pointBuffer3
 #if DEBUG_RENDERING_FEEDBACK
                                                ,DrawingContext& debugDC,
                                                double feedbackSize,
@@ -91,47 +93,48 @@ private:
     /// <summary>
     /// ReverseDCPointsRenderAndClear
     /// </summary>
-    static void ReverseDCPointsRenderAndClear(StreamGeometryContext& context, QList<QPointF> & abPoints, QList<QPointF> & dcPoints, QList<QPointF> & polyLinePoints, bool isEllipse, bool clear);
+    static void ReverseDCPointsRenderAndClear(StreamGeometryContext& context, List<Point> & abPoints, List<Point> & dcPoints, List<Point> & polyLinePoints, bool isEllipse, bool clear);
 
     /// <summary>
     /// FuzzyContains for two rects
     /// </summary>
-    static RectCompareResult FuzzyContains(QRectF const & rect1, QRectF const & rect2, double percentIntersect);
+    static RectCompareResult FuzzyContains(Rect const & rect1, Rect const & rect2, double percentIntersect);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& points, bool isBezierFigure);
+    static void AddFigureToStreamGeometryContext(StreamGeometryContext& context, List<Point>& points, bool isBezierFigure);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints);
+    static void AddPolylineFigureToStreamGeometryContext(StreamGeometryContext& context, List<Point>& abPoints, List<Point>& dcPoints);
 
     /// <summary>
     /// Private helper to render a path figure to the SGC
     /// </summary>
-    static void AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, QList<QPointF>& abPoints, QList<QPointF>& dcPoints, QList<QPointF>& polyLinePoints);
+    static void AddArcToFigureToStreamGeometryContext(StreamGeometryContext& context, List<Point>& abPoints, List<Point>& dcPoints, List<Point>& polyLinePoints);
 
     /// <summary>
     /// calculates the angle between the previousPosition and the current one and then computes the delta between
     /// the lastAngle.  lastAngle is also updated
     /// </summary>
-    static double GetAngleDeltaFromLast(QPointF const & previousPosition, QPointF const & currentPosition, double& lastAngle);
+    static double GetAngleDeltaFromLast(Point const & previousPosition, Point const & currentPosition, double& lastAngle);
 
     /// <summary>
     /// calculates the angle between the previousPosition and the current one and then computes the delta between
     /// the lastAngle.  lastAngle is also updated
     /// </summary>
-    static double GetAngleBetween(QPointF const & previousPosition, QPointF const & currentPosition);
+    static double GetAngleBetween(Point const & previousPosition, Point const & currentPosition);
 
 public:
+#ifdef INKCANVAS_QT
     /// <summary>
     /// Get the DrawingAttributes to use for a highlighter stroke. The return value is a copy of
     /// the DA passed in if color.A != 255 with color.A overriden to be 255. Otherwise it returns
     /// the DA passed in.
     /// </summary>
-    static QSharedPointer<DrawingAttributes> GetHighlighterAttributes(Stroke& stroke, QSharedPointer<DrawingAttributes> da);
+    static SharedPointer<DrawingAttributes> GetHighlighterAttributes(Stroke& stroke, SharedPointer<DrawingAttributes> da);
 
     /// <summary>
     /// Get the color used to draw a highlighter.
@@ -142,11 +145,12 @@ public:
         color.setAlpha(SolidStrokeAlpha);
         return color;
     }
+#endif
 
     // Opacity for highlighter container visuals
     static constexpr double HighlighterOpacity = 0.5;
     static constexpr unsigned char SolidStrokeAlpha = 0xFF;
-    static QPointF ArcToMarker;
+    static Point ArcToMarker;
 
 };
 

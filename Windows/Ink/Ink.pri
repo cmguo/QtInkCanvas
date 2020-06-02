@@ -1,11 +1,8 @@
 HEADERS += \
-    $$PWD/applicationgesture.h \
     $$PWD/drawingattributes.h \
     $$PWD/drawingflags.h \
-    $$PWD/events.h \
     $$PWD/extendedproperty.h \
     $$PWD/extendedpropertycollection.h \
-    $$PWD/gesturerecognitionresult.h \
     $$PWD/incrementalhittester.h \
     $$PWD/knownids.h \
     $$PWD/stroke.h \
@@ -15,12 +12,10 @@ HEADERS += \
     $$PWD/stylustip.h
 
 SOURCES += \
-    $$PWD/applicationgesture.cpp \
     $$PWD/drawingattributes.cpp \
     $$PWD/drawingflags.cpp \
     $$PWD/extendedproperty.cpp \
     $$PWD/extendedpropertycollection.cpp \
-    $$PWD/gesturerecognitionresult.cpp \
     $$PWD/incrementalhittester.cpp \
     $$PWD/knownids.cpp \
     $$PWD/stroke.cpp \
@@ -29,10 +24,22 @@ SOURCES += \
     $$PWD/stylusshape.cpp \
     $$PWD/stylustip.cpp
 
-win32 {
-HEADERS += \
-    $$PWD/gesturerecognizer.h \
+!inkcanvas_core: {
 
-SOURCES += \
-    $$PWD/gesturerecognizer.cpp \
+    HEADERS += \
+        $$PWD/applicationgesture.h \
+        $$PWD/events.h \
+        $$PWD/gesturerecognitionresult.h \
+
+    SOURCES += \
+        $$PWD/applicationgesture.cpp \
+        $$PWD/gesturerecognitionresult.cpp \
+
+    win32 {
+    HEADERS += \
+        $$PWD/gesturerecognizer.h \
+
+    SOURCES += \
+        $$PWD/gesturerecognizer.cpp \
+    }
 }

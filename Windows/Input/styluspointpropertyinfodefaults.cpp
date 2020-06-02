@@ -1,6 +1,8 @@
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/styluspointproperties.h"
 
+#include <limits>
+
 INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
@@ -226,8 +228,13 @@ StylusPointPropertyInfo StylusPointPropertyInfoDefaults::SecondaryTipButton
 /// <summary>
 /// Default Value
 /// </summary>
+
+// {517C8834-4817-4843-8136-7547C16605B2}
+static const Guid PropertyDefaultValue =
+{ 0x517c8834, 0x4817, 0x4843, 0x81, 0x36, 0x75, 0x47, 0xc1, 0x66, 0x5, 0xb2 };
+
 StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultValue
-        (StylusPointProperty(QUuid::createUuid(), false),
+        (StylusPointProperty(PropertyDefaultValue, false),
                                     INT_MIN,
                                     INT_MAX,
                                     StylusPointPropertyUnit::None,
@@ -236,8 +243,12 @@ StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultValue
 /// <summary>
 /// DefaultButton
 
+// {A3D9363A-3B18-4A9B-9591-096E8C1F63C9}
+static const Guid PropertyDefaultButton =
+{ 0xa3d9363a, 0x3b18, 0x4a9b, 0x95, 0x91, 0x9, 0x6e, 0x8c, 0x1f, 0x63, 0xc9 };
+
 StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultButton
-        (StylusPointProperty(QUuid::createUuid(), true),
+        (StylusPointProperty(PropertyDefaultButton, true),
                                     0,
                                     1,
                                     StylusPointPropertyUnit::None,

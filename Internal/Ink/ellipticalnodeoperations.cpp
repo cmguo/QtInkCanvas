@@ -12,11 +12,11 @@ EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
 {
     Debug::Assert(/*(nodeShape != nullptr) && */nodeShape.IsEllipse());
 
-    _radii = QSizeF(nodeShape.Width() * 0.5, nodeShape.Height() * 0.5);
+    _radii = Size(nodeShape.Width() * 0.5, nodeShape.Height() * 0.5);
 
     // All operations with ellipses become simple(r) if transfrom ellipses into circles.
     // Use the max of the radii for the radius of the circle
-    _radius = qMax(_radii.width(), _radii.height());
+    _radius = Math::Max(_radii.Width(), _radii.Height());
 
     // Compute ellipse-to-circle and circle-to-elliipse transforms. The former is used
     // in hit-testing operations while the latter is used when computing vertices of
@@ -25,8 +25,8 @@ EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
     _nodeShapeToCircle = _transform;
 
     //Debug.Assert(_nodeShapeToCircle.HasInverse(), "About to invert a non-invertible transform");
-    _nodeShapeToCircle = _nodeShapeToCircle.inverted();
-    if (DoubleUtil::AreClose(_radii.width(), _radii.height()))
+    _nodeShapeToCircle.Invert();
+    if (DoubleUtil::AreClose(_radii.Width(), _radii.Height()))
     {
         _circleToNodeShape = _transform;
     }
@@ -35,27 +35,27 @@ EllipticalNodeOperations::EllipticalNodeOperations(StylusShape& nodeShape)
         // Reverse the rotation
         if (false == DoubleUtil::IsZero(nodeShape.Rotation()))
         {
-            _nodeShapeToCircle.rotate(-nodeShape.Rotation());
+            _nodeShapeToCircle.Rotate(-nodeShape.Rotation());
             //Debug.Assert(_nodeShapeToCircle.HasInverse(), "Just rotated an invertible transform and produced a non-invertible one");
         }
 
         // Scale to enlarge
         double sx, sy;
-        if (_radii.width() > _radii.height())
+        if (_radii.Width() > _radii.Height())
         {
             sx = 1;
-            sy = _radii.width() / _radii.height();
+            sy = _radii.Width() / _radii.Height();
         }
         else
         {
-            sx = _radii.height() / _radii.width();
+            sx = _radii.Height() / _radii.Width();
             sy = 1;
         }
-        _nodeShapeToCircle.scale(sx, sy);
+        _nodeShapeToCircle.Scale(sx, sy);
         //Debug.Assert(_nodeShapeToCircle.HasInverse(), "Just scaled an invertible transform and produced a non-invertible one");
 
         _circleToNodeShape = _nodeShapeToCircle;
-        _circleToNodeShape = _circleToNodeShape.inverted();
+        _circleToNodeShape.Invert();
     }
 }
 
@@ -75,17 +75,17 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
     }
 
     // Get the QPointF const &between the node positions
-    QPointF spine = endNode.Position() - beginNode.Position();
-    if (_nodeShapeToCircle.isIdentity() == false)
+    Vector spine = endNode.Position() - beginNode.Position();
+    if (_nodeShapeToCircle.IsIdentity() == false)
     {
-        spine = _nodeShapeToCircle.map(spine);
+        spine = _nodeShapeToCircle.Transform(spine);
     }
 
     double beginRadius = _radius * beginNode.PressureFactor();
     double endRadius = _radius * endNode.PressureFactor();
 
     // Get the QPointF const &and the distance between the node positions
-    double distanceSquared = LengthSquared(spine);
+    double distanceSquared = spine.LengthSquared();
     double delta = endRadius - beginRadius;
     double deltaSquared = DoubleUtil::IsZero(delta) ? 0 : (delta * delta);
 
@@ -103,14 +103,14 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 
     spine /= distance;
 
-    QPointF rad = spine;
+    Vector rad = spine;
 
     // Turn left
-    double temp = rad.y();
-    rad.setY(-rad.x());
-    rad.setX(temp);
+    double temp = rad.Y();
+    rad.SetY(-rad.Y());
+    rad.SetX(temp);
 
-    QPointF vectorToLeftTangent, vectorToRightTangent;
+    Vector vectorToLeftTangent, vectorToRightTangent;
     double rSinSquared = deltaSquared / distanceSquared;
 
     if (DoubleUtil::IsZero(rSinSquared))
@@ -133,10 +133,10 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 
     // Get the common tangent points
 
-    if (_circleToNodeShape.isIdentity() == false)
+    if (_circleToNodeShape.IsIdentity() == false)
     {
-        vectorToLeftTangent = _circleToNodeShape.map(vectorToLeftTangent);
-        vectorToRightTangent = _circleToNodeShape.map(vectorToRightTangent);
+        vectorToLeftTangent = _circleToNodeShape.Transform(vectorToLeftTangent);
+        vectorToRightTangent = _circleToNodeShape.Transform(vectorToRightTangent);
     }
 
     return Quad(beginNode.Position() + (vectorToLeftTangent * beginRadius),
@@ -151,23 +151,23 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 /// <param name="node"></param>
 /// <param name="quad"></param>
 /// <returns></returns>
-QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad& quad)
+List<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad& quad)
 {
     Debug::Assert(node.IsEmpty() == false);
 
-    QList<ContourSegment> result;
+    List<ContourSegment> result;
     if (quad.IsEmpty())
     {
-        QPointF point = node.Position();
+        Point point = node.Position();
         point.setX(_radius);
-        result.append(ContourSegment(point, point, node.Position()));
+        result.Add(ContourSegment(point, point, node.Position()));
     }
-    else if (_nodeShapeToCircle.isIdentity())
+    else if (_nodeShapeToCircle.IsIdentity())
     {
-        result.append(ContourSegment(quad.A(), quad.B()));
-        result.append(ContourSegment(quad.B(), quad.C(), node.Position()));
-        result.append(ContourSegment(quad.C(), quad.D()));
-        result.append(ContourSegment(quad.D(), quad.A()));
+        result.Add(ContourSegment(quad.A(), quad.B()));
+        result.Add(ContourSegment(quad.B(), quad.C(), node.Position()));
+        result.Add(ContourSegment(quad.C(), quad.D()));
+        result.Add(ContourSegment(quad.D(), quad.A()));
     }
     return result;
 }
@@ -178,7 +178,7 @@ QList<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeDat
 /// <param name="beginNode"></param>
 /// <param name="endNode"></param>
 /// <returns></returns>
-QList<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode)
+List<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode)
 {
     Quad quad = beginNode.IsEmpty() ? Quad::Empty() : StrokeNodeOperations::GetConnectingQuad(beginNode, endNode);
     return StrokeNodeOperations::GetContourSegments(endNode, quad);
@@ -196,7 +196,7 @@ QList<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(Stro
 /// <param name="hitEndPoint">an end point of the hitting linear segment</param>
 /// <returns>true if the hitting segment intersect the contour comprised of the two stroke nodes</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
 {
     StrokeNodeData bigNode, smallNode;
     if (beginNode.IsEmpty() || (quad.IsEmpty() && (endNode.PressureFactor() > beginNode.PressureFactor())))
@@ -213,36 +213,36 @@ bool EllipticalNodeOperations::HitTest(
     }
 
     // Compute the positions of the involved points relative to bigNode.
-    QPointF hitBegin = hitBeginPoint - bigNode.Position();
-    QPointF hitEnd = hitEndPoint - bigNode.Position();
+    Vector hitBegin = hitBeginPoint - bigNode.Position();
+    Vector hitEnd = hitEndPoint - bigNode.Position();
 
     // If the node shape is an ellipse, transform the scene to turn the shape to a circle
-    if (_nodeShapeToCircle.isIdentity() == false)
+    if (_nodeShapeToCircle.IsIdentity() == false)
     {
-        hitBegin = _nodeShapeToCircle.map(hitBegin);
-        hitEnd = _nodeShapeToCircle.map(hitEnd);
+        hitBegin = _nodeShapeToCircle.Transform(hitBegin);
+        hitEnd = _nodeShapeToCircle.Transform(hitEnd);
     }
 
     bool isHit = false;
 
     // Hit-test the big node
     double bigRadius = _radius * bigNode.PressureFactor();
-    QPointF nearest = GetNearest(hitBegin, hitEnd);
-    if (LengthSquared(nearest) <= (bigRadius * bigRadius))
+    Vector nearest = GetNearest(hitBegin, hitEnd);
+    if (nearest.LengthSquared() <= (bigRadius * bigRadius))
     {
         isHit = true;
     }
     else if (quad.IsEmpty() == false)
     {
         // Hit-test the other node
-        QPointF spineVector = smallNode.Position() - bigNode.Position();
-        if (_nodeShapeToCircle.isIdentity() == false)
+        Vector spineVector = smallNode.Position() - bigNode.Position();
+        if (_nodeShapeToCircle.IsIdentity() == false)
         {
-            spineVector = _nodeShapeToCircle.map(spineVector);
+            spineVector = _nodeShapeToCircle.Transform(spineVector);
         }
         double smallRadius = _radius * smallNode.PressureFactor();
         nearest = GetNearest(hitBegin - spineVector, hitEnd - spineVector);
-        if ((LengthSquared(nearest) <= (smallRadius * smallRadius)) || HitTestQuadSegment(quad, hitBeginPoint, hitEndPoint))
+        if ((nearest.LengthSquared() <= (smallRadius * smallRadius)) || HitTestQuadSegment(quad, hitBeginPoint, hitEndPoint))
         {
             isHit = true;
         }
@@ -261,17 +261,17 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns>true if the contours intersect or overlap</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour)
 {
     StrokeNodeData bigNode, smallNode;
     double bigRadiusSquared, smallRadiusSquared = 0;
-    QPointF spineVector;
+    Vector spineVector;
     if (beginNode.IsEmpty() || (quad.IsEmpty() && (endNode.PressureFactor() > beginNode.PressureFactor())))
     {
         // Need to test one node only
         bigNode = endNode;
         smallNode = StrokeNodeData::Empty();
-        spineVector = QPointF();
+        spineVector = Vector();
     }
     else
     {
@@ -285,9 +285,9 @@ bool EllipticalNodeOperations::HitTest(
         // Find position of smallNode relative to the bigNode.
         spineVector = smallNode.Position() - bigNode.Position();
         // If the node shape is an ellipse, transform the scene to turn the shape to a circle
-        if (_nodeShapeToCircle.isIdentity() == false)
+        if (_nodeShapeToCircle.IsIdentity() == false)
         {
-            spineVector = _nodeShapeToCircle.map(spineVector);
+            spineVector = _nodeShapeToCircle.Transform(spineVector);
         }
     }
 
@@ -316,17 +316,17 @@ bool EllipticalNodeOperations::HitTest(
         else
         {
             // Find position of the hitting segment relative to bigNode transformed to circle.
-            QPointF hitBegin = hitSegment.Begin() - bigNode.Position();
-            QPointF hitEnd = hitBegin + hitSegment.Vector();
-            if (_nodeShapeToCircle.isIdentity() == false)
+            Vector hitBegin = hitSegment.Begin() - bigNode.Position();
+            Vector hitEnd = hitBegin + hitSegment.GetVector();
+            if (_nodeShapeToCircle.IsIdentity() == false)
             {
-                hitBegin = _nodeShapeToCircle.map(hitBegin);
-                hitEnd = _nodeShapeToCircle.map(hitEnd);
+                hitBegin = _nodeShapeToCircle.Transform(hitBegin);
+                hitEnd = _nodeShapeToCircle.Transform(hitEnd);
             }
 
             // Hit-test the big node
-            QPointF nearest = GetNearest(hitBegin, hitEnd);
-            if (LengthSquared(nearest) <= bigRadiusSquared)
+            Vector nearest = GetNearest(hitBegin, hitEnd);
+            if (nearest.LengthSquared() <= bigRadiusSquared)
             {
                 isHit = true;
                 break;
@@ -336,7 +336,7 @@ bool EllipticalNodeOperations::HitTest(
             if (quad.IsEmpty() == false)
             {
                 nearest = GetNearest(hitBegin - spineVector, hitEnd - spineVector);
-                if ((LengthSquared(nearest) <= smallRadiusSquared) ||
+                if ((nearest.LengthSquared() <= smallRadiusSquared) ||
                     HitTestQuadSegment(quad, hitSegment.Begin(), hitSegment.End()))
                 {
                     isHit = true;
@@ -347,7 +347,7 @@ bool EllipticalNodeOperations::HitTest(
             // While there's still a chance to find the both nodes inside the hitting contour,
             // continue checking on position of the endNode relative to the edges of the hitting contour.
             if (isInside &&
-                (WhereIsVectorAboutVector(endNode.Position() - hitSegment.Begin(), hitSegment.Vector()) != HitResult::Right))
+                (WhereIsVectorAboutVector(endNode.Position() - hitSegment.Begin(), hitSegment.GetVector()) != HitResult::Right))
             {
                 isInside = false;
             }
@@ -367,27 +367,27 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
 {
     // Compute the positions of the involved points relative to the endNode.
-    QPointF spineVector = beginNode.IsEmpty() ? QPointF(0, 0) : (beginNode.Position() - endNode.Position());
-    QPointF hitBegin = hitBeginPoint - endNode.Position();
-    QPointF hitEnd = hitEndPoint - endNode.Position();
+    Vector spineVector = beginNode.IsEmpty() ? Vector(0, 0) : (beginNode.Position() - endNode.Position());
+    Vector hitBegin = hitBeginPoint - endNode.Position();
+    Vector hitEnd = hitEndPoint - endNode.Position();
 
     // If the node shape is an ellipse, transform the scene to turn the shape to a circle
-    if (_nodeShapeToCircle.isIdentity() == false)
+    if (_nodeShapeToCircle.IsIdentity() == false)
     {
-        spineVector = _nodeShapeToCircle.map(spineVector);
-        hitBegin = _nodeShapeToCircle.map(hitBegin);
-        hitEnd = _nodeShapeToCircle.map(hitEnd);
+        spineVector = _nodeShapeToCircle.Transform(spineVector);
+        hitBegin = _nodeShapeToCircle.Transform(hitBegin);
+        hitEnd = _nodeShapeToCircle.Transform(hitEnd);
     }
 
     StrokeFIndices result = StrokeFIndices::Empty();
 
     // Hit-test the end node
     double beginRadius = 0, endRadius = _radius * endNode.PressureFactor();
-    QPointF nearest = GetNearest(hitBegin, hitEnd);
-    if (LengthSquared(nearest) <= (endRadius * endRadius))
+    Vector nearest = GetNearest(hitBegin, hitEnd);
+    if (nearest.LengthSquared() <= (endRadius * endRadius))
     {
         result.SetEndFIndex(StrokeFIndices::AfterLast);
         result.SetBeginFIndex(beginNode.IsEmpty() ? StrokeFIndices::BeforeFirst : 1);
@@ -397,7 +397,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
         // Hit-test the first node
         beginRadius = _radius * beginNode.PressureFactor();
         nearest = GetNearest(hitBegin - spineVector, hitEnd - spineVector);
-        if (LengthSquared(nearest) <= (beginRadius * beginRadius))
+        if (nearest.LengthSquared() <= (beginRadius * beginRadius))
         {
             result.SetBeginFIndex(StrokeFIndices::BeforeFirst);
             if (!DoubleUtil::AreClose(result.EndFIndex(), StrokeFIndices::AfterLast))
@@ -445,14 +445,14 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
 /// <param name="hitContour">The hitting ContourSegments</param>
 /// <returns>StrokeFIndices representing the location for cutting</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour)
 {
     // Compute the positions of the beginNode relative to the endNode.
-    QPointF spineVector = beginNode.IsEmpty() ? QPointF(0, 0) : (beginNode.Position() - endNode.Position());
+    Vector spineVector = beginNode.IsEmpty() ? Vector(0, 0) : (beginNode.Position() - endNode.Position());
     // If the node shape is an ellipse, transform the scene to turn the shape to a circle
-    if (_nodeShapeToCircle.isIdentity() == false)
+    if (_nodeShapeToCircle.IsIdentity() == false)
     {
-        spineVector = _nodeShapeToCircle.map(spineVector);
+        spineVector = _nodeShapeToCircle.Transform(spineVector);
     }
 
     double beginRadius = 0, endRadius;
@@ -478,22 +478,22 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
         }
         else
         {
-            QPointF hitBegin = hitSegment.Begin() - endNode.Position();
-            QPointF hitEnd = hitBegin + hitSegment.Vector();
+            Vector hitBegin = hitSegment.Begin() - endNode.Position();
+            Vector hitEnd = hitBegin + hitSegment.GetVector();
 
             // If the node shape is an ellipse, transform the scene to turn
             // the shape into circle.
-            if (_nodeShapeToCircle.isIdentity() == false)
+            if (_nodeShapeToCircle.IsIdentity() == false)
             {
-                hitBegin = _nodeShapeToCircle.map(hitBegin);
-                hitEnd = _nodeShapeToCircle.map(hitEnd);
+                hitBegin = _nodeShapeToCircle.Transform(hitBegin);
+                hitEnd = _nodeShapeToCircle.Transform(hitEnd);
             }
 
             bool isHit = false;
 
             // Hit-test the end node
-            QPointF nearest = GetNearest(hitBegin, hitEnd);
-            if (LengthSquared(nearest) < endRadiusSquared)
+            Vector nearest = GetNearest(hitBegin, hitEnd);
+            if (nearest.LengthSquared() < endRadiusSquared)
             {
                 isHit = true;
                 if (!DoubleUtil::AreClose(result.EndFIndex(), StrokeFIndices::AfterLast))
@@ -515,7 +515,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
             {
                 // Hit-test the first node
                 nearest = GetNearest(hitBegin - spineVector, hitEnd - spineVector);
-                if (LengthSquared(nearest) < beginRadiusSquared)
+                if (nearest.LengthSquared() < beginRadiusSquared)
                 {
                     isHit = true;
                     if (!DoubleUtil::AreClose(result.BeginFIndex(), StrokeFIndices::BeforeFirst))
@@ -534,7 +534,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
                 (HitTestQuadSegment(quad, hitSegment.Begin(), hitSegment.End()) == false))))
             {
                 if (isInside && (WhereIsVectorAboutVector(
-                    endNode.Position() - hitSegment.Begin(), hitSegment.Vector()) != HitResult::Right))
+                    endNode.Position() - hitSegment.Begin(), hitSegment.GetVector()) != HitResult::Right))
                 {
                     isInside = false;
                 }
@@ -592,27 +592,27 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
 /// <param name="hitBegin">Hitting segment start point</param>
 /// <param name="hitEnd">Hitting segment end point</param>
 /// <returns>A double which represents the location for cutting</returns>
-double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beginRadius, double endRadius, QPointF const &hitBegin, QPointF const &hitEnd)
+double EllipticalNodeOperations::ClipTest(Vector const &spineVector, double beginRadius, double endRadius, Vector const &hitBegin, Vector const &hitEnd)
 {
     // First handle the special case when the spineVector is (0,0). In other words, this is the case
     // when the stylus stays at the the location but pressure changes.
-    if (DoubleUtil::IsZero(spineVector.x()) && DoubleUtil::IsZero(spineVector.y()))
+    if (DoubleUtil::IsZero(spineVector.X()) && DoubleUtil::IsZero(spineVector.Y()))
     {
         Debug::Assert(DoubleUtil::AreClose(beginRadius, endRadius) == false);
 
-        QPointF nearest = GetNearest(hitBegin, hitEnd);
+        Vector nearest = GetNearest(hitBegin, hitEnd);
         double radius;
-        if (nearest.x() == 0)
+        if (nearest.X() == 0)
         {
-            radius = qAbs(nearest.y());
+            radius = Math::Abs(nearest.Y());
         }
-        else if (nearest.y() == 0)
+        else if (nearest.Y() == 0)
         {
-            radius = qAbs(nearest.x());
+            radius = Math::Abs(nearest.X());
         }
         else
         {
-            radius = Length(nearest);
+            radius = nearest.Length();
         }
         return AdjustFIndex((radius - beginRadius) / (endRadius - beginRadius));
     }
@@ -624,43 +624,43 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
     }
 
     double findex;
-    QPointF hitVector = hitEnd - hitBegin;
+    Vector hitVector = hitEnd - hitBegin;
 
-    if (DoubleUtil::IsZero(Determinant(spineVector, hitVector)))
+    if (DoubleUtil::IsZero(Vector::Determinant(spineVector, hitVector)))
     {
         // hitQPointF const &and spineQPointF const &are parallel
         findex = ClipTest(spineVector, beginRadius, endRadius, GetNearest(hitBegin, hitEnd));
-        Debug::Assert(!qIsNaN(findex));
+        Debug::Assert(!Double::IsNaN(findex));
     }
     else
     {
         // On the line defined by the segment find point P1Xp, the nearest to the beginNode.Position()
         double x = GetProjectionFIndex(hitBegin, hitEnd);
-        QPointF const &P1Xp = hitBegin + (hitVector * x);
-        if (LengthSquared(P1Xp) < (beginRadius * beginRadius))
+        Vector P1Xp = hitBegin + (hitVector * x);
+        if (P1Xp.LengthSquared() < (beginRadius * beginRadius))
         {
             Debug::Assert(DoubleUtil::IsBetweenZeroAndOne(x) == false);
             findex = ClipTest(spineVector, beginRadius, endRadius, (0 > x) ? hitBegin : hitEnd);
-            Debug::Assert(!qIsNaN(findex));
+            Debug::Assert(!Double::IsNaN(findex));
         }
         else
         {
             // Find the projection point P of endNode.Position() to the line (beginNode.Position(), B).
-            QPointF P1P2p = spineVector + GetProjection(-spineVector, P1Xp - spineVector);
+            Vector P1P2p = spineVector + GetProjection(-spineVector, P1Xp - spineVector);
 
             //Debug::Assert(false == DoubleUtil::IsZero(P1P2p.LengthSquared));
             //Debug::Assert(false == DoubleUtil::IsZero(endRadius - beginRadius + P1P2p.Length));
             // There checks are here since if either fail no real solution can be caculated and we may
             // as well bail out now and save the caculations that are below.
-            if (DoubleUtil::IsZero(LengthSquared(P1P2p)) || DoubleUtil::IsZero(endRadius - beginRadius + Length(P1P2p)))
+            if (DoubleUtil::IsZero(P1P2p.LengthSquared()) || DoubleUtil::IsZero(endRadius - beginRadius + P1P2p.Length()))
                 return 1;
 
             // Calculate the findex of the point to split the ink segment at.
-            findex = (Length(P1Xp) - beginRadius) / (endRadius - beginRadius + Length(P1P2p));
-            Debug::Assert(!qIsNaN(findex));
+            findex = (P1Xp.Length() - beginRadius) / (endRadius - beginRadius + P1P2p.Length());
+            Debug::Assert(!Double::IsNaN(findex));
 
             // Find the projection of the split point to the line of this segment.
-            QPointF S = spineVector * findex;
+            Vector S = spineVector * findex;
 
             double r = GetProjectionFIndex(hitBegin - S, hitEnd - S);
 
@@ -669,7 +669,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
             if (false == DoubleUtil::IsBetweenZeroAndOne(r))
             {
                 findex = ClipTest(spineVector, beginRadius, endRadius, (0 > r) ? hitBegin : hitEnd);
-                Debug::Assert(!qIsNaN(findex));
+                Debug::Assert(!Double::IsNaN(findex));
             }
         }
     }
@@ -695,12 +695,12 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spineVector, double beg
 /// <param name="endRadius">Radius of the endNode</param>
 /// <param name="hit">The hitting point</param>
 /// <returns>A double which represents the location for cutting</returns>
-double EllipticalNodeOperations::ClipTest(QPointF const &spine, double beginRadius, double endRadius, QPointF const &hit)
+double EllipticalNodeOperations::ClipTest(Vector const &spine, double beginRadius, double endRadius, Vector const &hit)
 {
     double radDiff = endRadius - beginRadius;
-    double A = spine.x()*spine.x() + spine.y()*spine.y() - radDiff*radDiff;
-    double B = -2.0f*(hit.x()*spine.x() + hit.y() * spine.y() + beginRadius*radDiff);
-    double C = hit.x() * hit.x() + hit.y() * hit.y() - beginRadius * beginRadius;
+    double A = spine.X()*spine.X() + spine.Y()*spine.Y() - radDiff*radDiff;
+    double B = -2.0f*(hit.X()*spine.X() + hit.Y() * spine.Y() + beginRadius*radDiff);
+    double C = hit.X() * hit.X() + hit.Y() * hit.Y() - beginRadius * beginRadius;
 
     // There checks are here since if either fail no real solution can be caculated and we may
     // as well bail out now and save the caculations that are below.
@@ -714,7 +714,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spine, double beginRadi
 
     if (DoubleUtil::IsBetweenZeroAndOne(s1) && DoubleUtil::IsBetweenZeroAndOne(s2))
     {
-        findex = qMin(s1, s2);
+        findex = Math::Min(s1, s2);
     }
     else if (DoubleUtil::IsBetweenZeroAndOne(s1))
     {
@@ -741,7 +741,7 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spine, double beginRadi
         }
         else
         {
-            findex = qAbs(qMin(s1, s2) - 0) < qAbs(qMax(s1, s2) - 1) ? 0 : 1;
+            findex = Math::Abs(Math::Min(s1, s2) - 0) < Math::Abs(Math::Max(s1, s2) - 1) ? 0 : 1;
         }
     }
     return AdjustFIndex(findex);
@@ -755,13 +755,13 @@ double EllipticalNodeOperations::ClipTest(QPointF const &spine, double beginRadi
 /// <param name="segBegin">Start position of the line segment</param>
 /// <param name="segEnd">End position of the line segment</param>
 /// <returns>HitResult</returns>
-EllipticalNodeOperations::HitResult EllipticalNodeOperations::WhereIsNodeAboutSegment(QPointF const &spine, QPointF const &segBegin, QPointF const &segEnd)
+EllipticalNodeOperations::HitResult EllipticalNodeOperations::WhereIsNodeAboutSegment(Vector const &spine, Vector const &segBegin, Vector const &segEnd)
 {
     HitResult whereabout = HitResult::Right;
-    QPointF const &segVector = segEnd - segBegin;
+    Vector segVector = segEnd - segBegin;
 
     if ((WhereIsVectorAboutVector(-segBegin, segVector) == HitResult::Left)
-        && !DoubleUtil::IsZero(Determinant(spine, segVector)))
+        && !DoubleUtil::IsZero(Vector::Determinant(spine, segVector)))
     {
         whereabout = HitResult::Left;
     }
@@ -778,7 +778,7 @@ EllipticalNodeOperations::HitResult EllipticalNodeOperations::WhereIsNodeAboutSe
 /// <param name="beginRadius">beginNode radius</param>
 /// <param name="result">StrokeFIndices representing the location for cutting</param>
 void EllipticalNodeOperations::CalculateCutLocations(
-    QPointF const &spineVector, QPointF &hitBegin, QPointF &hitEnd, double endRadius, double beginRadius, StrokeFIndices& result)
+    Vector const &spineVector, Vector &hitBegin, Vector &hitEnd, double endRadius, double beginRadius, StrokeFIndices& result)
 {
     // Find out whether the {hitBegin, hitEnd} segment intersects with the contour
     // of the stroke segment, and find the lower index of the fragment to cut out.

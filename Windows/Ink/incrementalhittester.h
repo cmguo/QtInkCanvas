@@ -7,9 +7,6 @@
 #include "events.h"
 #include "strokeintersection.h"
 
-#include <QPointF>
-#include <QList>
-
 INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointCollection;
@@ -24,9 +21,8 @@ class StylusShape;
 /// This class serves as both the base class and public interface for
 /// incremental hit-testing implementaions.
 /// </summary>
-class IncrementalHitTester : public QObject
+class IncrementalHitTester
 {
-    Q_OBJECT
 public:
     IncrementalHitTester();
 
@@ -36,19 +32,19 @@ public:
     /// Adds a point representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="point">a point that represents an incremental move of the hitting tool</param>
-    void AddPoint(QPointF const & point);
+    void AddPoint(Point const & point);
 
     /// <summary>
     /// Adds an array of points representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="points">points representing an incremental move of the hitting tool</param>
-    void AddPoints(QVector<QPointF> const & points);
+    void AddPoints(List<Point> const & points);
 
     /// <summary>
     /// Adds a StylusPacket representing an incremental move of the hit-testing tool
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
-    void AddPoints(QSharedPointer<StylusPointCollection> const & stylusPoints);
+    void AddPoints(SharedPointer<StylusPointCollection> const & stylusPoints);
 
 
     /// <summary>
@@ -66,21 +62,21 @@ public:
     /// C-tor.
     /// </summary>
     /// <param name="strokes">strokes to hit-test</param>
-    IncrementalHitTester(QSharedPointer<StrokeCollection> strokes);
+    IncrementalHitTester(SharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// The implementation behind AddPoint/AddPoints.
     /// Derived classes are supposed to override this method.
     /// </summary>
-    virtual void AddPointsCore(QVector<QPointF> const & points) = 0;
+    virtual void AddPointsCore(List<Point> const & points) = 0;
 
 
     /// <summary>
     /// Accessor to the internal collection of StrokeInfo objects
     /// </summary>
-    QList<StrokeInfo*> & StrokeInfos() { return _strokeInfos; }
+    List<StrokeInfo*> & StrokeInfos() { return _strokeInfos; }
 
-private slots:
+private:
     /// <summary>
     /// Event handler associated with the stroke collection.
     /// </summary>
@@ -103,9 +99,9 @@ private:
 
     /// <summary> Reference to the stroke collection under test </summary>
 protected:
-    QSharedPointer<StrokeCollection> _strokes;
+    SharedPointer<StrokeCollection> _strokes;
     /// <summary> A collection of helper objects mapped to the stroke colection</summary>
-    QList<StrokeInfo*> _strokeInfos;
+    List<StrokeInfo*> _strokeInfos;
 
     bool _fValid = true;
 
@@ -119,11 +115,13 @@ class Lasso;
 /// </summary>
 class IncrementalLassoHitTester : public IncrementalHitTester
 {
+#ifdef INKCANVAS_QT
     Q_OBJECT
     /// Event
     /// </summary>
 signals:
     void SelectionChanged(LassoSelectionChangedEventArgs& e);
+#endif
 
 public:
     /// <summary>
@@ -132,7 +130,7 @@ public:
     /// <param name="strokes">strokes to hit-test</param>
     /// <param name="percentageWithinLasso">a hit-testing parameter that defines the minimal
     /// percent of nodes of a stroke to be inside the lasso to consider the stroke hit</param>
-    IncrementalLassoHitTester(QSharedPointer<StrokeCollection> strokes, int percentageWithinLasso);
+    IncrementalLassoHitTester(SharedPointer<StrokeCollection> strokes, int percentageWithinLasso);
 
     virtual ~IncrementalLassoHitTester();
 
@@ -140,7 +138,7 @@ public:
     /// The implementation behind the public methods AddPoint/AddPoints
     /// </summary>
     /// <param name="points">new points to add to the lasso</param>
-    virtual void AddPointsCore(QVector<QPointF> const & points);
+    virtual void AddPointsCore(List<Point> const & points);
 
     /// <summary>
     /// SelectionChanged event raiser
@@ -161,12 +159,14 @@ class StrokeHitEventArgs;
 /// </summary>
 class IncrementalStrokeHitTester : public IncrementalHitTester
 {
+#ifdef INKCANVAS_QT
     Q_OBJECT
     /// <summary>
     ///
     /// </summary>
 signals:
     void StrokeHit(StrokeHitEventArgs& e);
+#endif
 
 public:
     /// <summary>
@@ -174,14 +174,14 @@ public:
     /// </summary>
     /// <param name="strokes">strokes to hit-test for erasing</param>
     /// <param name="eraserShape">erasing shape</param>
-    IncrementalStrokeHitTester(QSharedPointer<StrokeCollection>strokes, StylusShape& eraserShape);
+    IncrementalStrokeHitTester(SharedPointer<StrokeCollection>strokes, StylusShape& eraserShape);
 
     /// <summary>
     /// The implementation behind the public methods AddPoint/AddPoints
     /// </summary>
     /// <param name="points">a set of points representing the last increment
     /// in the moving of the erasing shape</param>
-    virtual void AddPointsCore(QVector<QPointF> const & points);
+    virtual void AddPointsCore(List<Point> const & points);
 
     /// <summary>
     /// Event raiser for StrokeHit
@@ -211,7 +211,7 @@ private:
 class LassoSelectionChangedEventArgs
 {
 public:
-    LassoSelectionChangedEventArgs(QSharedPointer<StrokeCollection> selectedStrokes, QSharedPointer<StrokeCollection> deselectedStrokes)
+    LassoSelectionChangedEventArgs(SharedPointer<StrokeCollection> selectedStrokes, SharedPointer<StrokeCollection> deselectedStrokes)
         : _selectedStrokes(selectedStrokes)
         , _deselectedStrokes(deselectedStrokes)
     {
@@ -222,40 +222,40 @@ public:
     /// <summary>
     /// Collection of strokes which were hit with the last increment
     /// </summary>
-    QSharedPointer<StrokeCollection> SelectedStrokes()
+    SharedPointer<StrokeCollection> SelectedStrokes()
     {
         if (_selectedStrokes != nullptr)
         {
-            QSharedPointer<StrokeCollection> sc(new StrokeCollection);
+            SharedPointer<StrokeCollection> sc(new StrokeCollection);
             sc->Add(_selectedStrokes);
             return sc;
         }
         else
         {
-            return  QSharedPointer<StrokeCollection>();
+            return  SharedPointer<StrokeCollection>();
         }
     }
 
     /// <summary>
     /// Collection of strokes which were unhit with the last increment
     /// </summary>
-    QSharedPointer<StrokeCollection> DeselectedStrokes()
+    SharedPointer<StrokeCollection> DeselectedStrokes()
     {
         if (_deselectedStrokes != nullptr)
         {
-            QSharedPointer<StrokeCollection> sc(new StrokeCollection);
+            SharedPointer<StrokeCollection> sc(new StrokeCollection);
             sc->Add(_deselectedStrokes);
             return sc;
         }
         else
         {
-            return QSharedPointer<StrokeCollection>();
+            return SharedPointer<StrokeCollection>();
         }
     }
 
 private:
-    QSharedPointer<StrokeCollection> _selectedStrokes;
-    QSharedPointer<StrokeCollection> _deselectedStrokes;
+    SharedPointer<StrokeCollection> _selectedStrokes;
+    SharedPointer<StrokeCollection> _deselectedStrokes;
 };
 
 /// <summary>
@@ -267,7 +267,7 @@ public:
     /// <summary>
     /// C-tor
     /// </summary>
-    StrokeHitEventArgs(QSharedPointer<Stroke> stroke, QVector<StrokeIntersection> const & hitFragments)
+    StrokeHitEventArgs(SharedPointer<Stroke> stroke, Array<StrokeIntersection> const & hitFragments)
         : _stroke(stroke)
         , _hitFragments(hitFragments)
     {
@@ -277,17 +277,17 @@ public:
     }
 
     /// <summary>Stroke that was hit</summary>
-    QSharedPointer<Stroke> HitStroke() { return _stroke; }
+    SharedPointer<Stroke> HitStroke() { return _stroke; }
 
     /// <summary>
     ///
     /// </summary>
     /// <returns></returns>
-    QSharedPointer<StrokeCollection> GetPointEraseResults();
+    SharedPointer<StrokeCollection> GetPointEraseResults();
 
 private:
-    QSharedPointer<Stroke>         _stroke;
-    QVector<StrokeIntersection>    _hitFragments;
+    SharedPointer<Stroke>         _stroke;
+    Array<StrokeIntersection>    _hitFragments;
 };
 
 class StylusPointsReplacedEventArgs;
@@ -298,30 +298,29 @@ class DrawingAttributesReplacedEventArgs;
 /// A helper class associated with a stroke. Used for caching the stroke's
 /// bounding box, hit-testing results, and for keeping an eye on the stroke changes
 /// </summary>
-class StrokeInfo : public QObject
+class StrokeInfo
 {
-    Q_OBJECT
 public:
     /// <summary>
     /// StrokeInfo
     /// </summary>
 #if STROKE_COLLECTION_MULTIPLE_LAYER
-    StrokeInfo(QSharedPointer<StrokeCollection> collection, QSharedPointer<Stroke> stroke);
+    StrokeInfo(SharedPointer<StrokeCollection> collection, SharedPointer<Stroke> stroke);
 #endif
 
-    StrokeInfo(QSharedPointer<Stroke> stroke);
+    StrokeInfo(SharedPointer<Stroke> stroke);
 
     ~StrokeInfo() { Detach(); }
 
 #if STROKE_COLLECTION_MULTIPLE_LAYER
-    QSharedPointer<StrokeCollection> GetCollection() { return _collection; }
+    SharedPointer<StrokeCollection> GetCollection() { return _collection; }
 #endif
 
     /// <summary>The stroke object associated with this helper structure</summary>
-    QSharedPointer<Stroke> GetStroke() { return _stroke; }
+    SharedPointer<Stroke> GetStroke() { return _stroke; }
 
     /// <summary>Pre-calculated bounds of the stroke </summary>
-    QRectF & StrokeBounds() { return _bounds; }
+    Rect & StrokeBounds() { return _bounds; }
 
     /// <summary>Tells whether the stroke or its drawing attributes have been modified
     /// since the last use (hit-testing)</summary>
@@ -347,7 +346,7 @@ public:
     /// <summary>
     /// Cache teh stroke points
     /// </summary>
-    QSharedPointer<StylusPointCollection> StylusPoints();
+    SharedPointer<StylusPointCollection> StylusPoints();
 
     /// <summary>
     /// Holds the current hit-testing result for the stroke. Represents the length of
@@ -375,7 +374,7 @@ public:
     /// </summary>
     void Detach();
 
-private slots:
+private:
     /// <summary>Event handler for stroke data changed events</summary>
     void OnStylusPointsChanged();
 
@@ -396,14 +395,14 @@ private slots:
 
 private:
 #if STROKE_COLLECTION_MULTIPLE_LAYER
-    QSharedPointer<StrokeCollection> _collection;
+    SharedPointer<StrokeCollection> _collection;
 #endif
-    QSharedPointer<Stroke>      _stroke;
-    QRectF                      _bounds;
+    SharedPointer<Stroke>      _stroke;
+    Rect                      _bounds;
     double                      _hitWeight = 0;
     bool                        _isHit = false;
     bool                        _isDirty = true;
-    QSharedPointer<StylusPointCollection>     _stylusPoints;   // Cache the stroke rendering points
+    SharedPointer<StylusPointCollection>     _stylusPoints;   // Cache the stroke rendering points
     double                      _totalWeight = 0;
     bool                        _totalWeightCached = false;
 };

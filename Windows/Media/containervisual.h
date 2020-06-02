@@ -2,7 +2,7 @@
 #define CONTAINERVISUAL_H
 
 #include "visual.h"
-#include "collection.h"
+#include "Collections/ObjectModel/collection.h"
 
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE

@@ -1,7 +1,8 @@
 #ifndef ELLIPTICALNODEOPERATIONS_H
 #define ELLIPTICALNODEOPERATIONS_H
 
-#include "strokenodeoperations.h"
+#include "Internal/Ink/strokenodeoperations.h"
+#include "Collections/Generic/list.h"
 
 // namespace MS.Internal.Ink
 
@@ -39,7 +40,7 @@ public:
     /// <param name="node"></param>
     /// <param name="quad"></param>
     /// <returns></returns>
-    virtual QList<ContourSegment> GetContourSegments(StrokeNodeData const &node, Quad& quad) override;
+    virtual List<ContourSegment> GetContourSegments(StrokeNodeData const &node, Quad& quad) override;
 
     /// <summary>
     /// ISSUE-2004/06/15- temporary workaround to avoid hit-testing ellipses with ellipses
@@ -47,7 +48,7 @@ public:
     /// <param name="beginNode"></param>
     /// <param name="endNode"></param>
     /// <returns></returns>
-    virtual QList<ContourSegment> GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode) override;
+    virtual List<ContourSegment> GetNonBezierContourSegments(StrokeNodeData const & beginNode, StrokeNodeData const & endNode) override;
 
 
     /// <summary>
@@ -61,7 +62,7 @@ public:
     /// <param name="hitEndPoint">an end point of the hitting linear segment</param>
     /// <returns>true if the hitting segment intersect the contour comprised of the two stroke nodes</returns>
     virtual bool HitTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint) override;
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const& hitBeginPoint, Point const& hitEndPoint) override;
 
     /// <summary>
     /// Hit-tests a stroke segment defined by two nodes against another stroke segment.
@@ -73,7 +74,7 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns>true if the contours intersect or overlap</returns>
     virtual bool HitTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, QList<ContourSegment> const & hitContour) override;
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, List<ContourSegment> const & hitContour) override;
 
     /// <summary>
     /// Cut-test ink segment defined by two nodes and a connecting Quad & against a linear segment
@@ -85,7 +86,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, QPointF const& hitBeginPoint, QPointF const& hitEndPoint) override;
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad & quad, Point const& hitBeginPoint, Point const& hitEndPoint) override;
 
     /// <summary>
     /// CutTest an inking StrokeNode segment (two nodes and a connecting quadrangle) against a hitting contour
@@ -97,7 +98,7 @@ public:
     /// <param name="hitContour">The hitting ContourSegments</param>
     /// <returns>StrokeFIndices representing the location for cutting</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, QList<ContourSegment> const & hitContour) override;
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour) override;
 
     /// <summary>
     /// Clip-Testing a circluar inking segment against a linear segment.
@@ -110,7 +111,7 @@ public:
     /// <param name="hitBegin">Hitting segment start point</param>
     /// <param name="hitEnd">Hitting segment end point</param>
     /// <returns>A double which represents the location for cutting</returns>
-    static double ClipTest(QPointF const &spineVector, double beginRadius, double endRadius, QPointF const &hitBegin, QPointF const &hitEnd);
+    static double ClipTest(Vector const &spineVector, double beginRadius, double endRadius, Vector const &hitBegin, Vector const &hitEnd);
 
     /// <summary>
     /// Clip-Testing a circular inking segment again a hitting point.
@@ -131,36 +132,36 @@ public:
     /// <param name="endRadius">Radius of the endNode</param>
     /// <param name="hit">The hitting point</param>
     /// <returns>A double which represents the location for cutting</returns>
-    static double ClipTest(QPointF const &spine, double beginRadius, double endRadius, QPointF const &hit);
+    static double ClipTest(Vector const &spine, double beginRadius, double endRadius, Vector const &hit);
 
     /// <summary>
     /// Helper function to find out the relative location of a segment {segBegin, segEnd} against
     /// a strokeNode (spine).
     /// </summary>
-    /// <param name="spine">the spineQPointF const &of the StrokeNode</param>
+    /// <param name="spine">the spinePoint const &of the StrokeNode</param>
     /// <param name="segBegin">Start position of the line segment</param>
     /// <param name="segEnd">End position of the line segment</param>
     /// <returns>HitResult</returns>
-    static HitResult WhereIsNodeAboutSegment(QPointF const &spine, QPointF const &segBegin, QPointF const &segEnd);
+    static HitResult WhereIsNodeAboutSegment(Vector const &spine, Vector const &segBegin, Vector const &segEnd);
 
     /// <summary>
     /// Helper method to calculate the exact location to cut
     /// </summary>
-    /// <param name="spineVector">QPointF the relative location of the two inking nodes</param>
+    /// <param name="spineVector">Point the relative location of the two inking nodes</param>
     /// <param name="hitBegin">the begin point of the hitting segment</param>
     /// <param name="hitEnd">the end point of the hitting segment</param>
     /// <param name="endRadius">endNode radius</param>
     /// <param name="beginRadius">beginNode radius</param>
     /// <param name="result">StrokeFIndices representing the location for cutting</param>
     void CalculateCutLocations(
-        QPointF const &spineVector, QPointF &hitBegin, QPointF &hitEnd, double endRadius, double beginRadius, StrokeFIndices& result);
+        Vector const &spineVector, Vector &hitBegin, Vector &hitEnd, double endRadius, double beginRadius, StrokeFIndices& result);
 
 private:
     double _radius = 0;
-    QSizeF   _radii;
-    QMatrix _transform;
-    QMatrix _nodeShapeToCircle;
-    QMatrix _circleToNodeShape;
+    Size   _radii;
+    Matrix _transform;
+    Matrix _nodeShapeToCircle;
+    Matrix _circleToNodeShape;
 };
 
 INKCANVAS_END_NAMESPACE

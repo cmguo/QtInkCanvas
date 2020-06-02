@@ -1,13 +1,11 @@
 #ifndef STROKENODE_H
 #define STROKENODE_H
 
-#include "quad.h"
-#include "strokenodedata.h"
-#include "strokenodeoperations.h"
-
-#include <QList>
-#include <QPointF>
-#include <QRectF>
+#include "Internal/Ink/quad.h"
+#include "Internal/Ink/strokenodedata.h"
+#include "Internal/Ink/strokenodeoperations.h"
+#include "Collections/Generic/list.h"
+#include "Windows/rect.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -47,13 +45,13 @@ public:
     /// Position of the node on the stroke spine.
     /// </summary>
     /// <value></value>
-    QPointF const & Position() { return _thisNode.Position(); }
+    Point const & Position() { return _thisNode.Position(); }
 
     /// <summary>
     /// Position of the previous StrokeNode
     /// </summary>
     /// <value></value>
-    QPointF const & PreviousPosition() { return _lastNode.Position(); }
+    Point const & PreviousPosition() { return _lastNode.Position(); }
 
     /// <summary>
     /// PressureFactor of the node on the stroke spine.
@@ -84,24 +82,24 @@ public:
     /// Returns the bounds of the node shape w/o connecting quadrangle
     /// </summary>
     /// <returns></returns>
-    QRectF GetBounds()
+    Rect GetBounds()
     {
-        return IsValid() ? _operations->GetNodeBounds(_thisNode) : QRectF();
+        return IsValid() ? _operations->GetNodeBounds(_thisNode) : Rect();
     }
 
     /// <summary>
     /// Returns the bounds of the node shape and connecting quadrangle
     /// </summary>
     /// <returns></returns>
-    QRectF GetBoundsConnected()
+    Rect GetBoundsConnected()
     {
-        return IsValid() ? _operations->GetNodeBounds(_thisNode).united(ConnectingQuad().Bounds()) : QRectF();
+        return IsValid() ? Rect::Union(_operations->GetNodeBounds(_thisNode), ConnectingQuad().Bounds()) : Rect();
     }
 
     /// <summary>
     /// Returns the points that make up the stroke node shape (minus the connecting quad)
     /// </summary>
-    void GetContourPoints(QList<QPointF> & pointBuffer)
+    void GetContourPoints(List<Point> & pointBuffer)
     {
         if (IsValid())
         {
@@ -112,7 +110,7 @@ public:
     /// <summary>
     /// Returns the points that make up the stroke node shape (minus the connecting quad)
     /// </summary>
-    void GetPreviousContourPoints(QList<QPointF> & pointBuffer)
+    void GetPreviousContourPoints(List<Point> & pointBuffer)
     {
         if (IsValid())
         {
@@ -139,7 +137,7 @@ public:
     //{
     //    if (isEllipse)
     //    {
-    //        //determine what delta is required to move the QRectF to be
+    //        //determine what delta is required to move the Rect to be
     //        //centered at 0,0
     //        double xDelta = center.x() + xRadiusOrHalfWidth;
     //        double yDelta = center.y() + yRadiusOrHalfHeight;
@@ -176,8 +174,8 @@ public:
     /// <summary>
     /// GetPointsAtStartOfSegment
     /// </summary>
-    void GetPointsAtStartOfSegment(QList<QPointF> & abPoints,
-                                            QList<QPointF> & dcPoints
+    void GetPointsAtStartOfSegment(List<Point> & abPoints,
+                                            List<Point> & dcPoints
 #if DEBUG_RENDERING_FEEDBACK
                                             , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
@@ -187,8 +185,8 @@ public:
     /// <summary>
     /// GetPointsAtEndOfSegment
     /// </summary>
-    void GetPointsAtEndOfSegment(  QList<QPointF> &abPoints,
-                                            QList<QPointF>& dcPoints
+    void GetPointsAtEndOfSegment(  List<Point> &abPoints,
+                                            List<Point>& dcPoints
 #if DEBUG_RENDERING_FEEDBACK
                                             , DrawingContext& debugDC, double feedbackSize, bool showFeedback
 #endif
@@ -199,8 +197,8 @@ public:
     /// </summary>
     void GetPointsAtMiddleSegment( StrokeNode & previous,
                                             double angleBetweenNodes,
-                                            QList<QPointF> & abPoints,
-                                            QList<QPointF> & dcPoints,
+                                            List<Point> & abPoints,
+                                            List<Point> & dcPoints,
                                             bool & missingIntersection
 #if DEBUG_RENDERING_FEEDBACK
                                             , DrawingContext& debugDC, double feedbackSize, bool showFeedback
@@ -212,7 +210,7 @@ public:
     /// and should only be called if that assumption is valid
     /// </summary>
     /// <returns></returns>
-    static QPointF GetIntersection(QPointF line1Start, QPointF line1End, QPointF line2Start, QPointF line2End);
+    static Point GetIntersection(Point line1Start, Point line1End, Point line2Start, Point line2End);
 
     /// <summary>
     /// This method tells whether the contour of a given stroke node
@@ -238,7 +236,7 @@ public:
     /// <param name="begin"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    StrokeFIndices CutTest(QPointF begin, QPointF end);
+    StrokeFIndices CutTest(Point begin, Point end);
 
     /// <summary>
     /// Binds a local fragment to this node by setting the integer part of the
@@ -279,14 +277,14 @@ public:
     /// and connecting quadrangle (_lastNode is excluded)
     /// Used for hit-testing a stroke against an other stroke (stroke and point erasing)
     /// </summary>
-    QList<ContourSegment> GetContourSegments();
+    List<ContourSegment> GetContourSegments();
 
     /// <summary>
     /// Returns the spine point that corresponds to the given findex.
     /// </summary>
     /// <param name="findex">A local findex between the previous index and this one (ex: between 2.0 and 3.0)</param>
     /// <returns>Point on the spine</returns>
-    QPointF GetPointAt(double findex);
+    Point GetPointAt(double findex);
 
     // Internal objects created for particular rendering
 private:

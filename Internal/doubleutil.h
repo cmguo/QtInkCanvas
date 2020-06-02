@@ -3,12 +3,9 @@
 
 #include "InkCanvas_global.h"
 
-#include <QSizeF>
-#include <QPointF>
-#include <QRectF>
-#include <QList>
-
-#include <cmath>
+#include "Windows/size.h"
+#include "Windows/rect.h"
+#include "cmath.h"
 
 #undef DBL_EPSILON
 
@@ -44,7 +41,7 @@ public:
         //in case they are Infinities (then epsilon check does not work)
         if(value1 == value2) return true;
         // This computes (|value1-value2| / (|value1| + |value2| + 10.0)) < DBL_EPSILON
-        double eps = (qAbs(value1) + qAbs(value2) + 10.0) * DBL_EPSILON;
+        double eps = (Math::Abs(value1) + Math::Abs(value2) + 10.0) * DBL_EPSILON;
         double delta = value1 - value2;
         return(-eps < delta) && (eps > delta);
     }
@@ -144,7 +141,7 @@ public:
     /// <param name="value"> The double to compare to 1. </param>
     static bool IsOne(double value)
     {
-        return qAbs(value-1.0) < 10.0 * DBL_EPSILON;
+        return Math::Abs(value-1.0) < 10.0 * DBL_EPSILON;
     }
 
     /// <summary>
@@ -157,10 +154,10 @@ public:
     /// <param name="value"> The double to compare to 0. </param>
     static bool IsZero(double value)
     {
-        return qAbs(value) < 10.0 * DBL_EPSILON;
+        return Math::Abs(value) < 10.0 * DBL_EPSILON;
     }
 
-    // The Point, Size, QRectF const &and Matrix class have moved to WinCorLib.  However, we provide
+    // The Point, Size, Rect const &and Matrix class have moved to WinCorLib.  However, we provide
     // internal AreClose methods for our own use here.
 
     /// <summary>
@@ -168,27 +165,27 @@ public:
     /// helps compensate for the fact that double values can
     /// acquire error when operated upon
     /// </summary>
-    /// <param name='point1'>The first QPointF const &to compare</param>
-    /// <param name='point2'>The second QPointF const &to compare</param>
+    /// <param name='point1'>The first Point const &to compare</param>
+    /// <param name='point2'>The second Point const &to compare</param>
     /// <returns>Whether or not the two points are equal</returns>
-    static bool AreClose(QPointF const &point1, QPointF const &point2)
+    static bool AreClose(Point const &point1, Point const &point2)
     {
-        return AreClose(point1.x(), point2.x()) &&
-        AreClose(point1.y(), point2.y());
+        return AreClose(point1.X(), point2.X()) &&
+        AreClose(point1.Y(), point2.Y());
     }
 
     /// <summary>
-    /// Compares two QSizeF const &instances for fuzzy equality.  This function
+    /// Compares two Size const &instances for fuzzy equality.  This function
     /// helps compensate for the fact that double values can
     /// acquire error when operated upon
     /// </summary>
-    /// <param name='size1'>The first QSizeF const &to compare</param>
-    /// <param name='size2'>The second QSizeF const &to compare</param>
-    /// <returns>Whether or not the two QSizeF const &instances are equal</returns>
-    static bool AreClose(QSizeF const &size1, QSizeF const &size2)
+    /// <param name='size1'>The first Size const &to compare</param>
+    /// <param name='size2'>The second Size const &to compare</param>
+    /// <returns>Whether or not the two Size const &instances are equal</returns>
+    static bool AreClose(Size const &size1, Size const &size2)
     {
-        return AreClose(size1.width(), size2.width()) &&
-               AreClose(size1.height(), size2.height());
+        return AreClose(size1.Width(), size2.Width()) &&
+               AreClose(size1.Height(), size2.Height());
     }
 
     /// <summary>
@@ -199,22 +196,22 @@ public:
     /// <param name='rect1'>The first rectangle to compare</param>
     /// <param name='rect2'>The second rectangle to compare</param>
     /// <returns>Whether or not the two rectangles are equal</returns>
-    static bool AreClose(QRectF const &rect1, QRectF const &rect2)
+    static bool AreClose(Rect const &rect1, Rect const &rect2)
     {
         // If they're both empty, don't bother with the double logic.
-        if (rect1.isEmpty())
+        if (rect1.IsEmpty())
         {
-            return rect2.isEmpty();
+            return rect2.IsEmpty();
         }
 
         // At this point, rect1 isn't empty, so the first thing we can test is
         // rect2.isEmpty(), followed by property-wise compares.
 
-        return (!rect2.isEmpty()) &&
-            AreClose(rect1.x(), rect2.x()) &&
-            AreClose(rect1.y(), rect2.y()) &&
-            AreClose(rect1.height(), rect2.height()) &&
-            AreClose(rect1.width(), rect2.width());
+        return (!rect2.IsEmpty()) &&
+            AreClose(rect1.X(), rect2.X()) &&
+            AreClose(rect1.Y(), rect2.Y()) &&
+            AreClose(rect1.Height(), rect2.Height()) &&
+            AreClose(rect1.Width(), rect2.Width());
     }
 
     /// <summary>
@@ -234,27 +231,32 @@ public:
     /// <returns></returns>
     static int DoubleToInt(double val)
     {
-        return qRound(val);
+        return (0 < val) ? (int)(val + 0.5) : (int)(val - 0.5);
     }
 
 
     /// <summary>
-    /// rectHasNaN - this returns true if this QRectF const &has X, Y , Height or Width as NaN.
+    /// rectHasNaN - this returns true if this Rect const &has X, Y , Height or Width as NaN.
     /// </summary>
     /// <param name='r'>The rectangle to test</param>
-    /// <returns>returns whether the QRectF const &has NaN</returns>
-    static bool RectHasNaN(QRectF const &r)
+    /// <returns>returns whether the Rect const &has NaN</returns>
+    static bool RectHasNaN(Rect const &r)
     {
-        if (    IsNaN(r.x())
-             || IsNaN(r.y())
-             || IsNaN(r.height())
-             || IsNaN(r.width()) )
+        if (    IsNaN(r.X())
+             || IsNaN(r.Y())
+             || IsNaN(r.Height())
+             || IsNaN(r.Width()) )
         {
             return true;
         }
         return false;
     }
 
+    struct NanUnion
+    {
+        double DoubleValue;
+        uintptr_t UintValue;
+    };
 
     // The standard CLR double.IsNaN() function is approximately 100 times slower than our own wrapper,
     // so please make sure to use IsNaN() in performance sensitive code.
@@ -263,54 +265,15 @@ public:
     // or in the range 0xfff0000000000001L through 0xffffffffffffffffL, the result will be NaN.
     static bool IsNaN(double value)
     {
-        return qIsNaN(value);
+        NanUnion t;
+        t.DoubleValue = value;
+
+        intptr_t exp = t.UintValue & 0xfff0000000000000;
+        intptr_t man = t.UintValue & 0x000fffffffffffff;
+
+        return (exp == 0x7ff0000000000000 || exp == 0xfff0000000000000) && (man != 0);
     }
 };
-
-inline qreal Determinant(QPointF const & p1, QPointF const & p2)
-{
-    return p1.x() * p2.y() - p2.x() * p1.y();
-}
-
-inline qreal LengthSquared(QPointF const & p)
-{
-    return QPointF::dotProduct(p, p);
-}
-
-inline qreal Length(QPointF const & p)
-{
-    return sqrt(QPointF::dotProduct(p, p));
-}
-
-template <typename T>
-inline void RemoveRange(QList<T> list, int start, int count)
-{
-    list.erase(list.begin() + start, list.begin() + start + count);
-}
-
-inline QRectF United(QRectF const & rect, QPointF const & point)
-{
-    if (rect.isNull()) {
-        if (rect.x() == 0.0 && rect.y() == 0.0)
-            return QRectF(point, point);
-        else
-            return QRectF(rect.topLeft(), point).normalized();
-    } else {
-        qreal l = 0;
-        qreal t = 0;
-        qreal r = 0;
-        qreal b = 0;
-        if (point.x() < rect.left())
-            l = point.x() - rect.left();
-        if (point.y() < rect.top())
-            t = point.y() - rect.top();
-        if (point.x() > rect.right())
-            r = point.x() - rect.right();
-        if (point.y() > rect.bottom())
-            b = point.y() - rect.bottom();
-        return rect.adjusted(l, t, r, b);
-    }
-}
 
 INKCANVAS_END_NAMESPACE
 

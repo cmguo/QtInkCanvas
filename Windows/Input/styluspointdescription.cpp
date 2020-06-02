@@ -1,25 +1,23 @@
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 
-#include <QList>
-
 INKCANVAS_BEGIN_NAMESPACE
 
 StylusPointDescription::StylusPointDescription()
 {
     //implement the default packet description
-    _stylusPointPropertyInfos = QVector<StylusPointPropertyInfo>( {
+    _stylusPointPropertyInfos = List<StylusPointPropertyInfo>( {
             StylusPointPropertyInfoDefaults::X,
             StylusPointPropertyInfoDefaults::Y,
             StylusPointPropertyInfoDefaults::NormalPressure
         });
 }
 
-StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> const & stylusPointPropertyInfos)
+StylusPointDescription::StylusPointDescription(List<StylusPointPropertyInfo> const & stylusPointPropertyInfos)
 {
-    QVector<StylusPointPropertyInfo> infos(stylusPointPropertyInfos);
+    List<StylusPointPropertyInfo> infos(stylusPointPropertyInfos);
 
-    if (infos.size() < RequiredCountOfProperties ||
+    if (infos.Count() < RequiredCountOfProperties ||
         infos[RequiredXIndex].Id() != StylusPointPropertyIds::X ||
         infos[RequiredYIndex].Id() != StylusPointPropertyIds::Y ||
         infos[RequiredPressureIndex].Id() != StylusPointPropertyIds::NormalPressure)
@@ -30,15 +28,15 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
     //
     // look for duplicates, validate that buttons are last
     //
-    QList<QUuid> seenIds;
-    seenIds.push_back(StylusPointPropertyIds::X);
-    seenIds.push_back(StylusPointPropertyIds::Y);
-    seenIds.push_back(StylusPointPropertyIds::NormalPressure);
+    List<Guid> seenIds;
+    seenIds.Add(StylusPointPropertyIds::X);
+    seenIds.Add(StylusPointPropertyIds::Y);
+    seenIds.Add(StylusPointPropertyIds::NormalPressure);
 
     int buttonCount = 0;
-    for (int x = RequiredCountOfProperties; x < infos.size(); x++)
+    for (int x = RequiredCountOfProperties; x < infos.Count(); x++)
     {
-        if (seenIds.contains(infos[x].Id()))
+        if (seenIds.Contains(infos[x].Id()))
         {
             throw std::runtime_error("stylusPointPropertyInfos");
         }
@@ -54,7 +52,7 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
                 throw std::runtime_error("stylusPointPropertyInfos");
             }
         }
-        seenIds.push_back(infos[x].Id());
+        seenIds.Add(infos[x].Id());
     }
     if (buttonCount > MaximumButtonCount)
     {
@@ -65,7 +63,7 @@ StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> 
     _stylusPointPropertyInfos = infos;
 }
 
-StylusPointDescription::StylusPointDescription(QVector<StylusPointPropertyInfo> const & stylusPointPropertyInfos, int originalPressureIndex)
+StylusPointDescription::StylusPointDescription(List<StylusPointPropertyInfo> const & stylusPointPropertyInfos, int originalPressureIndex)
     : StylusPointDescription (stylusPointPropertyInfos)
 {
     _originalPressureIndex = originalPressureIndex;
@@ -90,7 +88,7 @@ bool StylusPointDescription::HasProperty(StylusPointProperty & stylusPointProper
 /// </summary>
 int StylusPointDescription::PropertyCount() const
 {
-    return _stylusPointPropertyInfos.size();
+    return _stylusPointPropertyInfos.Count();
 }
 
 /// <summary>
@@ -105,10 +103,10 @@ StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(StylusPointPrope
 /// <summary>
 /// GetPropertyInfo
 /// </summary>
-/// <param name="QUuid">QUuid
-StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(QUuid const & QUuid) const
+/// <param name="Guid">Guid
+StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(Guid const & Guid) const
 {
-    int index = IndexOf(QUuid);
+    int index = IndexOf(Guid);
     if (-1 == index)
     {
         //we didn't find it
@@ -120,15 +118,15 @@ StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(QUuid const & QU
 /// <summary>
 /// Returns the index of the given StylusPointProperty by ID, or -1 if none is found
 /// </summary>
-int StylusPointDescription::GetPropertyIndex(QUuid QUuid) const
+int StylusPointDescription::GetPropertyIndex(Guid Guid) const
 {
-    return IndexOf(QUuid);
+    return IndexOf(Guid);
 }
 
 /// <summary>
 /// GetStylusPointProperties
 /// </summary>
-QVector<StylusPointPropertyInfo> StylusPointDescription::GetStylusPointProperties() const
+List<StylusPointPropertyInfo> StylusPointDescription::GetStylusPointProperties() const
 {
     return _stylusPointPropertyInfos;
 }
@@ -136,10 +134,10 @@ QVector<StylusPointPropertyInfo> StylusPointDescription::GetStylusPointPropertie
 /// <summary>
 /// GetStylusPointPropertyIdss
 /// </summary>
-QVector<QUuid> StylusPointDescription::GetStylusPointPropertyIds() const
+Array<Guid> StylusPointDescription::GetStylusPointPropertyIds() const
 {
-    QVector<QUuid> ret(_stylusPointPropertyInfos.size());
-    for (int x = 0; x < ret.size(); x++)
+    Array<Guid> ret(_stylusPointPropertyInfos.Count());
+    for (int x = 0; x < ret.Length(); x++)
     {
         ret[x] = _stylusPointPropertyInfos[x].Id();
     }
@@ -153,7 +151,7 @@ QVector<QUuid> StylusPointDescription::GetStylusPointPropertyIds() const
 int StylusPointDescription::GetInputArrayLengthPerPoint() const
 {
     int buttonLength = _buttonCount > 0 ? 1 : 0;
-    int propertyLength = (_stylusPointPropertyInfos.size() - _buttonCount) + buttonLength;
+    int propertyLength = (_stylusPointPropertyInfos.Count() - _buttonCount) + buttonLength;
     if (!ContainsTruePressure())
     {
         propertyLength--;
@@ -168,7 +166,7 @@ int StylusPointDescription::GetInputArrayLengthPerPoint() const
 int StylusPointDescription::GetExpectedAdditionalDataCount() const
 {
     int buttonLength = _buttonCount > 0 ? 1 : 0;
-    int expectedLength = ((_stylusPointPropertyInfos.size() - _buttonCount) + buttonLength) - 3 /*x, y, p*/;
+    int expectedLength = ((_stylusPointPropertyInfos.Count() - _buttonCount) + buttonLength) - 3 /*x, y, p*/;
     return expectedLength;
 }
 
@@ -205,8 +203,8 @@ int StylusPointDescription::GetButtonBitPosition(StylusPointProperty buttonPrope
         throw std::runtime_error("");
     }
     int buttonIndex = 0;
-    for (int x = _stylusPointPropertyInfos.size() - _buttonCount; //start of the buttons
-         x < _stylusPointPropertyInfos.size(); x++)
+    for (int x = _stylusPointPropertyInfos.Count() - _buttonCount; //start of the buttons
+         x < _stylusPointPropertyInfos.Count(); x++)
     {
         if (_stylusPointPropertyInfos[x].Id() == buttonProperty.Id())
         {
@@ -244,8 +242,8 @@ int StylusPointDescription::OriginalPressureIndex() const
 /// </summary>
 /// <param name="stylusPointDescription1">stylusPointDescription1
 /// <param name="stylusPointDescription2">stylusPointDescription2
-bool StylusPointDescription::AreCompatible(QSharedPointer<StylusPointDescription> stylusPointDescription1,
-                                           QSharedPointer<StylusPointDescription> stylusPointDescription2)
+bool StylusPointDescription::AreCompatible(SharedPointer<StylusPointDescription> stylusPointDescription1,
+                                           SharedPointer<StylusPointDescription> stylusPointDescription2)
 {
     //
     // ignore X, Y, Pressure - they are guaranteed to be the first3 members
@@ -260,11 +258,11 @@ bool StylusPointDescription::AreCompatible(QSharedPointer<StylusPointDescription
     //                stylusPointDescription2._stylusPointPropertyInfos[1].Id == StylusPointPropertyIds.Y &&
     //                stylusPointDescription2._stylusPointPropertyInfos[2].Id == StylusPointPropertyIds.NormalPressure);
 
-    if (stylusPointDescription1->_stylusPointPropertyInfos.size() != stylusPointDescription2->_stylusPointPropertyInfos.size())
+    if (stylusPointDescription1->_stylusPointPropertyInfos.Count() != stylusPointDescription2->_stylusPointPropertyInfos.Count())
     {
         return false;
     }
-    for (int x = RequiredCountOfProperties; x < stylusPointDescription1->_stylusPointPropertyInfos.size(); x++)
+    for (int x = RequiredCountOfProperties; x < stylusPointDescription1->_stylusPointPropertyInfos.Count(); x++)
     {
         if (!StylusPointPropertyInfo::AreCompatible(stylusPointDescription1->_stylusPointPropertyInfos[x], stylusPointDescription2->_stylusPointPropertyInfos[x]))
         {
@@ -281,8 +279,8 @@ bool StylusPointDescription::AreCompatible(QSharedPointer<StylusPointDescription
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="stylusPointDescriptionPreserveInfo">stylusPointDescriptionPreserveInfo
 /// <remarks>The StylusPointProperties from stylusPointDescriptionPreserveInfo will be returned in the new StylusPointDescription</remarks>
-QSharedPointer<StylusPointDescription> StylusPointDescription::GetCommonDescription(QSharedPointer<StylusPointDescription> stylusPointDescription,
-                                                                      QSharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo)
+SharedPointer<StylusPointDescription> StylusPointDescription::GetCommonDescription(SharedPointer<StylusPointDescription> stylusPointDescription,
+                                                                      SharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo)
 {
     //
     // ignore X, Y, Pressure - they are guaranteed to be the first3 members
@@ -299,25 +297,25 @@ QSharedPointer<StylusPointDescription> StylusPointDescription::GetCommonDescript
 
 
     //add x, y, p
-    QVector<StylusPointPropertyInfo> commonProperties;
-    commonProperties.push_back(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[0]);
-    commonProperties.push_back(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[1]);
-    commonProperties.push_back(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[2]);
+    List<StylusPointPropertyInfo> commonProperties;
+    commonProperties.Add(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[0]);
+    commonProperties.Add(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[1]);
+    commonProperties.Add(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[2]);
 
     //add common properties
-    for (int x = RequiredCountOfProperties; x < stylusPointDescription->_stylusPointPropertyInfos.size(); x++)
+    for (int x = RequiredCountOfProperties; x < stylusPointDescription->_stylusPointPropertyInfos.Count(); x++)
     {
-        for (int y = RequiredCountOfProperties; y < stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos.size(); y++)
+        for (int y = RequiredCountOfProperties; y < stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos.Count(); y++)
         {
             if (StylusPointPropertyInfo::AreCompatible(  stylusPointDescription->_stylusPointPropertyInfos[x],
                                                     stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[y]))
             {
-                commonProperties.push_back(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[y]);
+                commonProperties.Add(stylusPointDescriptionPreserveInfo->_stylusPointPropertyInfos[y]);
             }
         }
     }
 
-    return QSharedPointer<StylusPointDescription>(new StylusPointDescription(commonProperties));
+    return SharedPointer<StylusPointDescription>(new StylusPointDescription(commonProperties));
 }
 
 /// <summary>
@@ -326,13 +324,13 @@ QSharedPointer<StylusPointDescription> StylusPointDescription::GetCommonDescript
 /// </summary>
 /// <param name="stylusPointDescriptionSuperset">stylusPointDescriptionSuperset
 /// <returns></returns>
-bool StylusPointDescription::IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset) const
+bool StylusPointDescription::IsSubsetOf(SharedPointer<StylusPointDescription> stylusPointDescriptionSuperset) const
 {
     if (nullptr == stylusPointDescriptionSuperset)
     {
         throw std::runtime_error("stylusPointDescriptionSuperset");
     }
-    if (stylusPointDescriptionSuperset->_stylusPointPropertyInfos.size() < _stylusPointPropertyInfos.size())
+    if (stylusPointDescriptionSuperset->_stylusPointPropertyInfos.Count() < _stylusPointPropertyInfos.Count())
     {
         return false;
     }
@@ -340,9 +338,9 @@ bool StylusPointDescription::IsSubsetOf(QSharedPointer<StylusPointDescription> s
     // iterate through our local properties and make sure that the
     // superset contains them
     //
-    for (int x = 0; x < _stylusPointPropertyInfos.size(); x++)
+    for (int x = 0; x < _stylusPointPropertyInfos.Count(); x++)
     {
-        QUuid id = _stylusPointPropertyInfos[x].Id();
+        Guid id = _stylusPointPropertyInfos[x].Id();
         if (-1 == stylusPointDescriptionSuperset->IndexOf(id))
         {
             return false;
@@ -355,9 +353,9 @@ bool StylusPointDescription::IsSubsetOf(QSharedPointer<StylusPointDescription> s
 /// Returns the index of the given StylusPointProperty, or -1 if none is found
 /// </summary>
 /// <param name="propertyId">propertyId
-int StylusPointDescription::IndexOf(QUuid propertyId) const
+int StylusPointDescription::IndexOf(Guid propertyId) const
 {
-    for (int x = 0; x < _stylusPointPropertyInfos.size(); x++)
+    for (int x = 0; x < _stylusPointPropertyInfos.Count(); x++)
     {
         if (_stylusPointPropertyInfos[x].Id() == propertyId)
         {

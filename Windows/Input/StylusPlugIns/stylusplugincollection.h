@@ -3,7 +3,7 @@
 
 #include "InkCanvas_global.h"
 
-#include "collection.h"
+#include "Collections/ObjectModel/collection.h"
 
 #include <QList>
 #include <QMutex>

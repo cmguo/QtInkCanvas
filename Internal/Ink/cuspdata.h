@@ -3,8 +3,8 @@
 
 #include "InkCanvas_global.h"
 
-#include <QList>
-#include <QPointF>
+#include "Collections/Generic/list.h"
+#include "Windows/point.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -45,7 +45,7 @@ public:
     /// <param name="i">Index</param>
     /// <returns>StylusPoint</returns>
     /// <remarks>The Index is within the bounds</remarks>
-    QPointF const & XY(int i) const
+    Vector XY(int i) const
     {
         return _points[i].Point;
     }
@@ -56,7 +56,7 @@ public:
     /// </summary>
     int Count() const
     {
-        return _points.size();
+        return _points.Count();
     }
 
 
@@ -103,7 +103,7 @@ public:
     /// <param name="bReverse">Forward or reverse tangent</param>
     /// <param name="bIsCusp">Whether the current idex is a cusp StylusPoint</param>
     /// <returns>Return whether the tangent computation succeeded</returns>
-    bool Tangent(QPointF & ptT, int nAt, int nPrevCusp, int nNextCusp, bool bReverse, bool bIsCusp);
+    bool Tangent(Vector & ptT, int nAt, int nPrevCusp, int nNextCusp, bool bReverse, bool bIsCusp);
 
     /// <summary>
     /// This "curvature" is not the theoretical curvature.  it is a number between
@@ -141,8 +141,8 @@ public:
     /// <param name="rMax"></param>
     static void UpdateMinMax(double a, double & rMin, double & rMax)
     {
-        rMin = qMin(rMin, a);
-        rMax = qMax(a, rMax);
+        rMin = Math::Min(rMin, a);
+        rMax = Math::Max(a, rMax);
     }
 
     /// <summary>
@@ -154,16 +154,16 @@ public:
 private:
     struct CDataPoint
     {
-        QPointF      Point;       // Point (coordinates are double)
+        Point      Point;       // Point (coordinates are double)
         int          Index;       // Index into the original array
         int          TanPrev = 0;    // Previous StylusPoint Index for tangent computation
         int          TanNext = 0;    // Next StylusPoint Index for tangent computation
     };
 
-    QList<CDataPoint> _points;
-    QList<double> _nodes;
+    List<CDataPoint> _points;
+    List<double> _nodes;
     double _dist = 0;
-    QList<int> _cusps;
+    List<int> _cusps;
 
     // Parameters governing the cusp detection algorithm
     // Distance between probes for curvature checking

@@ -2,16 +2,16 @@
 #define STYLUSPOINTCOLLECTION_H
 
 #include "InkCanvas_global.h"
-#include "collection.h"
+#include "Collections/ObjectModel/collection.h"
 #include "Windows/Input/styluspoint.h"
+#include "Collections/Generic/list.h"
+#include "Windows/Media/matrix.h"
+#include "sharedptr.h"
 
-#include <QSharedPointer>
-#include <QList>
-#include <QMatrix>
+#ifndef INKCANVAS_CORE
 #include <QObject>
+#endif
 
-#include <iterator>
-#include <vector>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -20,6 +20,7 @@ class CancelEventArgs;
 
 // namespace System.Windows.Input
 
+#ifndef INKCANVAS_CORE
 class INKCANVAS_EXPORT StylusPointCollection : public QObject, public Collection<StylusPoint>
 {
     Q_OBJECT
@@ -34,6 +35,10 @@ signals:
     /// </summary>
     void CountGoingToZero(CancelEventArgs & e);
 
+#else
+class INKCANVAS_EXPORT StylusPointCollection : public Collection<StylusPoint>
+{
+#endif
 public:
     StylusPointCollection();
 
@@ -47,27 +52,27 @@ public:
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPointDescription">stylusPointDescription
-    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription);
+    StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription);
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="initialCapacity">initialCapacity
-    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity);
+    StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription, int initialCapacity);
 
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="stylusPoints">stylusPoints
-    StylusPointCollection(QVector<StylusPoint> const & stylusPoints);
+    StylusPointCollection(List<StylusPoint> const & stylusPoints);
 
     /// <summary>
     /// StylusPointCollection
     /// </summary>
     /// <param name="points">points
-    StylusPointCollection(QVector<QPointF> const & points);
+    StylusPointCollection(Array<Point> const & points);
 
     /// <summary>
     /// ctor called by input with a raw int[]
@@ -76,8 +81,8 @@ public:
     /// <param name="rawPacketData">rawPacketData
     /// <param name="tabletToView">tabletToView
     /// <param name="tabletToViewMatrix">tabletToView
-    StylusPointCollection(QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> rawPacketData,
-                          QMatrix const & tabletToView, QMatrix const & tabletToViewMatrix);
+    StylusPointCollection(SharedPointer<StylusPointDescription> stylusPointDescription, Array<int> rawPacketData,
+                          Matrix const & tabletToView, Matrix const & tabletToViewMatrix);
 
     /// <summary>
     /// Adds the StylusPoints in the StylusPointCollection to this StylusPointCollection
@@ -85,65 +90,65 @@ public:
     /// <param name="stylusPoints">stylusPoints
     void Add(StylusPointCollection & stylusPoints);
 
+    using Collection::Add;
+
     /// <summary>
     /// Read only access to the StylusPointDescription shared by the StylusPoints in this collection
     /// </summary>
-    QSharedPointer<StylusPointDescription> Description();
+    SharedPointer<StylusPointDescription> Description();
 
     /// <summary>
     /// called by base class Collection<T> when the list is being cleared;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void ClearItems();
+    void ClearItems() override;
 
     /// <summary>
     /// called by base class Collection<T> when an item is removed from list;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void RemoveItem(int index);
-
-    void AddItem(StylusPoint const & stylusPoint);
+    void RemoveItem(int index) override;
 
     /// <summary>
     /// called by base class Collection<T> when an item is added to list;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void InsertItem(int index, StylusPoint const & stylusPoint);
+    void InsertItem(int index, StylusPoint const & stylusPoint) override;
 
     /// <summary>
     /// called by base class Collection<T> when an item is set in list;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void SetItem(int index, StylusPoint const & stylusPoint);
+    void SetItem(int index, StylusPoint const & stylusPoint) override;
 
     /// <summary>
     /// Clone
     /// </summary>
-    QSharedPointer<StylusPointCollection> Clone();
+    SharedPointer<StylusPointCollection> Clone();
 
     /// <summary>
     /// Explicit cast converter between StylusPointCollection and Point[]
     /// </summary>
     /// <param name="stylusPoints">stylusPoints
-    operator QVector<QPointF>();
+    operator Array<Point>();
 
     /// <summary>
     /// Clone and truncate
     /// </summary>
     /// <param name="count">The maximum count of points to clone (used by GestureRecognizer)
     /// <returns></returns>
-    QSharedPointer<StylusPointCollection> Clone(int count);
+    SharedPointer<StylusPointCollection> Clone(int Count);
 
     /// <summary>
     /// Clone with a transform, used by input
     /// </summary>
-    QSharedPointer<StylusPointCollection> Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse);
+    SharedPointer<StylusPointCollection> Clone(Matrix const & transform, SharedPointer<StylusPointDescription> descriptionToUse);
 
 
     /// <summary>
     /// clone implementation
     /// </summary>
-    QSharedPointer<StylusPointCollection> Clone(QMatrix const & transform, QSharedPointer<StylusPointDescription> descriptionToUse, int count);
+    SharedPointer<StylusPointCollection> Clone(Matrix const & transform, SharedPointer<StylusPointDescription> descriptionToUse, int Count);
 
     /// <summary>
     /// virtual for raising changed notification
@@ -155,24 +160,24 @@ public:
     /// Transform the StylusPoints in this collection by the specified transform
     /// </summary>
     /// <param name="transform">transform
-    void Transform(QMatrix const & transform);
+    void Transform(Matrix const & transform);
 
     /// <summary>
     /// Reformat
     /// </summary>
     /// <param name="subsetToReformatTo">subsetToReformatTo
-    QSharedPointer<StylusPointCollection> Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo);
+    SharedPointer<StylusPointCollection> Reformat(SharedPointer<StylusPointDescription> subsetToReformatTo);
 
     /// <summary>
     /// Helper that transforms and scales in one go
     /// </summary>
-    QSharedPointer<StylusPointCollection> Reformat(QSharedPointer<StylusPointDescription> subsetToReformatTo, QMatrix const & transform);
+    SharedPointer<StylusPointCollection> Reformat(SharedPointer<StylusPointDescription> subsetToReformatTo, Matrix const & transform);
 
     /// <summary>
     /// Returns this StylusPointCollection as a flat integer array in the himetric coordiate space
     /// </summary>
     /// <returns></returns>
-    QVector<int> ToHiMetricArray();
+    Array<int> ToHiMetricArray();
 
     /// <summary>
     /// ToISFReadyArrays - Returns an array of arrays of packet values:
@@ -188,7 +193,7 @@ public:
     /// pressure was non-default
     ///
     /// </summary>
-    void ToISFReadyArrays(QVector<QVector<int>> & output, bool & shouldPersistPressure);
+    void ToISFReadyArrays(Array<Array<int>> & output, bool & shouldPersistPressure);
 
     /// <summary>
     /// helper use to consult with any listening strokes if it is safe to go to zero count
@@ -197,7 +202,7 @@ public:
     bool CanGoToZero();
 
 private:
-    QSharedPointer<StylusPointDescription> _stylusPointDescription;
+    SharedPointer<StylusPointDescription> _stylusPointDescription;
 };
 
 INKCANVAS_END_NAMESPACE

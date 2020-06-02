@@ -9,7 +9,7 @@ StrokeNodeData StrokeNodeData::s_empty;
 /// Constructor for nodes of a pressure insensitive stroke
 /// </summary>
 /// <param name="position">position of the node</param>
-StrokeNodeData::StrokeNodeData(QPointF const & position)
+StrokeNodeData::StrokeNodeData(Point const & position)
 {
     _position = position;
     _pressure = 1;
@@ -20,7 +20,7 @@ StrokeNodeData::StrokeNodeData(QPointF const & position)
 /// </summary>
 /// <param name="position">position of the node</param>
 /// <param name="pressure">pressure scaling factor at the node</param>
-StrokeNodeData::StrokeNodeData(QPointF const & position, double pressure)
+StrokeNodeData::StrokeNodeData(Point const & position, float pressure)
 {
     Debug::Assert(DoubleUtil::GreaterThan(pressure, 0));
 

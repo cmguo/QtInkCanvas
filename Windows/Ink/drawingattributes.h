@@ -5,13 +5,20 @@
 
 #include "Windows/Ink/stylustip.h"
 #include "Windows/Ink/drawingflags.h"
-#include "Internal/Ink/InkSerializedFormat/drawingattributeserializer.h"
+#include "Windows/Media/matrix.h"
+#include "sharedptr.h"
+#include "guid.h"
+#include "variant.h"
 
-#include <QMatrix>
-#include <QUuid>
+#ifndef INKCANVAS_CORE
+#include "Internal/Ink/InkSerializedFormat/drawingattributeserializer.h"
+#endif
+
+#ifdef INKCANVAS_QT
 #include <QColor>
-#include <QVariant>
-#include <QSharedPointer>
+#include <Matrix>
+#include <Variant>
+#endif
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -23,9 +30,14 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
+#ifndef INKCANVAS_CORE
 class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
     Q_OBJECT
+#else
+class INKCANVAS_EXPORT DrawingAttributes
+{
+#endif
 public:
     /// <summary>
     /// Creates a DrawingAttributes with default values
@@ -38,7 +50,11 @@ public:
     /// <param name="extendedProperties"></param>
     DrawingAttributes(ExtendedPropertyCollection* extendedProperties);
 
+#ifdef INKCANVAS_QT
     virtual ~DrawingAttributes() override;
+#else
+    virtual ~DrawingAttributes();
+#endif
 
 private:
     /// <summary>
@@ -47,12 +63,17 @@ private:
     void Initialize();
 
 public:
+
+#ifndef INKCANVAS_CORE
+
     /// <summary>
     /// The color of the Stroke
     /// </summary>
     QColor Color() const;
 
     void SetColor(QColor value);
+
+#endif
 
     /// <summary>
     /// The StylusTip used to draw the stroke
@@ -64,9 +85,9 @@ public:
     /// <summary>
     /// The StylusTip used to draw the stroke
     /// </summary>
-    QMatrix StylusTipTransform() const;
+    Matrix StylusTipTransform() const;
 
-    void SetStylusTipTransform(QMatrix const & value);
+    void SetStylusTipTransform(Matrix const & value);
 
     /// <summary>
     /// The height of the StylusTip
@@ -107,30 +128,30 @@ public:
     /// </summary>
     /// <param name="propertyDataId"></param>
     /// <param name="propertyData"></param>
-    void AddPropertyData(QUuid const & propertyDataId, QVariant propertyData);
+    void AddPropertyData(Guid const & propertyDataId, Variant const & propertyData);
 
     /// <summary>
     /// Allows removal of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    void RemovePropertyData(QUuid const & propertyDataId);
+    void RemovePropertyData(Guid const & propertyDataId);
 
     /// <summary>
     /// Allows retrieval of objects from the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    QVariant GetPropertyData(QUuid const & propertyDataId);
+    Variant GetPropertyData(Guid const & propertyDataId);
 
     /// <summary>
-    /// Allows retrieval of a Array of QUuids that are contained in the EPC
+    /// Allows retrieval of a Array of Guids that are contained in the EPC
     /// </summary>
-    QVector<QUuid> GetPropertyDataIds();
+    Array<Guid> GetPropertyDataIds();
 
     /// <summary>
     /// Allows check of containment of objects to the EPC
     /// </summary>
     /// <param name="propertyDataId"></param>
-    bool ContainsPropertyData(QUuid const & propertyDataId);
+    bool ContainsPropertyData(Guid const & propertyDataId);
 
     /// <summary>
     /// ExtendedProperties
@@ -160,6 +181,7 @@ public:
     DrawingFlags GetDrawingFlags() const;
     void SetDrawingFlags(DrawingFlags value);
 
+#ifndef INKCANVAS_CORE
 
     /// <summary>
     /// we need to preserve this for round tripping
@@ -183,6 +205,8 @@ public:
     }
     void SetHeightChangedForCompatabity(bool value);
 
+#endif
+
 
     //------------------------------------------------------
     //
@@ -190,8 +214,12 @@ public:
     //
     //------------------------------------------------------
 
+#ifndef INKCANVAS_CORE
+
 signals:
     void PropertyChanged(PropertyChangedEventArgs & e);
+
+#endif
 
 public:
     /// <summary>Overload of the Equals method which determines if two DrawingAttributes
@@ -218,28 +246,27 @@ public:
     /// </summary>
     /// <returns>Deep copy of the DrawingAttributes</returns>
     /// <remarks></remarks>
-    virtual QSharedPointer<DrawingAttributes> Clone();
-
+    virtual SharedPointer<DrawingAttributes> Clone();
 
     /// <summary>
-    /// Simple helper method used to determine if a QUuid
+    /// Simple helper method used to determine if a Guid
     /// from an ExtendedProperty is used as the backing store
     /// of a DrawingAttribute
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    static QVariant GetDefaultDrawingAttributeValue(QUuid const & id);
+    static Variant GetDefaultDrawingAttributeValue(Guid const & id);
 
-    static void ValidateStylusTipTransform(QUuid const & propertyDataId, QVariant propertyData);
+    static void ValidateStylusTipTransform(Guid const & propertyDataId, Variant propertyData);
 
     /// <summary>
-    /// Simple helper method used to determine if a QUuid
+    /// Simple helper method used to determine if a Guid
     /// needs to be removed from the ExtendedPropertyCollection in ISF
     /// before serializing
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    static bool RemoveIdFromExtendedProperties(QUuid const & id);
+    static bool RemoveIdFromExtendedProperties(Guid const & id);
 
     /// <summary>
     /// Returns true if two DrawingAttributes lead to the same PathGeometry.
@@ -247,9 +274,9 @@ public:
     static bool GeometricallyEqual(DrawingAttributes const & left, DrawingAttributes const & right);
 
     /// <summary>
-    /// Returns true if the QUuid passed in has impact on geometry of the stroke
+    /// Returns true if the Guid passed in has impact on geometry of the stroke
     /// </summary>
-    static bool IsGeometricalDaGuid(QUuid const & QUuid);
+    static bool IsGeometricalDaGuid(Guid const & Guid);
 
     /// <summary>
     /// Whenever the base class fires the generic ExtendedPropertiesChanged
@@ -259,6 +286,8 @@ public:
     /// <param name="args">The custom attributes that changed</param>
     void ExtendedPropertiesChanged_EventForwarder(ExtendedPropertiesChangedEventArgs& args);
 
+#ifdef INKCANVAS_QT
+
 signals:
     /// <summary>
     /// Event fired whenever a DrawingAttribute is modified
@@ -267,6 +296,8 @@ signals:
 
     void _propertyChanged(PropertyChangedEventArgs& e);
 
+#endif
+
 protected:
     /// <summary>
     /// Method called when a change occurs to any DrawingAttribute
@@ -274,11 +305,15 @@ protected:
     /// <param name="e">The change information for the DrawingAttribute that was modified</param>
     virtual void OnAttributeChanged(PropertyDataChangedEventArgs &e);
 
+#ifdef INKCANVAS_QT
+
 signals:
      /// <summary>
     /// Event fired whenever a DrawingAttribute is modified
     /// </summary>
     void PropertyDataChanged(PropertyDataChangedEventArgs& e);
+
+#endif
 
 protected:
     /// <summary>
@@ -292,19 +327,23 @@ protected:
         //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
         //}
 
+#ifdef INKCANVAS_QT
         //if (this.PropertyDataChanged != null)
         //{
             emit PropertyDataChanged(e);
         //}
+#endif
     }
 
 
     virtual void OnPropertyChanged(PropertyChangedEventArgs& e)
     {
+#ifdef INKCANVAS_QT
         //if ( _propertyChanged != null )
         {
             emit  _propertyChanged(e);
         }
+#endif
     }
 
     /// <summary>
@@ -313,7 +352,7 @@ protected:
     /// </summary>
     /// <param name="id">id</param>
     /// <param name="value">value</param>
-    void SetExtendedPropertyBackedProperty(QUuid const & id, QVariant value);
+    void SetExtendedPropertyBackedProperty(Guid const & id, Variant const & value);
 
     /// <summary>
     /// All DrawingAttributes are backed by an ExtendedProperty
@@ -321,7 +360,7 @@ protected:
     /// </summary>
     /// <param name="id">id</param>
     /// <returns></returns>
-    QVariant GetExtendedPropertyBackedProperty(QUuid const & id) const;
+    Variant GetExtendedPropertyBackedProperty(Guid const & id) const;
 
     /// <summary>
     /// A help method which fires INotifyPropertyChanged.PropertyChanged event
@@ -329,12 +368,14 @@ protected:
     /// <param name="e"></param>
     void PrivateNotifyPropertyChanged(PropertyDataChangedEventArgs &e);
 
-    void OnPropertyChanged(QString propertyName);
+    void OnPropertyChanged(char const * propertyName);
 
 private:
     ExtendedPropertyCollection* _extendedProperties;
+#ifndef INKCANVAS_CORE
     uint _v1RasterOperation = DrawingAttributeSerializer::RasterOperationDefaultV1;
     bool _heightChangedForCompatabity = false;
+#endif
     std::unique_ptr<StylusShape> drawingShape_;
 
 public:
@@ -373,6 +414,8 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
+#ifndef INKCANVAS_CORE
+
 #include "Windows/dependencyproperty.h"
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -380,9 +423,11 @@ INKCANVAS_BEGIN_NAMESPACE
 class DrawingAttributesDefaultValueFactory : public DefaultValueFactory
 {
 private:
-    virtual QVariant DefaultValue() override;
+    virtual Variant DefaultValue() override;
 };
 
 INKCANVAS_END_NAMESPACE
+
+#endif
 
 #endif // DRAWINGATTRIBUTES_H

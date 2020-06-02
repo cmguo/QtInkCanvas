@@ -1,7 +1,12 @@
 #ifndef INKCANVAS_GLOBAL_H
 #define INKCANVAS_GLOBAL_H
 
+#ifndef INKCANVAS_CORE
 #include <QtCore/qglobal.h>
+#else
+#define Q_DECL_EXPORT
+#define Q_DECL_IMPORT
+#endif
 
 #if defined(INKCANVAS_LIBRARY)
 #  define INKCANVAS_EXPORT Q_DECL_EXPORT

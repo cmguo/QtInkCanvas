@@ -7,92 +7,92 @@ INKCANVAS_BEGIN_NAMESPACE
 /// Extends the lasso by appending more points
 /// </summary>
 /// <param name="points">new points</param>
-void Lasso::AddPoints(QVector<QPointF> const & points)
+void Lasso::AddPoints(List<Point> const & points)
 {
     //System.Diagnostics.Debug.Assert(null != points);
 
-    for (QPointF const & point : points)
+    for (Point const & point : points)
     {
         AddPoint(point);
     }
 }
 
 /// <summary>
-/// Appends a QPointF to the lasso
+/// Appends a Point to the lasso
 /// </summary>
 /// <param name="point">new lasso point</param>
-void Lasso::AddPoint(QPointF const & point)
+void Lasso::AddPoint(Point const & point)
 {
     //System.Diagnostics.Debug.Assert(_points != null);
     if (!Filter(point))
     {
-        // The QPointF is not filtered, add it to the lasso
+        // The Point is not filtered, add it to the lasso
         AddPointImpl(point);
     }
 }
 
 /// <summary>
-/// This method implement the core algorithm to check whether a QPointF is within a polygon
+/// This method implement the core algorithm to check whether a Point is within a polygon
 /// that are formed by the lasso points.
 /// </summary>
 /// <param name="point"></param>
-/// <returns>true if the QPointF is contained within the lasso; false otherwise </returns>
-bool Lasso::Contains(QPointF const & point)
+/// <returns>true if the Point is contained within the lasso; false otherwise </returns>
+bool Lasso::Contains(Point const & point)
 {
     //System.Diagnostics.Debug.Assert(_points != null);
 
-    if (false == _bounds.contains(point))
+    if (false == _bounds.Contains(point))
     {
         return false;
     }
 
     bool isHigher = false;
-    int last = _points.size();
+    int last = _points.Count();
     while (--last >= 0)
     {
-        if (!DoubleUtil::AreClose(_points[last].y(),point.y()))
+        if (!DoubleUtil::AreClose(_points[last].Y(),point.Y()))
         {
-            isHigher = (point.y() < _points[last].y());
+            isHigher = (point.Y() < _points[last].Y());
             break;
         }
     }
 
     bool isInside = false;
-    QPointF prevLassoPoint = _points[_points.size() - 1];
-    for (int i = 0; i < _points.size(); i++)
+    Point prevLassoPoint = _points[_points.Count() - 1];
+    for (int i = 0; i < _points.Count(); i++)
     {
-        QPointF lassoPoint = _points[i];
-        if (DoubleUtil::AreClose(lassoPoint.y(), point.y()))
+        Point lassoPoint = _points[i];
+        if (DoubleUtil::AreClose(lassoPoint.Y(), point.Y()))
         {
-            if (DoubleUtil::AreClose(lassoPoint.x(), point.x()))
+            if (DoubleUtil::AreClose(lassoPoint.X(), point.X()))
             {
                 isInside = true;
                 break;
             }
-            if ((0 != i) && DoubleUtil::AreClose(prevLassoPoint.y(), point.y()) &&
-                DoubleUtil::GreaterThanOrClose(point.x(), qMin(prevLassoPoint.x(), lassoPoint.x())) &&
-                DoubleUtil::LessThanOrClose(point.x(), qMax(prevLassoPoint.x(), lassoPoint.x())))
+            if ((0 != i) && DoubleUtil::AreClose(prevLassoPoint.Y(), point.Y()) &&
+                DoubleUtil::GreaterThanOrClose(point.X(), Math::Min(prevLassoPoint.X(), lassoPoint.X())) &&
+                DoubleUtil::LessThanOrClose(point.X(), Math::Max(prevLassoPoint.X(), lassoPoint.X())))
             {
                 isInside = true;
                 break;
             }
         }
-        else if (isHigher != (point.y() < lassoPoint.y()))
+        else if (isHigher != (point.Y() < lassoPoint.Y()))
         {
             isHigher = !isHigher;
-            if (DoubleUtil::GreaterThanOrClose(point.x(), qMax(prevLassoPoint.x(), lassoPoint.x())))
+            if (DoubleUtil::GreaterThanOrClose(point.X(), Math::Max(prevLassoPoint.X(), lassoPoint.X())))
             {
                 // there certainly is an intersection on the left
                 isInside = !isInside;
             }
-            else if (DoubleUtil::GreaterThanOrClose(point.x(), qMin(prevLassoPoint.x(), lassoPoint.x())))
+            else if (DoubleUtil::GreaterThanOrClose(point.X(), Math::Min(prevLassoPoint.X(), lassoPoint.X())))
             {
-                // The X of the QPointF lies within the x ranges for the segment.
-                // Calculate the x value of the QPointF where the segment intersects with the line.
-                QPointF lassoSegment = lassoPoint - prevLassoPoint;
-                //System.Diagnostics.Debug.Assert(lassoSegment.y() != 0);
-                double x = prevLassoPoint.x() + (lassoSegment.x() / lassoSegment.y()) * (point.y() - prevLassoPoint.y());
-                if (DoubleUtil::GreaterThanOrClose(point.x(), x))
+                // The X of the Point lies within the x ranges for the segment.
+                // Calculate the x value of the Point where the segment intersects with the line.
+                Point lassoSegment = lassoPoint - prevLassoPoint;
+                //System.Diagnostics.Debug.Assert(lassoSegment.Y() != 0);
+                double x = prevLassoPoint.X() + (lassoSegment.X() / lassoSegment.Y()) * (point.Y() - prevLassoPoint.Y());
+                if (DoubleUtil::GreaterThanOrClose(point.X(), x))
                 {
                     isInside = !isInside;
                 }
@@ -103,23 +103,23 @@ bool Lasso::Contains(QPointF const & point)
     return isInside;
 }
 
-QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
+Array<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
 {
     //System.Diagnostics.Debug.Assert(_points != null);
     //System.Diagnostics.Debug.Assert(iterator != null);
 
-    if (_points.size() < 3)
+    if (_points.Count() < 3)
     {
         //
         // it takes at least 3 points to create a lasso
         //
-        return QVector<StrokeIntersection>();
+        return Array<StrokeIntersection>();
     }
 
     //
     // We're about to perform hit testing with a lasso.
     // To do so we need to iterate through each StrokeNode.
-    // As we do, we calculate the bounding QRectF between it
+    // As we do, we calculate the bounding Rect between it
     // and the previous StrokeNode and store this in 'currentStrokeSegmentBounds'
     //
     // Next, we check to see if that StrokeNode pair's bounding box intersects
@@ -131,23 +131,23 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
     // pair
     //
 
-    QPointF lastNodePosition;
-    QPointF lassoLastPoint = _points[_points.size() - 1];
-    QRectF currentStrokeSegmentBounds;
+    Point lastNodePosition;
+    Point lassoLastPoint = _points[_points.Count() - 1];
+    Rect currentStrokeSegmentBounds;
 
     // Initilize the current crossing to be an empty one
     LassoCrossing currentCrossing = LassoCrossing::EmptyCrossing();
 
     // Creat a list to hold all the crossings
-    QList<LassoCrossing> crossingList;
+    List<LassoCrossing> crossingList;
     for (int i = 0; i < iterator.Count(); i++)
     {
         StrokeNode strokeNode = iterator[i];
-        QRectF nodeBounds = strokeNode.GetBounds();
-        currentStrokeSegmentBounds |= nodeBounds;
+        Rect nodeBounds = strokeNode.GetBounds();
+        currentStrokeSegmentBounds.Union(nodeBounds);
 
         // Skip the node if it's outside of the lasso's bounds
-        if (currentStrokeSegmentBounds.intersects(_bounds) == true)
+        if (currentStrokeSegmentBounds.IntersectsWith(_bounds) == true)
         {
             // currentStrokeSegmentBounds, made up of the bounding box of
             // this StrokeNode unioned with the last StrokeNode,
@@ -155,19 +155,19 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
             //
             // Now we need to iterate through the lasso points and find out where they cross
             //
-            QPointF lastPoint = lassoLastPoint;
-            for (QPointF point : _points)
+            Point lastPoint = lassoLastPoint;
+            for (Point point : _points)
             {
                 //
                 // calculate a segment of the lasso from the last point
                 // to the current point
                 //
-                QRectF lassoSegmentBounds(lastPoint, point);
+                Rect lassoSegmentBounds(lastPoint, point);
 
                 //
                 // see if this lasso segment intersects with the current stroke segment
                 //
-                if (!currentStrokeSegmentBounds.intersects(lassoSegmentBounds))
+                if (!currentStrokeSegmentBounds.IntersectsWith(lassoSegmentBounds))
                 {
                     lastPoint = point;
                     continue;
@@ -195,7 +195,7 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
                 if (!currentCrossing.Merge(potentialNewCrossing))
                 {
                     // start a new crossing and add the existing on to the list
-                    crossingList.append(currentCrossing);
+                    crossingList.Add(currentCrossing);
                     currentCrossing = potentialNewCrossing;
                 }
             }
@@ -211,23 +211,23 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
     // Adding the last crossing to the list, if valid
     if (!currentCrossing.IsEmpty())
     {
-        crossingList.append(currentCrossing);
+        crossingList.Add(currentCrossing);
     }
 
     // Handle the special case of no intersection at all
-    if (crossingList.size() == 0)
+    if (crossingList.Count() == 0)
     {
         // the stroke was either completely inside the lasso
         // or outside the lasso
         if (Contains(lastNodePosition))
         {
-            QVector<StrokeIntersection> strokeIntersections(1);
+            Array<StrokeIntersection> strokeIntersections(1);
             strokeIntersections[0] = StrokeIntersection::Full();
             return strokeIntersections;
         }
         else
         {
-            return QVector<StrokeIntersection>();
+            return Array<StrokeIntersection>();
         }
     }
 
@@ -236,22 +236,22 @@ QVector<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
     SortAndMerge(crossingList);
 
     // Produce the hit test results and store them in a list
-    QList<StrokeIntersection> strokeIntersectionList ;
+    List<StrokeIntersection> strokeIntersectionList ;
     ProduceHitTestResults(crossingList, strokeIntersectionList);
 
-    return strokeIntersectionList.toVector();
+    return strokeIntersectionList.ToArray();
 }
 
 /// <summary>
 /// Sort and merge the crossing list
 /// </summary>
 /// <param name="crossingList">The crossing list to sort/merge</param>
-void Lasso::SortAndMerge(QList<LassoCrossing> & crossingList)
+void Lasso::SortAndMerge(List<LassoCrossing> & crossingList)
 {
     // Sort the crossings based on the BeginFIndex values
     std::sort(crossingList.begin(), crossingList.end());
 
-    QList<LassoCrossing> mergedList;
+    List<LassoCrossing> mergedList;
     LassoCrossing mcrossing = LassoCrossing::EmptyCrossing();
     for (LassoCrossing const & crossing : crossingList)
     {
@@ -259,21 +259,21 @@ void Lasso::SortAndMerge(QList<LassoCrossing> & crossingList)
         if (!mcrossing.Merge(crossing))
         {
             //System.Diagnostics.Debug.Assert(!mcrossing.IsEmpty && mcrossing.StartNode.IsValid && mcrossing.EndNode.IsValid);
-            mergedList.append(mcrossing);
+            mergedList.Add(mcrossing);
             mcrossing = crossing;
         }
     }
     if (!mcrossing.IsEmpty())
     {
         //System.Diagnostics.Debug.Assert(!mcrossing.IsEmpty && mcrossing.StartNode.IsValid && mcrossing.EndNode.IsValid);
-        mergedList.append(mcrossing);
+        mergedList.Add(mcrossing);
     }
     crossingList = mergedList;
 }
 
 
 /// <summary>
-/// Helper function to find out whether a QPointF is inside the lasso
+/// Helper function to find out whether a Point is inside the lasso
 /// </summary>
 bool Lasso::SegmentWithinLasso(StrokeNode & strokeNode, double fIndex)
 {
@@ -300,10 +300,10 @@ bool Lasso::SegmentWithinLasso(StrokeNode & strokeNode, double fIndex)
 /// Helper function to find out the hit test result
 /// </summary>
 void Lasso::ProduceHitTestResults(
-                        QList<LassoCrossing> & crossingList, QList<StrokeIntersection> & strokeIntersections)
+                        List<LassoCrossing> & crossingList, List<StrokeIntersection> & strokeIntersections)
 {
     bool previousSegmentInsideLasso = false;
-    for (int x = 0; x <= crossingList.size(); x++)
+    for (int x = 0; x <= crossingList.Count(); x++)
     {
         bool currentSegmentWithinLasso = false;
         bool canMerge = true;
@@ -320,7 +320,7 @@ void Lasso::ProduceHitTestResults(
             currentSegmentWithinLasso = SegmentWithinLasso(crossingList[x - 1].EndNode, si.InBegin());
         }
 
-        if (x == crossingList.size())
+        if (x == crossingList.Count())
         {
             // NTRAID#WINOS-1132904-2005/04/27-XIAOTU: For a special case when the last intersection is something like (1.2, AL).
             // As a result the last InSegment should be empty.
@@ -366,7 +366,7 @@ void Lasso::ProduceHitTestResults(
             if (x > 0 && previousSegmentInsideLasso && canMerge)
             {
                 // we need to consolidate with the previous segment
-                StrokeIntersection previousIntersection = strokeIntersections[strokeIntersections.size() - 1];
+                StrokeIntersection previousIntersection = strokeIntersections[strokeIntersections.Count() - 1];
 
                 // For example: previousIntersection = [BF, AL, BF, 0.0027], si = [BF, 0.0027, 0.049, 0.063]
                 if (previousIntersection.InSegment().IsEmpty())
@@ -375,11 +375,11 @@ void Lasso::ProduceHitTestResults(
                 }
                 previousIntersection.SetInEnd(si.InEnd());
                 previousIntersection.SetHitEnd(si.HitEnd());
-                strokeIntersections[strokeIntersections.size() - 1] = previousIntersection;
+                strokeIntersections[strokeIntersections.Count() - 1] = previousIntersection;
             }
             else
             {
-                strokeIntersections.append(si);
+                strokeIntersections.Add(si);
             }
 
             if (DoubleUtil::AreClose(si.HitEnd(), StrokeFIndices::AfterLast))
@@ -393,7 +393,7 @@ void Lasso::ProduceHitTestResults(
 }
 
 /// <summary>
-/// This flag is set to true when a lasso QPointF has been modified or removed
+/// This flag is set to true when a lasso Point has been modified or removed
 /// from the list, which will invalidate incremental lasso hitteting
 /// </summary>
 bool Lasso::IsIncrementalLassoDirty()
@@ -408,40 +408,40 @@ void Lasso::SetIsIncrementalLassoDirty(bool value)
 /// <summary>
 /// Get a reference to the lasso points store
 /// </summary>
-QList<QPointF> & Lasso::PointsList()
+List<Point> & Lasso::PointsList()
 {
     return _points;
 }
 
 /// <summary>
 /// Filter out duplicate points (and maybe in the futuer colinear points).
-/// Return true if the QPointF should be filtered
+/// Return true if the Point should be filtered
 /// </summary>
-bool Lasso::Filter(QPointF const & point)
+bool Lasso::Filter(Point const & point)
 {
-    // First QPointF should not be filtered
-    if (0 == _points.size())
+    // First Point should not be filtered
+    if (0 == _points.Count())
     {
         return false;
     }
     // ISSUE-2004/06/14-vsmirnov - If the new segment is collinear with the last one,
-    // don't add the QPointF but modify the last QPointF instead.
-    QPointF lastPoint = _points[_points.size() - 1];
-    QPointF vector = point - lastPoint;
+    // don't add the Point but modify the last Point instead.
+    Point lastPoint = _points[_points.Count() - 1];
+    Point vector = point - lastPoint;
 
-    // The QPointF will be filtered out, i.e. not added to the list, if the distance to the previous QPointF is
+    // The Point will be filtered out, i.e. not added to the list, if the distance to the previous Point is
     // within the tolerance
-    return (qAbs(vector.x()) < MinDistance && qAbs(vector.y()) < MinDistance);
+    return (Math::Abs(vector.X()) < MinDistance && Math::Abs(vector.Y()) < MinDistance);
 }
 
 /// <summary>
 /// Implemtnation of add point
 /// </summary>
 /// <param name="point"></param>
-void Lasso::AddPointImpl(QPointF const & point)
+void Lasso::AddPointImpl(Point const & point)
 {
-    _points.append(point);
-    _bounds = United(_bounds, point);
+    _points.Add(point);
+    _bounds.Union(point);
 }
 
 
@@ -501,22 +501,22 @@ bool Lasso::LassoCrossing::Merge(LassoCrossing const & crossing)
     return false;
 }
 
-bool SingleLoopLasso::Filter(QPointF const & point)
+bool SingleLoopLasso::Filter(Point const & point)
 {
-    QList<QPointF> points = PointsList();
+    List<Point> points = PointsList();
 
-    // First QPointF should not be filtered
-    if (0 == points.size())
+    // First Point should not be filtered
+    if (0 == points.Count())
     {
-        // Just add the new QPointF to the lasso
+        // Just add the new Point to the lasso
         return false;
     }
 
-    // Don't add this QPointF if the lasso already has a loop; or
+    // Don't add this Point if the lasso already has a loop; or
     // if it's filtered by base class's filter.
     if (true == _hasLoop || true == Lasso::Filter(point))
     {
-        // Don't add this QPointF to the lasso.
+        // Don't add this Point to the lasso.
         return true;
     }
 
@@ -527,22 +527,22 @@ bool SingleLoopLasso::Filter(QPointF const & point)
 
     if (true == GetIntersectionWithExistingLasso(point, intersection))
     {
-        //System.Diagnostics.Debug.Assert(intersection >= 0 && intersection <= points.size() - 2);
+        //System.Diagnostics.Debug.Assert(intersection >= 0 && intersection <= points.Count() - 2);
 
-        if (intersection == points.size() - 2)
+        if (intersection == points.Count() - 2)
         {
             return true;
         }
 
-        // Adding the new QPointF will form a loop
+        // Adding the new Point will form a loop
         int i = (int) intersection;
 
         if (!DoubleUtil::AreClose(i, intersection))
         {
             // Move points[i] to the intersection position
-            QPointF intersectionPoint;
-            intersectionPoint.setX(points[i].x() + (intersection - i) * (points[i + 1].x() - points[i].x()));
-            intersectionPoint.setY(points[i].y() + (intersection - i) * (points[i + 1].y() - points[i].y()));
+            Point intersectionPoint;
+            intersectionPoint.setX(points[i].X() + (intersection - i) * (points[i + 1].X() - points[i].X()));
+            intersectionPoint.setY(points[i].Y() + (intersection - i) * (points[i + 1].Y() - points[i].Y()));
             points[i] = intersectionPoint;
             SetIsIncrementalLassoDirty(true);
         }
@@ -551,17 +551,17 @@ bool SingleLoopLasso::Filter(QPointF const & point)
         // points[i-1] should be removed
         if (i > 0)
         {
-            points = points.mid(i);   // Remove points[0] to points[i-1]
+            points.RemoveRange(0, i /*count*/);   // Remove points[0] to points[i-1]
             SetIsIncrementalLassoDirty(true);
         }
 
         if (true == IsIncrementalLassoDirty())
         {
             // Update the bounds
-            QRectF bounds;
-            for (int j = 0; j < points.size(); j++)
+            Rect bounds;
+            for (int j = 0; j < points.Count(); j++)
             {
-                bounds = United(bounds,points[j]);
+                bounds.Union(points[j]);
             }
             SetBounds(bounds);
         }
@@ -569,15 +569,15 @@ bool SingleLoopLasso::Filter(QPointF const & point)
         // The lasso has a self_loop, any more points will be neglected.
         _hasLoop = true;
 
-        // Don't add this QPointF to the lasso.
+        // Don't add this Point to the lasso.
         return true;
     }
 
-    // Just add the new QPointF to the lasso
+    // Just add the new Point to the lasso
     return false;
 }
 
-void SingleLoopLasso::AddPointImpl(QPointF const & point)
+void SingleLoopLasso::AddPointImpl(Point const & point)
 {
     _prevBounds = Bounds();
     Lasso::AddPointImpl(point);
@@ -587,30 +587,30 @@ void SingleLoopLasso::AddPointImpl(QPointF const & point)
 /// If the line _points[Count -1]->point insersect with the existing lasso, return true
 /// and bIndex value is set to a doulbe value representing position of the intersection.
 /// </summary>
-bool SingleLoopLasso::GetIntersectionWithExistingLasso(QPointF const & point, double & bIndex)
+bool SingleLoopLasso::GetIntersectionWithExistingLasso(Point const & point, double & bIndex)
 {
-    QList<QPointF> points = PointsList();
-    int count = points.size();
+    List<Point> points = PointsList();
+    int count = points.Count();
 
-    QRectF newRect(points[count - 1], point);
+    Rect newRect(points[count - 1], point);
 
-    if (false == _prevBounds.intersects(newRect))
+    if (false == _prevBounds.IntersectsWith(newRect))
     {
-        // The QPointF is not contained in the bound of the existing lasso, no intersection.
+        // The Point is not contained in the bound of the existing lasso, no intersection.
         return false;
     }
 
     for (int i = 0; i < count -2; i++)
     {
-        QRectF currRect(points[i], points[i+1]);
-        if (!currRect.intersects(newRect))
+        Rect currRect(points[i], points[i+1]);
+        if (!currRect.IntersectsWith(newRect))
         {
             continue;
         }
 
         double s = FindIntersection(points[count-1] - points[i],            /*hitBegin*/
                                             point - points[i],              /*hitEnd*/
-                                            QPointF(0, 0),               /*orgBegin*/
+                                            Point(0, 0),               /*orgBegin*/
                                             points[i+1] - points[i]         /*orgEnd*/);
         if (s >=0 && s <= 1)
         {
@@ -628,7 +628,7 @@ bool SingleLoopLasso::GetIntersectionWithExistingLasso(QPointF const & point, do
 /// <summary>
 /// Finds the intersection between the segment [hitBegin, hitEnd] and the segment [orgBegin, orgEnd].
 /// </summary>
-double SingleLoopLasso::FindIntersection(QPointF const & hitBegin, QPointF const & hitEnd, QPointF const & orgBegin, QPointF const & orgEnd)
+double SingleLoopLasso::FindIntersection(Point const & hitBegin, Point const & hitEnd, Point const & orgBegin, Point const & orgEnd)
 {
     //System.Diagnostics.Debug.Assert(hitEnd != hitBegin && orgBegin != orgEnd);
 
@@ -670,7 +670,7 @@ double SingleLoopLasso::FindIntersection(QPointF const & hitBegin, QPointF const
     //  If they are collinear, then the segments may be projected to the x-
     //  or y-axis, and overlap of the projected intervals checked.
     //
-    // If the intersection QPointF of the 2 lines are needed (lines in this
+    // If the intersection Point of the 2 lines are needed (lines in this
     // context mean infinite lines) regardless whether the two line
     // segments intersect, then
     //  If r > 1, P is located on extension of AB
@@ -685,10 +685,10 @@ double SingleLoopLasso::FindIntersection(QPointF const & hitBegin, QPointF const
     //----------------------------------------------------------------------
 
     // Calculate the vectors.
-    QPointF AB = orgEnd - orgBegin;          // B - A
-    QPointF CA = orgBegin - hitBegin;        // A - C
-    QPointF CD = hitEnd - hitBegin;          // D - C
-    double det = Determinant(AB, CD);
+    Vector AB = orgEnd - orgBegin;          // B - A
+    Vector CA = orgBegin - hitBegin;        // A - C
+    Vector CD = hitEnd - hitBegin;          // D - C
+    double det = Vector::Determinant(AB, CD);
 
     if (DoubleUtil::IsZero(det))
     {
@@ -696,15 +696,15 @@ double SingleLoopLasso::FindIntersection(QPointF const & hitBegin, QPointF const
         return NoIntersection;
     }
 
-    double r = AdjustFIndex(Determinant(AB, CA) / det);
+    double r = AdjustFIndex(Vector::Determinant(AB, CA) / det);
 
     if (r >= 0 && r <= 1)
     {
         // The line defined AB does cross the segment CD.
-        double s = AdjustFIndex(Determinant(CD, CA) / det);
+        double s = AdjustFIndex(Vector::Determinant(CD, CA) / det);
         if (s >= 0 && s <= 1)
         {
-            // The crossing QPointF is on the segment AB as well.
+            // The crossing Point is on the segment AB as well.
             // Intersection found.
             return s;
         }

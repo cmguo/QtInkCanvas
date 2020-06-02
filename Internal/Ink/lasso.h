@@ -3,12 +3,9 @@
 
 #include "strokefindices.h"
 #include "Windows/Ink/strokeintersection.h"
+#include "Windows/rect.h"
+#include "Collections/Generic/list.h"
 #include "strokenode.h"
-
-#include <QRectF>
-#include <QPointF>
-#include <QVector>
-#include <QList>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -36,11 +33,11 @@ public:
     /// <summary>
     /// Returns the bounds of the lasso
     /// </summary>
-    QRectF & Bounds()
+    Rect & Bounds()
     {
         return _bounds;
     }
-    void SetBounds(QRectF const & value)
+    void SetBounds(Rect const & value)
     {
         _bounds = value;
     }
@@ -53,7 +50,7 @@ public:
         //System.Diagnostics.Debug.Assert(_points != null);
         // The value is based on the assumption that the lasso is normalized
         // i.e. it has no duplicate points or collinear sibling segments.
-        return (_points.size() < 3);
+        return (_points.Count() < 3);
     }
 
     /// <summary>
@@ -62,18 +59,18 @@ public:
     int PointCount()
     {
         //System.Diagnostics.Debug.Assert(_points != null);
-        return _points.size();
+        return _points.Count();
     }
 
     /// <summary>
     /// Index-based read-only accessor to lasso points
     /// </summary>
-    /// <param name="index">index of the QPointF to return</param>
-    /// <returns>a QPointF in the lasso</returns>
-    QPointF operator[](int index)
+    /// <param name="index">index of the Point to return</param>
+    /// <returns>a Point in the lasso</returns>
+    Point operator[](int index)
     {
         //System.Diagnostics.Debug.Assert(_points != null);
-        //System.Diagnostics.Debug.Assert((0 <= index) && (index < _points.size()));
+        //System.Diagnostics.Debug.Assert((0 <= index) && (index < _points.Count()));
 
         return _points[index];
     }
@@ -82,33 +79,33 @@ public:
     /// Extends the lasso by appending more points
     /// </summary>
     /// <param name="points">new points</param>
-    void AddPoints(QVector<QPointF> const & points);
+    void AddPoints(List<Point> const & points);
 
     /// <summary>
-    /// Appends a QPointF to the lasso
+    /// Appends a Point to the lasso
     /// </summary>
     /// <param name="point">new lasso point</param>
-    void AddPoint(QPointF const & point);
+    void AddPoint(Point const & point);
 
     /// <summary>
-    /// This method implement the core algorithm to check whether a QPointF is within a polygon
+    /// This method implement the core algorithm to check whether a Point is within a polygon
     /// that are formed by the lasso points.
     /// </summary>
     /// <param name="point"></param>
-    /// <returns>true if the QPointF is contained within the lasso; false otherwise </returns>
-    bool Contains(QPointF const & point);
+    /// <returns>true if the Point is contained within the lasso; false otherwise </returns>
+    bool Contains(Point const & point);
 
-    QVector<StrokeIntersection> HitTest(StrokeNodeIterator & iterator);
+    Array<StrokeIntersection> HitTest(StrokeNodeIterator & iterator);
 
     /// <summary>
     /// Sort and merge the crossing list
     /// </summary>
     /// <param name="crossingList">The crossing list to sort/merge</param>
-    static void SortAndMerge(QList<LassoCrossing> & crossingList);
+    static void SortAndMerge(List<LassoCrossing> & crossingList);
 
 
     /// <summary>
-    /// Helper function to find out whether a QPointF is inside the lasso
+    /// Helper function to find out whether a Point is inside the lasso
     /// </summary>
     bool SegmentWithinLasso(StrokeNode & strokeNode, double fIndex);
 
@@ -116,10 +113,10 @@ public:
     /// Helper function to find out the hit test result
     /// </summary>
     void ProduceHitTestResults(
-                            QList<LassoCrossing> & crossingList, QList<StrokeIntersection> & strokeIntersections);
+                            List<LassoCrossing> & crossingList, List<StrokeIntersection> & strokeIntersections);
 
     /// <summary>
-    /// This flag is set to true when a lasso QPointF has been modified or removed
+    /// This flag is set to true when a lasso Point has been modified or removed
     /// from the list, which will invalidate incremental lasso hitteting
     /// </summary>
     bool IsIncrementalLassoDirty();
@@ -128,24 +125,24 @@ public:
     /// <summary>
     /// Get a reference to the lasso points store
     /// </summary>
-    QList<QPointF> & PointsList();
+    List<Point> & PointsList();
 
     /// <summary>
     /// Filter out duplicate points (and maybe in the futuer colinear points).
-    /// Return true if the QPointF should be filtered
+    /// Return true if the Point should be filtered
     /// </summary>
 protected:
-    virtual bool Filter(QPointF const & point);
+    virtual bool Filter(Point const & point);
 
     /// <summary>
     /// Implemtnation of add point
     /// </summary>
     /// <param name="point"></param>
-    virtual void AddPointImpl(QPointF const & point);
+    virtual void AddPointImpl(Point const & point);
 
 private:
-    QList<QPointF>          _points;
-    QRectF                  _bounds;
+    List<Point>             _points;
+    Rect                    _bounds;
     bool                    _incrementalLassoDirty  = false;
     static constexpr double MinDistance             = 1.0;
 
@@ -179,6 +176,7 @@ public:
             //System.Diagnostics.Debug.Assert(strokeNode.IsValid);
         }
 
+#ifdef INKCANVAS_QT
         /// <summary>
         /// ToString
         /// </summary>
@@ -186,7 +184,7 @@ public:
         {
             return FIndices.ToString();
         }
-
+#endif
         /// <summary>
         /// Construct an empty LassoCrossing
         /// </summary>
@@ -242,25 +240,25 @@ public:
     virtual ~SingleLoopLasso() {}
 
     /// <summary>
-    /// Return true if the QPointF will be filtered out and should NOT be added to the list
+    /// Return true if the Point will be filtered out and should NOT be added to the list
     /// </summary>
 protected:
-    virtual bool Filter(QPointF const & point);
+    virtual bool Filter(Point const & point);
 
-    virtual void AddPointImpl(QPointF const & point);
+    virtual void AddPointImpl(Point const & point);
 
     /// <summary>
     /// If the line _points[Count -1]->point insersect with the existing lasso, return true
     /// and bIndex value is set to a doulbe value representing position of the intersection.
     /// </summary>
-    bool GetIntersectionWithExistingLasso(QPointF const & point, double & bIndex);
+    bool GetIntersectionWithExistingLasso(Point const & point, double & bIndex);
 
 
     /// <summary>
     /// Finds the intersection between the segment [hitBegin, hitEnd] and the segment [orgBegin, orgEnd].
     /// </summary>
-    static double FindIntersection(QPointF const & hitBegin, QPointF const & hitEnd,
-                                   QPointF const & orgBegin, QPointF const & orgEnd);
+    static double FindIntersection(Point const & hitBegin, Point const & hitEnd,
+                                   Point const & orgBegin, Point const & orgEnd);
 
     /// <summary>
     /// Clears double's computation fuzz around 0 and 1
@@ -269,7 +267,7 @@ protected:
 
 private:
     bool _hasLoop                           = false;
-    QRectF _prevBounds;
+    Rect _prevBounds;
     static constexpr double NoIntersection  = StrokeFIndices::BeforeFirst;
 };
 

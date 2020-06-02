@@ -31,20 +31,20 @@ public:
     /// </summary>
     /// <param name="erasingShape">The shape of the eraser's tip</param>
     /// <param name="path">the spine of the erasing stroke</param>
-    ErasingStroke(StylusShape &erasingShape, QVector<QPointF> const & path);
+    ErasingStroke(StylusShape &erasingShape, List<Point> const & path);
 
     /// <summary>
     /// Generates stroke nodes along a given path.
     /// Drops any previously genererated nodes.
     /// </summary>
     /// <param name="path"></param>
-    void MoveTo(QVector<QPointF>const & path);
+    void MoveTo(List<Point> const & path);
 
     /// <summary>
     /// Returns the bounds of the eraser's last move.
     /// </summary>
     /// <value></value>
-    QRectF Bounds() { return _bounds; }
+    Rect Bounds() { return _bounds; }
 
     /// <summary>
     /// Hit-testing for stroke erase scenario.
@@ -59,16 +59,16 @@ public:
     /// <param name="iterator"></param>
     /// <param name="intersections"></param>
     /// <returns></returns>
-    bool EraseTest(StrokeNodeIterator const & iterator, QVector<StrokeIntersection>& intersections);
+    bool EraseTest(StrokeNodeIterator const & iterator, List<StrokeIntersection>& intersections);
 
 
 private:
-    QVector<QPointF> FilterPoints(QVector<QPointF> const & path);
+    Array<Point> FilterPoints(Array<Point> const & path);
 
 private:
-    StrokeNodeIterator      _nodeIterator;
-    QVector<StrokeNode>     _erasingStrokeNodes;
-    QRectF                  _bounds;
+    StrokeNodeIterator    _nodeIterator;
+    List<StrokeNode>      _erasingStrokeNodes;
+    Rect                  _bounds;
 
 #if POINTS_FILTER_TRACE
     int                     _totalPointsAdded = 0;

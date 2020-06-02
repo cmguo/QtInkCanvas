@@ -2,10 +2,7 @@
 #define STROKEFINDICES_H
 
 #include "Internal/doubleutil.h"
-
-#include <QtMath>
-
-#include <float.h>
+#include "cmath.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -69,10 +66,12 @@ public:
         _endFIndex = value;
     }
 
+#ifdef INKCANVAS_QT
     /// <summary>
     /// ToString
     /// </summary>
     QString ToString() const;
+#endif
 
     /// <summary>
     /// Equals
@@ -108,7 +107,7 @@ public:
         return !(sfiLeft == sfiRight);
     }
 
-    static QString GetStringRepresentation(double fIndex);
+    static char const * GetStringRepresentation(double fIndex);
 
     /// <summary>
     ///

@@ -3,11 +3,14 @@
 
 #include "InkCanvas_global.h"
 
-#include <QRectF>
-#include <QList>
-#include <QPainterPath>
+#include "Windows/point.h"
+#include "Windows/rect.h"
+#include "Collections/Generic/list.h"
 
+#ifndef INKCANVAS_CORE
+#include <QPainterPath>
 class QPainter;
+#endif
 
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE
@@ -33,9 +36,11 @@ public:
 
     virtual ~Geometry();
 
-    virtual QRectF Bounds() = 0;
+    virtual Rect Bounds() = 0;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) = 0;
+#endif
 
     bool tryTakeOwn(void * owner);
 
@@ -44,6 +49,8 @@ public:
 private:
     void * owner_ = nullptr;
 };
+
+#ifndef INKCANVAS_CORE
 
 class PathGeometry : public Geometry
 {
@@ -56,7 +63,7 @@ public:
 
     PathGeometry* Combine(Geometry * geometry);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
     virtual void Draw(QPainter& painter) override;
 
@@ -64,60 +71,71 @@ private:
     QPainterPath path_;
 };
 
+#endif
+
 class GeometryGroup : public Geometry
 {
 public:
     virtual ~GeometryGroup() override;
 
-    QList<Geometry*>& Children();
+    List<Geometry*>& Children();
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
-    QList<Geometry*> children_;
+    List<Geometry*> children_;
 };
 
 class LineGeometry : public Geometry
 {
 public:
-    LineGeometry(QPointF point0, QPointF point1);
+    LineGeometry(Point const & point0, Point const & point1);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
-    QLineF line_;
+    Point start_;
+    Point end_;
 };
 
 class RectangleGeometry : public Geometry
 {
 public:
-    RectangleGeometry(QRectF rectangle);
-    RectangleGeometry(QRectF rectangle, double radiusX, double radiusY);
+    RectangleGeometry(Rect rectangle);
+    RectangleGeometry(Rect rectangle, double radiusX, double radiusY);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
-    QRectF rectangle_;
-    QSizeF radius_;
+    Rect rectangle_;
+    Size radius_;
 };
 
 class EllipseGeometry : public Geometry
 {
 public:
-    EllipseGeometry(QPointF center, double radiusX, double radiusY);
+    EllipseGeometry(Point center, double radiusX, double radiusY);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
+#ifndef INKCANVAS_CORE
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
-    QRectF rectangle_;
+    Rect rectangle_;
 };
 
 INKCANVAS_END_NAMESPACE

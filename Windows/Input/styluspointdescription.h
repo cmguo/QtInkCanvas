@@ -3,8 +3,9 @@
 
 #include "Windows/Input/styluspointpropertyinfo.h"
 
-#include <QVector>
-#include <QSharedPointer>
+#include "Collections/Generic/list.h"
+#include "Collections/Generic/array.h"
+#include "sharedptr.h"
 
 #include <iterator>
 
@@ -25,7 +26,7 @@ public:
 
     int _buttonCount = 0;
     int _originalPressureIndex = RequiredPressureIndex;
-    QVector<StylusPointPropertyInfo>   _stylusPointPropertyInfos;
+    List<StylusPointPropertyInfo>   _stylusPointPropertyInfos;
 
     /// <summary>
     /// StylusPointDescription
@@ -35,14 +36,14 @@ public:
     /// <summary>
     /// StylusPointDescription
     /// </summary>
-    StylusPointDescription(QVector<StylusPointPropertyInfo> const & stylusPointPropertyInfos);
+    StylusPointDescription(List<StylusPointPropertyInfo> const & stylusPointPropertyInfos);
 
     /// <summary>
     /// StylusPointDescription
     /// </summary>
     /// <param name="stylusPointPropertyInfos">stylusPointPropertyInfos
     /// <param name="originalPressureIndex">originalPressureIndex - does the digitizer really support pressure?  If so, the index this was at
-    StylusPointDescription(QVector<StylusPointPropertyInfo> const & stylusPointPropertyInfos, int originalPressureIndex);
+    StylusPointDescription(List<StylusPointPropertyInfo> const & stylusPointPropertyInfos, int originalPressureIndex);
     /// <summary>
     /// HasProperty
     /// </summary>
@@ -63,23 +64,23 @@ public:
     /// <summary>
     /// GetPropertyInfo
     /// </summary>
-    /// <param name="QUuid">QUuid
-    StylusPointPropertyInfo GetPropertyInfo(QUuid const & QUuid) const;
+    /// <param name="Guid">Guid
+    StylusPointPropertyInfo GetPropertyInfo(Guid const & Guid) const;
 
     /// <summary>
     /// Returns the index of the given StylusPointProperty by ID, or -1 if none is found
     /// </summary>
-    int GetPropertyIndex(QUuid QUuid) const;
+    int GetPropertyIndex(Guid Guid) const;
 
     /// <summary>
     /// GetStylusPointProperties
     /// </summary>
-    QVector<StylusPointPropertyInfo> GetStylusPointProperties() const;
+    List<StylusPointPropertyInfo> GetStylusPointProperties() const;
 
     /// <summary>
     /// GetStylusPointPropertyIdss
     /// </summary>
-    QVector<QUuid> GetStylusPointPropertyIds() const;
+    Array<Guid> GetStylusPointPropertyIds() const;
 
     /// <summary>
     /// helper for determining how many ints in a raw int array
@@ -126,7 +127,7 @@ public:
     /// </summary>
     /// <param name="stylusPointDescription1">stylusPointDescription1
     /// <param name="stylusPointDescription2">stylusPointDescription2
-    static bool AreCompatible(QSharedPointer<StylusPointDescription> stylusPointDescription1, QSharedPointer<StylusPointDescription> stylusPointDescription2);
+    static bool AreCompatible(SharedPointer<StylusPointDescription> stylusPointDescription1, SharedPointer<StylusPointDescription> stylusPointDescription2);
 
     /// <summary>
     /// Returns a new StylusPointDescription with the common StylusPointProperties from both
@@ -134,8 +135,8 @@ public:
     /// <param name="stylusPointDescription">stylusPointDescription
     /// <param name="stylusPointDescriptionPreserveInfo">stylusPointDescriptionPreserveInfo
     /// <remarks>The StylusPointProperties from stylusPointDescriptionPreserveInfo will be returned in the new StylusPointDescription</remarks>
-    static QSharedPointer<StylusPointDescription> GetCommonDescription(QSharedPointer<StylusPointDescription> stylusPointDescription,
-                                                         QSharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo);
+    static SharedPointer<StylusPointDescription> GetCommonDescription(SharedPointer<StylusPointDescription> stylusPointDescription,
+                                                         SharedPointer<StylusPointDescription> stylusPointDescriptionPreserveInfo);
 
     /// <summary>
     /// Returns true if this StylusPointDescription is a subset
@@ -143,13 +144,13 @@ public:
     /// </summary>
     /// <param name="stylusPointDescriptionSuperset">stylusPointDescriptionSuperset
     /// <returns></returns>
-    bool IsSubsetOf(QSharedPointer<StylusPointDescription> stylusPointDescriptionSuperset) const;
+    bool IsSubsetOf(SharedPointer<StylusPointDescription> stylusPointDescriptionSuperset) const;
 
     /// <summary>
     /// Returns the index of the given StylusPointProperty, or -1 if none is found
     /// </summary>
     /// <param name="propertyId">propertyId
-    int IndexOf(QUuid propertyId) const;
+    int IndexOf(Guid propertyId) const;
 
 };
 

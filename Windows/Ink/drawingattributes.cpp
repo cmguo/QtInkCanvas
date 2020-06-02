@@ -40,12 +40,15 @@ DrawingAttributes::~DrawingAttributes()
 void DrawingAttributes::Initialize()
 {
     Debug::Assert(_extendedProperties != nullptr);
+#ifdef INKCANVAS_QT
     //_extendedProperties->Changed +=
     //    new ExtendedPropertiesChangedEventHandler(this.ExtendedPropertiesChanged_EventForwarder);
     QObject::connect(_extendedProperties, &ExtendedPropertyCollection::Changed,
                      this, &DrawingAttributes::ExtendedPropertiesChanged_EventForwarder);
+#endif
 }
 
+#ifdef INKCANVAS_QT
 
 /// <summary>
 /// The color of the Stroke
@@ -68,6 +71,8 @@ void DrawingAttributes::SetColor(QColor value)
     // Validation of value is done in EPC
     SetExtendedPropertyBackedProperty(KnownIds::Color, value);
 }
+
+#endif
 
 /// <summary>
 /// The StylusTip used to draw the stroke
@@ -93,27 +98,27 @@ void DrawingAttributes::SetStylusTip(StylusTip value)
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
     // Validation of value is done in EPC
-    SetExtendedPropertyBackedProperty(KnownIds::StylusTip, QVariant::fromValue(value));
+    SetExtendedPropertyBackedProperty(KnownIds::StylusTip, Variant::fromValue(value));
 }
 
 /// <summary>
 /// The StylusTip used to draw the stroke
 /// </summary>
-QMatrix DrawingAttributes::StylusTipTransform() const
+Matrix DrawingAttributes::StylusTipTransform() const
 {
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusTipTransform))
     {
-        Debug::Assert(QMatrix() == GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform).value<QMatrix>());
-        return QMatrix();
+        Debug::Assert(Matrix::Identity() == GetDefaultDrawingAttributeValue(KnownIds::StylusTipTransform).value<Matrix>());
+        return Matrix();
     }
-    return GetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform).value<QMatrix>();
+    return GetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform).value<Matrix>();
 }
 
-void DrawingAttributes::SetStylusTipTransform(QMatrix const & value)
+void DrawingAttributes::SetStylusTipTransform(Matrix const & value)
 {
-    QMatrix const & m = value;
-    if (m.dx() != 0 || m.dy() != 0)
+    Matrix const & m = value;
+    if (m.OffsetX() != 0 || m.OffsetY() != 0)
     {
         throw std::runtime_error("value");
     }
@@ -135,12 +140,12 @@ double DrawingAttributes::Height() const
         Debug::Assert(DefaultHeight == GetDefaultDrawingAttributeValue(KnownIds::StylusHeight));
         return DefaultHeight;
     }
-    return GetExtendedPropertyBackedProperty(KnownIds::StylusHeight).toDouble();
+    return GetExtendedPropertyBackedProperty(KnownIds::StylusHeight).value<double>();
 }
 
 void DrawingAttributes::SetHeight(double value)
 {
-    if (qIsNaN(value) || value < MinHeight || value > MaxHeight)
+    if (Double::IsNaN(value) || value < MinHeight || value > MaxHeight)
     {
         throw std::runtime_error("Height");
     }
@@ -158,14 +163,14 @@ double DrawingAttributes::Width() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::StylusWidth))
     {
-        Debug::Assert(DefaultWidth == GetDefaultDrawingAttributeValue(KnownIds::StylusWidth).toDouble());
+        Debug::Assert(DefaultWidth == GetDefaultDrawingAttributeValue(KnownIds::StylusWidth).value<double>());
         return DefaultWidth;
     }
-    return GetExtendedPropertyBackedProperty(KnownIds::StylusWidth).toDouble();
+    return GetExtendedPropertyBackedProperty(KnownIds::StylusWidth).value<double>();
 }
 void DrawingAttributes::SetWidth(double value)
 {
-    if (qIsNaN(value) || value < MinWidth || value > MaxWidth)
+    if (Double::IsNaN(value) || value < MinWidth || value > MaxWidth)
     {
         throw std::runtime_error("Width");
     }
@@ -193,14 +198,14 @@ void DrawingAttributes::SetFitToCurve(bool value)
     if (value)
     {
         //turn on the bit
-        flags |= DrawingFlag::FitToCurve;
+        flags = flags | DrawingFlag::FitToCurve;
     }
     else
     {
         //turn off the bit
-        flags.setFlag(DrawingFlag::FitToCurve, false);
+        flags = flags & ~DrawingFlag::FitToCurve;
     }
-    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, QVariant::fromValue(flags));
+    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, Variant::fromValue(flags));
 }
 
 /// <summary>
@@ -219,14 +224,14 @@ void DrawingAttributes::SetIgnorePressure(bool value)
     if (value)
     {
         //turn on the bit
-        flags |= DrawingFlag::IgnorePressure;
+        flags = flags | DrawingFlag::IgnorePressure;
     }
     else
     {
         //turn off the bit
-        flags.setFlag(DrawingFlag::IgnorePressure, false);
+        flags = flags & ~DrawingFlag::IgnorePressure;
     }
-    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, QVariant::fromValue(flags));
+    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, Variant::fromValue(flags));
 }
 
 /// <summary>
@@ -237,12 +242,12 @@ bool DrawingAttributes::IsHighlighter() const
     //prevent boxing / unboxing if possible
     if (!_extendedProperties->Contains(KnownIds::IsHighlighter))
     {
-        Debug::Assert(false == GetDefaultDrawingAttributeValue(KnownIds::IsHighlighter).toBool());
+        Debug::Assert(false == GetDefaultDrawingAttributeValue(KnownIds::IsHighlighter).value<bool>());
         return false;
     }
     else
     {
-        Debug::Assert(true == GetExtendedPropertyBackedProperty(KnownIds::IsHighlighter).toBool());
+        Debug::Assert(true == GetExtendedPropertyBackedProperty(KnownIds::IsHighlighter).value<bool>());
         return true;
     }
 }
@@ -252,6 +257,7 @@ void DrawingAttributes::SetIsHighlighter(bool value)
     //underneath us
     SetExtendedPropertyBackedProperty(KnownIds::IsHighlighter, value);
 
+#ifndef INKCANVAS_CORE
     //
     // set RasterOp for V1 interop
     //
@@ -263,6 +269,7 @@ void DrawingAttributes::SetIsHighlighter(bool value)
     {
         _v1RasterOperation = DrawingAttributeSerializer::RasterOperationDefaultV1;
     }
+#endif
 }
 
 /// <summary>
@@ -270,7 +277,7 @@ void DrawingAttributes::SetIsHighlighter(bool value)
 /// </summary>
 /// <param name="propertyDataId"></param>
 /// <param name="propertyData"></param>
-void DrawingAttributes::AddPropertyData(QUuid const & propertyDataId, QVariant propertyData)
+void DrawingAttributes::AddPropertyData(Guid const & propertyDataId, Variant const & propertyData)
 {
     ValidateStylusTipTransform(propertyDataId, propertyData);
     SetExtendedPropertyBackedProperty(propertyDataId, propertyData);
@@ -280,7 +287,7 @@ void DrawingAttributes::AddPropertyData(QUuid const & propertyDataId, QVariant p
 /// Allows removal of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-void DrawingAttributes::RemovePropertyData(QUuid const & propertyDataId)
+void DrawingAttributes::RemovePropertyData(Guid const & propertyDataId)
 {
     _extendedProperties->Remove(propertyDataId);
 }
@@ -289,15 +296,15 @@ void DrawingAttributes::RemovePropertyData(QUuid const & propertyDataId)
 /// Allows retrieval of objects from the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-QVariant DrawingAttributes::GetPropertyData(QUuid const & propertyDataId)
+Variant DrawingAttributes::GetPropertyData(Guid const & propertyDataId)
 {
     return GetExtendedPropertyBackedProperty(propertyDataId);
 }
 
 /// <summary>
-/// Allows retrieval of a Array of QUuids that are contained in the EPC
+/// Allows retrieval of a Array of Guids that are contained in the EPC
 /// </summary>
-QVector<QUuid> DrawingAttributes::GetPropertyDataIds()
+Array<Guid> DrawingAttributes::GetPropertyDataIds()
 {
     return _extendedProperties->GetGuidArray();
 }
@@ -306,7 +313,7 @@ QVector<QUuid> DrawingAttributes::GetPropertyDataIds()
 /// Allows check of containment of objects to the EPC
 /// </summary>
 /// <param name="propertyDataId"></param>
-bool DrawingAttributes::ContainsPropertyData(QUuid const & propertyDataId)
+bool DrawingAttributes::ContainsPropertyData(Guid const & propertyDataId)
 {
     return _extendedProperties->Contains(propertyDataId);
 }
@@ -361,7 +368,7 @@ int DrawingAttributes::FittingError()
     }
     else
     {
-        return (*_extendedProperties)[KnownIds::CurveFittingError].toInt();
+        return (*_extendedProperties)[KnownIds::CurveFittingError].value<int>();
     }
 }
 void DrawingAttributes::SetFittingError(int value)
@@ -380,7 +387,7 @@ void DrawingAttributes::SetDrawingFlags(DrawingFlags value)
 {
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
-    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, QVariant::fromValue(value));
+    SetExtendedPropertyBackedProperty(KnownIds::DrawingFlags, Variant::fromValue(value));
 }
 
 
@@ -388,6 +395,8 @@ void DrawingAttributes::SetDrawingFlags(DrawingFlags value)
 /// we need to preserve this for round tripping
 /// </summary>
 /// <value></value>
+
+#ifndef INKCANVAS_CORE
 
 void DrawingAttributes::SetRasterOperation(uint value)
 {
@@ -405,6 +414,8 @@ void DrawingAttributes::SetHeightChangedForCompatabity(bool value)
 {
     _heightChangedForCompatabity = value;
 }
+
+#endif
 
 
 //------------------------------------------------------
@@ -427,7 +438,7 @@ bool DrawingAttributes::Equals(DrawingAttributes const & that) const
 /// </summary>
 /// <returns>Deep copy of the DrawingAttributes</returns>
 /// <remarks></remarks>
-QSharedPointer<DrawingAttributes> DrawingAttributes::Clone()
+SharedPointer<DrawingAttributes> DrawingAttributes::Clone()
 {
     //
     // use MemberwiseClone, which will instance the most derived type
@@ -435,7 +446,7 @@ QSharedPointer<DrawingAttributes> DrawingAttributes::Clone()
     // require ReflectionPermission.  One thing to note, all references
     // are shared, including event delegates, so we need to set those to null
     //
-    QSharedPointer<DrawingAttributes> clone(new DrawingAttributes(_extendedProperties->Clone()));
+    SharedPointer<DrawingAttributes> clone(new DrawingAttributes(_extendedProperties->Clone()));
 
     clone->Initialize();
 
@@ -448,30 +459,32 @@ QSharedPointer<DrawingAttributes> DrawingAttributes::Clone()
 
 
 /// <summary>
-/// Simple helper method used to determine if a QUuid
+/// Simple helper method used to determine if a Guid
 /// from an ExtendedProperty is used as the backing store
 /// of a DrawingAttribute
 /// </summary>
 /// <param name="id"></param>
 /// <returns></returns>
-QVariant DrawingAttributes::GetDefaultDrawingAttributeValue(QUuid const & id)
+Variant DrawingAttributes::GetDefaultDrawingAttributeValue(Guid const & id)
 {
+#ifdef INKCANVAS_QT
     if (KnownIds::Color == id)
     {
         return QColor(Qt::black);
     }
+#endif
     if (KnownIds::StylusWidth == id)
     {
         return DefaultWidth;
     }
     if (KnownIds::StylusTip == id)
     {
-        return QVariant::fromValue(StylusTip::Ellipse);
+        return Variant::fromValue(StylusTip::Ellipse);
     }
     if (KnownIds::DrawingFlags == id)
     {
         //note that in this implementation, FitToCurve is false by default
-        return QVariant::fromValue(DrawingFlags({DrawingFlag::AntiAliased}));
+        return Variant::fromValue(DrawingFlags(DrawingFlag::AntiAliased));
     }
     if (KnownIds::StylusHeight == id)
     {
@@ -479,7 +492,7 @@ QVariant DrawingAttributes::GetDefaultDrawingAttributeValue(QUuid const & id)
     }
     if (KnownIds::StylusTipTransform == id)
     {
-        return QMatrix();
+        return Matrix();
     }
     if (KnownIds::IsHighlighter == id)
     {
@@ -488,38 +501,40 @@ QVariant DrawingAttributes::GetDefaultDrawingAttributeValue(QUuid const & id)
     // this is a valid case
     // as this helper method is used not only to
     // get the default value, but also to see if
-    // the QUuid is a drawing attribute value
-    return QVariant();
+    // the Guid is a drawing attribute value
+    return Variant();
 }
 
-void DrawingAttributes::ValidateStylusTipTransform(QUuid const & propertyDataId, QVariant propertyData)
+void DrawingAttributes::ValidateStylusTipTransform(Guid const & propertyDataId, Variant propertyData)
 {
     // NTRAID#WINOS-1136720-2005/06/22-XIAOTU:
     // Calling AddPropertyData(KnownIds::StylusTipTransform, "d") does not throw an ArgumentException.
     //  ExtendedPropertySerializer.Validate take a string as a valid type since StylusTipTransform
     //  gets serialized as a String, but at runtime is a Matrix
-    if (propertyData.isNull())
+    if (propertyData == nullptr)
     {
         throw std::runtime_error("propertyData");
     }
     else if (propertyDataId == KnownIds::StylusTipTransform)
     {
+#ifdef INKCANVAS_QT
         // StylusTipTransform gets serialized as a String, but at runtime is a Matrix
-        if (propertyData.type() == QVariant::Type::String)
+        if (propertyData.type() == Variant::Type::String)
         {
             throw std::runtime_error("propertyData");
         }
+#endif
     }
 }
 
 /// <summary>
-/// Simple helper method used to determine if a QUuid
+/// Simple helper method used to determine if a Guid
 /// needs to be removed from the ExtendedPropertyCollection in ISF
 /// before serializing
 /// </summary>
 /// <param name="id"></param>
 /// <returns></returns>
-bool DrawingAttributes::RemoveIdFromExtendedProperties(QUuid const & id)
+bool DrawingAttributes::RemoveIdFromExtendedProperties(Guid const & id)
 {
     if (KnownIds::Color == id ||
         KnownIds::Transparency == id ||
@@ -558,16 +573,16 @@ bool DrawingAttributes::GeometricallyEqual(DrawingAttributes const & left, Drawi
 }
 
 /// <summary>
-/// Returns true if the QUuid passed in has impact on geometry of the stroke
+/// Returns true if the Guid passed in has impact on geometry of the stroke
 /// </summary>
-bool DrawingAttributes::IsGeometricalDaGuid(QUuid const & QUuid)
+bool DrawingAttributes::IsGeometricalDaGuid(Guid const & Guid)
 {
-    // Assert it is a DA QUuid
-    Debug::Assert(QVariant() != GetDefaultDrawingAttributeValue(QUuid));
+    // Assert it is a DA Guid
+    Debug::Assert(Variant() != GetDefaultDrawingAttributeValue(Guid));
 
-    if (QUuid == KnownIds::StylusHeight || QUuid == KnownIds::StylusWidth ||
-        QUuid == KnownIds::StylusTipTransform || QUuid == KnownIds::StylusTip ||
-        QUuid == KnownIds::DrawingFlags)
+    if (Guid == KnownIds::StylusHeight || Guid == KnownIds::StylusWidth ||
+        Guid == KnownIds::StylusTipTransform || Guid == KnownIds::StylusTip ||
+        Guid == KnownIds::DrawingFlags)
     {
         return true;
     }
@@ -588,12 +603,12 @@ void DrawingAttributes::ExtendedPropertiesChanged_EventForwarder(ExtendedPropert
     //Debug::Assert(args != null);
 
     //see if the EP that changed is a drawingattribute
-    if (args.NewProperty().Value().isNull())
+    if (args.NewProperty().Value() == nullptr)
     {
         //a property was removed, see if it is a drawing attribute property
-        QVariant defaultValueIfDrawingAttribute
+        Variant defaultValueIfDrawingAttribute
             = DrawingAttributes::GetDefaultDrawingAttributeValue(args.OldProperty().Id());
-        if (!defaultValueIfDrawingAttribute.isNull())
+        if (defaultValueIfDrawingAttribute != nullptr)
         {
             ExtendedProperty newProperty(   args.OldProperty().Id(),
                                         defaultValueIfDrawingAttribute);
@@ -607,19 +622,19 @@ void DrawingAttributes::ExtendedPropertiesChanged_EventForwarder(ExtendedPropert
         else
         {
             PropertyDataChangedEventArgs dargs(  args.OldProperty().Id(),
-                                                        QVariant(),      //the property
+                                                        Variant(),      //the property
                                                         args.OldProperty().Value());//previous value
 
             OnPropertyDataChanged(dargs);
 
         }
     }
-    else if (args.OldProperty().Value().isNull())
+    else if (args.OldProperty().Value() == nullptr)
     {
         //a property was added, see if it is a drawing attribute property
-        QVariant defaultValueIfDrawingAttribute
+        Variant defaultValueIfDrawingAttribute
             = DrawingAttributes::GetDefaultDrawingAttributeValue(args.NewProperty().Id());
-        if (!defaultValueIfDrawingAttribute.isNull())
+        if (defaultValueIfDrawingAttribute != nullptr)
         {
             if (defaultValueIfDrawingAttribute != args.NewProperty().Value())
             {
@@ -635,7 +650,7 @@ void DrawingAttributes::ExtendedPropertiesChanged_EventForwarder(ExtendedPropert
         {
             PropertyDataChangedEventArgs dargs(args.NewProperty().Id(),
                                                  args.NewProperty().Value(),   //the property
-                                                 QVariant());     //previous value
+                                                 Variant());     //previous value
             OnPropertyDataChanged(dargs);
 
         }
@@ -643,9 +658,9 @@ void DrawingAttributes::ExtendedPropertiesChanged_EventForwarder(ExtendedPropert
     else
     {
         //something was modified, see if it is a drawing attribute property
-        QVariant defaultValueIfDrawingAttribute
+        Variant defaultValueIfDrawingAttribute
             = DrawingAttributes::GetDefaultDrawingAttributeValue(args.NewProperty().Id());
-        if (!defaultValueIfDrawingAttribute.isNull())
+        if (defaultValueIfDrawingAttribute != nullptr)
         {
             //
             // we only raise DA changed when the value actually changes
@@ -691,10 +706,12 @@ void DrawingAttributes::OnAttributeChanged(PropertyDataChangedEventArgs &e)
     //}
     //finally
     //{
+#ifdef INKCANVAS_QT
         //if ( this.AttributeChanged != null )
         //{
             emit AttributeChanged(e);
         //}
+#endif
     //}
 }
 
@@ -704,7 +721,7 @@ void DrawingAttributes::OnAttributeChanged(PropertyDataChangedEventArgs &e)
 /// </summary>
 /// <param name="id">id</param>
 /// <param name="value">value</param>
-void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVariant value)
+void DrawingAttributes::SetExtendedPropertyBackedProperty(Guid const & id, Variant const & value)
 {
     if (_extendedProperties->Contains(id))
     {
@@ -713,8 +730,8 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
         // to a default value.  If we are we should remove it from
         // the EPC
         //
-        QVariant defaultValue = GetDefaultDrawingAttributeValue(id);
-        if (defaultValue.isValid())
+        Variant defaultValue = GetDefaultDrawingAttributeValue(id);
+        if (defaultValue != nullptr)
         {
             if (defaultValue == value)
             {
@@ -727,7 +744,7 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
         // already exists, check for equality before we do
         // so we don't raise unnecessary EPC changed events
         //
-        QVariant o = GetExtendedPropertyBackedProperty(id);
+        Variant o = GetExtendedPropertyBackedProperty(id);
         if (o != value)
         {
             _extendedProperties->Set(id, value);
@@ -736,11 +753,11 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
     else
     {
         //
-        // make sure we're not setting a default value of the QUuid
+        // make sure we're not setting a default value of the Guid
         // there is no need to do this
         //
-        QVariant defaultValue = GetDefaultDrawingAttributeValue(id);
-        if (defaultValue.isNull() || defaultValue != value)
+        Variant defaultValue = GetDefaultDrawingAttributeValue(id);
+        if (defaultValue == nullptr || defaultValue != value)
         {
             _extendedProperties->Set(id, value);
         }
@@ -753,11 +770,11 @@ void DrawingAttributes::SetExtendedPropertyBackedProperty(QUuid const & id, QVar
 /// </summary>
 /// <param name="id">id</param>
 /// <returns></returns>
-QVariant DrawingAttributes::GetExtendedPropertyBackedProperty(QUuid const & id) const
+Variant DrawingAttributes::GetExtendedPropertyBackedProperty(Guid const & id) const
 {
     if (!_extendedProperties->Contains(id))
     {
-        if (GetDefaultDrawingAttributeValue(id).isValid())
+        if (GetDefaultDrawingAttributeValue(id) != nullptr)
         {
             return GetDefaultDrawingAttributeValue(id);
         }
@@ -801,7 +818,7 @@ void DrawingAttributes::PrivateNotifyPropertyChanged(PropertyDataChangedEventArg
     }
     else if ( e.PropertyGuid() == KnownIds::DrawingFlags )
     {
-        DrawingFlags changedBits;// = ( ( (DrawingFlags)e.PreviousValue ) ^ ( (DrawingFlags)e.NewValue ) );
+        DrawingFlags changedBits = ( ( e.PreviousValue().value<DrawingFlags>() ) ^ ( e.NewValue().value<DrawingFlags>() ) );
 
         // NOTICE-2006/01/20-WAYNEZEN,
         // If someone changes FitToCurve and IgnorePressure simultaneously via AddPropertyData/RemovePropertyData,
@@ -818,15 +835,17 @@ void DrawingAttributes::PrivateNotifyPropertyChanged(PropertyDataChangedEventArg
     }
 }
 
-void DrawingAttributes::OnPropertyChanged(QString propertyName)
+void DrawingAttributes::OnPropertyChanged(char const * propertyName)
 {
     PropertyChangedEventArgs args(propertyName);
     OnPropertyChanged(args);
 }
 
-QVariant DrawingAttributesDefaultValueFactory::DefaultValue()
+#ifdef INKCANVAS_QT
+Variant DrawingAttributesDefaultValueFactory::DefaultValue()
 {
-    return QVariant::fromValue(QSharedPointer<DrawingAttributes>(new DrawingAttributes));
+    return Variant::fromValue(SharedPointer<DrawingAttributes>(new DrawingAttributes));
 }
+#endif
 
 INKCANVAS_END_NAMESPACE

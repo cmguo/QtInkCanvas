@@ -1,10 +1,12 @@
 #include "Windows/Input/styluspoint.h"
 #include "Internal/debug.h"
+#include "double.h"
+#include "single.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
 StylusPoint::StylusPoint(double x, double y)
-    : StylusPoint(x, y, DefaultPressure, nullptr, QVector<int>(), false, false)
+    : StylusPoint(x, y, DefaultPressure, nullptr, Array<int>(), false, false)
 {
 }
 
@@ -15,7 +17,7 @@ StylusPoint::StylusPoint(double x, double y)
 /// <param name="y">y
 /// <param name="pressureFactor">pressureFactor
 StylusPoint::StylusPoint(double x, double y, float pressureFactor)
-    : StylusPoint(x, y, pressureFactor, nullptr, QVector<int>(), false, true)
+    : StylusPoint(x, y, pressureFactor, nullptr, Array<int>(), false, true)
 {
 }
 
@@ -29,7 +31,7 @@ StylusPoint::StylusPoint(double x, double y, float pressureFactor)
 /// <param name="stylusPointDescription">stylusPointDescription
 /// <param name="additionalValues">additionalValues
 StylusPoint::StylusPoint(double x, double y, float pressureFactor,
-                         QSharedPointer<StylusPointDescription> stylusPointDescription, QVector<int> const & additionalValues)
+                         SharedPointer<StylusPointDescription> stylusPointDescription, Array<int> const & additionalValues)
     : StylusPoint(x, y, pressureFactor, stylusPointDescription, additionalValues, true, true)
 {
 }
@@ -41,16 +43,16 @@ StylusPoint::StylusPoint(
     double x,
     double y,
     float pressureFactor,
-    QSharedPointer<StylusPointDescription> stylusPointDescription,
-    QVector<int> const & additionalValues,
+    SharedPointer<StylusPointDescription> stylusPointDescription,
+    Array<int> const & additionalValues,
     bool validateAdditionalData,
     bool validatePressureFactor)
 {
-    if (qIsNaN(x))
+    if (Double::IsNaN(x))
     {
         throw std::runtime_error("x");
     }
-    if (qIsNaN(y))
+    if (Double::IsNaN(y))
     {
         throw std::runtime_error("y");
     }
@@ -58,7 +60,7 @@ StylusPoint::StylusPoint(
 
     //we don't validate pressure when called by StylusPointDescription.Reformat
     if (validatePressureFactor &&
-        (qIsNaN(pressureFactor) || pressureFactor < 0.0f || pressureFactor > 1.0f))
+        (pressureFactor == Single::NaN || pressureFactor < 0.0f || pressureFactor > 1.0f))
     {
         throw std::runtime_error("pressureFactor");
     }
@@ -86,11 +88,11 @@ StylusPoint::StylusPoint(
 
         //if (additionalValues != nullptr)
         {
-            QVector<StylusPointPropertyInfo> properties
+            List<StylusPointPropertyInfo> properties
                 = stylusPointDescription->GetStylusPointProperties();
 
-            int expectedAdditionalValues = properties.size() - StylusPointDescription::RequiredCountOfProperties; //for x, y, pressure
-            if (additionalValues.size() != expectedAdditionalValues)
+            int expectedAdditionalValues = properties.Count() - StylusPointDescription::RequiredCountOfProperties; //for x, y, pressure
+            if (additionalValues.Length() != expectedAdditionalValues)
             {
                 throw std::runtime_error("additionalValues");
             }
@@ -99,10 +101,10 @@ StylusPoint::StylusPoint(
             // any buttons passed in must each be in their own int.  We need to
             // pack them all into one int here
             //
-            QVector<int> newAdditionalValues(stylusPointDescription->GetExpectedAdditionalDataCount());
+            Array<int> newAdditionalValues(stylusPointDescription->GetExpectedAdditionalDataCount());
 
             _additionalValues = newAdditionalValues;
-            for (int i = StylusPointDescription::RequiredCountOfProperties, j = 0; i < properties.size(); i++, j++)
+            for (int i = StylusPointDescription::RequiredCountOfProperties, j = 0; i < properties.Count(); i++, j++)
             {
                 //
                 // use SetPropertyValue, it validates buttons, but does not copy the
@@ -118,7 +120,7 @@ StylusPoint::StylusPoint(
 
 void StylusPoint::SetX(double value)
 {
-    if (qIsNaN(value))
+    if (Double::IsNaN(value))
     {
         throw std::runtime_error("X");
     }
@@ -132,7 +134,7 @@ void StylusPoint::SetX(double value)
 
 void StylusPoint::SetY(double value)
 {
-    if (qIsNaN(value))
+    if (Double::IsNaN(value))
     {
         throw std::runtime_error("Y");
     }
@@ -175,7 +177,7 @@ void StylusPoint::SetPressureFactor(float value)
 /// <summary>
 /// Describes the properties this StylusPoint contains
 /// </summary>
-QSharedPointer<StylusPointDescription> StylusPoint::Description() const
+SharedPointer<StylusPointDescription> StylusPoint::Description() const
 {
     if (nullptr == _stylusPointDescription)
     {
@@ -186,7 +188,7 @@ QSharedPointer<StylusPointDescription> StylusPoint::Description() const
     return _stylusPointDescription;
 }
 
-void StylusPoint::SetDescription(QSharedPointer<StylusPointDescription> value)
+void StylusPoint::SetDescription(SharedPointer<StylusPointDescription> value)
 {
     //
     // called by StylusPointCollection.Add / Set
@@ -241,7 +243,7 @@ int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty) con
             //
             // we get button data from a single int in the array
             //
-            int buttonData = _additionalValues[_additionalValues.size() - 1];
+            int buttonData = _additionalValues[_additionalValues.Length() - 1];
             int buttonBitPosition = Description()->GetButtonBitPosition(stylusPointProperty);
             int bit = 1 << buttonBitPosition;
             if ((buttonData & bit) != 0)
@@ -334,7 +336,7 @@ void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, in
             //
             // we get button data from a single int in the array
             //
-            int buttonData = _additionalValues[_additionalValues.size() - 1];
+            int buttonData = _additionalValues[_additionalValues.Length() - 1];
             int buttonBitPosition = Description()->GetButtonBitPosition(stylusPointProperty);
             int bit = 1 << buttonBitPosition;
             if (value == 0)
@@ -347,7 +349,7 @@ void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, in
                 //turn the bit on
                 buttonData |= bit;
             }
-            _additionalValues[_additionalValues.size() - 1] = buttonData;
+            _additionalValues[_additionalValues.Length() - 1] = buttonData;
         }
         else
         {
@@ -378,9 +380,9 @@ bool StylusPoint::Equals(StylusPoint const & stylusPoint1, StylusPoint const & s
     // do the cheap comparison first
     //
     bool membersEqual =
-        qFuzzyIsNull(stylusPoint1._x - stylusPoint2._x) &&
-        qFuzzyIsNull(stylusPoint1._y - stylusPoint2._y) &&
-        qFuzzyIsNull(stylusPoint1._pressureFactor - stylusPoint2._pressureFactor);
+        stylusPoint1._x == stylusPoint2._x &&
+        stylusPoint1._y == stylusPoint2._y &&
+        stylusPoint1._pressureFactor == stylusPoint2._pressureFactor;
 
     if (!membersEqual)
     {
@@ -397,7 +399,7 @@ bool StylusPoint::Equals(StylusPoint const & stylusPoint1, StylusPoint const & s
         // descriptions match and there are equal numbers of additional values
         // let's check the values
         //
-        for (int x = 0; x < stylusPoint1._additionalValues.size(); x++)
+        for (int x = 0; x < stylusPoint1._additionalValues.Length(); x++)
         {
             if (stylusPoint1._additionalValues[x] != stylusPoint2._additionalValues[x])
             {
@@ -420,12 +422,19 @@ bool StylusPoint::Equals(StylusPoint const & stylusPoint1, StylusPoint const & s
 /// <returns>
 /// int - the HashCode for this StylusPoint
 /// </returns>
-uint StylusPoint::GetHashCode() const
+int StylusPoint::GetHashCode() const
 {
-    uint hash =
+#ifdef INKCANVAS_QT
+    int hash =
         ::qHash(_x) ^
         ::qHash(_y) ^
         ::qHash(_pressureFactor);
+#else
+    int hash =
+            static_cast<int>(_x) ^
+            static_cast<int>(_y) ^
+            static_cast<int>(_pressureFactor);
+#endif
 
     if (_stylusPointDescription != nullptr)
     {
@@ -434,7 +443,7 @@ uint StylusPoint::GetHashCode() const
 
     //if (_additionalValues != nullptr)
     {
-        for (int x = 0; x < _additionalValues.size(); x++)
+        for (int x = 0; x < _additionalValues.Length(); x++)
         {
             hash ^= _additionalValues[x]; //don't call GetHashCode on integers, it just returns the int
         }
@@ -447,18 +456,18 @@ uint StylusPoint::GetHashCode() const
 /// <summary>
 /// GetPacketData - returns avalon space packet data with true pressure if it exists
 /// </summary>
-QVector<int> StylusPoint::GetPacketData() const
+Array<int> StylusPoint::GetPacketData() const
 {
     int count = 2; //x, y
     //if (_additionalValues != null)
     {
-        count += _additionalValues.size();
+        count += _additionalValues.Length();
     }
     if (Description()->ContainsTruePressure())
     {
         count++;
     }
-    QVector<int> data(count);
+    Array<int> data(count);
     data[0] = static_cast<int>(_x);
     data[1] = static_cast<int>(_y);
     int startIndex = 2;
@@ -469,7 +478,7 @@ QVector<int> StylusPoint::GetPacketData() const
     }
     //if (_additionalValues != null)
     {
-        for (int x = 0; x < _additionalValues.size(); x++)
+        for (int x = 0; x < _additionalValues.Length(); x++)
         {
             data[x + startIndex] = _additionalValues[x];
         }
@@ -483,7 +492,7 @@ QVector<int> StylusPoint::GetPacketData() const
 /// </summary>
 bool StylusPoint::HasDefaultPressure() const
 {
-    return qFuzzyCompare(_pressureFactor, DefaultPressure);
+    return _pressureFactor == DefaultPressure;
 }
 
 /// <summary>
@@ -498,8 +507,8 @@ void StylusPoint::CopyAdditionalData()
 {
     //if (null != _additionalValues)
     {
-        QVector<int> newData(_additionalValues.size());
-        for (int x = 0; x < _additionalValues.size(); x++)
+        Array<int> newData(_additionalValues.Length());
+        for (int x = 0; x < _additionalValues.Length(); x++)
         {
             newData[x] = _additionalValues[x];
         }
