@@ -650,7 +650,7 @@ void EditingCoordinator::OnInkCanvasDeviceDown(InputEventArgs& args)
         // NTRADI:WINDOWSOS#1563896-2006/03/20-WAYNEZEN,
         // Note we don't mark Handled for the None EditingMode.
         // Set focus to InkCanvas.
-        if ( _inkCanvas.Focus() && ActiveEditingMode() != InkCanvasEditingMode::None )
+        if (ActiveEditingMode() != InkCanvasEditingMode::None && _inkCanvas.Focus())
         {
             mouseButtonEventArgs.SetHandled(true);
         }
