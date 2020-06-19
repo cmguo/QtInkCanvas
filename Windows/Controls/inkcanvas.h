@@ -749,6 +749,8 @@ protected:
 signals:
     void ActiveEditingModeChanged(RoutedEventArgs & e);
 
+public:
+    static RoutedEvent EditingModeChangedEvent;
 protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
@@ -768,7 +770,7 @@ protected:
     /// <summary>
     ///     Event corresponds to EditingModeChanged
     /// </summary>
-    static RoutedEvent EditingModeChangedEvent;
+    //static RoutedEvent EditingModeChangedEvent;
 
     /// <summary>
     ///     Add / Remove EditingModeChanged handler
