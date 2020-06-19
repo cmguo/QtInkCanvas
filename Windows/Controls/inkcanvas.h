@@ -608,7 +608,7 @@ public:
     QList<InkCanvasClipboardFormat> PreferredPasteFormats();
     void SetPreferredPasteFormats(QList<InkCanvasClipboardFormat> value);
 
-
+public:
     /// <summary>
     ///     The StrokeErased Routed Event
     /// </summary>
@@ -726,6 +726,7 @@ protected:
     /// <param name="e"></param>
     void RaiseDefaultDrawingAttributeReplaced(DrawingAttributesReplacedEventArgs& e);
 
+public:
     /// <summary>
     ///     Event corresponds to ActiveEditingModeChanged
     /// </summary>
@@ -766,7 +767,7 @@ protected:
     void RaiseActiveEditingModeChanged(RoutedEventArgs& e);
 
 
-
+public:
     /// <summary>
     ///     Event corresponds to EditingModeChanged
     /// </summary>
@@ -789,6 +790,7 @@ protected:
     //    }
     //}
 
+protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
@@ -807,6 +809,7 @@ protected:
     //since this isn't a dynamic property and therefore can not be set
     //outside of this class
 
+public:
     /// <summary>
     ///     Event corresponds to EditingModeInvertedChanged
     /// </summary>
@@ -829,6 +832,7 @@ protected:
     //    }
     //}
 
+protected:
     /// <summary>
     /// Protected virtual version for developers deriving from InkCanvas.
     /// This method is what actually throws the event.
@@ -911,6 +915,7 @@ protected:
     /// <param name="e">InkCanvasStrokeErasingEventArgs& to raise the event with</param>
     void RaiseStrokeErasing(InkCanvasStrokeErasingEventArgs& e);
 
+public:
     /// <summary>
     ///     The StrokeErased Routed Event
     /// </summary>
