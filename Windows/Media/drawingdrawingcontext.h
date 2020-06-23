@@ -8,9 +8,10 @@
 
 #include <QVector>
 
-class DrawingGroup;
-
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
+class DrawingGroup;
 
 /// <summary>
 /// Creates DrawingGroup content to represent the Draw calls made to this DrawingContext
@@ -571,5 +572,7 @@ private:
     bool _canBeInheritanceContext = true;
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGDRAWINGCONTEXT_H

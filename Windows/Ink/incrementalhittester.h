@@ -10,6 +10,8 @@
 #include <QPointF>
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPointCollection;
 class StrokeInfo;
 class StrokeIntersection;
@@ -405,5 +407,7 @@ private:
     double                      _totalWeight = 0;
     bool                        _totalWeightCached = false;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INCREMENTALHITTESTER_H

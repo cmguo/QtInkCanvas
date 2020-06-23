@@ -13,6 +13,8 @@
 #include <QApplication>
 #include <QScreen>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -467,3 +469,5 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
     //    }
     //}
 }
+
+INKCANVAS_END_NAMESPACE

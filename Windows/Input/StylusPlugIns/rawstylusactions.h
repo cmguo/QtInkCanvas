@@ -1,7 +1,11 @@
 #ifndef RAWSTYLUSACTIONS_H
 #define RAWSTYLUSACTIONS_H
 
+#include "InkCanvas_global.h"
+
 #include <QFlags>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 ///    The raw actions being reported from the stylus.
@@ -81,5 +85,7 @@ private:
 
     static bool IsValid(RawStylusActions action);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // RAWSTYLUSACTIONS_H

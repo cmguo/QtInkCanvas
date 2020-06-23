@@ -2,6 +2,8 @@
 
 #include <QIODevice>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// returns the no of quint8 it requires to mutliquint8 encode a quint32 value
 /// </summary>
@@ -320,3 +322,5 @@ VarEnum SerializationHelper::ConvertToVarEnum(Type type, bool throwOnError)
     }
 }
 */
+
+INKCANVAS_END_NAMESPACE

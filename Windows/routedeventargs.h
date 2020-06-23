@@ -6,6 +6,8 @@
 #include <QBitArray>
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class DependencyObject;
 class RoutedEventArgs;
 
@@ -271,5 +273,7 @@ private:
 
     //#endregion Data
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ROUTEDEVENTARGS_H

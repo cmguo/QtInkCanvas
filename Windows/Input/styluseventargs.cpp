@@ -1,6 +1,8 @@
 #include "Windows/Input/styluseventargs.h"
 #include "Windows/Input/stylusdevice.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusEventArgs::StylusEventArgs(QTouchEvent& event)
     : InputEventArgs(Stylus::GetDevice(event.device()), static_cast<int>(event.timestamp()))
 {
@@ -83,3 +85,4 @@ QSharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* r
     return GetStylusDevice()->GetStylusPoints(relativeTo, subsetToReformatTo);
 }
 
+INKCANVAS_END_NAMESPACE

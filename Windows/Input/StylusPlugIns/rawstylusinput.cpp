@@ -7,6 +7,8 @@
 #include <QTouchEvent>
 #include <QGraphicsSceneMouseEvent>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///     [TBS]
 /// </summary>
@@ -236,3 +238,5 @@ void RawStylusInput::SetCurrentNotifyPlugIn(StylusPlugIn* value)
 {
      _currentNotifyPlugIn = value;
 }
+
+INKCANVAS_END_NAMESPACE

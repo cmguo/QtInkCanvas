@@ -1,9 +1,12 @@
 #ifndef EDITINGMODE_H
 #define EDITINGMODE_H
 
+#include "InkCanvas_global.h"
+
 #include <QMetaType>
 
 // namespace System.Windows.Controls
+INKCANVAS_BEGIN_NAMESPACE
 
 enum class InkCanvasEditingMode
 {
@@ -50,5 +53,7 @@ public:
         return (InkCanvasEditingMode >= InkCanvasEditingMode::None && InkCanvasEditingMode <= InkCanvasEditingMode::EraseByStroke);
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EDITINGMODE_H

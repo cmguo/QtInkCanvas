@@ -8,6 +8,8 @@
 
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 IncrementalHitTester::IncrementalHitTester()
 {
 
@@ -814,3 +816,5 @@ QSharedPointer<StrokeCollection> StrokeHitEventArgs::GetPointEraseResults()
 {
     return _stroke->Erase(_hitFragments);
 }
+
+INKCANVAS_END_NAMESPACE

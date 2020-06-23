@@ -3,6 +3,8 @@
 
 #include "Windows/uielement.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class Decorator : public FrameworkElement
 {
     Q_OBJECT
@@ -63,5 +65,6 @@ private:
     AdornerLayer* adornerLayer_;
 };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // DECORATOR_H

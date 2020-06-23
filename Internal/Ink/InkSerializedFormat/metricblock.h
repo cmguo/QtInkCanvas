@@ -3,8 +3,11 @@
 
 #include "Internal/Ink/InkSerializedFormat/metricentry.h"
 
-class MetricEntry;
 class QIODevice;
+
+INKCANVAS_BEGIN_NAMESPACE
+
+class MetricEntry;
 
 /// <summary>
 /// CMetricBlock owns CMetricEntry which is created based on the Packet Description of the stroke. It also
@@ -83,5 +86,7 @@ public:
     /// <returns></returns>
     bool CompareMetricBlock( MetricBlock& metricColl, SetType& setType);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // METRICBLOCK_H

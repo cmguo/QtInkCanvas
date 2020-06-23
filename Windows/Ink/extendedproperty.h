@@ -1,10 +1,13 @@
 #ifndef EXTENDEDPROPERTY_H
 #define EXTENDEDPROPERTY_H
 
+#include "InkCanvas_global.h"
+
 #include <QUuid>
 #include <QVariant>
 
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class ExtendedProperty
 {
@@ -187,5 +190,7 @@ private:
     QUuid _id;                // id of attribute
     QVariant _value;             // data in attribute
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EXTENDEDPROPERTY_H

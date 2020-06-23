@@ -9,6 +9,8 @@
 #include <QPointF>
 #include <QtSvg/QSvgRenderer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class DrawingAttributes;
 class Drawing;
 class DrawingVisual;
@@ -157,5 +159,7 @@ private:
 
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // PENCURSORMANAGER_H

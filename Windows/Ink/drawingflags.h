@@ -1,10 +1,13 @@
 #ifndef DRAWINGFLAGS_H
 #define DRAWINGFLAGS_H
 
+#include "InkCanvas_global.h"
+
 #include <QFlags>
 #include <QMetaType>
 
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 enum class DrawingFlag
 {
@@ -29,5 +32,7 @@ Q_DECLARE_FLAGS(DrawingFlags, DrawingFlag)
 
 Q_DECLARE_METATYPE(DrawingFlag)
 Q_DECLARE_METATYPE(DrawingFlags)
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGFLAGS_H

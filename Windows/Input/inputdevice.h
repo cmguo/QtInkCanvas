@@ -1,18 +1,22 @@
 #ifndef INPUTDEVICE_H
 #define INPUTDEVICE_H
 
+#include "InkCanvas_global.h"
+
 #include <QPointF>
 #include <QSharedPointer>
 #include <QObject>
+
+class QInputEvent;
+
+// namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class UIElement;
 class Visual;
 class PresentationSource;
 class RoutedEvent;
-class QInputEvent;
 class StylusPointDescription;
-
-// namespace System.Windows.Input
 
 /// <summary>
 ///     Provides the base class for all input devices.
@@ -47,5 +51,7 @@ public:
 
     virtual QVector<int> PacketData(QEvent& event) = 0;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INPUTDEVICE_H

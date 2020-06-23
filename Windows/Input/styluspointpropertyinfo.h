@@ -1,7 +1,10 @@
 #ifndef STYLUSPOINTPROPERTYINFO_H
 #define STYLUSPOINTPROPERTYINFO_H
 
+#include "InkCanvas_global.h"
 #include "Windows/Input/styluspointproperty.h"
+
+INKCANVAS_BEGIN_NAMESPACE
 
 enum StylusPointPropertyUnit {
 
@@ -92,5 +95,7 @@ public:
     /// </summary>
     static bool AreCompatible(StylusPointPropertyInfo const & stylusPointPropertyInfo1, StylusPointPropertyInfo const & stylusPointPropertyInfo2);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTPROPERTYINFO_H

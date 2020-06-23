@@ -7,6 +7,8 @@
 
 // from Qt Src 5.12.4
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class QPainterPathPrivate
 {
 public:
@@ -197,3 +199,5 @@ void QtStreamGeometryContext::SetClosedState(bool closed)
 {
     isClosed_ = closed;
 }
+
+INKCANVAS_END_NAMESPACE

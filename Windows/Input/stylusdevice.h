@@ -9,11 +9,16 @@
 #include <QMap>
 #include <QList>
 
+class QTouchDevice;
+class QTouchEvent;
+class QInputEvent;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPointCollection;
 class StylusPointDescription;
 
 class StylusDevice;
-class QTouchDevice;
 class Visual;
 
 class StylusEvent : public RoutedEvent
@@ -57,9 +62,6 @@ private:
     static QMap<QTouchDevice*, StylusDevice*> devices_;
     static QSizeF groupSize_;
 };
-
-class QTouchEvent;
-class QInputEvent;
 
 class StylusGroup {
 public:
@@ -110,5 +112,7 @@ private:
     QMap<int, StylusGroup> lastGroups_;
     QMap<int, int> groupMap_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSDEVICE_H

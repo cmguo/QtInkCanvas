@@ -43,6 +43,8 @@
 #include <QGraphicsView>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Public constructor.
 /// </summary>
@@ -2805,3 +2807,4 @@ class ActiveEditingMode2VisibilityConverter : IValueConverter
 };
 */
 
+INKCANVAS_END_NAMESPACE

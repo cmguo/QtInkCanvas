@@ -21,6 +21,8 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 QSvgRenderer PenCursorManager::EraserImage;
 
 /// <summary>
@@ -620,3 +622,4 @@ int PenCursorManager::AlignToBytes(double original, int nBytesCount)
 
 QCursor PenCursorManager::s_StrokeEraserCursor;
 
+INKCANVAS_END_NAMESPACE

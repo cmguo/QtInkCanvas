@@ -1,6 +1,8 @@
 #include "Windows/dependencyproperty.h"
 #include "Windows/dependencypropertychangedeventargs.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 QVariant const DependencyProperty::UnsetValue;
 
 DependencyProperty::DependencyProperty(QVariant dflt)
@@ -44,3 +46,4 @@ void DependencyProperty::Changed(DependencyObject& d, QVariant old, QVariant new
     }
 }
 
+INKCANVAS_END_NAMESPACE

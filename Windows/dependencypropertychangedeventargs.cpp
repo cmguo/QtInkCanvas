@@ -1,5 +1,7 @@
 #include "Windows/dependencypropertychangedeventargs.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///     Initializes a new instance of the DependencyPropertyChangedEventArgs class.
 /// </summary>
@@ -282,3 +284,4 @@ bool DependencyPropertyChangedEventArgs::Equals(DependencyPropertyChangedEventAr
             _operationType == args._operationType);
 }
 
+INKCANVAS_END_NAMESPACE

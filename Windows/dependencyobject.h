@@ -1,8 +1,12 @@
 #ifndef DEPENDENCYOBJECT_H
 #define DEPENDENCYOBJECT_H
 
+#include "InkCanvas_global.h"
+
 #include <QVariant>
 #include <QMap>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class Dispatcher;
 class DependencyProperty;
@@ -24,6 +28,8 @@ class DependencyObject
 {
 public:
     DependencyObject();
+
+    virtual ~DependencyObject();
 
 public:
     void SetValue(DependencyProperty const * prop, QVariant value);
@@ -59,5 +65,7 @@ protected:
 private:
     QMap<DependencyProperty const *, QVariant> props_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DEPENDENCYOBJECT_H

@@ -3,14 +3,15 @@
 
 #include "editingcoordinator.h"
 
-class EditingCoordinator;
-class InkCanvas;
-
 #include <QCursor>
 
 #include <exception>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
+class EditingCoordinator;
+class InkCanvas;
 
 /// <summary>
 /// Base class for all EditingBehaviors in the InkCanvas
@@ -209,5 +210,7 @@ private:
     /// </summary>
     QCursor              _cachedCursor;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EDITINGBEHAVIOR_H

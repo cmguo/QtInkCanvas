@@ -1,9 +1,11 @@
 #ifndef SERIALIZATIONHELPER_H
 #define SERIALIZATIONHELPER_H
 
-#include <QtGlobal>
+#include "InkCanvas_global.h"
 
 class QIODevice;
+
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// Summary description for HelperMethods.
@@ -84,5 +86,7 @@ public:
     /// <remarks>Only supports the types of data that are supported in ISF ExtendedProperties</remarks>
     //static VarEnum ConvertToVarEnum(Type type, bool throwOnError);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // SERIALIZATIONHELPER_H

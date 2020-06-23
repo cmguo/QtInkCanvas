@@ -6,6 +6,8 @@
 #include "Internal/doubleutil.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Creates a DrawingAttributes with default values
 /// </summary>
@@ -826,3 +828,5 @@ QVariant DrawingAttributesDefaultValueFactory::DefaultValue()
 {
     return QVariant::fromValue(QSharedPointer<DrawingAttributes>(new DrawingAttributes));
 }
+
+INKCANVAS_END_NAMESPACE

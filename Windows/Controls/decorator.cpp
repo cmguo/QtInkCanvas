@@ -3,6 +3,8 @@
 
 #include <QPainter>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 Decorator::Decorator()
 {
 
@@ -96,3 +98,4 @@ AdornerLayer *AdornerDecorator::GetAdornerLayer()
     return adornerLayer_;
 }
 
+INKCANVAS_END_NAMESPACE

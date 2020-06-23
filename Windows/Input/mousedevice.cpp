@@ -18,6 +18,8 @@
 #include <sysinfoapi.h>
 #endif
 
+INKCANVAS_BEGIN_NAMESPACE
+
 MouseEvent::MouseEvent(int type)
     : RoutedEvent(type)
 {
@@ -188,3 +190,5 @@ QVector<int> MouseDevice::PacketData(QEvent& event)
     data.append(pt2.y());
     return data;
 }
+
+INKCANVAS_END_NAMESPACE

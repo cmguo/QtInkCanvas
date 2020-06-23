@@ -6,6 +6,7 @@
 #include <QPointF>
 
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// This is the class for specifying parameters hit testing with a point.
@@ -37,5 +38,7 @@ public:
 private:
     QPointF _hitPoint;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // POINTHITTESTPARAMETERS_H

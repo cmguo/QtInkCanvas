@@ -6,6 +6,8 @@
 
 #include <QVector>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Summary description for MetricEnty.
 /// </summary>
@@ -177,5 +179,6 @@ public:
     static bool IsValidMetricEntry(StylusPointPropertyInfo propertyInfo, KnownTagCache::KnownTagIndex tag, MetricEntryType& metricEntryType, uint& index);
 };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // METRICENTRY_H

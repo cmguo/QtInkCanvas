@@ -10,6 +10,8 @@
 #include <QTouchEvent>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusEvent::StylusEvent(int type, int type2)
     : RoutedEvent(type, type2)
 {
@@ -291,3 +293,5 @@ QVector<int> StylusDevice::PacketData(QEvent&)
     }
     return data;
 }
+
+INKCANVAS_END_NAMESPACE

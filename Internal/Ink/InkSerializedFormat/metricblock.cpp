@@ -4,6 +4,8 @@
 
 #include <QIODevice>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 MetricBlock::MetricBlock()
 {
 
@@ -172,3 +174,5 @@ bool MetricBlock::CompareMetricBlock( MetricBlock& metricColl, SetType& setType)
 
     return true;
 }
+
+INKCANVAS_END_NAMESPACE

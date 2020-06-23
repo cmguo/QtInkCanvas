@@ -9,6 +9,8 @@
 #include <QtMath>
 #include <QTransform>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 QPointF StrokeRenderer::ArcToMarker(-DBL_MAX, -DBL_MAX);
 
 /// <summary>
@@ -1114,3 +1116,4 @@ QSharedPointer<DrawingAttributes> StrokeRenderer::GetHighlighterAttributes(Strok
     return da;
 }
 
+INKCANVAS_END_NAMESPACE

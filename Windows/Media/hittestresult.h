@@ -1,9 +1,12 @@
 #ifndef HITTESTRESULT_H
 #define HITTESTRESULT_H
 
-class DependencyObject;
+#include "InkCanvas_global.h"
 
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
+class DependencyObject;
 
 /// <summary>
 /// This base returns the visual that was hit during a hit test pass.
@@ -37,5 +40,7 @@ public:
         return _visualHit;
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // HITTESTRESULT_H

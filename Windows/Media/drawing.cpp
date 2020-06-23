@@ -5,6 +5,8 @@
 
 #include <QtSvg/QSvgRenderer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //static int count = 0;
 
 Drawing::Drawing()
@@ -168,3 +170,5 @@ void SvgImageDrawing::Draw(QPainter &painer)
 {
     renderer_->render(&painer, rect_);
 }
+
+INKCANVAS_END_NAMESPACE

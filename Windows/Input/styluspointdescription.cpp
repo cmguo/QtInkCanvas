@@ -3,6 +3,8 @@
 
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPointDescription::StylusPointDescription()
 {
     //implement the default packet description
@@ -364,3 +366,5 @@ int StylusPointDescription::IndexOf(QUuid propertyId) const
     }
     return -1;
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,8 +1,12 @@
 #ifndef CUSPDATA_H
 #define CUSPDATA_H
 
+#include "InkCanvas_global.h"
+
 #include <QList>
 #include <QPointF>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointCollection;
 
@@ -166,5 +170,7 @@ private:
     double _span = 3; // Default span
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // CUSPDATA_H

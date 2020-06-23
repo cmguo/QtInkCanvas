@@ -3,11 +3,14 @@
 
 #define OLD_ISF 0
 
-#include <QtGlobal>
+#include "InkCanvas_global.h"
 
-class DrawingAttributes;
 class QIODevice;
 class QDataStream;
+
+INKCANVAS_BEGIN_NAMESPACE
+
+class DrawingAttributes;
 class GuidList;
 
 // namespace MS.Internal.Ink.InkSerializedFormat
@@ -170,5 +173,7 @@ public:
         //static constexpr Type StylusTipTransform = typeof(string);
     };
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGATTRIBUTESERIALIZER_H

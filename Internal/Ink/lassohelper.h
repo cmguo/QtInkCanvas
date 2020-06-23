@@ -1,11 +1,15 @@
 #ifndef LASSOHELPER_H
 #define LASSOHELPER_H
 
+#include "InkCanvas_global.h"
+
 #include <QColor>
 #include <QBrush>
 #include <QPen>
 #include <QPointF>
 #include <QList>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class DrawingVisual;
 class Visual;
@@ -91,5 +95,7 @@ private:
 
     //#endregion
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // LASSOHELPER_H

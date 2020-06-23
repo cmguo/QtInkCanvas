@@ -1,6 +1,8 @@
 #include "Windows/Ink/extendedproperty.h"
 #include "Windows/Ink/knownids.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 ExtendedProperty ExtendedProperty::Empty;
 
 /// <summary>
@@ -40,3 +42,5 @@ QString ExtendedProperty::ToString()
     //}
     return KnownIds::ConvertToString(Id()) + "," + Value().toString();
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,6 +1,7 @@
 #ifndef NATIVERECOGNIZER_H
 #define NATIVERECOGNIZER_H
 
+#include "InkCanvas_global.h"
 #include "Windows/Ink/applicationgesture.h"
 #include "Windows/Ink/gesturerecognitionresult.h"
 
@@ -14,6 +15,8 @@ extern "C"
 {
 #include <recapis.h>
 }
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class Stroke;
 class StrokeCollection;
@@ -334,5 +337,7 @@ private:
     static HRESULT (WINAPI *GetConfidenceLevel)(HRECOALT hrcalt, RECO_RANGE* pRecoRange, CONFIDENCE_LEVEL* pcl);
     static HRESULT (WINAPI *DestroyAlternate)(HRECOALT hrcalt);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // NATIVERECOGNIZER_H

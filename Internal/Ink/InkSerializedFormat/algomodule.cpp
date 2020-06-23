@@ -1,5 +1,7 @@
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 AlgoModule::AlgoModule()
 {
 
@@ -69,3 +71,5 @@ QByteArray AlgoModule::DecompressPropertyData(QByteArray input)
     memcpy(output.data(), input.data() + 1, input.size() - 1);
     return output;
 }
+
+INKCANVAS_END_NAMESPACE

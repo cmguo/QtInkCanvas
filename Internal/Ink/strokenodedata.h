@@ -6,6 +6,7 @@
 #include <QPointF>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// This structure represents a node on a stroke spine.
@@ -52,5 +53,7 @@ private:
     QPointF   _position;
     double _pressure = 0.0;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKENODEDATA_H

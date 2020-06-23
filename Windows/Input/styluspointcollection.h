@@ -13,6 +13,8 @@
 #include <iterator>
 #include <vector>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPointDescription;
 class CancelEventArgs;
 
@@ -197,5 +199,7 @@ public:
 private:
     QSharedPointer<StylusPointDescription> _stylusPointDescription;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTCOLLECTION_H

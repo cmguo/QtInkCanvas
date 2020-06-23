@@ -24,6 +24,8 @@
 #include <QtMath>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 TransformDescriptor StrokeCollectionSerializer::IdentityTransformDescriptor = {
     {1.0},
     1,
@@ -2675,3 +2677,5 @@ QVector<int> StrokeIdGenerator::GetStrokeIds(StrokeCollection& strokes)
     }
     return strokeIds;
 }
+
+INKCANVAS_END_NAMESPACE

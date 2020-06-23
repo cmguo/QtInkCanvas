@@ -6,6 +6,7 @@
 #include <QString>
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointProperty
 {
@@ -77,5 +78,7 @@ public:
             "}";
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTPROPERTY_H

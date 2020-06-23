@@ -3,6 +3,8 @@
 
 #include <QPainter>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StreamGeometry::StreamGeometry()
     : context_(nullptr)
 {
@@ -41,3 +43,4 @@ void StreamGeometry::Draw(QPainter &painter)
     painter.drawPath(path_);
 }
 
+INKCANVAS_END_NAMESPACE

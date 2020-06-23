@@ -11,6 +11,7 @@
 #include <QSharedPointer>
 
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class StrokeCollectionChangedEventArgs : public EventArgs
 {
@@ -337,5 +338,6 @@ public:
     }
 };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // EVENTS_H

@@ -10,6 +10,8 @@
 #include <QMap>
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPointDescription;
 
 // namespace System.Windows.Input
@@ -307,5 +309,7 @@ public:
     /// </summary>
     static double GetClampedXYValue(double xyValue);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINT_H

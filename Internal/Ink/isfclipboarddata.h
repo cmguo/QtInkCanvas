@@ -5,6 +5,8 @@
 
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeCollection;
 
 // namespace MS.Internal.Ink
@@ -83,5 +85,7 @@ private:
     //#endregion Private Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ISFCLIPBOARDDATA_H

@@ -8,9 +8,10 @@
 
 #include <QGraphicsItem>
 
-class HitTestResult;
-
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
+class HitTestResult;
 
 class INKCANVAS_EXPORT Visual : public QGraphicsItem, public DependencyObject
 {
@@ -42,5 +43,7 @@ public:
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // VISUAL_H

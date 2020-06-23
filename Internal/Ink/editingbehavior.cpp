@@ -1,6 +1,8 @@
 #include "Internal/Ink/editingbehavior.h"
 #include "Windows/Controls/inkcanvas.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Constructor
 /// </summary>
@@ -160,4 +162,4 @@ void EditingBehavior::OnTransformChanged()
 
 //#endregion Protected Methods
 
-
+INKCANVAS_END_NAMESPACE

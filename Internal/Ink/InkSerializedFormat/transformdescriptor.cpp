@@ -1,6 +1,8 @@
 #include "Internal/Ink/InkSerializedFormat/transformdescriptor.h"
 #include "Internal/doubleutil.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 bool TransformDescriptor::Compare(TransformDescriptor const & that)
 {
     if( that.Tag == Tag )
@@ -19,3 +21,5 @@ bool TransformDescriptor::Compare(TransformDescriptor const & that)
     }
     return false;
 }
+
+INKCANVAS_END_NAMESPACE

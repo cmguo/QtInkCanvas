@@ -7,6 +7,8 @@
 #include <QVariant>
 #include <QObject>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class ExtendedPropertiesChangedEventArgs;
 
 /// <summary>
@@ -151,5 +153,7 @@ private:
     //used to optimize across Contains / Index calls
     mutable int _optimisticIndex = -1;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EXTENDEDPROPERTYCOLLECTION_H

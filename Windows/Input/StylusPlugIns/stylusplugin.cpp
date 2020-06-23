@@ -4,6 +4,8 @@
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/uielement.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPlugIn::StylusPlugIn()
 {
 
@@ -304,3 +306,4 @@ void StylusPlugIn::OnIsActiveForInputChanged()
 {
 }
 
+INKCANVAS_END_NAMESPACE

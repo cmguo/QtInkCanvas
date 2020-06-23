@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 DrawingVisual::DrawingVisual()
 {
     setFlag(ItemHasNoContents, false);
@@ -64,3 +66,5 @@ void DrawingVisual::paint(QPainter *painter, const QStyleOptionGraphicsItem *, Q
         drawing_->Draw(*painter);
     }
 }
+
+INKCANVAS_END_NAMESPACE

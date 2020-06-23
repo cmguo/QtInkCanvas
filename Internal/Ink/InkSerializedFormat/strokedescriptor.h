@@ -5,6 +5,8 @@
 
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeDescriptor
 {
 public:
@@ -16,5 +18,7 @@ public:
 
     bool IsEqual(StrokeDescriptor const & strd);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKEDESCRIPTOR_H

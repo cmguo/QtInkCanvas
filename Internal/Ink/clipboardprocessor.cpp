@@ -6,6 +6,8 @@
 #include "Internal/Ink/textclipboarddata.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -421,3 +423,4 @@ DependencyObjectType* ClipboardProcessor::InkCanvasDType()
     return s_InkCanvasDType;
 }
 
+INKCANVAS_END_NAMESPACE

@@ -9,6 +9,8 @@
 #include "Internal/Controls/inkcanvasselectionadorner.h"
 #include "Internal/Ink/pencursormanager.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -254,3 +256,5 @@ void SelectionEditor::UpdateSelectionCursor(QPointF const & hitPoint)
         GetEditingCoordinator().InvalidateBehaviorCursor(this);
     }
 }
+
+INKCANVAS_END_NAMESPACE

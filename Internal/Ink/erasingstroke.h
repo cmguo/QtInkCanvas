@@ -4,6 +4,8 @@
 #include "Internal/Ink/strokenodeiterator.h"
 #include "Internal/Ink/strokenode.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusShape;
 
 // namespace MS.Internal.Ink
@@ -82,5 +84,7 @@ private:
     static constexpr double CollinearTolerance = 0.1;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ERASINGSTROKE_H

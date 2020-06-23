@@ -7,6 +7,8 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// constructor
 /// </summary>
@@ -934,3 +936,5 @@ HRESULT (WINAPI *NativeRecognizer::GetAlternateList)(HRECOCONTEXT hrc, RECO_RANG
 HRESULT (WINAPI *NativeRecognizer::GetString)(HRECOALT hrcalt, RECO_RANGE *pRecoRange, ULONG* pcSize, WCHAR* pwcString) = nullptr;
 HRESULT (WINAPI *NativeRecognizer::GetConfidenceLevel)(HRECOALT hrcalt, RECO_RANGE* pRecoRange, CONFIDENCE_LEVEL* pcl) = nullptr;
 HRESULT (WINAPI *NativeRecognizer::DestroyAlternate)(HRECOALT hrcalt) = nullptr;
+
+INKCANVAS_END_NAMESPACE

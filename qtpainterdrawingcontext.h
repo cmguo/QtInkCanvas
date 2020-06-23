@@ -1,8 +1,11 @@
 #ifndef QTPAINTERDRAWINGCONTEXT_H
 #define QTPAINTERDRAWINGCONTEXT_H
 
-
 #include "Windows/Media/drawingcontext.h"
+
+class QPainter;
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class QtPainterDrawingContext : public DrawingContext
 {
@@ -107,5 +110,7 @@ public:
 private:
     QPainter& painter_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // QTPAINTERDRAWINGCONTEXT_H

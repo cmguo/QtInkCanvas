@@ -3,6 +3,8 @@
 
 #include "Windows/Input/mouseeventargs.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 enum class MouseButton
 {
 
@@ -161,5 +163,7 @@ private:
     MouseButton _button;
     int _count;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // MOUSEBUTTONEVENTARGS_H

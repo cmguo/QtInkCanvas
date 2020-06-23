@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <QMap>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 static QMutex dlock;
 static QMap<QThread *, Dispatcher*> dispatchers;
 
@@ -38,3 +40,5 @@ void Dispatcher::BeginInvoke(std::function<void (void *)> func, void *data)
 {
 
 }
+
+INKCANVAS_END_NAMESPACE

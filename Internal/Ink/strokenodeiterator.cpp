@@ -2,6 +2,8 @@
 #include "Internal/Ink/strokenode.h"
 #include "Windows/Input/styluspoint.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Helper wrapper
 /// </summary>
@@ -193,3 +195,5 @@ StrokeNode StrokeNodeIterator::GetNode(int index, int previousIndex) const
     //we use previousIndex+1 because index can skip ahead
     return StrokeNode(_operations.get(), previousIndex + 1, nodeData, lastNodeData, index == _stylusPoints->size() - 1 /*Is this the last node?*/);
 }
+
+INKCANVAS_END_NAMESPACE

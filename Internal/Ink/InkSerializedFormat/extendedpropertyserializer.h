@@ -1,14 +1,18 @@
 #ifndef EXTENDEDPROPERTYSERIALIZER_H
 #define EXTENDEDPROPERTYSERIALIZER_H
 
+#include "InkCanvas_global.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
 #include <QUuid>
 #include <QVariant>
 
+class QIODevice;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class ExtendedProperty;
 class ExtendedPropertyCollection;
-class QIODevice;
 class GuidList;
 
 /// <summary>
@@ -186,5 +190,7 @@ public:
     //#endregion // Key/Value pair validation helpers
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EXTENDEDPROPERTYSERIALIZER_H

@@ -1,6 +1,8 @@
 #include "Internal/Ink/styluseditingbehavior.h"
 #include "Internal/finallyhelper.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -132,3 +134,5 @@ void StylusEditingBehavior::OnCommit(bool commit)
         OnCommitWithoutStylusInput(commit);
     }
 }
+
+INKCANVAS_END_NAMESPACE

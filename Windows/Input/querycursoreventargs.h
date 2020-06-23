@@ -6,6 +6,7 @@
 #include <QCursor>
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 ///     Provides data for the QueryCursor event.
@@ -72,5 +73,7 @@ protected:
 private:
     QCursor _cursor;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // QUERYCURSOREVENTARGS_H

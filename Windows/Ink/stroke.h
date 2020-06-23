@@ -10,6 +10,8 @@
 #include <QMap>
 #include <QObject>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class Geometry;
 class StrokeFIndices;
 class DrawingContext;
@@ -290,7 +292,7 @@ private:
     QPointF GetIntermediatePoint(StylusPoint const & p1, StylusPoint const & p2, double findex);
 
 
-#ifdef DEBUG
+#ifdef DEBUG__
     /// <summary>
     /// Helper method used to validate that the strokefindices in the array
     /// are sorted and there are no overlaps
@@ -659,5 +661,7 @@ class IEnumerablePointHelper
     }
 };
 */
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKE_H

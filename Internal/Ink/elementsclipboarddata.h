@@ -5,6 +5,8 @@
 
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class UIElement;
 
 // namespace MS.Internal.Ink
@@ -87,5 +89,7 @@ private:
     //#endregion Private Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ELEMENTSCLIPBOARDDATA_H

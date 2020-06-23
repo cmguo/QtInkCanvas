@@ -10,6 +10,8 @@
 #include <QVector>
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeNodeIterator;
 
 // namespace MS.Internal.Ink
@@ -270,5 +272,7 @@ private:
     QRectF _prevBounds;
     static constexpr double NoIntersection  = StrokeFIndices::BeforeFirst;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // LASSO_H

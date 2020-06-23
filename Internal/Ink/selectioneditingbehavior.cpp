@@ -9,6 +9,8 @@
 #include "Windows/Input/mousebuttoneventargs.h"
 #include "Internal/Ink/pencursormanager.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -394,3 +396,5 @@ void SelectionEditingBehavior::ReleaseCapture(bool releaseDevice, bool commit)
         GetInkCanvas().GetInkCanvasSelection().EndFeedbackAdorner(commit ? _previousRect : _selectionRect);
     }
 }
+
+INKCANVAS_END_NAMESPACE

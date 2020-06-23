@@ -10,6 +10,8 @@
 
 #include <functional>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class RoutedEvent;
 class RoutedEventArgs;
 class Geometry;
@@ -215,5 +217,7 @@ private:
 
     virtual Visual* GetVisualChild(int index);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // UIELEMENT_H

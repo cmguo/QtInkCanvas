@@ -6,9 +6,14 @@
 #include <QGraphicsScene>
 #include <QThread>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 DependencyObject::DependencyObject()
 {
+}
 
+DependencyObject::~DependencyObject()
+{
 }
 
 void DependencyObject::SetValue(DependencyProperty const * prop, QVariant value)
@@ -57,3 +62,5 @@ bool DependencyObject::CheckAccess() const
 void DependencyObject::OnPropertyChanged(DependencyPropertyChangedEventArgs &)
 {
 }
+
+INKCANVAS_END_NAMESPACE

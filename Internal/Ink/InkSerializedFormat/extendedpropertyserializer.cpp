@@ -14,6 +14,8 @@
 #include <QBuffer>
 #include <QMatrix>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 // If the ExtendedProperty identifier matches one of the original ISF/Tablet-internal
 //      Guids that did not include embedded type information (e.g. used the OS-internal
 //      property storage API), then it is always stored as byte array and does not
@@ -546,3 +548,5 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
     }
 }
 //#endregion // Key/Value pair validation helpers
+
+INKCANVAS_END_NAMESPACE

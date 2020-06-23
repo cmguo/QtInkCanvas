@@ -2,6 +2,8 @@
 
 #include "Windows/uielement.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 PointHitTestResult::PointHitTestResult()
     : HitTestResult(nullptr)
 {
@@ -22,3 +24,5 @@ UIElement* PointHitTestResult::VisualHit()
 {
     return (UIElement*) HitTestResult::VisualHit();
 }
+
+INKCANVAS_END_NAMESPACE

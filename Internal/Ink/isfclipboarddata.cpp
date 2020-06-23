@@ -4,6 +4,8 @@
 #include <QBuffer>
 #include <QMimeData>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 // The default constructor
 ISFClipboardData::ISFClipboardData() { }
 
@@ -95,3 +97,5 @@ void ISFClipboardData::DoPaste(DataObject  const * dataObject)
     // Depending on whether we are succeeded or not, we set the correct stroke collection here.
     _strokes = fSucceeded ? newStrokes : QSharedPointer<StrokeCollection>(new StrokeCollection());
 }
+
+INKCANVAS_END_NAMESPACE

@@ -9,6 +9,7 @@
 #include <iterator>
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointDescription
 {
@@ -151,5 +152,7 @@ public:
     int IndexOf(QUuid propertyId) const;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTDESCRIPTION_H

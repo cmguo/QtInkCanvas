@@ -10,6 +10,7 @@
 #include <QList>
 
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class StrokeIntersection
 {
@@ -204,5 +205,7 @@ private:
     StrokeFIndices _hitSegment;
     StrokeFIndices _inSegment;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKEINTERSECTION_H

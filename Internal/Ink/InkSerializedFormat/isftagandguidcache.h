@@ -1,9 +1,13 @@
 #ifndef KNOWNIDCACHE_H
 #define KNOWNIDCACHE_H
 
+#include "InkCanvas_global.h"
+
 #include <QUuid>
 
 // namespace MS.Internal.Ink.InkSerializedFormat
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class KnownTagCache
 {
@@ -148,5 +152,7 @@ static KnownTagCache::KnownTagIndex operator+(KnownTagCache::KnownTagIndex l, Kn
 {
     return static_cast<KnownTagCache::KnownTagIndex>(static_cast<int>(l) + static_cast<int>(r));
 }
+
+INKCANVAS_END_NAMESPACE
 
 #endif // KNOWNIDCACHE_H

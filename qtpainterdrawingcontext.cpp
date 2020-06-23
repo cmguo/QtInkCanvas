@@ -4,6 +4,8 @@
 
 #include <QPainter>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 QtPainterDrawingContext::QtPainterDrawingContext(QPainter &painter)
     : painter_(painter)
 {
@@ -142,3 +144,5 @@ void QtPainterDrawingContext::Pop()
 void QtPainterDrawingContext::Close()
 {
 }
+
+INKCANVAS_END_NAMESPACE

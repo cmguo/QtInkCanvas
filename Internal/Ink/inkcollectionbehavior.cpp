@@ -12,6 +12,8 @@
 #include <QApplication>
 #include <QScreen>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -449,3 +451,5 @@ QCursor InkCollectionBehavior::PenCursor()
 }
 
 //#endregion Methods
+
+INKCANVAS_END_NAMESPACE

@@ -7,6 +7,9 @@
 #include "Internal/Ink/lassoselectionbehavior.h"
 #include "Internal/Controls/inkcanvasinnercanvas.h"
 #include "Internal/debug.h"
+
+INKCANVAS_BEGIN_NAMESPACE
+
 //-------------------------------------------------------------------------------
 //
 // Constructors
@@ -642,3 +645,5 @@ void LassoSelectionBehavior::TapSelectObject(QPointF const & point,  QSharedPoin
     }
 
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,6 +1,8 @@
 #include "Internal/Ink/strokenodedata.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeNodeData StrokeNodeData::s_empty;
 
 /// <summary>
@@ -32,3 +34,5 @@ bool StrokeNodeData::IsEmpty() const
     Debug::Assert(DoubleUtil::AreClose(0, s_empty._pressure));
     return DoubleUtil::AreClose(_pressure, s_empty._pressure);
 }
+
+INKCANVAS_END_NAMESPACE

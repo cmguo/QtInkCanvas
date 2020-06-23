@@ -1,7 +1,11 @@
 #ifndef EVENTARGS_H
 #define EVENTARGS_H
 
+#include "InkCanvas_global.h"
+
 #include <QEvent>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class EventArgs;
 
@@ -56,5 +60,7 @@ public:
 
     EventArgs();
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EVENTARGS_H

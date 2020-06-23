@@ -6,6 +6,8 @@
 
 #include <QRectF>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class MouseEventArgs;
 class MouseButtonEventArgs;
 
@@ -142,5 +144,7 @@ private:
 
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // SELECTIONEDITINGBEHAVIOR_H

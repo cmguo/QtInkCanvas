@@ -5,6 +5,7 @@
 #include "collection.h"
 
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
 
 class Geometry;
 
@@ -42,5 +43,7 @@ public:
 private:
     VisualCollection children_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // CONTAINERVISUAL_H

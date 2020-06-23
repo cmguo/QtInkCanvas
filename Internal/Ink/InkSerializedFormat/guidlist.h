@@ -1,6 +1,7 @@
 #ifndef GUIDLIST_H
 #define GUIDLIST_H
 
+#include "InkCanvas_global.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
 #include <QUuid>
@@ -9,6 +10,8 @@
 #define OLD_ISF 0
 
 class QIODevice;
+
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// Summary description for GuidTagList.
@@ -105,5 +108,7 @@ public:
     /// <returns></returns>
     quint32 Load(QIODevice& strm, quint32 size);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // GUIDLIST_H

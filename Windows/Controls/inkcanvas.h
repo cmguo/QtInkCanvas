@@ -11,6 +11,13 @@
 #include "Windows/Ink/applicationgesture.h"
 #include "Windows/Ink/stylusshape.h"
 
+class QBrush;
+class QMimeData;
+class QPolygonF;
+
+// namespace System.Windows.Controls
+INKCANVAS_BEGIN_NAMESPACE
+
 class InkCanvasSelection;
 class InkCanvasSelectionAdorner;
 class InkCanvasFeedbackAdorner;
@@ -24,8 +31,6 @@ class StylusPointCollection;
 class Visual;
 class HitTestResult;
 class PointHitTestParameters;
-class QMimeData;
-class QBrush;
 
 typedef QMimeData DataObject;
 
@@ -45,10 +50,6 @@ class ExecutedRoutedEventArgs;
 class RoutedCommand {};
 
 class AdornerDecorator;
-
-class QPolygonF;
-
-// namespace System.Windows.Controls
 
 class INKCANVAS_EXPORT InkCanvas : public FrameworkElement
 {
@@ -1650,5 +1651,7 @@ private:
 
     static constexpr double                    c_pasteDefaultLocation = 0.0;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVAS_H

@@ -3,10 +3,10 @@
 
 #include "Windows/routedeventargs.h"
 
+// namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class InputDevice;
-
-// namespace System.Windows.Input
 
 /// <summary>
 ///     The InputEventArgs class represents a type of RoutedEventArgs that
@@ -65,5 +65,6 @@ private:
     static int _timestamp;
  };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // INPUTEVENTARGS_H

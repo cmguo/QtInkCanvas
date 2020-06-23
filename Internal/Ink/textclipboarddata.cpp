@@ -2,6 +2,8 @@
 
 #include <QMimeData>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 TextClipboardData::TextClipboardData()
     : TextClipboardData(nullptr)
 {
@@ -70,3 +72,5 @@ void TextClipboardData::DoPaste(DataObject const * dataObject)
     }
 
 }
+
+INKCANVAS_END_NAMESPACE

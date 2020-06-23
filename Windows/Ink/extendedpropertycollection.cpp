@@ -4,6 +4,8 @@
 
 #include <QVector>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Create a new empty ExtendedPropertyCollection
 /// </summary>
@@ -268,3 +270,5 @@ ExtendedProperty* ExtendedPropertyCollection::GetExtendedPropertyById(QUuid cons
 
     return nullptr ;
 }
+
+INKCANVAS_END_NAMESPACE

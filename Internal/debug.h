@@ -1,9 +1,10 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-// namespace System.Diagnostics
+#include "InkCanvas_global.h"
 
-#include <QtGlobal>
+// namespace System.Diagnostics
+INKCANVAS_BEGIN_NAMESPACE
 
 class Debug
 {
@@ -28,5 +29,7 @@ public:
 private:
     static void _Assert(bool condition, char const * message);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DEBUG_H

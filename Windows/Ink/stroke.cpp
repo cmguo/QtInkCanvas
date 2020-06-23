@@ -21,6 +21,8 @@
 #include <QDebug>
 #include <QThread>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 Stroke::Stroke()
 {
 
@@ -1614,4 +1616,4 @@ void Stroke::CalcHollowTransforms(QSharedPointer<DrawingAttributes>  originalDa,
     outerTransform *= originalDa->StylusTipTransform();
 }
 
-
+INKCANVAS_END_NAMESPACE

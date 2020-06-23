@@ -4,6 +4,8 @@
 #include "Windows/Ink/drawingattributes.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusShape::StylusShape()
 {
 
@@ -230,3 +232,5 @@ QVector<QPointF> StylusShape::GetBezierControlPoints()
 
     return controlPoints;
 }
+
+INKCANVAS_END_NAMESPACE

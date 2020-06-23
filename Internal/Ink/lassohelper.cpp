@@ -4,6 +4,8 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/doubleutil.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 const QColor LassoHelper::DotColor(Qt::yellow);     //FromArgb(1, 0.89f, 0.3607f, 0.1843f);
 const QColor LassoHelper::DotCircumferenceColor(Qt::white);
 
@@ -283,3 +285,4 @@ void LassoHelper::EnsureReady()
     }
 }
 
+INKCANVAS_END_NAMESPACE

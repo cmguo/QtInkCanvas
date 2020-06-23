@@ -9,6 +9,8 @@
 #include <QPointF>
 #include <QRectF>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class ContourSegment;
 class StrokeRenderer;
 class DrawingContext;
@@ -307,5 +309,7 @@ private:
     // Is the current stroke node the last node?
     bool _isLastNode = false;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKENODE_H

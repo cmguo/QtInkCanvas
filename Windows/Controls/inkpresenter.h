@@ -8,6 +8,8 @@
 
 #include <utility>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class Renderer;
 class Stroke;
 class StrokeCollection;
@@ -250,5 +252,7 @@ private:
     //#endregion Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKPRESENTER_H

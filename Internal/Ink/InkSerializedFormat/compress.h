@@ -1,10 +1,13 @@
 #ifndef COMPRESS_H
 #define COMPRESS_H
 
+#include "InkCanvas_global.h"
 #include <QByteArray>
 #include <QVector>
 
 #define OLD_ISF 0
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class AlgoModule;
 
@@ -254,5 +257,7 @@ private:
     }
 #endif
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // COMPRESS_H

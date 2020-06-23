@@ -1,5 +1,6 @@
 #include "Windows/Media/containervisual.h"
 
+INKCANVAS_BEGIN_NAMESPACE
 
 ContainerVisual *ContainerVisual::fromItem(QGraphicsItem *item)
 {
@@ -60,3 +61,5 @@ void VisualCollection::Remove(Visual *visual)
         parent_->RemoveVisualChild(visual);
     }
 }
+
+INKCANVAS_END_NAMESPACE

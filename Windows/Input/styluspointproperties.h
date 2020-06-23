@@ -4,6 +4,7 @@
 #include "Windows/Input/styluspointproperty.h"
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointProperties
 {
@@ -118,5 +119,7 @@ public:
     /// </summary>
     static StylusPointProperty SecondaryTipButton;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTPROPERTIES_H

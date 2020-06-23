@@ -1,10 +1,15 @@
 #ifndef INKRENDERER_H
 #define INKRENDERER_H
 
+#include "InkCanvas_global.h"
+
 #include <QSharedPointer>
 #include <QColor>
 #include <QMap>
 #include <QObject>
+
+// namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class Visual;
 class StrokeCollection;
@@ -13,8 +18,6 @@ class DrawingAttributes;
 class StrokeCollectionChangedEventArgs;
 class EventArgs;
 class ContainerVisual;
-
-// namespace System.Windows.Ink
 
 /// <summary>
 /// The Renderer class is used to render a stroke collection.
@@ -212,7 +215,11 @@ private:
     //#endregion
 };
 
+INKCANVAS_END_NAMESPACE
+
 #include "Windows/Media/containervisual.h"
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class Renderer::HighlighterContainerVisual : public ContainerVisual
 {
@@ -234,6 +241,6 @@ private:
     QColor _color;
 };
 
-
+INKCANVAS_END_NAMESPACE
 
 #endif // INKRENDERER_H

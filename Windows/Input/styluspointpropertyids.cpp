@@ -1,5 +1,7 @@
 #include "Windows/Input/styluspointpropertyids.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 bool StylusPointPropertyIds::IsKnownId(QUuid const & QUuid)
 {
     if (QUuid == X ||
@@ -137,3 +139,5 @@ bool StylusPointPropertyIds::IsKnownButton(QUuid const & QUuid)
     }
     return false;
 }
+
+INKCANVAS_END_NAMESPACE

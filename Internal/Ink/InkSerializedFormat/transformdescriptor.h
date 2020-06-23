@@ -3,6 +3,8 @@
 
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class TransformDescriptor
 {
 public:
@@ -13,5 +15,7 @@ public:
 public:
     bool Compare(TransformDescriptor const & that);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // TRANSFORMDESCRIPTOR_H

@@ -1,5 +1,7 @@
 #include "Windows/effectivevalueentry.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 EffectiveValueEntry EffectiveValueEntry::CreateDefaultValueEntry(DependencyProperty const * dp, QVariant value)
 {
     EffectiveValueEntry entry(dp, BaseValueSourceInternal::Default);
@@ -572,3 +574,4 @@ void ModifiedValue::SetBaseValue(QVariant value, bool useWeakReference)
                 : */value;
 }
 
+INKCANVAS_END_NAMESPACE

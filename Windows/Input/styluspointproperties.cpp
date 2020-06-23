@@ -1,5 +1,7 @@
 #include "Windows/Input/styluspointproperties.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPointProperty StylusPointProperties::X(StylusPointPropertyIds::X, false);
 
 /// <summary>
@@ -107,3 +109,4 @@ StylusPointProperty StylusPointProperties::BarrelButton(StylusPointPropertyIds::
 /// </summary>
 StylusPointProperty StylusPointProperties::SecondaryTipButton(StylusPointPropertyIds::SecondaryTipButton, true);
 
+INKCANVAS_END_NAMESPACE

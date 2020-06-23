@@ -4,6 +4,7 @@
 #include "Windows/Input/styluspointpropertyinfo.h"
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointPropertyInfoDefaults
 {
@@ -135,5 +136,7 @@ public:
     /// <returns></returns>
     static StylusPointPropertyInfo GetStylusPointPropertyInfoDefault(StylusPointProperty const & stylusPointProperty);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTPROPERTYINFODEFAULTS_H

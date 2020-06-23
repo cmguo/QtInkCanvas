@@ -8,6 +8,8 @@
 #include <QMutex>
 #include <QTransform>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPlugInCollection;
 class RawStylusInputCustomData;
 class UIElement;
@@ -37,5 +39,7 @@ private:
     RawStylusActions action_;
     QList<RawStylusInputCustomData> customDatas_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // PENCONTEXTS_H

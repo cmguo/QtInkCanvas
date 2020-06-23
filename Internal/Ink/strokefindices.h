@@ -8,6 +8,7 @@
 #include <float.h>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// A helper struct that represents a fragment of a stroke spine.
@@ -167,5 +168,7 @@ private:
     double _beginFIndex;
     double _endFIndex;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKEFINDICES_H

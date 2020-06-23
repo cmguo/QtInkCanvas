@@ -4,11 +4,14 @@
 #include "Internal/Ink/styluseditingbehavior.h"
 #include "Windows/Ink/incrementalhittester.h"
 
+class QPolygonF;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusShape;
 class IncrementalStrokeHitTester;
 class StrokeHitEventArgs;
 class ErasingStroke;
-class QPolygonF;
 
 // namespace MS.Internal.Ink
 
@@ -151,5 +154,7 @@ private:
 
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ERASERBEHAVIOR_H

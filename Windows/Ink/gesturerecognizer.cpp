@@ -2,6 +2,8 @@
 #include "Windows/Ink/strokecollection.h"
 #include "Internal/Ink/GestureRecognition/nativerecognizer.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// The default constructor which enables all the application gestures.
 /// </summary>
@@ -266,3 +268,5 @@ void GestureRecognizer::VerifyDisposed()
         throw std::exception("GestureRecognizer");
     }
 }
+
+INKCANVAS_END_NAMESPACE

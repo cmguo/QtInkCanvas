@@ -4,10 +4,11 @@
 #include "Windows/Ink/stroke.h"
 #include "Internal/Ink/strokenodeoperations.h"
 
+// namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeNodeOperations;
 class StrokeNode;
-
-// namespace MS.Internal.Ink
 
 /// <summary>
 /// This class serves as a unified tool for enumerating through stroke nodes
@@ -124,5 +125,7 @@ private:
     std::unique_ptr<StrokeNodeOperations>   _operations;
     bool                    _usePressure;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKENODEITERATOR_H

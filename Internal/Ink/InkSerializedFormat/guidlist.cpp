@@ -2,6 +2,8 @@
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 QUuid GuidList::Empty;
 
 GuidList::GuidList()
@@ -266,3 +268,5 @@ quint32 GuidList::Load(QIODevice& strm, quint32 size)
 
     return cbsize;
 }
+
+INKCANVAS_END_NAMESPACE

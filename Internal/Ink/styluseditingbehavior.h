@@ -3,9 +3,10 @@
 
 #include "editingbehavior.h"
 
-class StylusPointCollection;
-
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
+class StylusPointCollection;
 
 /// <summary>
 /// IStylusEditing Interface
@@ -202,5 +203,7 @@ private:
 
     //#endregion Private Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSEDITINGBEHAVIOR_H

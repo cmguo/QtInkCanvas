@@ -5,6 +5,8 @@
 #include "Internal/doubleutil.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 CuspData::CuspData()
 {
 
@@ -442,3 +444,5 @@ void CuspData::SetLinks(double rSpan)
 
     FindAllCusps();
 }
+
+INKCANVAS_END_NAMESPACE

@@ -11,6 +11,8 @@
 #include "Internal/debug.h"
 #include "Internal/finallyhelper.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class Renderer::StrokeVisual : public DrawingVisual
 {
 public:
@@ -634,10 +636,14 @@ void Renderer::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
                      this, &Renderer::OnStrokeInvalidated);
 }
 
+INKCANVAS_END_NAMESPACE
+
 static bool operator<(QColor const & l, QColor const & r)
 {
     return l.rgba() < r.rgba();
 }
+
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// Finds a container for a new visual based on the drawing attributes
@@ -678,3 +684,5 @@ ContainerVisual* Renderer::GetContainerVisual(QSharedPointer<DrawingAttributes> 
         return _regularInkVisuals;
     }
 }
+
+INKCANVAS_END_NAMESPACE

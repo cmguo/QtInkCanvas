@@ -3,6 +3,8 @@
 #include "Windows/Ink/strokecollection.h"
 #include "Windows/Controls/inkcanvas.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// [TBS]
 /// </summary>
@@ -164,4 +166,4 @@ InkCanvasGestureEventArgs::InkCanvasGestureEventArgs(QSharedPointer<StrokeCollec
     _gestureRecognitionResults = gestureRecognitionResults;
 }
 
-
+INKCANVAS_END_NAMESPACE

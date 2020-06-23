@@ -1,10 +1,15 @@
 #ifndef STROKERENDERER_H
 #define STROKERENDERER_H
 
+#include "InkCanvas_global.h"
+
 #include <QPointF>
 #include <QList>
 #include <QColor>
 #include <QTransform>
+
+// namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class StrokeNodeIterator;
 class DrawingAttributes;
@@ -14,7 +19,6 @@ class Stroke;
 class StreamGeometryContext;
 class StrokeNode;
 
-// namespace MS.Internal.Ink
 
 class StrokeRenderer
 {
@@ -145,5 +149,7 @@ public:
     static QPointF ArcToMarker;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKERENDERER_H

@@ -22,6 +22,8 @@
 
 #include <map>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class HostVisual;
 
 class VisualTarget
@@ -1364,3 +1366,5 @@ void DynamicRenderer::DestroyRealTimeVisuals()
         AbortAllStrokes(); // Doing this here avoids doing a begininvoke to enter the rendering thread (avoid reentrancy).
     }
 }
+
+INKCANVAS_END_NAMESPACE

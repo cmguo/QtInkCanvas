@@ -7,6 +7,8 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Insert a StylusPlugIn in the collection at a specific index.
 /// This method should be called from the application context only
@@ -660,3 +662,5 @@ void StylusPlugInCollection::UnhookPenContexts()
         }
     }
 }
+
+INKCANVAS_END_NAMESPACE

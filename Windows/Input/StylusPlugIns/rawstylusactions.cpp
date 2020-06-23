@@ -1,5 +1,7 @@
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 const RawStylusActions RawStylusActionsHelper::MaxActions =
     RawStylusActions::None |
     RawStylusActions::Activate |
@@ -20,3 +22,5 @@ bool RawStylusActionsHelper::IsValid(RawStylusActions action)
     }
     return true;
 }
+
+INKCANVAS_END_NAMESPACE

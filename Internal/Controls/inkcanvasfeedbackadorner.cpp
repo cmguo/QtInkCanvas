@@ -5,6 +5,8 @@
 #include "Windows/Media/drawingcontext.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 InkCanvasFeedbackAdorner::InkCanvasFeedbackAdorner()
     : Adorner (nullptr)
     , _inkCanvas(*static_cast<InkCanvas*>(nullptr))
@@ -157,3 +159,5 @@ void InkCanvasFeedbackAdorner::UpdateBounds(QRectF const &rect)
     // Invoke OnBoundsUpdated.
     OnBoundsUpdated(rect);
 }
+
+INKCANVAS_END_NAMESPACE

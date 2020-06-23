@@ -4,6 +4,8 @@
 #include "eventargs.h"
 #include <QVariant>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 enum NotifyCollectionChangedAction
 {
     /// <summary> One or more items were added to the collection. </summary>
@@ -380,5 +382,7 @@ private:
     int _newStartingIndex = -1;
     int _oldStartingIndex = -1;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // NOTIFYCOLLECTIONCHANGEDEVENTARGS_H

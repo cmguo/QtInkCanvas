@@ -5,6 +5,8 @@
 
 #include <QMap>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class DrawingAttributes;
 
 // namespace MS.Internal.Ink
@@ -238,5 +240,7 @@ private:
 
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCOLLECTIONBEHAVIOR_H

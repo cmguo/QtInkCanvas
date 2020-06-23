@@ -5,6 +5,8 @@
 
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Constructor for incremental erasing
 /// </summary>
@@ -300,3 +302,5 @@ QVector<QPointF> ErasingStroke::FilterPoints(QVector<QPointF> const & path)
 #endif
     return newPath.toVector();
 }
+
+INKCANVAS_END_NAMESPACE

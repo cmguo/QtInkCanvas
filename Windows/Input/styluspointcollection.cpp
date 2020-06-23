@@ -7,6 +7,8 @@
 #include "Windows/Ink/events.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPointCollection::StylusPointCollection()
     : _stylusPointDescription(new StylusPointDescription())
 {
@@ -620,3 +622,5 @@ bool StylusPointCollection::CanGoToZero()
     return !e.Cancel();
 
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,6 +1,8 @@
 #include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// DecompressPacketData - take a byte[] or a subset of a byte[] and decompresses it into
 ///     an int[] of packet data (for example, x's in a Stroke)
@@ -136,3 +138,5 @@ AlgoModule& Compressor::GetAlgoModule()
     }
     return *_algoModule;
 }
+
+INKCANVAS_END_NAMESPACE

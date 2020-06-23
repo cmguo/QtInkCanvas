@@ -1,7 +1,10 @@
 #ifndef INKCANVASSELECTIONHITRESULT_H
 #define INKCANVASSELECTIONHITRESULT_H
 
+#include "InkCanvas_global.h"
+
 // namespace System.Windows.Controls
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// InkCanvas Selection Hit Result
@@ -49,5 +52,7 @@ enum class InkCanvasSelectionHitResult
     /// </summary>
     Selection =     9,
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASSELECTIONHITRESULT_H

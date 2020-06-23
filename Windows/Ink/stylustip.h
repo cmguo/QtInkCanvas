@@ -1,7 +1,11 @@
 #ifndef STYLUSTIP_H
 #define STYLUSTIP_H
 
+#include "InkCanvas_global.h"
+
 #include <QMetaType>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 enum class StylusTip
 {
@@ -32,5 +36,7 @@ public:
         return true;
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSTIP_H

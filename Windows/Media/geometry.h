@@ -1,8 +1,16 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include "InkCanvas_global.h"
+
 #include <QRectF>
 #include <QList>
+#include <QPainterPath>
+
+class QPainter;
+
+// namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
 
 enum SweepDirection
 {
@@ -17,9 +25,6 @@ enum SweepDirection
     Clockwise = 1,
 };
 
-// namespace System.Windows.Media
-
-class QPainter;
 
 class Geometry
 {
@@ -39,8 +44,6 @@ public:
 private:
     void * owner_ = nullptr;
 };
-
-#include <QPainterPath>
 
 class PathGeometry : public Geometry
 {
@@ -116,5 +119,7 @@ public:
 private:
     QRectF rectangle_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // GEOMETRY_H

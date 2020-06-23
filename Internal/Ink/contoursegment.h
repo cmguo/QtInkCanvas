@@ -6,6 +6,7 @@
 #include <QPointF>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class ContourSegment
 {
@@ -56,5 +57,7 @@ private:
     QPointF  _vector;
     QPointF  _radius;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // CONTOURSEGMENT_H

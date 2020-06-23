@@ -3,10 +3,11 @@
 
 #include "containervisual.h"
 
+// namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
 class DrawingContext;
 class DrawingGroup;
-
-// namespace System.Windows.Media
 
 class DrawingVisual : public ContainerVisual
 {
@@ -30,5 +31,7 @@ public:
 private:
     DrawingGroup * drawing_ = nullptr;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGVISUAL_H

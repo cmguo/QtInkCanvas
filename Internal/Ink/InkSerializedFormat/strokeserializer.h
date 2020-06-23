@@ -9,11 +9,14 @@
 #define OLD_ISF 0
 
 class QIODevice;
+class QMatrix;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class GuidList;
 class StrokeDescriptor;
 class StylusPointDescription;
 class DrawingAttributes;
-class QMatrix;
 class Compressor;
 class Stroke;
 class StylusPointCollection;
@@ -315,5 +318,7 @@ public:
 
     //#endregion // Encoding
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKESERIALIZER_H

@@ -9,6 +9,8 @@
 #include <QMutex>
 #include <QTransform>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPlugIn;
 class UIElement;
 class RawStylusInput;
@@ -220,5 +222,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(StylusPlugInCollection*)
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPLUGINCOLLECTION_H

@@ -7,6 +7,7 @@
 #include <QList>
 
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
 
 class StreamGeometryContext
 {
@@ -104,5 +105,7 @@ public:
     /// </summary>
     virtual void SetClosedState(bool closed) = 0;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STREAMGEOMETRYCONTEXT_H

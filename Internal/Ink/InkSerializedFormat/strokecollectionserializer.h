@@ -7,6 +7,8 @@
 #include <QList>
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPointDescription;
 class Stroke;
 class StrokeDescriptor;
@@ -504,5 +506,7 @@ public:
     /// <returns></returns>
     static QVector<int> GetStrokeIds(StrokeCollection& strokes);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKECOLLECTIONSERIALIZER_H

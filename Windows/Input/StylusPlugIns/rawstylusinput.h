@@ -9,6 +9,9 @@
 class QEvent;
 class QTouchEvent;
 class QGraphicsSceneMouseEvent;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class RawStylusInputReport;
 class StylusPlugInCollection;
 class StylusPointCollection;
@@ -138,5 +141,7 @@ private:
     QList<RawStylusInputCustomData>    _customData;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // RAWSTYLUSINPUT_H

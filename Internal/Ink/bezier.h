@@ -6,6 +6,8 @@
 #include <QList>
 #include <QPointF>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class CuspData;
 
 // namespace MS.Internal.Ink
@@ -158,5 +160,7 @@ public:
 private:
     QList<QPointF> _bezierControlPoints;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // BEZIER_H

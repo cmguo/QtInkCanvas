@@ -1,8 +1,11 @@
 #ifndef ALGOMODULE_H
 #define ALGOMODULE_H
 
+#include "InkCanvas_global.h"
 #include <QByteArray>
 #include <QVector>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class AlgoModule
 {
@@ -68,5 +71,7 @@ public:
 
     static constexpr double DefaultFirstSquareRoot[] = { 1, 1, 1, 4, 9, 16, 36, 49};
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ALGOMODULE_H

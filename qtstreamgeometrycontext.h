@@ -5,6 +5,8 @@
 
 #include <QPainterPath>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StreamGeometry;
 
 class QtStreamGeometryContext : public StreamGeometryContext
@@ -33,5 +35,7 @@ private:
     bool isClosed_ = false;
     bool isFilled_ = false;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // QTSTREAMGEOMETRYCONTEXT_H

@@ -3,6 +3,8 @@
 
 #include "styluseditingbehavior.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class LassoHelper;
 class IncrementalLassoHitTester;
 class LassoSelectionChangedEventArgs;
@@ -214,5 +216,7 @@ private:
     //#endregion Private Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // LASSOSELECTIONBEHAVIOR_H

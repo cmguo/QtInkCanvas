@@ -9,6 +9,8 @@
 #include <QSharedPointer>
 #include <QStack>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class InkCanvas;
 class EventArgs;
 class EditingBehavior;
@@ -544,5 +546,7 @@ private:
     // Fields related to cursor and transform.
     BehaviorValidFlags       _behaviorValidFlag;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EDITINGCOORDINATOR_H

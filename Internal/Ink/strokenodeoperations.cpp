@@ -2,6 +2,8 @@
 #include "Internal/Ink/ellipticalnodeoperations.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///
 /// </summary>
@@ -1848,3 +1850,5 @@ double StrokeNodeOperations::AdjustFIndex(double findex)
 {
     return DoubleUtil::IsZero(findex) ? 0 : (DoubleUtil::IsOne(findex) ? 1 : findex);
 }
+
+INKCANVAS_END_NAMESPACE

@@ -5,6 +5,8 @@
 
 #include <QBuffer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPointPropertyInfo& MetricEntry::DefaultXMetric = MetricEntry_Optional[0].PropertyMetrics;
 
 StylusPointPropertyInfo& MetricEntry::DefaultYMetric = MetricEntry_Optional[1].PropertyMetrics;
@@ -271,3 +273,5 @@ bool MetricEntry::IsValidMetricEntry(StylusPointPropertyInfo propertyInfo, Known
         return true;
     }
 }
+
+INKCANVAS_END_NAMESPACE

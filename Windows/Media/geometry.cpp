@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //static int count = 0;
 
 Geometry::Geometry()
@@ -141,3 +143,5 @@ void EllipseGeometry::Draw(QPainter &painter)
 {
     painter.drawEllipse(rectangle_);
 }
+
+INKCANVAS_END_NAMESPACE

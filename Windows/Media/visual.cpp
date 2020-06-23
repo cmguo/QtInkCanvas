@@ -7,6 +7,8 @@
 #include <QGraphicsScene>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //static int count = 0;
 
 Visual::Visual()
@@ -75,3 +77,5 @@ QRectF Visual::boundingRect() const
 void Visual::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *)
 {
 }
+
+INKCANVAS_END_NAMESPACE

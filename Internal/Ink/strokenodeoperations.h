@@ -13,6 +13,7 @@
 #include <QVector>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// The base operations class that implements polygonal node operations by default.
@@ -357,5 +358,7 @@ public:
     /// </summary>
     static double AdjustFIndex(double findex);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKENODEOPERATIONS_H

@@ -1,17 +1,20 @@
 #ifndef DRAWINGCONTEXT_H
 #define DRAWINGCONTEXT_H
 
+#include "InkCanvas_global.h"
+
 #include <QPointF>
 #include <QRectF>
 #include <QPen>
 #include <QBrush>
 #include <QTransform>
 
+// namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
 class AnimationClock;
 class Geometry;
 class Drawing;
-
-// namespace System.Windows.Media
 
 class DrawingContext
 {
@@ -430,5 +433,7 @@ public:
     /// </exception>
     virtual void Close() = 0;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGCONTEXT_H

@@ -7,6 +7,8 @@
 
 #include <QVariant>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class DependencyProperty;
 class PropertyMetadata;
 
@@ -244,5 +246,7 @@ private:
     OperationType       _operationType;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DEPENDENCYPROPERTYCHANGEDEVENTARGS_H

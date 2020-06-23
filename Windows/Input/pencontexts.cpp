@@ -11,6 +11,8 @@
 #include <QTouchEvent>
 #include <QGraphicsSceneMouseEvent>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 PenContexts::PenContexts(UIElement * element)
     : mutex_(QMutex::Recursive)
     , element_(element)
@@ -85,3 +87,4 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     return QObject::eventFilter(watched, event);
 }
 
+INKCANVAS_END_NAMESPACE

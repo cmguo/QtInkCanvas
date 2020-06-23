@@ -6,6 +6,8 @@
 
 #include <QVariant>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //[FriendAccessAllowed] // Built into Base, also used by Core & Framework.
 enum class FullValueSource
 {
@@ -256,5 +258,7 @@ private:
 
     //#endregion Data
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // EFFECTIVEVALUEENTRY_H

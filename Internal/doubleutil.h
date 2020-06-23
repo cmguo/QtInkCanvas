@@ -1,6 +1,8 @@
 #ifndef DOUBLEUTIL_H
 #define DOUBLEUTIL_H
 
+#include "InkCanvas_global.h"
+
 #include <QSizeF>
 #include <QPointF>
 #include <QRectF>
@@ -8,9 +10,10 @@
 
 #include <cmath>
 
-// namespace MS.Internal
-
 #undef DBL_EPSILON
+
+// namespace MS.Internal
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// Utility to provide double calculations.
@@ -308,5 +311,7 @@ inline QRectF United(QRectF const & rect, QPointF const & point)
         return rect.adjusted(l, t, r, b);
     }
 }
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DOUBLEUTIL_H

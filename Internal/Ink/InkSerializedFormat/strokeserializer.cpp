@@ -17,6 +17,8 @@
 #include <QIODevice>
 #include <QDebug>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Loads a stroke from the stream based on Stroke Descriptor, StylusPointDescription, Drawing Attributes, Stroke IDs, transform and GuidList
 /// </summary>
@@ -850,3 +852,5 @@ uint StrokeSerializer::SavePacketPropertyData(
 
     return (uint)data.size();
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,6 +1,13 @@
 #ifndef STREAMGEOMETRY_H
 #define STREAMGEOMETRY_H
 
+#include "InkCanvas_global.h"
+#include "geometry.h"
+
+#include <QPainterPath>
+
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///     FillRule -
 /// </summary>
@@ -17,10 +24,6 @@ enum FillRule
     Nonzero = 1,
 };
 
-
-#include "geometry.h"
-
-#include <QPainterPath>
 
 class StreamGeometryContext;
 
@@ -49,5 +52,7 @@ private:
     StreamGeometryContext * context_ = nullptr;
     QPainterPath path_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STREAMGEOMETRY_H

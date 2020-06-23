@@ -1,7 +1,11 @@
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
+#include "InkCanvas_global.h"
+
 #include <QVector>
+
+INKCANVAS_BEGIN_NAMESPACE
 
 template <typename T>
 class Collection : protected QVector<T>
@@ -54,5 +58,7 @@ protected:
         return QVector<T>::operator[](index);
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // COLLECTION_H

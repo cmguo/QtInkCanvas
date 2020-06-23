@@ -13,6 +13,8 @@
 #include <QVariant>
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusShape;
 class PropertyChangedEventArgs;
 class PropertyDataChangedEventArgs;
@@ -369,7 +371,11 @@ public:
     static constexpr double MaxWidth = 162329.4614173230;
 };
 
+INKCANVAS_END_NAMESPACE
+
 #include "Windows/dependencyproperty.h"
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class DrawingAttributesDefaultValueFactory : public DefaultValueFactory
 {
@@ -377,5 +383,6 @@ private:
     virtual QVariant DefaultValue() override;
 };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWINGATTRIBUTES_H

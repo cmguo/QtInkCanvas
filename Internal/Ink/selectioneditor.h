@@ -4,6 +4,8 @@
 #include "editingbehavior.h"
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class MouseEventArgs;
 class MouseButtonEventArgs;
 
@@ -154,5 +156,7 @@ private:
 
     //#endregion Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // SELECTIONEDITOR_H

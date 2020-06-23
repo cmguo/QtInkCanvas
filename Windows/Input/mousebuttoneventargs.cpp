@@ -3,6 +3,8 @@
 
 #include <QGraphicsSceneMouseEvent>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 MouseButtonEventArgs::MouseButtonEventArgs(QGraphicsSceneMouseEvent &event)
     : MouseEventArgs(event)
 {
@@ -121,3 +123,4 @@ MouseButtonState MouseButtonEventArgs::ButtonState()
     return state;
 }
 
+INKCANVAS_END_NAMESPACE

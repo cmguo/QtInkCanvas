@@ -9,6 +9,8 @@
 #include <QRectF>
 #include <QPointF>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class Stroke;
 class StrokeCollection;
 class UIElement;
@@ -295,6 +297,6 @@ public:
 
 };
 
-
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASSTROKESREPLACEDEVENTARGS_H

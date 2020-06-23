@@ -1,5 +1,7 @@
 #include "strokedescriptor.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeDescriptor::StrokeDescriptor()
 {
 
@@ -17,3 +19,5 @@ bool StrokeDescriptor::IsEqual(StrokeDescriptor const & strd)
             return false;
     return true;
 }
+
+INKCANVAS_END_NAMESPACE

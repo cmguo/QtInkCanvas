@@ -1,6 +1,8 @@
 #include "Windows/Input/styluspoint.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPoint::StylusPoint(double x, double y)
     : StylusPoint(x, y, DefaultPressure, nullptr, QVector<int>(), false, false)
 {
@@ -421,9 +423,9 @@ bool StylusPoint::Equals(StylusPoint const & stylusPoint1, StylusPoint const & s
 uint StylusPoint::GetHashCode() const
 {
     uint hash =
-        qHash(_x) ^
-        qHash(_y) ^
-        qHash(_pressureFactor);
+        ::qHash(_x) ^
+        ::qHash(_y) ^
+        ::qHash(_pressureFactor);
 
     if (_stylusPointDescription != nullptr)
     {
@@ -523,3 +525,5 @@ double StylusPoint::GetClampedXYValue(double xyValue)
 
     return xyValue;
 }
+
+INKCANVAS_END_NAMESPACE

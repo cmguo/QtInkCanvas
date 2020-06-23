@@ -2,6 +2,8 @@
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/styluspointproperty.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StylusPointPropertyInfo::StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty)
     : StylusPointProperty (stylusPointProperty) //base checks for null
 {
@@ -55,3 +57,5 @@ bool StylusPointPropertyInfo::AreCompatible(StylusPointPropertyInfo const & styl
     return (stylusPointPropertyInfo1.Id() == stylusPointPropertyInfo2.Id() &&
             stylusPointPropertyInfo1.IsButton() == stylusPointPropertyInfo2.IsButton());
 }
+
+INKCANVAS_END_NAMESPACE

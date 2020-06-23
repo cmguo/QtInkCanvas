@@ -1,5 +1,7 @@
 #include "Windows/Ink/strokeintersection.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeIntersection StrokeIntersection::s_empty(AfterLast, AfterLast, BeforeFirst, BeforeFirst);
 StrokeIntersection StrokeIntersection::s_full(BeforeFirst, BeforeFirst, AfterLast, AfterLast);
 
@@ -101,3 +103,5 @@ QVector<StrokeIntersection> StrokeIntersection::GetMaskedHitSegments(QVector<Str
     }
     return result;
 }
+
+INKCANVAS_END_NAMESPACE

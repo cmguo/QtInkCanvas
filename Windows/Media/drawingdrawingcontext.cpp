@@ -2,6 +2,8 @@
 #include "Windows/Media/drawing.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Default DrawingDrawingContext constructor.
 /// </summary>
@@ -1503,3 +1505,4 @@ void DrawingDrawingContext::AddDrawing(Drawing* newDrawing)
     }
 }
 
+INKCANVAS_END_NAMESPACE

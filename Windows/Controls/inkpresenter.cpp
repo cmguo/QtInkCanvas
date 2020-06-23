@@ -7,6 +7,8 @@
 #include "Internal/Ink/renderer.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //#region Constructors
 
 /// <summary>
@@ -563,3 +565,5 @@ QRectF InkPresenter::StrokesBounds()
 
     return _cachedBounds.first;
 }
+
+INKCANVAS_END_NAMESPACE

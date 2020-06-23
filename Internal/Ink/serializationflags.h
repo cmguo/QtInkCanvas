@@ -1,6 +1,10 @@
 #ifndef SERIALIZATIONFLAGS_H
 #define SERIALIZATIONFLAGS_H
 
+#include "InkCanvas_global.h"
+
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Specifies how to persist the ink.
 /// </summary>
@@ -34,5 +38,7 @@ enum class CompressionMode
     /// </summary>
     NoCompression = 2
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // SERIALIZATIONFLAGS_H

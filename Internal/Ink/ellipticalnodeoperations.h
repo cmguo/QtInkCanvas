@@ -5,6 +5,8 @@
 
 // namespace MS.Internal.Ink
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// StrokeNodeOperations implementation for elliptical nodes
 /// </summary>
@@ -160,5 +162,7 @@ private:
     QMatrix _nodeShapeToCircle;
     QMatrix _circleToNodeShape;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // ELLIPTICALNODEOPERATIONS_H

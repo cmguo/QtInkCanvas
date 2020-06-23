@@ -6,6 +6,7 @@
 #include <QString>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class TextClipboardData : public ElementsClipboardData
 {
@@ -62,5 +63,7 @@ private:
 
     ////#endregion Private Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // TEXTCLIPBOARDDATA_H

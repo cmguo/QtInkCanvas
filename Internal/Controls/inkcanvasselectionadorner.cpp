@@ -9,6 +9,8 @@
 
 #include <QPainterPath>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Constructor
 /// </summary>
@@ -436,3 +438,4 @@ QRectF InkCanvasSelectionAdorner::GetWireFrameRect()
     return frameRect;
 }
 
+INKCANVAS_END_NAMESPACE

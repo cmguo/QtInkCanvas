@@ -1,7 +1,12 @@
 #ifndef CLIPBOARDDATA_H
 #define CLIPBOARDDATA_H
 
+#include "InkCanvas_global.h"
+
 class QMimeData;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 typedef QMimeData DataObject;
 
 // namespace System.Activities.Presentation
@@ -82,5 +87,7 @@ protected:
     //#endregion Protected Methods
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // CLIPBOARDDATA_H

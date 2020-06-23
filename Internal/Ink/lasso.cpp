@@ -1,6 +1,8 @@
 #include "Internal/Ink/lasso.h"
 #include "Internal/Ink/strokenodeiterator.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Extends the lasso by appending more points
 /// </summary>
@@ -719,3 +721,5 @@ double SingleLoopLasso::AdjustFIndex(double findex)
 {
     return DoubleUtil::IsZero(findex) ? 0 : (DoubleUtil::IsOne(findex) ? 1 : findex);
 }
+
+INKCANVAS_END_NAMESPACE

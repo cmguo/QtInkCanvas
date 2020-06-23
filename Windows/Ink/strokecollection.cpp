@@ -18,6 +18,8 @@
 #include <QBuffer>
 #include <QMatrix>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeCollection::StrokeCollection()
 {
 }
@@ -1201,10 +1203,14 @@ void StrokeCollection::Erase(QVector<QPointF> const & eraserPath, StylusShape& e
 #endif
 }
 
+INKCANVAS_END_NAMESPACE
+
 static bool operator<(QColor l, QColor r)
 {
     return l.rgba() < r.rgba();
 }
+
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// Render the StrokeCollection under the specified DrawingContext.
@@ -1343,3 +1349,5 @@ void StrokeCollection::UpdateStrokeCollection(QSharedPointer<Stroke> original, Q
         index += toReplace->size() - 1;
     }
 }
+
+INKCANVAS_END_NAMESPACE

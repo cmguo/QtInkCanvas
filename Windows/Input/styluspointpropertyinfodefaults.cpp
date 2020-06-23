@@ -1,6 +1,8 @@
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Windows/Input/styluspointproperties.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// X
 /// </summary>
@@ -346,3 +348,5 @@ StylusPointPropertyInfo StylusPointPropertyInfoDefaults::GetStylusPointPropertyI
     }
     return StylusPointPropertyInfoDefaults::DefaultValue;
 }
+
+INKCANVAS_END_NAMESPACE

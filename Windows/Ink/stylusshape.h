@@ -10,6 +10,7 @@
 #include <QObject>
 
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 ///<summary>
 /// Defines the style of pen tip for rendering.
@@ -163,5 +164,7 @@ public:
     }
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSSHAPE_H

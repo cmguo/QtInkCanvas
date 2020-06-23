@@ -1,9 +1,12 @@
 #ifndef STYLUSPOINTPROPERTYIDS_H
 #define STYLUSPOINTPROPERTYIDS_H
 
+#include "InkCanvas_global.h"
+
 #include <QUuid>
 
 // namespace System.Windows.Input
+INKCANVAS_BEGIN_NAMESPACE
 
 class StylusPointPropertyIds
 {
@@ -140,5 +143,7 @@ public:
     /// <param name="QUuid">QUuid
     static bool IsKnownButton(QUuid const & QUuid);
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPOINTPROPERTYIDS_H

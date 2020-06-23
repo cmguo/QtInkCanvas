@@ -8,6 +8,10 @@
 #include <QMutex>
 #include <QQueue>
 
+class QThread;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusDevice;
 class StylusPointCollection;
 class DrawingAttributes;
@@ -17,7 +21,6 @@ class DrawingContext;
 class Geometry;
 class Dispatcher;
 class ContainerVisual;
-class QThread;
 
 /////////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -291,5 +294,7 @@ private:
     QQueue<StrokeInfo*>    _renderCompleteDRThreadStrokeInfoList;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DYNAMICRENDERER_H

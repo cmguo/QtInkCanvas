@@ -4,10 +4,13 @@
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/Input/mousebuttonstate.h"
 
+class QGraphicsSceneMouseEvent;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class Visual;
 class MouseDevice;
 class StylusDevice;
-class QGraphicsSceneMouseEvent;
 
 // namespace System.Windows.Input
 
@@ -97,5 +100,7 @@ public:
 private:
     StylusDevice* _stylusDevice;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // MOUSEEVENTARGS_H

@@ -3,6 +3,8 @@
 
 #include "applicationgesture.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// RecognitionConfidence
 /// </summary>
@@ -85,5 +87,7 @@ private:
 
     //#endregion Private Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // GESTURERECOGNITIONRESULT_H

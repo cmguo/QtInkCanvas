@@ -3,12 +3,13 @@
 
 #include "Windows/Controls/decorator.h"
 
-class InkCanvas;
-class DrawingContext;
-
 #include <QPen>
 
 // namespace MS.Internal.Controls
+INKCANVAS_BEGIN_NAMESPACE
+
+class InkCanvas;
+class DrawingContext;
 
 /// <summary>
 /// InkCanvasFeedbackAdorner
@@ -72,5 +73,7 @@ private:
     static constexpr double    BorderMargin = 8;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASFEEDBACKADORNER_H

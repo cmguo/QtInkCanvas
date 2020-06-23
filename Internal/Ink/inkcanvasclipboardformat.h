@@ -1,9 +1,12 @@
 #ifndef INKCANVASCLIPBOARDFORMAT_H
 #define INKCANVASCLIPBOARDFORMAT_H
 
+#include "InkCanvas_global.h"
+
 #include <QFlags>
 
 // namespace System.Windows.Controls
+INKCANVAS_BEGIN_NAMESPACE
 
 enum class InkCanvasClipboardFormat
 {
@@ -32,5 +35,7 @@ enum class InkCanvasClipboardDataFormat
 };
 
 Q_DECLARE_FLAGS(InkCanvasClipboardDataFormats, InkCanvasClipboardDataFormat)
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASCLIPBOARDFORMAT_H

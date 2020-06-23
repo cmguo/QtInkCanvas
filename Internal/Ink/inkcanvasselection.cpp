@@ -11,6 +11,8 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// InkCanvasSelection has an constructor to prevent direct instantiation
 /// </summary>
@@ -1068,3 +1070,5 @@ QList<QRectF> InkCanvasSelection::SelectedElementsBoundsEnumerator()
     }
     return list;
 }
+
+INKCANVAS_END_NAMESPACE

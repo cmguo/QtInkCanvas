@@ -1,7 +1,10 @@
 #ifndef APPLICATIONGESTURE_H
 #define APPLICATIONGESTURE_H
 
+#include "InkCanvas_global.h"
+
 // namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>
 /// ApplicationGesture
@@ -256,5 +259,7 @@ public:
         }
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // APPLICATIONGESTURE_H

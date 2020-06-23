@@ -1,6 +1,7 @@
 #ifndef CLIPBOARDPROCESSOR_H
 #define CLIPBOARDPROCESSOR_H
 
+#include "InkCanvas_global.h"
 #include "inkcanvasclipboardformat.h"
 
 #include <QMap>
@@ -10,15 +11,17 @@
 #include <QSharedPointer>
 #include <QMetaEnum>
 
+class QMimeData;
+
+// namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeCollection;
 class InkCanvas;
 class UIElement;
 class DependencyObjectType;
 class ClipboardData;
-class QMimeData;
 typedef QMimeData DataObject;
-
-// namespace MS.Internal.Ink
 
 /// <summary>
 /// ClipboardProcessor acts as a brige between InkCanvas and various clipboard data formats
@@ -156,5 +159,7 @@ private:
     //#endregion Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // CLIPBOARDPROCESSOR_H

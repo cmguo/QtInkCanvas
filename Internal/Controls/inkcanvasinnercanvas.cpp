@@ -4,6 +4,8 @@
 #include "Windows/Media/hittestresult.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 //------------------------------------------------------
 //
 //  Cnostructors
@@ -284,3 +286,4 @@ QList<UIElement*> InkCanvasInnerCanvas::PrivateLogicalChildren()
     return UIElement::LogicalChildren();
 }
 
+INKCANVAS_END_NAMESPACE

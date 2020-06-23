@@ -1,11 +1,14 @@
 #ifndef QUAD_H
 #define QUAD_H
 
+#include "InkCanvas_global.h"
+
 #include <QPointF>
 #include <QRectF>
 #include <QList>
 
 // namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
 
 class Quad
 {
@@ -79,5 +82,7 @@ private:
     QPointF _C;
     QPointF _D;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // QUAD_H

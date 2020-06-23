@@ -1,18 +1,20 @@
 #ifndef INKCANVASSELECTION_H
 #define INKCANVASSELECTION_H
 
+#include "InkCanvas_global.h"
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
 #include "eventargs.h"
 
 #include <QSharedPointer>
 #include <QRectF>
 
+// namespace MS.Internal.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
 class InkCanvas;
 class StrokeCollection;
 class UIElement;
 class StrokeCollectionChangedEventArgs;
-
-// namespace MS.Internal.Ink
 
 /// <summary>
 /// InkCanvasSelection
@@ -341,5 +343,7 @@ private:
     //#endregion Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASSELECTION_H

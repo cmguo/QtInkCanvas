@@ -1,6 +1,8 @@
 #include "Windows/routedeventargs.h"
 #include "Internal/finallyhelper.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///     Constructor for <see cref="RoutedEventArgs"/>
 /// </summary>
@@ -379,3 +381,5 @@ void RoutedEvent::handle(QEvent &event, RoutedEventArgs &args, QList<RoutedEvent
     }
     event.ignore();
 }
+
+INKCANVAS_END_NAMESPACE

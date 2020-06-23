@@ -1,6 +1,8 @@
 #include "Internal/Ink/ellipticalnodeoperations.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Constructor
 /// </summary>
@@ -808,3 +810,5 @@ void EllipticalNodeOperations::CalculateCutLocations(
         }
     }
 }
+
+INKCANVAS_END_NAMESPACE

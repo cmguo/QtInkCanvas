@@ -6,12 +6,13 @@
 #include <QRectF>
 #include <QList>
 
-class DrawingContext;
 class QPainter;
 class QSvgRenderer;
 
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
 
+class DrawingContext;
 class Drawing
 {
 public:
@@ -128,5 +129,6 @@ private:
     DrawingGroup* drawingGroup_ = nullptr;
 };
 
+INKCANVAS_END_NAMESPACE
 
 #endif // DRAWING_H

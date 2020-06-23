@@ -7,6 +7,8 @@
 
 #define checked(x) x
 
+INKCANVAS_BEGIN_NAMESPACE
+
 static double DBL_EPSILON = DoubleUtil::DBL_EPSILON;
 
 Bezier::Bezier()
@@ -550,3 +552,5 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, QList<QPointF> & point
         points.push_back(Q[3]);
     }
 }
+
+INKCANVAS_END_NAMESPACE

@@ -2,6 +2,8 @@
 
 #include <QString>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeFIndices StrokeFIndices::s_empty(AfterLast, BeforeFirst);
 StrokeFIndices StrokeFIndices::s_full(BeforeFirst, AfterLast);
 
@@ -28,3 +30,5 @@ QString StrokeFIndices::GetStringRepresentation(double fIndex)
     }
     return QString("%1").arg(fIndex);
 }
+
+INKCANVAS_END_NAMESPACE

@@ -1,9 +1,12 @@
 #ifndef DEPENDENCYPROPERTY_H
 #define DEPENDENCYPROPERTY_H
 
+#include "InkCanvas_global.h"
+
 #include <QVariant>
 
 // namespace System.Windows
+INKCANVAS_BEGIN_NAMESPACE
 
 class DependencyObject;
 class DependencyPropertyChangedEventArgs;
@@ -58,5 +61,7 @@ private:
     std::function<void(DependencyObject&, DependencyPropertyChangedEventArgs&)> changed_;
     std::function<bool(QVariant)> validate_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // DEPENDENCYPROPERTY_H

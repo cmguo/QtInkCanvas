@@ -11,6 +11,9 @@
 #include <QSharedPointer>
 #include <QPolygonF>
 
+// namespace System.Windows.Ink
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeCollectionChangedEventArgs;
 class NotifyCollectionChangedEventArgs;
 class IncrementalStrokeHitTester;
@@ -20,8 +23,6 @@ class Stroke;
 class DrawingContext;
 class ExtendedPropertyCollection;
 class ErasingStroke;
-
-// namespace System.Windows.Ink
 
 #define STROKE_COLLECTION_MULTIPLE_LAYER 1
 #define STROKE_COLLECTION_EDIT_MASK 1
@@ -440,7 +441,11 @@ private:
     //
 };
 
+INKCANVAS_END_NAMESPACE
+
 #include "Windows/dependencyproperty.h"
+
+INKCANVAS_BEGIN_NAMESPACE
 
 class StrokeCollectionDefaultValueFactory : public DefaultValueFactory
 {
@@ -450,5 +455,7 @@ private:
         return QVariant::fromValue(QSharedPointer<StrokeCollection>(new StrokeCollection));
     }
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STROKECOLLECTION_H

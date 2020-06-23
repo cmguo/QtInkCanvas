@@ -2,6 +2,8 @@
 #include "Windows/Input/mousedevice.h"
 #include "Windows/Input/stylusdevice.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 MouseEventArgs::MouseEventArgs(QGraphicsSceneMouseEvent &)
     : MouseEventArgs(Mouse::PrimaryDevice, Mouse::GetTimestamp())
 {
@@ -116,3 +118,5 @@ void MouseEventArgs::InvokeEventHandler(Delegate genericHandler, object genericT
     handler(genericTarget, this);
 }
 */
+
+INKCANVAS_END_NAMESPACE

@@ -5,6 +5,8 @@
 
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusDevice;
 class Visual;
 class StylusPointCollection;
@@ -106,5 +108,7 @@ protected:
 
     //RawStylusInputReport*    _inputReport;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSEVENTARGS_H

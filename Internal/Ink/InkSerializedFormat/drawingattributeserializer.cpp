@@ -15,6 +15,8 @@
 #include <QDataStream>
 #include <QBuffer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Loads drawing attributes from a memory buffer.
 /// </summary>
@@ -630,3 +632,4 @@ void DrawingAttributeSerializer::PersistWidthHeight(DrawingAttributes& da, QIODe
     }
 }
 
+INKCANVAS_END_NAMESPACE

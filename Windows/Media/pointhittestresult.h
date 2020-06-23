@@ -5,9 +5,10 @@
 
 #include <QPointF>
 
-class UIElement;
-
 // namespace System.Windows.Media
+INKCANVAS_BEGIN_NAMESPACE
+
+class UIElement;
 
 /// <summary>
 /// This class returns the point and QWidget hit during a hit test pass.
@@ -38,5 +39,7 @@ public:
     /// </summary>
     UIElement* VisualHit();
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // POINTHITTESTRESULT_H

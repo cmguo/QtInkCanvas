@@ -3,6 +3,8 @@
 
 #include "Windows/uielement.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class InkCanvas;
 
 // namespace MS.Internal.Controls
@@ -146,5 +148,7 @@ private:
 
     //#endregion Private Fields
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASINNERCANVAS_H

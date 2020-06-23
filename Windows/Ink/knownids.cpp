@@ -1,6 +1,8 @@
 #include "Windows/Ink/knownids.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///    <para>[To be supplied.]</para>
 /// </summary>
@@ -238,3 +240,5 @@ QUuid const & KnownIds::InkCustomStrokes     = KnownIdCache::TabletInternalIdTab
 /// QUuid const & used for identifying the Stroke Lattice
 /// </summary>
 QUuid const & KnownIds::InkStrokeLattice     = KnownIdCache::TabletInternalIdTable[KnownIdCache::TabletInternalIdIndex::InkStrokeLattice];
+
+INKCANVAS_END_NAMESPACE

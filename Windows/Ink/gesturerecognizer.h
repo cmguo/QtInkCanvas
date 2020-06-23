@@ -8,6 +8,8 @@
 #include <QList>
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class StrokeCollection;
 class NativeRecognizer;
 
@@ -195,5 +197,7 @@ private:
     //#endregion Fields
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // GESTURERECOGNIZER_H

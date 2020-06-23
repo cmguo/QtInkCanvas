@@ -9,6 +9,8 @@
 #include <QRectF>
 #include <QList>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 class DrawingContext;
 
 // namespace MS.Internal.Controls
@@ -93,5 +95,7 @@ private:
     static constexpr double    LineThickness = 0.16;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // INKCANVASSELECTIONADORNER_H

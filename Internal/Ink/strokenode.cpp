@@ -8,6 +8,8 @@
 #define wheat magenta
 #define orange darkCyan
 
+INKCANVAS_BEGIN_NAMESPACE
+
 StrokeNode::StrokeNode()
     : _connectingQuad(Quad::Empty())
 {
@@ -921,3 +923,5 @@ QPointF StrokeNode::GetPointAt(double findex)
     return QPointF(   _lastNode.Position().x() + xDiff,
                         _lastNode.Position().y() + yDiff);
 }
+
+INKCANVAS_END_NAMESPACE

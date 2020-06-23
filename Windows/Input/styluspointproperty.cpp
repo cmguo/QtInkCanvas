@@ -1,5 +1,7 @@
 #include "Windows/Input/styluspointproperty.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 void StylusPointProperty::Initialize(QUuid const & identifier, bool isButton)
 {
     //
@@ -25,3 +27,5 @@ void StylusPointProperty::Initialize(QUuid const & identifier, bool isButton)
     _id = identifier;
     _isButton = isButton;
 }
+
+INKCANVAS_END_NAMESPACE

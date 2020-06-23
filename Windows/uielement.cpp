@@ -11,6 +11,8 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+INKCANVAS_BEGIN_NAMESPACE
+
 RoutedEvent UIElement::LostMouseCaptureEvent(QEvent::UngrabMouse);
 
 RoutedEvent UIElement::LostStylusCaptureEvent(QEvent::TouchCancel);
@@ -497,3 +499,4 @@ Visual* FrameworkElement::GetVisualChild(int index)
     return static_cast<Visual*>(childItems().at(index));
 }
 
+INKCANVAS_END_NAMESPACE

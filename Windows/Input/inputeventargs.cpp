@@ -1,5 +1,7 @@
 #include "Windows/Input/inputeventargs.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 ///     Initializes a new instance of the InputEventArgs class.
 /// </summary>
@@ -18,3 +20,5 @@ InputEventArgs::InputEventArgs(InputDevice* inputDevice, int timestamp)
 }
 
 int InputEventArgs::_timestamp = 0;
+
+INKCANVAS_END_NAMESPACE

@@ -16,6 +16,8 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
+INKCANVAS_BEGIN_NAMESPACE
+
 /// <summary>
 /// Constructors
 /// </summary>
@@ -1365,3 +1367,5 @@ EraserBehavior* EditingCoordinator::GetEraserBehavior()
     }
     return _eraserBehavior;
 }
+
+INKCANVAS_END_NAMESPACE

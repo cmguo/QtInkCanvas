@@ -5,9 +5,12 @@
 #include "Windows/Input/mousebuttonstate.h"
 #include "Windows/routedeventargs.h"
 
+class QGraphicsSceneMouseEvent;
+
+INKCANVAS_BEGIN_NAMESPACE
+
 class UIElement;
 class MouseDevice;
-class QGraphicsSceneMouseEvent;
 
 class MouseEvent : public RoutedEvent
 {
@@ -91,5 +94,7 @@ private:
     QSharedPointer<StylusPointDescription> description_;
     QPointF lastPosition_;
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // MOUSEDEVICE_H

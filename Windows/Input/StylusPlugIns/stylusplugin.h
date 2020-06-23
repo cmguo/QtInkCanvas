@@ -7,11 +7,12 @@
 
 #include <QRectF>
 
+// namespace System.Windows.Input.StylusPlugIns
+INKCANVAS_BEGIN_NAMESPACE
+
 class StylusPlugInCollection;
 class UIElement;
 class RawStylusInput;
-
-// namespace System.Windows.Input.StylusPlugIns
 
 /////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -167,5 +168,7 @@ private:
     StylusPlugInCollection*  _pic = nullptr;
 
 };
+
+INKCANVAS_END_NAMESPACE
 
 #endif // STYLUSPLUGIN_H
