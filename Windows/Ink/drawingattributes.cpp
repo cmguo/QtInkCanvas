@@ -125,7 +125,7 @@ void DrawingAttributes::SetStylusTipTransform(Matrix const & value)
     //no need to raise change events, they will bubble up from the EPC
     //underneath us
     // Validation of value is done in EPC
-    SetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform, value);
+    SetExtendedPropertyBackedProperty(KnownIds::StylusTipTransform, Variant::fromValue(value));
     drawingShape_.reset();
 }
 
@@ -492,7 +492,7 @@ Variant DrawingAttributes::GetDefaultDrawingAttributeValue(Guid const & id)
     }
     if (KnownIds::StylusTipTransform == id)
     {
-        return Matrix();
+        return Variant::fromValue(Matrix());
     }
     if (KnownIds::IsHighlighter == id)
     {

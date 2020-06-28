@@ -142,14 +142,14 @@ void EditingBehavior::SelfDeactivate()
 /// Calculate the transform which is accumalated with the InkCanvas' XXXTransform properties.
 /// </summary>
 /// <returns></returns>
-QMatrix EditingBehavior::GetElementTransformMatrix()
+Matrix EditingBehavior::GetElementTransformMatrix()
 {
-    QTransform layoutTransform = GetInkCanvas().LayoutTransform();
-    QTransform renderTransform = GetInkCanvas().RenderTransform();
-    QTransform xf = layoutTransform;
+    Transform layoutTransform = GetInkCanvas().LayoutTransform();
+    Transform renderTransform = GetInkCanvas().RenderTransform();
+    Transform xf = layoutTransform;
     xf *= renderTransform;
 
-    return xf.toAffine();
+    return xf;
 }
 
 /// <summary>

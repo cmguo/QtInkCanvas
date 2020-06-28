@@ -14,7 +14,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// <summary>
 /// Size - A value type which defined a size in terms of non-negative width and height
 /// </summary>
-class Size
+class INKCANVAS_EXPORT Size
 {
     //#region Constructors
 public:
@@ -154,8 +154,8 @@ private:
         Size size;
         // We can't set these via the property setters because negatives widths
         // are rejected in those APIs.
-        size._width = HUGE_VAL;
-        size._height = HUGE_VAL;
+        size._width = Double::NegativeInfinity;
+        size._height = Double::NegativeInfinity;
         return size;
     }
 

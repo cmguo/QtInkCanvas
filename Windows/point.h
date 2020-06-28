@@ -12,7 +12,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// <summary>
 /// Point - Defaults to 0,0
 /// </summary>
-class Point
+class INKCANVAS_EXPORT Point
 {
     //#region Constructors
 public:
@@ -123,10 +123,15 @@ public:
     /// </returns>
     /// <param name="point1"> The Point from which point2 is subtracted </param>
     /// <param name="point2"> The Point subtracted from point1 </param>
-    static Vector Subtract(Point point1, Point point2)
+    static Vector Subtract(Point const & point1, Point const & point2)
     {
         return point1 - point2;
     }
+
+    /// <summary>
+    /// Operator Point * Matrix
+    /// </summary>
+    //friend Point operator * (Point const & point, Matrix const & matrix);
 
     /// <summary>
     /// Explicit conversion to Vector

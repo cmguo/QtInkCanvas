@@ -142,7 +142,7 @@ protected:
     ///         stylusPoints were user initiated
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputContinue
@@ -157,7 +157,7 @@ protected:
     ///         stylusPoints were user initiated
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputEnd
@@ -177,7 +177,7 @@ protected:
     //[SecurityCritical, SecurityTreatAsSafe]
     virtual void StylusInputEnd(bool commit);
 
-    void StylusInput(QSharedPointer<StylusPointCollection> stylusPoints);
+    void StylusInput(SharedPointer<StylusPointCollection> stylusPoints);
 
     /// <summary>
     /// ApplyTransformToCursor
@@ -217,7 +217,7 @@ private:
     ///         critical method GetInkCanvas().RaiseGestureOrStrokeCollected.
     /// </SecurityNote>
     //[SecurityCritical]
-    QMap<int, QSharedPointer<StylusPointCollection>>                           _stylusPoints;
+    QMap<int, SharedPointer<StylusPointCollection>>                           _stylusPoints;
 
     /// <SecurityNote>
     ///     Critical: We use this to track if the input that makes up _stylusPoints
@@ -230,12 +230,12 @@ private:
     /// We clone the GetInkCanvas().DefaultDrawingAttributes on down, in case they are
     /// changed mid-stroke
     /// </summary>
-    QSharedPointer<DrawingAttributes>                               _strokeDrawingAttributes;
+    SharedPointer<DrawingAttributes>                               _strokeDrawingAttributes;
 
     /// <summary>
     /// The cached DrawingAttributes and Cursor instances for rendering the pen cursor.
     /// </summary>
-    QSharedPointer<DrawingAttributes>                               _cursorDrawingAttributes;
+    SharedPointer<DrawingAttributes>                               _cursorDrawingAttributes;
     QCursor                                          _cachedPenCursor;
 
     //#endregion Fields

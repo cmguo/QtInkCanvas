@@ -11,7 +11,7 @@ class Point;
 /// <summary>
 /// Vector - A value type which defined a vector in terms of X and Y
 /// </summary>
-class Vector
+class INKCANVAS_EXPORT Vector
 {
     //#region Constructors
 public:
@@ -67,7 +67,7 @@ public:
     /// </returns>
     /// <param name="vector1"> The first Vector </param>
     /// <param name="vector2"> The second Vector </param>
-    static double CrossProduct(Vector vector1, Vector vector2)
+    static double CrossProduct(Vector const & vector1, Vector const & vector2)
     {
         return vector1._x * vector2._y - vector1._y * vector2._x;
     }
@@ -212,7 +212,7 @@ public:
     /// <summary>
     /// Operator Vector / double
     /// </summary>
-    friend Vector operator / (Vector vector, double scalar)
+    friend Vector operator / (Vector const & vector, double scalar)
     {
         return vector * (1.0 / scalar);
     }
@@ -225,7 +225,7 @@ public:
     /// <summary>
     /// Multiply: Vector / double
     /// </summary>
-    static Vector Divide(Vector vector, double scalar)
+    static Vector Divide(Vector const & vector, double scalar)
     {
         return vector * (1.0 / scalar);
     }

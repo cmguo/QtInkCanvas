@@ -31,7 +31,7 @@ class ErasingStroke;
 #define STROKE_COLLECTION_EDIT_MASK 0
 #endif
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
 {
     Q_OBJECT
@@ -62,7 +62,7 @@ public:
 
     ~StrokeCollection();
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
     /// <param name="compress">Flag if set to true the data will be compressed, which can
@@ -127,7 +127,7 @@ public:
     /// cause each individual Stroke to be modified.
     /// If the StrokesChanged event fires, the changed parameter will be a pointer to 'this'
     /// collection, so any changes made to the changed event args will affect 'this' collection.</remarks>
-    void Transform(Matrix & transformMatrix, bool applyToStylusTip);
+    void Transform(Matrix const & transformMatrix, bool applyToStylusTip);
 
     /// <summary>
     /// Performs a deep copy of the StrokeCollection.
@@ -138,31 +138,29 @@ public:
     /// called by base class Collection&lt;T&gt; when the list is being cleared;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void ClearItems();
+    void ClearItems() override;
 
     /// <summary>
     /// called by base class RemoveAt or Remove methods
     /// </summary>
-    void RemoveItem(int index);
-
-    bool RemoveItem(SharedPointer<Stroke> stroke);
+    void RemoveItem(int index) override;
 
     /// <summary>
     /// called by base class Insert, Add methods
     /// </summary>
-    void InsertItem(int index, SharedPointer<Stroke> stroke);
+    void InsertItem(int index, SharedPointer<Stroke> const & stroke) override;
 
     /// <summary>
     /// called by base class set_Item method
     /// </summary>
-    void SetItem(int index, SharedPointer<Stroke> stroke);
+    void SetItem(int index, SharedPointer<Stroke> const & stroke) override;
 
     /// <summary>
     /// Gets the index of the stroke, or -1 if it is not found
     /// </summary>
     /// <param name="stroke">stroke</param>
     /// <returns></returns>
-    int IndexOf(SharedPointer<Stroke> stroke);
+    int IndexOf(SharedPointer<Stroke> const & stroke);
 
     /// <summary>
     /// Remove a set of Stroke objects to the collection
@@ -180,6 +178,8 @@ public:
     void Add(SharedPointer<StrokeCollection> strokes);
 
     using Collection::Add;
+
+    bool Remove(SharedPointer<Stroke> const & stroke);
 
     /// <summary>
     /// Replace

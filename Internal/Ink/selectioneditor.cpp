@@ -42,7 +42,7 @@ SelectionEditor::SelectionEditor(EditingCoordinator& editingCoordinator, InkCanv
 /// </summary>
 void SelectionEditor::OnInkCanvasSelectionChanged()
 {
-    QPointF currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
+    Point currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(currentPosition);
 }
 
@@ -73,7 +73,7 @@ void SelectionEditor::OnActivate()
     GetInkCanvas().SelectionAdorner().AddHandler(Mouse::MouseLeaveEvent,
             RoutedEventHandlerT<SelectionEditor, MouseEventArgs, &SelectionEditor::OnAdornerMouseLeaveEvent>(this));
 
-    QPointF currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
+    Point currentPosition = Mouse::PrimaryDevice->GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(currentPosition);
 }
 
@@ -156,7 +156,7 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
         return;
     }
 
-    QPointF pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
+    Point pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
 
     InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::None;
 
@@ -194,7 +194,7 @@ void SelectionEditor::OnAdornerMouseButtonDownEvent(MouseButtonEventArgs& args)
 //[SecurityCritical, SecurityTreatAsSafe]
 void SelectionEditor::OnAdornerMouseMoveEvent(MouseEventArgs& args)
 {
-    QPointF pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
+    Point pointOnSelectionAdorner = args.GetPosition(&GetInkCanvas().SelectionAdorner());
     UpdateSelectionCursor(pointOnSelectionAdorner);
 }
 
@@ -215,7 +215,7 @@ void SelectionEditor::OnAdornerMouseLeaveEvent(MouseEventArgs& args)
 /// </summary>
 /// <param name="position"></param>
 /// <returns></returns>
-InkCanvasSelectionHitResult SelectionEditor::HitTestOnSelectionAdorner(QPointF const & position)
+InkCanvasSelectionHitResult SelectionEditor::HitTestOnSelectionAdorner(Point const & position)
 {
     InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::None;
 
@@ -246,7 +246,7 @@ InkCanvasSelectionHitResult SelectionEditor::HitTestOnSelectionAdorner(QPointF c
 ///  OnAdornerMouseEvent
 /// </summary>
 /// <param name="hitPoint">the handle is being hit</param>
-void SelectionEditor::UpdateSelectionCursor(QPointF const & hitPoint)
+void SelectionEditor::UpdateSelectionCursor(Point const & hitPoint)
 {
     InkCanvasSelectionHitResult hitResult = HitTestOnSelectionAdorner(hitPoint);
     if ( _hitResult != hitResult )

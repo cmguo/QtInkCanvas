@@ -106,7 +106,7 @@ QByteArray Compressor::CompressPacketData(
 #if OLD_ISF
         Compressor& compressor,
 #endif
-        QVector<int> input,
+        Array<int> input,
         quint8& algorithm)
 {
     //if (input == null)

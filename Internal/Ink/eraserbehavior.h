@@ -79,14 +79,14 @@ protected:
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
     /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-    virtual void StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputContinue
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
     /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-    virtual void StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputEnd
@@ -150,7 +150,7 @@ private:
     std::unique_ptr<IncrementalStrokeHitTester>      _incrementalStrokeHitTester = nullptr;
     QCursor                          _cachedPointEraserCursor;
     StylusShape*                     _cachedStylusShape = nullptr;
-    QSharedPointer<StylusPointCollection>           _stylusPoints = nullptr;
+    SharedPointer<StylusPointCollection>           _stylusPoints = nullptr;
 
     //#endregion Fields
 };

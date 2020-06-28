@@ -10,7 +10,7 @@ INKCANVAS_BEGIN_NAMESPACE
 ISFClipboardData::ISFClipboardData() { }
 
 // The constructor which takes StrokeCollection argument
-ISFClipboardData::ISFClipboardData(QSharedPointer<StrokeCollection> strokes)
+ISFClipboardData::ISFClipboardData(SharedPointer<StrokeCollection> strokes)
 {
     _strokes = strokes;
 }
@@ -33,7 +33,7 @@ bool ISFClipboardData::CanPaste(DataObject const * dataObject)
 // Checks if there is stroke data in this instance
 bool ISFClipboardData::CanCopy()
 {
-    return (Strokes() != nullptr && Strokes()->size() != 0);
+    return (Strokes() != nullptr && Strokes()->Count() != 0);
 }
 
 // Copies the strokes to the IDataObject
@@ -76,7 +76,7 @@ void ISFClipboardData::DoPaste(DataObject  const * dataObject)
     QBuffer stream; stream.setData(data);
     stream.open(QIODevice::ReadOnly);
 
-    QSharedPointer<StrokeCollection> newStrokes;
+    SharedPointer<StrokeCollection> newStrokes;
     bool fSucceeded = false;
     //if ( stream != null && stream != Stream.Null )
     {
@@ -95,7 +95,7 @@ void ISFClipboardData::DoPaste(DataObject  const * dataObject)
     }
 
     // Depending on whether we are succeeded or not, we set the correct stroke collection here.
-    _strokes = fSucceeded ? newStrokes : QSharedPointer<StrokeCollection>(new StrokeCollection());
+    _strokes = fSucceeded ? newStrokes : SharedPointer<StrokeCollection>(new StrokeCollection());
 }
 
 INKCANVAS_END_NAMESPACE

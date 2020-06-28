@@ -63,7 +63,7 @@ void CuspData::Analyze(StylusPointCollection & stylusPoints, double rSpan)
 
             //convert from Avalon to Himetric
             Point point2 = stylusPoints[i];
-            point2 = Vector(point) * StrokeCollectionSerializer::AvalonToHimetricMultiplier;
+            point2 = Vector(point2) * StrokeCollectionSerializer::AvalonToHimetricMultiplier;
             cdp.Point = point2;
 
             _points.Insert(index, cdp);

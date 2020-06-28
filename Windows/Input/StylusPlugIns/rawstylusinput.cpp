@@ -16,8 +16,8 @@ INKCANVAS_BEGIN_NAMESPACE
 /// <param name="tabletToElementTransform">[TBS]
 /// <param name="targetPlugInCollection">[TBS]
 RawStylusInput::RawStylusInput(
-    QEvent&    event,
-    QTransform        tabletToElementTransform,
+    QEvent & event,
+    Matrix const & tabletToElementTransform,
     StylusPlugInCollection* targetPlugInCollection)
     : inputEvent_(event)
     , touchEvent_(nullptr)
@@ -28,7 +28,7 @@ RawStylusInput::RawStylusInput(
     //{
     //    throw std::runtime_error("report");
     //}
-    if (!tabletToElementTransform.isInvertible())
+    if (!tabletToElementTransform.HasInverse())
     {
         throw std::runtime_error("tabletToElementTransform");
     }
@@ -54,7 +54,7 @@ RawStylusInput::RawStylusInput(
         break;
     }
 
-    // We should always see this QTransform is frozen since we access this from multiple threads.
+    // We should always see this Transform is frozen since we access this from multiple threads.
     //System.Diagnostics.Debug.Assert(tabletToElementTransform.IsFrozen);
     //_report                 = report;
     _tabletToElementTransform  = tabletToElementTransform;
@@ -99,9 +99,9 @@ RawStylusActions RawStylusInput::Actions()
 /// <summary>
 /// Returns a copy of the StylusPoints
 /// </summary>
-QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints()
+SharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints()
 {
-    return GetStylusPoints(QTransform());
+    return GetStylusPoints(Matrix());
 }
 
 /// <summary>
@@ -116,12 +116,12 @@ QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints()
 ///                                 StylusDevice.UpdateEventStylusPoints(RawStylusInputReport, Boolean)
 /// </securitynote>
 //[SecurityCritical, SecurityTreatAsSafe]
-QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints(QTransform transform)
+SharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints(Matrix const & transform)
 {
     if (_stylusPoints == nullptr)
     {
         //
-        QTransform group;
+        Matrix group;
         //if ( StylusDeviceId() == 0)
         //{
         //    // Only do this for the Mouse
@@ -129,12 +129,12 @@ QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints(QTransform
         //}
         group = _tabletToElementTransform;
         group *= transform;
-        return QSharedPointer<StylusPointCollection>(
-                    new StylusPointCollection(device_->PointDescription(), device_->PacketData(inputEvent_), group.toAffine(), QMatrix()));
+        return SharedPointer<StylusPointCollection>(
+                    new StylusPointCollection(device_->PointDescription(), device_->PacketData(inputEvent_), group, Matrix()));
     }
     else
     {
-        return _stylusPoints->Clone(transform.toAffine(), _stylusPoints->Description());
+        return _stylusPoints->Clone(transform, _stylusPoints->Description());
     }
 }
 
@@ -148,7 +148,7 @@ QSharedPointer<StylusPointCollection> RawStylusInput::GetStylusPoints(QTransform
 /// <securitynote>
 ///     Callers must have Unmanaged code permission to call this API.
 /// </securitynote>
-void RawStylusInput::SetStylusPoints(QSharedPointer<StylusPointCollection> stylusPoints)
+void RawStylusInput::SetStylusPoints(SharedPointer<StylusPointCollection> stylusPoints)
 {
     // To modify the points we require Unmanaged code permission.
     //SecurityHelper.DemandUnmanagedCode();
@@ -163,7 +163,7 @@ void RawStylusInput::SetStylusPoints(QSharedPointer<StylusPointCollection> stylu
     {
         throw std::runtime_error("stylusPoints");
     }
-    if (stylusPoints->size() == 0)
+    if (stylusPoints->Count() == 0)
     {
         throw std::runtime_error("stylusPoints");
     }
@@ -185,7 +185,7 @@ void RawStylusInput::NotifyWhenProcessed(void* callbackData)
     //{
     //    _customData = new RawStylusInputCustomDataList();
     //}
-    _customData.append(RawStylusInputCustomData{_currentNotifyPlugIn, callbackData});
+    _customData.Add(RawStylusInputCustomData{_currentNotifyPlugIn, callbackData});
 }
 
 /// <summary>
@@ -212,14 +212,14 @@ RawStylusInputReport* RawStylusInput::Report()
 /// <summary>
 /// Matrix that was used for rawstylusinput packets.
 /// </summary>
-QTransform RawStylusInput::ElementTransform()
+Matrix RawStylusInput::ElementTransform()
 {
      return _tabletToElementTransform;
 }
 /// <summary>
 /// Retrieves the RawStylusInputCustomDataList associated with this input.
 /// </summary>
-QList<RawStylusInputCustomData> RawStylusInput::CustomDataList()
+List<RawStylusInputCustomData> RawStylusInput::CustomDataList()
 {
      // (_customData == nullptr)
      //{

@@ -2,11 +2,11 @@
 #define EDITINGCOORDINATOR_H
 
 #include "Windows/Controls/editingmode.h"
+#include "sharedptr.h"
 
 #include <QObject>
 #include <QVector>
 #include <QCursor>
-#include <QSharedPointer>
 #include <QStack>
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -539,7 +539,7 @@ private:
     /// </summary>
     bool _stylusIsInverted = false;
 
-    QSharedPointer<StylusPointDescription>  _commonDescription;
+    SharedPointer<StylusPointDescription>  _commonDescription;
     StylusDevice*            _capturedStylus = nullptr;
     MouseDevice*             _capturedMouse = nullptr;
 

@@ -1,10 +1,9 @@
-QT -= core gui
+QT += gui widgets svg
 
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
 CONFIG += c++17
-CONFIG += inkcanvas_core
 
 include(../config.pri)
 
@@ -19,10 +18,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += INKCANVAS_CORE=1
-DEFINES += INKCANVAS_NAMESPACE=InkCanvasCore
-DEFINES += STROKE_COLLECTION_EDIT_MASK=0
-DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=0
+DEFINES += INKCANVAS_QT=1
+DEFINES += STROKE_COLLECTION_EDIT_MASK=1
+DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=1
 
 DEFINES += DEBUG_RENDERING_FEEDBACK=0
 DEFINES += DEBUG_LASSO_FEEDBACK=0
@@ -30,12 +28,13 @@ DEFINES += DEBUG_OUTPUT=0
 DEFINES += OLD_ISF=0
 
 SOURCES += \
-    cmath.cpp \
     double.cpp \
     eventargs.cpp \
     guid.cpp \
-    single.cpp \
-    variant.cpp
+    notifycollectionchangedeventargs.cpp \
+    qtpainterdrawingcontext.cpp \
+    qtstreamgeometrycontext.cpp \
+    single.cpp
 
 HEADERS += \
     InkCanvas_global.h \
@@ -43,12 +42,13 @@ HEADERS += \
     double.h \
     eventargs.h \
     guid.h \
-    sharedptr.h \
-    single.h \
-    variant.h
+    notifycollectionchangedeventargs.h \
+    qtpainterdrawingcontext.h \
+    qtstreamgeometrycontext.h
 
 include(Windows/Windows.pri)
 include(Internal/Internal.pri)
+include(Activities/Activities.pri)
 include(Collections/Collections.pri)
 
 includes.files = $$PWD/*.h

@@ -28,12 +28,12 @@ void Visual::SetOpacity(double opacity)
     setOpacity(opacity);
 }
 
-QTransform Visual::TransformToAncestor(Visual* visual)
+GeneralTransform Visual::TransformToAncestor(Visual* visual)
 {
     return itemTransform(visual);
 }
 
-QTransform Visual::TransformToDescendant(Visual* visual)
+GeneralTransform Visual::TransformToDescendant(Visual* visual)
 {
     return itemTransform(visual);
 }

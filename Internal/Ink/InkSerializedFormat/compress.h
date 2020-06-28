@@ -4,6 +4,7 @@
 #include "InkCanvas_global.h"
 #include <QByteArray>
 #include <QVector>
+#include <Collections/Generic/array.h>
 
 #define OLD_ISF 0
 
@@ -214,7 +215,7 @@ public:
 #if OLD_ISF
             Compressor& compressor,
 #endif
-            QVector<int> input,
+            Array<int> input,
             quint8& algorithm);
 
 private:

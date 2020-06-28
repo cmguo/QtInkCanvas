@@ -2,12 +2,12 @@
 #define LASSOHELPER_H
 
 #include "InkCanvas_global.h"
+#include "Windows/rect.h"
+#include "Collections/Generic/list.h"
 
 #include <QColor>
 #include <QBrush>
 #include <QPen>
-#include <QPointF>
-#include <QList>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -34,13 +34,13 @@ class LassoHelper
 
     //
     bool                _isActivated = false;
-    QPointF               _firstLassoPoint;
-    QPointF               _lastLassoPoint;
+    Point               _firstLassoPoint;
+    Point               _lastLassoPoint;
     int                 _count = 0;
 
     // Entire lasso. Collected to hit test InkCanvas' subelements after stylus up.
-    QList<QPointF>         _lasso;
-    QRectF                _boundingBox;
+    List<Point>         _lasso;
+    Rect                _boundingBox;
 
     // NTRAID#T2-00000-2003/07/14-vsmirnov - some of these are probably not in sync
     // with the spec (which is not available at this moment), and also might
@@ -66,22 +66,22 @@ public:
     Visual* GetVisual();
 
     /// <summary>TBS</summary>
-    QVector<QPointF> AddPoints(QList<QPointF> const & points);
+    Array<Point> AddPoints(List<Point> const & points);
 
     //#region ArePointsInLasso
     /// <summary>Copy-pasted Platform's Lasso.Contains(...)</summary>
-    bool ArePointsInLasso(QVector<QPointF> points, int percentIntersect);
+    bool ArePointsInLasso(Array<Point> const & points, int percentIntersect);
 
 private:
     ///// <summary>
     ///// Draws a single lasso dot with the center at the given point.
     ///// </summary>
-    void AddLassoPoint(QPointF const & lassoPoint);
+    void AddLassoPoint(Point const & lassoPoint);
 
     //#endregion
 
     /// <summary>TBS</summary>
-    bool Contains(QPointF const & point);
+    bool Contains(Point const & point);
     //#endregion
 
     //#region Implementation helpers

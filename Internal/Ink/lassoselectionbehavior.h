@@ -61,14 +61,14 @@ protected:
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
     /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-    virtual void StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     /// <summary>
     /// StylusInputContinue
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
     /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-    virtual void StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
 
     /// <summary>
@@ -110,13 +110,13 @@ protected:
     /// <summary>
     /// Private helper that will hit test for elements
     /// </summary>
-    QList<UIElement*> HitTestForElements();
+    List<UIElement*> HitTestForElements();
 
     /// <summary>
     /// Private helper that will turn an element in any nesting level into a stroke
     /// in the InkCanvas's coordinate space.  This method calls itself recursively
     /// </summary>
-    void HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, QList<UIElement*> elementsToSelect);
+    void HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, List<UIElement*> elementsToSelect);
 
     /// <summary>
     /// Private helper that takes an element and transforms it's 4 points
@@ -128,33 +128,33 @@ protected:
     /// Private helper that will generate a grid of points 5 px apart given the elements bounding points
     /// this works with any affline transformed points
     /// </summary>
-    QVector<QPointF> GeneratePointGrid(ElementCornerPoints elementPoints);
+    Array<Point> GeneratePointGrid(ElementCornerPoints elementPoints);
 
     /// <summary>
     /// Private helper that fills in the points between two points by calling itself
     /// recursively in a divide and conquer fashion
     /// </summary>
-    void FillInPoints(QVector<QPointF> & pointArray, QPointF const & point1, QPointF const & point2);
+    void FillInPoints(List<Point> & pointArray, Point const & point1, Point const & point2);
 
     /// <summary>
     /// Private helper that fills in the points between four points by calling itself
     /// recursively in a divide and conquer fashion
     /// </summary>
-    void FillInGrid(QVector<QPointF> & pointArray,
-                            QPointF const & upperLeft,
-                            QPointF const & upperRight,
-                            QPointF const & lowerRight,
-                            QPointF const & lowerLeft);
+    void FillInGrid(List<Point> & pointArray,
+                            Point const & upperLeft,
+                            Point const & upperRight,
+                            Point const & lowerRight,
+                            Point const & lowerLeft);
 
     /// <summary>
-    /// Private helper that will generate a new QPointF const & between two points
+    /// Private helper that will generate a new Point const & between two points
     /// </summary>
-    static QPointF GeneratePointBetweenPoints(QPointF const & point1, QPointF const & point2);
+    static Point GeneratePointBetweenPoints(Point const & point1, Point const & point2);
 
     /// <summary>
     /// Private helper used to determine if we're close enough between two points
     /// </summary>
-    bool PointsAreCloseEnough(QPointF const & point1, QPointF const & point2);
+    bool PointsAreCloseEnough(Point const & point1, Point const & point2);
 
     /// <summary>
     /// Used to calc the diff between points on the x and y axis
@@ -165,7 +165,7 @@ protected:
     /// StartLasso
     /// </summary>
     /// <param name="points"></param>
-    void StartLasso(QList<QPointF> points);
+    void StartLasso(List<Point> points);
 
     /// <summary>
     /// Pre-Select the object which user taps on.
@@ -173,7 +173,7 @@ protected:
     /// <param name="point"></param>
     /// <param name="tappedStroke"></param>
     /// <param name="tappedElement"></param>
-    void TapSelectObject(QPointF const & point, QSharedPointer<Stroke>& tappedStroke, UIElement*& tappedElement);
+    void TapSelectObject(Point const & point, SharedPointer<Stroke>& tappedStroke, UIElement*& tappedElement);
 
     //#endregion Private Methods
 
@@ -186,7 +186,7 @@ protected:
     ////#region Private Fields
 
 private:
-    QPointF                     _startPoint;
+    Point                       _startPoint;
     bool                        _disableLasso;
 
     LassoHelper*                 _lassoHelper = nullptr;
@@ -206,10 +206,10 @@ private:
     /// </summary>
     struct ElementCornerPoints
     {
-        QPointF UpperLeft;
-        QPointF UpperRight;
-        QPointF LowerRight;
-        QPointF LowerLeft;
+        Point UpperLeft;
+        Point UpperRight;
+        Point LowerRight;
+        Point LowerLeft;
         bool Set;
     };
 

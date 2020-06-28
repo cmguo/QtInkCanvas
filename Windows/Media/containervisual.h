@@ -4,6 +4,8 @@
 #include "visual.h"
 #include "Collections/ObjectModel/collection.h"
 
+#include <QObject>
+
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE
 

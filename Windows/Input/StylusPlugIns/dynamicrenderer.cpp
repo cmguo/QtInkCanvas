@@ -61,19 +61,19 @@ class DynamicRenderer::DynamicRendererHostVisual : public HostVisual
 public:
     bool InUse()
     {
-        return _strokeInfoList.size() > 0;
+        return _strokeInfoList.Count() > 0;
     }
     bool HasSingleReference()
     {
-        return _strokeInfoList.size() == 1;
+        return _strokeInfoList.Count() == 1;
     }
     void AddStrokeInfoRef(StrokeInfo* si)
     {
-        _strokeInfoList.append(si);
+        _strokeInfoList.Add(si);
     }
     void RemoveStrokeInfoRef(StrokeInfo* si)
     {
-        _strokeInfoList.removeOne(si);
+        _strokeInfoList.Remove(si);
     }
     /// <securitynote>
     /// Critical - Calls SecurityCritical method with LinkDemand (CompositionTarget.RootVisual).
@@ -91,7 +91,7 @@ public:
 
 private:
     VisualTarget*       _visualTarget = nullptr;
-    QList<StrokeInfo*>   _strokeInfoList;
+    List<StrokeInfo*>   _strokeInfoList;
 };
 
 class DynamicRenderer::StrokeInfo
@@ -104,13 +104,13 @@ class DynamicRenderer::StrokeInfo
     bool _seenUp = false; // Have we seen the stylusUp event yet?
     bool _isReset = false; // Was reset used to create this StrokeInfo?
     QBrush _fillBrush; // app thread based brushed
-    QSharedPointer<DrawingAttributes> _drawingAttributes;
+    SharedPointer<DrawingAttributes> _drawingAttributes;
     std::map<int, StrokeNodeIterator> _strokeNodeIterator;
     double _opacity;
     DynamicRendererHostVisual*   _strokeHV = nullptr;  // App thread rendering HostVisual
 
 public:
-    StrokeInfo(QSharedPointer<DrawingAttributes> drawingAttributes, int stylusDeviceId, int startTimestamp, DynamicRendererHostVisual* hostVisual)
+    StrokeInfo(SharedPointer<DrawingAttributes> drawingAttributes, int stylusDeviceId, int startTimestamp, DynamicRendererHostVisual* hostVisual)
         : _drawingAttributes(drawingAttributes->Clone())
         //, _strokeNodeIterator(*_drawingAttributes)
     {
@@ -202,10 +202,10 @@ public:
         if (_strokeCV == nullptr)
             return;
         _strokeNodeIterator.erase(id);
-        QVector<Visual*> toRemove;
+        List<Visual*> toRemove;
         for (Visual* v : _strokeCV->Children()) {
             if (v->data(1000) == id) {
-                toRemove.append(v);
+                toRemove.Add(v);
             }
         }
         for (Visual* v : toRemove) {
@@ -230,11 +230,11 @@ public:
         }
         return nullptr;
     }
-    QList<int> strokeKeys()
+    List<int> strokeKeys()
     {
-        QList<int> keys;
+        List<int> keys;
         for (auto const & e : _strokeNodeIterator)
-            keys.append(e.first);
+            keys.Add(e.first);
         return keys;
     }
     StrokeNodeIterator& GetStrokeNodeIterator(int id)
@@ -263,7 +263,7 @@ public:
     {
         _fillBrush = value;
     }
-    QSharedPointer<DrawingAttributes> GetDrawingAttributes()
+    SharedPointer<DrawingAttributes> GetDrawingAttributes()
     {
         return _drawingAttributes;
     }
@@ -352,7 +352,7 @@ DynamicRenderer::~DynamicRenderer()
 /// </summary>
 /// <param name="stylusDevice">
 /// <param name="stylusPoints">
-void DynamicRenderer::Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPointCollection> stylusPoints)
+void DynamicRenderer::Reset(StylusDevice* stylusDevice, SharedPointer<StylusPointCollection> stylusPoints)
 {
     // NOTE: stylusDevice == nullptr means the mouse device.
 
@@ -385,7 +385,7 @@ void DynamicRenderer::Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPoi
             StrokeInfo* si = new StrokeInfo(GetDrawingAttributes(),
                                            (stylusDevice != nullptr) ? stylusDevice->Id() : 0,
                                            Mouse::GetTimestamp(), GetCurrentHostVisual());
-            _strokeInfoList.append(si);
+            _strokeInfoList.Add(si);
             si->SetIsReset(true);
 
             if (stylusPoints != nullptr)
@@ -537,7 +537,7 @@ void DynamicRenderer::OnStylusDown(RawStylusInput& rawStylusInput)
             }
 
             si = new StrokeInfo(GetDrawingAttributes(), rawStylusInput.StylusDeviceId(), rawStylusInput.Timestamp(), GetCurrentHostVisual());
-            _strokeInfoList.append(si);
+            _strokeInfoList.Add(si);
         }
 
         rawStylusInput.NotifyWhenProcessed(si);
@@ -844,7 +844,7 @@ void DynamicRenderer::NotifyOnNextRenderComplete()
 /// [TBS]
 /// </summary>
 void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
-                                QSharedPointer<StylusPointCollection> stylusPoints,
+                                SharedPointer<StylusPointCollection> stylusPoints,
                                 Geometry* geometry,
                                 QBrush fillBrush)
 {
@@ -876,38 +876,38 @@ Dispatcher* DynamicRenderer::GetDispatcher()
 
 /////////////////////////////////////////////////////////////////////
 
-void DynamicRenderer::RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
+void DynamicRenderer::RenderPackets(SharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si)
 {
     // If no points or not hooked up to element then do nothing.
     //qDebug() << "DynamicRenderer::RenderPackets" << stylusPoints->size();
     if (stylusPoints == nullptr || _applicationDispatcher == nullptr)
         return;
 
-    QMap<int, QSharedPointer<StylusPointCollection>> collections;
+    QMap<int, SharedPointer<StylusPointCollection>> collections;
     if (stylusPoints->Description()->HasProperty(Stylus::StylusPointIdPropertyInfo)) {
         for (StylusPoint const & sp : *stylusPoints) {
             int touchId = sp.GetPropertyValue(Stylus::StylusPointIdPropertyInfo);
-            QSharedPointer<StylusPointCollection>& c = collections[touchId];
+            SharedPointer<StylusPointCollection>& c = collections[touchId];
             if (c == nullptr) {
                 c.reset(new StylusPointCollection(stylusPoints->Description()));
             }
-            c->AddItem(sp);
+            c->Add(sp);
         }
-    } else if (stylusPoints->count() > 0) {
+    } else if (stylusPoints->Count() > 0) {
         collections.insert(0, stylusPoints);
     }
 
-    QList<int> old = si->strokeKeys();
+    List<int> old = si->strokeKeys();
     auto i = collections.keyValueBegin();
     for (; i != collections.keyValueEnd(); ++i) {
         // Get a collection of ink nodes built from the new stylusPoints.
         si->SetStrokeNodeIterator((*i).first, si->GetStrokeNodeIterator((*i).first).GetIteratorForNextSegment((*i).second));
         if (si->GetStrokeNodeIterator((*i).first) != nullptr)
         {
-            old.removeOne((*i).first);
+            old.Remove((*i).first);
             // Create a PathGeometry representing the contour of the ink increment
             Geometry* strokeGeometry = nullptr;
-            QRectF bounds;
+            Rect bounds;
     #if DEBUG_RENDERING_FEEDBACK
             std::unique_ptr<DrawingContext> debugDC;
     #endif
@@ -1068,7 +1068,7 @@ void DynamicRenderer::AbortAllStrokes()
 {
     {
         QMutexLocker l(&__siLock);
-        while (_strokeInfoList.size() > 0)
+        while (_strokeInfoList.Count() > 0)
         {
             TransitionStrokeVisuals(_strokeInfoList[0], true);
         }
@@ -1204,7 +1204,7 @@ void DynamicRenderer::RemoveStrokeInfo(StrokeInfo* si)
 {
     {
         QMutexLocker l(&__siLock);
-        _strokeInfoList.removeOne(si);
+        _strokeInfoList.Remove(si);
     }
 }
 
@@ -1212,7 +1212,7 @@ DynamicRenderer::StrokeInfo* DynamicRenderer::FindStrokeInfo(int timestamp)
 {
     {
         QMutexLocker l(&__siLock);
-        for (int i=0; i < _strokeInfoList.size(); i++)
+        for (int i=0; i < _strokeInfoList.Count(); i++)
         {
             StrokeInfo* siCur = _strokeInfoList[i];
 
@@ -1232,11 +1232,11 @@ DynamicRenderer::StrokeInfo* DynamicRenderer::FindStrokeInfo(int timestamp)
 /// <summary>
 /// [TBS] - On UIContext
 /// </summary>
-QSharedPointer<DrawingAttributes> DynamicRenderer::GetDrawingAttributes()
+SharedPointer<DrawingAttributes> DynamicRenderer::GetDrawingAttributes()
 {
      return _drawAttrsSource;
 }
-void DynamicRenderer::SetDrawingAttributes(QSharedPointer<DrawingAttributes> value)
+void DynamicRenderer::SetDrawingAttributes(SharedPointer<DrawingAttributes> value)
 {
      if (value == nullptr)
          throw std::runtime_error("value");

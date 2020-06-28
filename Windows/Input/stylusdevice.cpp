@@ -71,14 +71,14 @@ void Stylus::SetLastInput(QTouchEvent& input)
     CurrentDevice->SetLastPoints(input.touchPoints(), input.type() == QEvent::TouchBegin);
 }
 
-QSharedPointer<StylusPointDescription> Stylus::DefaultPointDescription()
+SharedPointer<StylusPointDescription> Stylus::DefaultPointDescription()
 {
-    static QSharedPointer<StylusPointDescription> description;
+    static SharedPointer<StylusPointDescription> description;
     if (description)
         return description;
     description.reset(new StylusPointDescription());
-    QVector<StylusPointPropertyInfo> props = description->GetStylusPointProperties();
-    props.append(Stylus::StylusPointIdPropertyInfo);
+    List<StylusPointPropertyInfo> props = description->GetStylusPointProperties();
+    props.Add(Stylus::StylusPointIdPropertyInfo);
     description.reset(new StylusPointDescription(props, -1));
     return description;
 }
@@ -94,8 +94,12 @@ StylusEvent Stylus::StylusUpEvent(QEvent::TouchEnd, QEvent::GraphicsSceneMouseRe
 
 StylusDevice* Stylus::CurrentDevice = nullptr;
 
+// {17E84F40-D488-4EDD-969E-C121DBE1EC83}
+static const Guid StylusPointPropertyId =
+    { 0x17e84f40u, 0xd488, 0x4edd, 0x96, 0x9e, 0xc1, 0x21, 0xdb, 0xe1, 0xec, 0x83 };
+
 StylusPointPropertyInfo Stylus::StylusPointIdPropertyInfo
-        (StylusPointProperty(QUuid::createUuid(), false),
+        (StylusPointProperty(StylusPointPropertyId, false),
                                     0,
                                     1,
                                     StylusPointPropertyUnit::None,
@@ -115,6 +119,30 @@ StylusDevice::StylusDevice(QTouchDevice * device, int id)
 #else
 #define MULTIPLE_STROKES_IN_ONE_GROUP 0
 #endif
+
+inline QRectF United(QRectF const & rect, QPointF const & point)
+{
+    if (rect.isNull()) {
+        if (rect.x() == 0.0 && rect.y() == 0.0)
+            return QRectF(point, point);
+        else
+            return QRectF(rect.topLeft(), point).normalized();
+    } else {
+        qreal l = 0;
+        qreal t = 0;
+        qreal r = 0;
+        qreal b = 0;
+        if (point.x() < rect.left())
+            l = point.x() - rect.left();
+        if (point.y() < rect.top())
+            t = point.y() - rect.top();
+        if (point.x() > rect.right())
+            r = point.x() - rect.right();
+        if (point.y() > rect.bottom())
+            b = point.y() - rect.bottom();
+        return rect.adjusted(l, t, r, b);
+    }
+}
 
 void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, bool reset)
 {
@@ -223,28 +251,28 @@ bool StylusDevice::Inverted()
     return false;
 }
 
-QPointF StylusDevice::GetPosition(Visual *relativeTo)
+Point StylusDevice::GetPosition(Visual *relativeTo)
 {
     (void) relativeTo;
     return lastPoints_.first().pos();
 }
 
-QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual * visual)
+SharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual * visual)
 {
     return GetStylusPoints(visual, description_);
 }
 
-QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual *, QSharedPointer<StylusPointDescription> description)
+SharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual *, SharedPointer<StylusPointDescription> description)
 {
     if (description == nullptr)
         description = description_;
-    QSharedPointer<StylusPointCollection> points(new StylusPointCollection(description));
+    SharedPointer<StylusPointCollection> points(new StylusPointCollection(description));
     for (QTouchEvent::TouchPoint const & pt : lastPoints_) {
         bool hasTouchId = false;
         QVector<int> d;
-        QVector<StylusPointPropertyInfo> props = description->GetStylusPointProperties();
-        for (int i = StylusPointDescription::RequiredCountOfProperties; i < props.size(); ++i) {
-            StylusPointPropertyInfo const & p = props.at(i);
+        List<StylusPointPropertyInfo> props = description->GetStylusPointProperties();
+        for (int i = StylusPointDescription::RequiredCountOfProperties; i < props.Count(); ++i) {
+            StylusPointPropertyInfo const & p = props[i];
             if (p.Id() == Stylus::StylusPointIdPropertyInfo.Id()) {
                 d.append(pt.id());
                 hasTouchId = true;
@@ -253,7 +281,7 @@ QSharedPointer<StylusPointCollection> StylusDevice::GetStylusPoints(Visual *, QS
         StylusPoint point(pt.pos().x(), pt.pos().y(), StylusPoint::DefaultPressure, description, d);
         //qDebug() << "StylusDevice pressure" << lastPoints_.first().pressure();
         //point.SetPressureFactor(lastPoints_.first().pressure());
-        points->AddItem(point);
+        points->Add(point);
         if (!hasTouchId)
             break;
     }
@@ -276,19 +304,20 @@ PresentationSource* StylusDevice::ActiveSource()
 }
 
 
-QSharedPointer<StylusPointDescription> StylusDevice::PointDescription()
+SharedPointer<StylusPointDescription> StylusDevice::PointDescription()
 {
     return description_;
 }
 
-QVector<int> StylusDevice::PacketData(QEvent&)
+Array<int> StylusDevice::PacketData(QEvent&)
 {
-    QVector<int> data;
+    Array<int> data(lastPoints_.size() * 3);
+    int i = 0;
     for (QTouchEvent::TouchPoint const & pt : lastPoints_) {
         QPoint pt2 = pt.pos().toPoint();
-        data.append(pt2.x());
-        data.append(pt2.y());
-        data.append(static_cast<int>(pt.id()));
+        data[i++] = (pt2.x());
+        data[i++] = (pt2.y());
+        data[i++] = (static_cast<int>(pt.id()));
         //break; // single touch
     }
     return data;

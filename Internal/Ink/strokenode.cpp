@@ -701,7 +701,7 @@ Point StrokeNode::GetIntersection(Point line1Start, Point line1End, Point line2S
         return Point(line1End.X(), line1End.Y());
     }
 
-    return Point(nan(""), nan(""));
+    return Point(Double::NaN, Double::NaN);
 }
 
 /// <summary>

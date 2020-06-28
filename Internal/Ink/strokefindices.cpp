@@ -1,5 +1,9 @@
 #include "Internal/Ink/strokefindices.h"
 
+#ifdef INKCANVAS_QT
+#include <QString>
+#endif
+
 INKCANVAS_BEGIN_NAMESPACE
 
 StrokeFIndices StrokeFIndices::s_empty(AfterLast, BeforeFirst);

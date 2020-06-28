@@ -4,9 +4,13 @@
 #include "InkCanvas_global.h"
 
 #include "Windows/Media/visual.h"
+#include "Windows/Media/matrix.h"
 #include "Windows/routedeventargs.h"
+#include "Windows/rect.h"
+#include "Collections/Generic/list.h"
 
 #include <QFlags>
+#include <QObject>
 
 #include <functional>
 
@@ -51,7 +55,7 @@ public:
 
     void ApplyTemplate();
 
-    QList<UIElement*> Children();
+    List<UIElement*> Children();
 
     UIElement* Parent();
 
@@ -63,19 +67,19 @@ public:
         return metaObject()->inherits(&T::staticMetaObject);
     }
 
-    QTransform LayoutTransform();
+    GeneralTransform LayoutTransform();
 
-    QTransform RenderTransform();
+    GeneralTransform RenderTransform();
 
-    QTransform TransformToVisual(UIElement* visual);
+    GeneralTransform TransformToVisual(UIElement* visual);
 
-    QSizeF DesiredSize();
+    Size DesiredSize();
 
-    QSizeF RenderSize();
+    Size RenderSize();
 
-    void SetRenderSize(QSizeF const & size);
+    void SetRenderSize(Size const & size);
 
-    void Arrange(QRectF const & rect);
+    void Arrange(Rect const & rect);
 
     void InvalidateMeasure();
 
@@ -122,7 +126,7 @@ public:
 
     void RemoveHandler(RoutedEvent & event, RoutedEventHandler const & handler);
 
-    void Measure(QSizeF);
+    void Measure(Size);
 
     void SetWidth(double);
 
@@ -142,17 +146,17 @@ public:
 protected:
     virtual void OnChildDesiredSizeChanged(UIElement* child);
 
-    virtual QList<UIElement*> CreateUIElementCollection(UIElement* logicalParent);
+    virtual List<UIElement*> CreateUIElementCollection(UIElement* logicalParent);
 
-    virtual QList<UIElement*> LogicalChildren();
+    virtual List<UIElement*> LogicalChildren();
 
-    virtual QList<UIElement*> InternalChildren();
+    virtual List<UIElement*> InternalChildren();
 
-    virtual Geometry* GetLayoutClip(QSizeF layoutSlotSize);
+    virtual Geometry* GetLayoutClip(Size layoutSlotSize);
 
-    virtual QSizeF ArrangeOverride(QSizeF arrangeSize);
+    virtual Size ArrangeOverride(Size arrangeSize);
 
-    virtual QSizeF MeasureOverride(QSizeF availableSize);
+    virtual Size MeasureOverride(Size availableSize);
 
     virtual void OnPreApplyTemplate();
 
@@ -202,13 +206,13 @@ public:
     static DependencyProperty const * const LayoutTransformProperty;
 
 public:
-    QRectF Margin();
+    Rect Margin();
 
     double ActualWidth();
 
     double ActualHeight();
 
-    void BringIntoView(QRectF);
+    void BringIntoView(Rect);
 
     FlowDirection GetFlowDirection();
 

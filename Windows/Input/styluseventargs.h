@@ -2,8 +2,8 @@
 #define STYLUSEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
-
-#include <QSharedPointer>
+#include "Windows/point.h"
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -45,7 +45,7 @@ public:
     /// <summary>
     ///     Calculates the position of the stylus relative to a particular element.
     /// </summary>
-    QPointF GetPosition(Visual* relativeTo);
+    Point GetPosition(Visual* relativeTo);
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
@@ -65,14 +65,14 @@ public:
     ///     Returns a StylusPointCollection for processing the data from input.
     ///     This method creates a new StylusPointCollection and copies the data.
     /// </summary>
-    QSharedPointer<StylusPointCollection> GetStylusPoints(Visual* relativeTo);
+    SharedPointer<StylusPointCollection> GetStylusPoints(Visual* relativeTo);
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     ///     Returns a StylusPointCollection for processing the data from input.
     ///     This method creates a new StylusPointCollection and copies the data.
     /// </summary>
-    QSharedPointer<StylusPointCollection> GetStylusPoints(Visual* relativeTo, QSharedPointer<StylusPointDescription> subsetToReformatTo);
+    SharedPointer<StylusPointCollection> GetStylusPoints(Visual* relativeTo, SharedPointer<StylusPointDescription> subsetToReformatTo);
 
 protected:
     /////////////////////////////////////////////////////////////////////

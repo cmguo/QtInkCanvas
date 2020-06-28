@@ -48,7 +48,7 @@ void TextClipboardData::DoCopy(DataObject * dataObject)
 // Then create a textbox with the text data.
 void TextClipboardData::DoPaste(DataObject const * dataObject)
 {
-    ElementList() = QList<UIElement*>();
+    ElementList() = List<UIElement*>();
 
     // Get the string from the data object.
     QString text = dataObject->data("UnicodeText");

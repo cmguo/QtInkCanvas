@@ -9,6 +9,10 @@
 #include "Internal/matrixutil.h"
 #include "double.h"
 
+#ifdef INKCANVAS_QT
+#include <QTransform>
+#endif
+
 // IMPORTANT
 //
 // Rules for using matrix types.
@@ -47,7 +51,7 @@ INKCANVAS_BEGIN_NAMESPACE
 ///<summary>
 /// Matrix
 ///</summary>
-struct Matrix
+class INKCANVAS_EXPORT Matrix
 {
 private:
     // the transform is identity by default
@@ -82,6 +86,20 @@ public:
         // scale+translation and use special case algorithms.
         DeriveMatrixType();
     }
+
+#ifdef INKCANVAS_QT
+    Matrix(QTransform const & t)
+    {
+        _m11 = t.m11();
+        _m12 = t.m12();
+        _m21 = t.m21();
+        _m22 = t.m22();
+        _offsetX = t.dx();
+        _offsetY = t.dy();
+        _type = MatrixTypes::TRANSFORM_IS_UNKNOWN;
+        _padding = 0;
+    }
+#endif
 
     //#endregion Constructor
 
@@ -390,6 +408,22 @@ public:
                 MultiplyVector(vectors[i]._x, vectors[i]._y);
             }
         }
+    }
+
+    Rect Transform(Rect const & rect) const
+    {
+        Rect result = rect;
+        MatrixUtil::TransformRect(result, *this);
+        return result;
+    }
+
+
+    /// <summary>
+    /// Operator Point * Matrix
+    /// </summary>
+    friend Point operator * (Point const & point, Matrix const & matrix)
+    {
+        return matrix.Transform(point);
     }
 
     //#endregion Transformation Services
@@ -872,6 +906,13 @@ public:
         this->_type = type;
     }
 
+#ifdef INKCANVAS_QT
+    operator QTransform() const
+    {
+        return QTransform(_m11, _m12, _m21, _m22, _offsetX, _offsetY);
+    }
+#endif
+
 private:
     /// <summary>
     /// Set the type of the matrix based on its current contents
@@ -910,35 +951,7 @@ private:
     /// Asserts that the matrix tag is one of the valid options and
     /// that coefficients are correct.
     /// </summary>
-    void Debug_CheckType()
-    {
-        switch(_type)
-        {
-        case MatrixTypes::TRANSFORM_IS_IDENTITY:
-            return;
-        case MatrixTypes::TRANSFORM_IS_UNKNOWN:
-            return;
-        case MatrixTypes::TRANSFORM_IS_SCALING:
-            Debug::Assert(_m21 == 0);
-            Debug::Assert(_m12 == 0);
-            Debug::Assert(_offsetX == 0);
-            Debug::Assert(_offsetY == 0);
-            return;
-        case MatrixTypes::TRANSFORM_IS_TRANSLATION:
-            Debug::Assert(_m21 == 0);
-            Debug::Assert(_m12 == 0);
-            Debug::Assert(_m11 == 1);
-            Debug::Assert(_m22 == 1);
-            return;
-        case MatrixTypes::TRANSFORM_IS_SCALING_TRANSLATION:
-            Debug::Assert(_m21 == 0);
-            Debug::Assert(_m12 == 0);
-            return;
-        default:
-            Debug::Assert(false);
-            return;
-        }
-    }
+    void Debug_CheckType();
 
     //#endregion Private Methods
 
@@ -1022,6 +1035,15 @@ private:
     //#pragma warning restore 0414
 };
 
+typedef Matrix GeneralTransform;
+typedef Matrix Transform;
+
 INKCANVAS_END_NAMESPACE
+
+#ifdef INKCANVAS_QT
+#include <QMetaType>
+#include <QTransform>
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(Matrix));
+#endif
 
 #endif // MATRIX_H

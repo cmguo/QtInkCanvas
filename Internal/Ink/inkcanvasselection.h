@@ -4,9 +4,9 @@
 #include "InkCanvas_global.h"
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
 #include "eventargs.h"
-
-#include <QSharedPointer>
-#include <QRectF>
+#include "Windows/Media/matrix.h"
+#include "Collections/Generic/list.h"
+#include "sharedptr.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -50,12 +50,12 @@ public:
     /// <summary>
     /// Returns the collection of selected strokes
     /// </summary>
-    QSharedPointer<StrokeCollection> SelectedStrokes();
+    SharedPointer<StrokeCollection> SelectedStrokes();
 
     /// <summary>
     /// Returns the collection of selected elements
     /// </summary>
-    QList<UIElement*> SelectedElements();
+    List<UIElement*> SelectedElements();
 
     /// <summary>
     /// Indicates whether there is a selection in the current InkCanvas.
@@ -65,7 +65,7 @@ public:
     /// <summary>
     /// Returns the selection bounds
     /// </summary>
-    QRectF SelectionBounds();
+    Rect SelectionBounds();
 
     //#endregion Properties
 
@@ -83,21 +83,21 @@ public:
     /// </summary>
     /// <param name="feedbackRect"></param>
     /// <param name="activeSelectionHitResult"></param>
-    void StartFeedbackAdorner(QRectF const & feedbackRect, InkCanvasSelectionHitResult activeSelectionHitResult);
+    void StartFeedbackAdorner(Rect const & feedbackRect, InkCanvasSelectionHitResult activeSelectionHitResult);
 
     /// <summary>
     /// This method updates the feedback rubberband.
     /// This method is called from SelectionEditingBehavior.OnMouseMove.
     /// </summary>
     /// <param name="feedbackRect"></param>
-    void UpdateFeedbackAdorner(QRectF const & feedbackRect);
+    void UpdateFeedbackAdorner(Rect const & feedbackRect);
 
     /// <summary>
     /// Ends a feedback rubberband
     /// This method is called from SelectionEditingBehavior.OnMoveUp
     /// </summary>
     /// <param name="finalRectangle"></param>
-    void EndFeedbackAdorner(QRectF const & finalRectangle);
+    void EndFeedbackAdorner(Rect const & finalRectangle);
 
     /// <summary>
     /// Set the new selection to this helper class.
@@ -105,13 +105,13 @@ public:
     /// <param name="strokes"></param>
     /// <param name="elements"></param>
     /// <param name="raiseSelectionChanged"></param>
-    void Select(QSharedPointer<StrokeCollection> strokes, QList<UIElement*> const & elements, bool raiseSelectionChanged);
+    void Select(SharedPointer<StrokeCollection> strokes, List<UIElement*> const & elements, bool raiseSelectionChanged);
 
     /// <summary>
     /// Our method to commit the current editing.
     /// Called by EndFeedbackAdorner or InkCanvas.PasteFromDataObject
     /// </summary>
-    void CommitChanges(QRectF const & finalRectangle, bool raiseEvent);
+    void CommitChanges(Rect const & finalRectangle, bool raiseEvent);
 
     /// <summary>
     /// Try to remove an element from the selected elements list.
@@ -127,7 +127,7 @@ public:
     /// </summary>
     /// <param name="element"></param>
     /// <param name="transform"></param>
-    void UpdateElementBounds(UIElement* element, QMatrix const & transform);
+    void UpdateElementBounds(UIElement* element, Matrix const & transform);
 
     /// <summary>
     /// UpdateElementBounds:
@@ -137,11 +137,11 @@ public:
     /// <param name="originalElement"></param>
     /// <param name="updatedElement"></param>
     /// <param name="transform"></param>
-    void UpdateElementBounds(UIElement* originalElement, UIElement* updatedElement, QMatrix const & transform);
+    void UpdateElementBounds(UIElement* originalElement, UIElement* updatedElement, Matrix const & transform);
 
-    void TransformStrokes(QSharedPointer<StrokeCollection> strokes, QMatrix const & matrix);
+    void TransformStrokes(SharedPointer<StrokeCollection> strokes, Matrix const & matrix);
 
-    InkCanvasSelectionHitResult HitTestSelection(QPointF const & pointOnInkCanvas);
+    InkCanvasSelectionHitResult HitTestSelection(Point const & pointOnInkCanvas);
 
     /// <summary>
     /// helper to used to determine if the current selection
@@ -151,9 +151,9 @@ public:
     /// <param name="strokesAreDifferent">strokesAreDifferent</param>
     /// <param name="elements">elements</param>
     /// <param name="elementsAreDifferent">elementsAreDifferent</param>
-    void SelectionIsDifferentThanCurrent(QSharedPointer<StrokeCollection> strokes,
+    void SelectionIsDifferentThanCurrent(SharedPointer<StrokeCollection> strokes,
                                                 bool& strokesAreDifferent,
-                                                QList<UIElement*> const & elements,
+                                                List<UIElement*> const & elements,
                                                 bool& elementsAreDifferent);
 
     //#endregion Methods
@@ -173,7 +173,7 @@ public:
     /// </summary>
     /// <param name="pointOnInnerCanvas"></param>
     /// <returns></returns>
-    bool HasHitSingleSelectedElement(QPointF const & pointOnInnerCanvas);
+    bool HasHitSingleSelectedElement(Point const & pointOnInnerCanvas);
 
     /// <summary>
     /// helper to stop listening to stroke changes
@@ -189,13 +189,13 @@ public:
     /// Helper method that take a finalRectangle and raised the appropriate
     /// events on the InkCanvas.  Handles cancellation
     /// </summary>
-    void CommitMoveChange(QRectF finalRectangle);
+    void CommitMoveChange(Rect finalRectangle);
 
     /// <summary>
     /// Helper method that take a finalRectangle and raised the appropriate
     /// events on the InkCanvas.  Handles cancellation
     /// </summary>
-    void CommitResizeChange(QRectF finalRectangle);
+    void CommitResizeChange(Rect finalRectangle);
 
     /// <summary>
     /// helper that moves all selected elements from the previous location
@@ -203,7 +203,7 @@ public:
     /// </summary>
     /// <param name="previousRect"></param>
     /// <param name="newRect"></param>
-    void MoveSelection(QRectF const & previousRect, QRectF const & newRect);
+    void MoveSelection(Rect const & previousRect, Rect const & newRect);
 
     /// <summary>
     /// A handler which receives LayoutUpdated from the layout manager. Since the selected elements can be animated,
@@ -229,19 +229,19 @@ public:
     /// <summary>
     /// Get the cached bounding boxes to be updated.
     /// </summary>
-    QRectF GetStrokesBounds();
+    Rect GetStrokesBounds();
 
     /// <summary>
     /// Get the bounding boxes of the selected elements.
     /// </summary>
     /// <returns></returns>
-    QList<QRectF> GetElementsBounds();
+    List<Rect> GetElementsBounds();
 
     /// <summary>
     /// Get the union box of the selected elements.
     /// </summary>
     /// <returns></returns>
-    QRectF GetElementsUnionBounds();
+    Rect GetElementsUnionBounds();
 
     /// <summary>
     /// Update the selection adorners state.
@@ -267,7 +267,7 @@ public:
     /// <param name="target">Destination Rectangle</param>
     /// <param name="source">Source Rectangle</param>
     /// <returns>Transform that maps source rectangle to destination rectangle</returns>
-    static QMatrix MapRectToRect(QRectF const & target, QRectF const & source);
+    static Matrix MapRectToRect(Rect const & target, Rect const & source);
 
     /// <summary>
     /// Adds/Removes the LayoutUpdated handler according to whether there is selected elements or not.
@@ -280,7 +280,7 @@ public:
     /// or
     /// 2) both refer to the identical set of strokes
     /// </summary>
-    static bool StrokesAreEqual(QSharedPointer<StrokeCollection> strokes1, QSharedPointer<StrokeCollection> strokes2);
+    static bool StrokesAreEqual(SharedPointer<StrokeCollection> strokes1, SharedPointer<StrokeCollection> strokes2);
 
     /// <summary>
     /// helper method used to determine if two collection either
@@ -288,7 +288,7 @@ public:
     /// or
     /// 2) both refer to the identical set of elements
     /// </summary>
-    static bool FrameworkElementArraysAreEqual(QList<UIElement*> const & elements1, QList<UIElement*> const & elements2);
+    static bool FrameworkElementArraysAreEqual(List<UIElement*> const & elements1, List<UIElement*> const & elements2);
 
     //#endregion Methods
 
@@ -303,7 +303,7 @@ public:
     /// <summary>
     /// Iterates the bounding boxes of the selected elements relevent to their parent (InnerCanvas)
     /// </summary>
-    QList<QRectF> SelectedElementsBoundsEnumerator();
+    List<Rect> SelectedElementsBoundsEnumerator();
 
     //#endregion Properties
 
@@ -324,18 +324,18 @@ private:
     /// <summary>
     /// The collection of strokes this selectedinkelement represents
     /// </summary>
-    QSharedPointer<StrokeCollection>            _selectedStrokes;
+    SharedPointer<StrokeCollection>            _selectedStrokes;
     /// <summary>
     /// The last known rectangle before the current edit.  used to revert
     /// when events are cancelled and expose the value to the InkCanvas.GetSelectionBounds
     /// </summary>
-    QRectF                        _cachedStrokesBounds;
+    Rect                        _cachedStrokesBounds;
     bool                        _areStrokesChanged;
 
     /// <summary>
     /// The collection of elements this selectedinkelement represents
     /// </summary>
-    QList<UIElement*>             _selectedElements;
+    List<UIElement*>             _selectedElements;
     EventHandler                _layoutUpdatedHandler;
 
     std::pair<InkCanvasSelectionHitResult, bool> _activeSelectionHitResult;

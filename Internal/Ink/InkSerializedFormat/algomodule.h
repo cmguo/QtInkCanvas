@@ -4,6 +4,7 @@
 #include "InkCanvas_global.h"
 #include <QByteArray>
 #include <QVector>
+#include <Collections/Generic/array.h>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -21,7 +22,7 @@ public:
     /// <param name="input">assumed to be point data (x,x,x,x,x,x,x)</param>
     /// <param name="compression">magic byte specifying the compression to use</param>
     /// <returns></returns>
-    QByteArray CompressPacketData(QVector<int> input, quint8 compression);
+    QByteArray CompressPacketData(Array<int> input, quint8 compression);
 
     /// <summary>
     /// DecompressPacketData - given a compressed byte[], uncompress it to the outputBuffer

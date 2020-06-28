@@ -1,9 +1,8 @@
 #ifndef POINTHITTESTRESULT_H
 #define POINTHITTESTRESULT_H
 
-#include "hittestresult.h"
-
-#include <QPointF>
+#include "Windows/Media/hittestresult.h"
+#include "Windows/point.h"
 
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE
@@ -16,7 +15,7 @@ class UIElement;
 class PointHitTestResult : public HitTestResult
 {
 private:
-    QPointF _pointHit;
+    Point _pointHit;
 
     /// <summary>
     /// This constructor takes a QWidget and point respresenting a hit.
@@ -24,12 +23,12 @@ private:
 public:
     PointHitTestResult();
 
-    PointHitTestResult(UIElement * visualHit, QPointF const & pointHit);
+    PointHitTestResult(UIElement * visualHit, Point const & pointHit);
 
     /// <summary>
     /// The point in local space of the hit QWidget.
     /// </summary>
-    QPointF PointHit()
+    Point PointHit()
     {
         return _pointHit;
     }

@@ -3,9 +3,8 @@
 
 #include "InkCanvas_global.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
-
-#include <QUuid>
-#include <QVariant>
+#include "guid.h"
+#include "variant.h"
 
 class QIODevice;
 
@@ -26,7 +25,7 @@ private:
         //      Guids that did not include embedded type information (e.g. used the OS-internal
         //      property storage API), then it is always stored as byte array and does not
         //      include type information
-    static bool UsesEmbeddedTypeInformation(QUuid const &propGuid);
+    static bool UsesEmbeddedTypeInformation(Guid const &propGuid);
 
 public:
     static void EncodeToStream(ExtendedProperty& attribute, QIODevice& stream);
@@ -35,7 +34,7 @@ public:
     /// This function returns the Data bytes that accurately describes the object
     /// </summary>
     /// <returns></returns>
-    static void EncodeAttribute(QUuid const &guid, QVariant const & value, QIODevice& stream);
+    static void EncodeAttribute(Guid const &guid, Variant const & value, QIODevice& stream);
 
 #if OLD_ISF
     /// <summary>
@@ -57,7 +56,7 @@ public:
     /// Encodes a custom attribute to the ISF stream
     /// </summary>
 #endif
-    static uint EncodeAsISF(QUuid const &id, QByteArray data, QIODevice& strm, GuidList& guidList, quint8 compressionAlgorithm, bool fTag);
+    static uint EncodeAsISF(Guid const &id, QByteArray data, QIODevice& strm, GuidList& guidList, quint8 compressionAlgorithm, bool fTag);
 
 #if OLD_ISF
     /// <summary>
@@ -67,9 +66,9 @@ public:
     /// </summary>
     /// <param name="stream">Memory buffer to load from</param>
     /// <param name="cbSize">Maximum length of buffer to read</param>
-    /// <param name="guidList">QUuid const &cache to read from</param>
-    /// <param name="tag">QUuid const &tag to lookup</param>
-    /// <param name="guid">QUuid const &of property</param>
+    /// <param name="guidList">Guid const &cache to read from</param>
+    /// <param name="tag">Guid const &tag to lookup</param>
+    /// <param name="guid">Guid const &of property</param>
     /// <param name="data">Data of property</param>
     /// <returns>Length of buffer read</returns>
     /// <SecurityNote>
@@ -90,13 +89,13 @@ public:
     /// </summary>
     /// <param name="stream">Memory buffer to load from</param>
     /// <param name="cbSize">Maximum length of buffer to read</param>
-    /// <param name="guidList">QUuid const &cache to read from</param>
-    /// <param name="tag">QUuid const &tag to lookup</param>
-    /// <param name="guid">QUuid const &of property</param>
+    /// <param name="guidList">Guid const &cache to read from</param>
+    /// <param name="tag">Guid const &tag to lookup</param>
+    /// <param name="guid">Guid const &of property</param>
     /// <param name="data">Data of property</param>
     /// <returns>Length of buffer read</returns>
 #endif
-    static uint DecodeAsISF(QIODevice& stream, uint cbSize, GuidList& guidList, KnownTagCache::KnownTagIndex tag, QUuid &guid, QVariant& data);
+    static uint DecodeAsISF(QIODevice& stream, uint cbSize, GuidList& guidList, KnownTagCache::KnownTagIndex tag, Guid &guid, Variant& data);
 
     /// <summary>
     /// Decodes a byte array (stored in the memory stream) into an object
@@ -105,10 +104,10 @@ public:
     /// If however, the guid is of unknown origin or not v1 internal, then the type
     ///     information is assumed to be stored in the first 2 bytes of the stream.
     /// </summary>
-    /// <param name="guid">QUuid const &of property - to detect origin</param>
+    /// <param name="guid">Guid const &of property - to detect origin</param>
     /// <param name="stream">Buffer of data</param>
     /// <returns>object stored in data buffer</returns>
-    //static QVariant DecodeAttribute(QUuid const &guid, QIODevice& stream)
+    //static Variant DecodeAttribute(Guid const &guid, QIODevice& stream)
     //{
         //VarEnum type;
     //    return DecodeAttribute(guid, stream);
@@ -121,12 +120,12 @@ public:
     /// If however, the guid is of unknown origin or not v1 internal, then the type
     ///     information is assumed to be stored in the first 2 bytes of the stream.
     /// </summary>
-    /// <param name="guid">QUuid const &of property - to detect origin</param>
+    /// <param name="guid">Guid const &of property - to detect origin</param>
     /// <param name="memStream">Buffer of data</param>
     /// <param name="type">the type info stored in the stream</param>
     /// <returns>object stored in data buffer</returns>
     /// <remarks>The buffer stream passed in to the method will be closed after reading</remarks>
-    static QVariant DecodeAttribute(QUuid const &guid, QIODevice& memStream);
+    static Variant DecodeAttribute(Guid const &guid, QIODevice& memStream);
 
 #if OLD_ISF
     /// <summary>
@@ -177,7 +176,7 @@ public:
     /// <param name="attributes"></param>
     /// <param name="count">count of guids returned (can be less than return.Length</param>
     /// <returns></returns>
-    static QVector<QUuid> GetUnknownGuids(ExtendedPropertyCollection& attributes, int& count);
+    static QVector<Guid> GetUnknownGuids(ExtendedPropertyCollection& attributes, int& count);
 
     //#region Key/Value pair validation helpers
     /// <summary>
@@ -186,7 +185,7 @@ public:
     /// <param name="id">ExtendedProperty identifier</param>
     /// <param name="value">data</param>
     /// <remarks>Ignores Ids that are not known (e.g. ExtendedProperties)</remarks>
-    static void Validate(QUuid const &id, QVariant const & value);
+    static void Validate(Guid const &id, Variant const & value);
     //#endregion // Key/Value pair validation helpers
 
 };

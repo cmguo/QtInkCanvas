@@ -4,6 +4,7 @@
 #include "Windows/Input/inputdevice.h"
 #include "Windows/Input/mousebuttonstate.h"
 #include "Windows/routedeventargs.h"
+#include "Windows/point.h"
 
 class QGraphicsSceneMouseEvent;
 
@@ -57,7 +58,7 @@ public:
     ///     Calculates the position of the mouse relative to
     ///     a particular element.
     /// </summary>
-    QPointF GetPosition(Visual* relativeTo);
+    Point GetPosition(Visual* relativeTo);
 
     /// <summary>
     ///     The state of the left button.
@@ -86,12 +87,12 @@ public:
 
     virtual int Id() override;
 
-    virtual QSharedPointer<StylusPointDescription> PointDescription() override;
+    virtual SharedPointer<StylusPointDescription> PointDescription() override;
 
-    virtual QVector<int> PacketData(QEvent& event) override;
+    virtual Array<int> PacketData(QEvent& event) override;
 
 private:
-    QSharedPointer<StylusPointDescription> description_;
+    SharedPointer<StylusPointDescription> description_;
     QPointF lastPosition_;
 };
 

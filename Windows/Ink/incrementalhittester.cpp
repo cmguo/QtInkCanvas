@@ -26,7 +26,7 @@ IncrementalHitTester::~IncrementalHitTester()
 /// <param name="point">a point that represents an incremental move of the hitting tool</param>
 void IncrementalHitTester::AddPoint(Point const & point)
 {
-    AddPoints({ point });
+    AddPoints(List<Point>{ point });
 }
 
 /// <summary>
@@ -571,11 +571,11 @@ void IncrementalStrokeHitTester::AddPointsCore(List<Point> const & points)
 #endif
             ErasingStroke* mask = collection->GetEditMask();
             if (mask) {
-                QVector<StrokeIntersection> maskAt;
+                List<StrokeIntersection> maskAt;
                 if (mask->EraseTest(StrokeNodeIterator::GetIterator(*strokeInfo->GetStroke(), *strokeInfo->GetStroke()->GetDrawingAttributes()), maskAt)) {
-                    eraseAt = StrokeIntersection::GetMaskedHitSegments(eraseAt, maskAt);
+                    eraseAt = StrokeIntersection::GetMaskedHitSegments(eraseAt, maskAt.ToArray());
                 }
-                if (eraseAt.isEmpty())
+                if (eraseAt.Count() == 0)
                     continue;
             }
 #endif

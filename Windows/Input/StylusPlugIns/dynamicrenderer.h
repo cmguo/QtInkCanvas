@@ -2,9 +2,10 @@
 #define DYNAMICRENDERER_H
 
 #include "Windows/Input/StylusPlugIns/stylusplugin.h"
+#include "Collections/Generic/list.h"
 #include "eventargs.h"
+#include "sharedptr.h"
 
-#include <QSharedPointer>
 #include <QMutex>
 #include <QQueue>
 
@@ -56,7 +57,7 @@ public:
     /// </summary>
     /// <param name="stylusDevice">
     /// <param name="stylusPoints">
-    virtual void Reset(StylusDevice* stylusDevice, QSharedPointer<StylusPointCollection> stylusPoints);
+    virtual void Reset(StylusDevice* stylusDevice, SharedPointer<StylusPointCollection> stylusPoints);
 
     /////////////////////////////////////////////////////////////////////
     /// <summary>
@@ -166,7 +167,7 @@ protected:
     /// [TBS]
     /// </summary>
     virtual void OnDraw(  DrawingContext& drawingContext,
-                                    QSharedPointer<StylusPointCollection> stylusPoints,
+                                    SharedPointer<StylusPointCollection> stylusPoints,
                                     Geometry* geometry,
                                     QBrush fillBrush);
 
@@ -185,7 +186,7 @@ protected:
 
     /////////////////////////////////////////////////////////////////////
 
-    void RenderPackets(QSharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si);
+    void RenderPackets(SharedPointer<StylusPointCollection> stylusPoints,  StrokeInfo* si);
 
     /////////////////////////////////////////////////////////////////////
 
@@ -234,8 +235,8 @@ public:
     /// <summary>
     /// [TBS] - On UIContext
     /// </summary>
-    QSharedPointer<DrawingAttributes> GetDrawingAttributes();
-    void SetDrawingAttributes(QSharedPointer<DrawingAttributes> value);
+    SharedPointer<DrawingAttributes> GetDrawingAttributes();
+    void SetDrawingAttributes(SharedPointer<DrawingAttributes> value);
 
     void CreateInkingVisuals();
 
@@ -255,8 +256,8 @@ public:
 private:
     Dispatcher*          _applicationDispatcher;
     Geometry*            _zeroSizedFrozenRect;
-    QSharedPointer<DrawingAttributes>   _drawAttrsSource;
-    QList<StrokeInfo*>            _strokeInfoList;
+    SharedPointer<DrawingAttributes>   _drawAttrsSource;
+    List<StrokeInfo*>            _strokeInfoList;
 
     // Visuals layout:
     //

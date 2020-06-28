@@ -3,7 +3,6 @@
 
 #include "Windows/point.h"
 #include "Windows/size.h"
-#include "Internal/debug.h"
 #include "cmath.h"
 #include "double.h"
 
@@ -18,7 +17,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// X, Y (Location) and Width and Height (Size).  As a result, Rects cannot have negative
 /// Width or Height.
 /// </summary>
-class Rect
+class INKCANVAS_EXPORT Rect
 {
     //#region Constructors
 public:
@@ -131,13 +130,7 @@ public:
     /// Note: If width or height are 0 this Rectangle still contains a 0 or 1 dimensional set
     /// of points, so this method should not be used to check for 0 area.
     /// </summary>
-    bool IsEmpty() const
-    {
-        // The funny width and height tests are to handle NaNs
-        Debug::Assert((!(_width < 0) && !(_height < 0)) || (*this == Empty()));
-
-        return _width < 0;
-    }
+    bool IsEmpty() const;
 
     /// <summary>
     /// Location - The Point representing the origin of the Rectangle
@@ -369,7 +362,7 @@ public:
     /// Returns true if the Point is within the rectangle.
     /// Returns false otherwise
     /// </returns>
-    bool Contains(Point point) const
+    bool Contains(Point const & point) const
     {
         return Contains(point._x, point._y);
     }
@@ -465,7 +458,7 @@ public:
     /// Intersect - Return the result of the intersection of rect1 and rect2.
     /// If either this or rect are Empty, the result is Empty as well.
     /// </summary>
-    static Rect & Intersect(Rect & rect1, Rect const & rect2)
+    static Rect Intersect(Rect rect1, Rect const & rect2)
     {
         rect1.Intersect(rect2);
         return rect1;
@@ -518,11 +511,10 @@ public:
     /// <summary>
     /// Union - Return the result of the union of rect1 and rect2.
     /// </summary>
-    static Rect Union(Rect const & rect1, Rect const & rect2)
+    static Rect Union(Rect rect1, Rect const & rect2)
     {
-        Rect r(rect1);
-        r.Union(rect2);
-        return r;
+        rect1.Union(rect2);
+        return rect1;
     }
 
     /// <summary>
@@ -576,7 +568,7 @@ public:
     /// Offset - return the result of offsetting rect by the offset provided
     /// If this is Empty, this method is illegal.
     /// </summary>
-    static Rect& Offset(Rect & rect, Vector const & offsetVector)
+    static Rect Offset(Rect rect, Vector const & offsetVector)
     {
         rect.Offset(offsetVector.X(), offsetVector.Y());
         return rect;
@@ -586,7 +578,7 @@ public:
     /// Offset - return the result of offsetting rect by the offset provided
     /// If this is Empty, this method is illegal.
     /// </summary>
-    static Rect& Offset(Rect& rect, double offsetX, double offsetY)
+    static Rect Offset(Rect rect, double offsetX, double offsetY)
     {
         rect.Offset(offsetX, offsetY);
         return rect;

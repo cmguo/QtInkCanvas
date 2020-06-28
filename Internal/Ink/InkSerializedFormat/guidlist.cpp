@@ -4,7 +4,7 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-QUuid GuidList::Empty;
+Guid GuidList::Empty;
 
 GuidList::GuidList()
 {
@@ -16,13 +16,13 @@ GuidList::GuidList()
 /// </summary>
 /// <param name="guid"></param>
 /// <returns></returns>
-bool GuidList::Add(QUuid const & guid)
+bool GuidList::Add(Guid const & guid)
 {
     // If the guid is not found in the known guids list nor in the custom guid list,
     // add that to the custom guid list
     if (0 == FindTag(guid, true))
     {
-        _CustomGuids.append(guid);
+        _CustomGuids.Add(guid);
         return true;
     }
     else
@@ -35,7 +35,7 @@ bool GuidList::Add(QUuid const & guid)
 /// </summary>
 /// <param name="guid"></param>
 /// <returns></returns>
-KnownTagCache::KnownTagIndex GuidList::FindKnownTag(QUuid const & guid)
+KnownTagCache::KnownTagIndex GuidList::FindKnownTag(Guid const & guid)
 {
     // Find out if the guid is in the known guid table
     for (quint8 iIndex = 0; iIndex < KnownIdCache::OriginalISFIdTableLength; ++iIndex)
@@ -52,11 +52,11 @@ KnownTagCache::KnownTagIndex GuidList::FindKnownTag(QUuid const & guid)
 /// </summary>
 /// <param name="guid"></param>
 /// <returns></returns>
-KnownTagCache::KnownTagIndex GuidList::FindCustomTag(QUuid const & guid)
+KnownTagCache::KnownTagIndex GuidList::FindCustomTag(Guid const & guid)
 {
     int i;
 
-    for (i = 0; i < _CustomGuids.size(); i++)
+    for (i = 0; i < _CustomGuids.Count(); i++)
     {
         if (guid == _CustomGuids[i])
             return static_cast<KnownTagCache::KnownTagIndex>(KnownIdCache::CustomGuidBaseIndex + i);
@@ -72,7 +72,7 @@ KnownTagCache::KnownTagIndex GuidList::FindCustomTag(QUuid const & guid)
 /// <param name="guid"></param>
 /// <param name="bFindInKnownListFirst"></param>
 /// <returns></returns>
-KnownTagCache::KnownTagIndex GuidList::FindTag(QUuid const & guid, bool bFindInKnownListFirst)
+KnownTagCache::KnownTagIndex GuidList::FindTag(Guid const & guid, bool bFindInKnownListFirst)
 {
     KnownTagCache::KnownTagIndex tag = KnownTagCache::KnownTagIndex::Unknown;
 
@@ -98,7 +98,7 @@ KnownTagCache::KnownTagIndex GuidList::FindTag(QUuid const & guid, bool bFindInK
 /// </summary>
 /// <param name="tag"></param>
 /// <returns></returns>
-QUuid const & GuidList::FindKnownGuid(KnownTagCache::KnownTagIndex tag)
+Guid const & GuidList::FindKnownGuid(KnownTagCache::KnownTagIndex tag)
 {
     if (tag < KnownIdCache::KnownGuidBaseIndex)
     {
@@ -122,7 +122,7 @@ QUuid const & GuidList::FindKnownGuid(KnownTagCache::KnownTagIndex tag)
 /// </summary>
 /// <param name="tag"></param>
 /// <returns></returns>
-QUuid const & GuidList::FindCustomGuid(KnownTagCache::KnownTagIndex tag)
+Guid const & GuidList::FindCustomGuid(KnownTagCache::KnownTagIndex tag)
 {
     if ((int)tag < (int)KnownIdCache::CustomGuidBaseIndex)
     {
@@ -133,7 +133,7 @@ QUuid const & GuidList::FindCustomGuid(KnownTagCache::KnownTagIndex tag)
     int nIndex = (int)(tag - KnownIdCache::CustomGuidBaseIndex);
 
     // If invalid, return Guid.Empty
-    if ((0 > nIndex) || (_CustomGuids.size() <= nIndex))
+    if ((0 > nIndex) || (_CustomGuids.Count() <= nIndex))
         return Empty;
 
     // Otherwise, return the guid
@@ -146,11 +146,11 @@ QUuid const & GuidList::FindCustomGuid(KnownTagCache::KnownTagIndex tag)
 /// </summary>
 /// <param name="tag"></param>
 /// <returns></returns>
-QUuid const & GuidList::FindGuid(KnownTagCache::KnownTagIndex tag)
+Guid const & GuidList::FindGuid(KnownTagCache::KnownTagIndex tag)
 {
     if (tag < (KnownTagCache::KnownTagIndex)KnownIdCache::CustomGuidBaseIndex)
     {
-        QUuid const & guid = FindKnownGuid(tag);
+        Guid const & guid = FindKnownGuid(tag);
 
         if (Empty != guid)
             return guid;
@@ -159,7 +159,7 @@ QUuid const & GuidList::FindGuid(KnownTagCache::KnownTagIndex tag)
     }
     else
     {
-        QUuid const & guid = FindCustomGuid(tag);
+        Guid const & guid = FindCustomGuid(tag);
 
         if (Empty != guid)
             return guid;
@@ -174,7 +174,7 @@ QUuid const & GuidList::FindGuid(KnownTagCache::KnownTagIndex tag)
 /// </summary>
 /// <param name="guid"></param>
 /// <returns></returns>
-quint32 GuidList::GetDataSizeIfKnownGuid(QUuid const & guid)
+quint32 GuidList::GetDataSizeIfKnownGuid(Guid const & guid)
 {
     for (quint32 i = 0; i < KnownIdCache::OriginalISFIdTableLength; ++i)
     {
@@ -196,7 +196,7 @@ quint32 GuidList::Save(QIODevice& stream)
 {
         // calculate the number of custom guids to persist
         //   custom guids are those which are not reserved in ISF via 'tags'
-    quint32 ul = (uint)(_CustomGuids.size() * sizeof(QUuid));
+    quint32 ul = (uint)(_CustomGuids.Count() * sizeof(Guid));
 
         // if there are no custom guids, then the guid list can be persisted
         //      without any cost ('tags' are freely storeable)
@@ -218,11 +218,11 @@ quint32 GuidList::Save(QIODevice& stream)
     cbWrote += SerializationHelper::Encode(stream, ul);
 
         // encode each guid in the table
-    for (int i = 0; i < _CustomGuids.size(); i++)
+    for (int i = 0; i < _CustomGuids.Count(); i++)
     {
-        QUuid const & guid = _CustomGuids[i];
+        Guid const & guid = _CustomGuids[i];
 
-        stream.write(guid.toByteArray().data(), sizeof(QUuid));
+        stream.write(reinterpret_cast<char const*>(&guid.ToByteArray()[0]), sizeof(Guid));
     }
 
     cbWrote += ul;
@@ -240,22 +240,22 @@ quint32 GuidList::Load(QIODevice& strm, quint32 size)
 {
     quint32 cbsize = 0;
 
-    _CustomGuids.clear();
+    _CustomGuids.Clear();
 
-    quint32 count = size / sizeof(QUuid);
-    quint8 guids[sizeof(QUuid)];
+    quint32 count = size / sizeof(Guid);
+    quint8 guids[sizeof(Guid)];
 
     for (quint32 i = 0; i < count; i++)
     {
         // NTRAID:WINDOWSOS#1622775-2006/04/26-WAYNEZEN,
         // Stream.Read could read less number of bytes than the request. We call ReliableRead that
         // reads the bytes in a loop until all requested bytes are received or reach the end of the stream.
-        quint32 bytesRead = StrokeCollectionSerializer::ReliableRead(strm, guids, sizeof(QUuid));
+        quint32 bytesRead = StrokeCollectionSerializer::ReliableRead(strm, guids, sizeof(Guid));
 
         cbsize += bytesRead;
-        if ( bytesRead == sizeof(QUuid) )
+        if ( bytesRead == sizeof(Guid) )
         {
-            _CustomGuids.append(QUuid(QByteArray((char const *)guids, sizeof(QUuid))));
+            _CustomGuids.Add(Guid(guids));
         }
         else
         {

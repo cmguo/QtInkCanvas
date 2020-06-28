@@ -2,8 +2,7 @@
 #define ISFCLIPBOARDDATA_H
 
 #include "Activities/Presentation/clipboarddata.h"
-
-#include <QSharedPointer>
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -25,7 +24,7 @@ public:
     ISFClipboardData();
 
     // The constructor which takes StrokeCollection argument
-    ISFClipboardData(QSharedPointer<StrokeCollection> strokes);
+    ISFClipboardData(SharedPointer<StrokeCollection> strokes);
 
     // Checks if the data can be pasted.
     virtual bool CanPaste(DataObject  const * dataObject) override;
@@ -65,7 +64,7 @@ protected:
 
 public:
     // Gets the strokes
-    QSharedPointer<StrokeCollection> Strokes()
+    SharedPointer<StrokeCollection> Strokes()
     {
        return _strokes;
     }
@@ -80,7 +79,7 @@ public:
 
     //#region Private Fields
 private:
-    QSharedPointer<StrokeCollection>    _strokes;
+    SharedPointer<StrokeCollection>    _strokes;
 
     //#endregion Private Fields
 

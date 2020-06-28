@@ -27,12 +27,12 @@ DrawingDrawingContext::~DrawingDrawingContext()
 ///     Note that this API does not accept a Brush, as there is no area to fill.
 /// </summary>
 /// <param name="pen"> The QPen with which to stroke the line. </param>
-/// <param name="point0"> The start QPointF const & for the line. </param>
-/// <param name="point1"> The end QPointF const & for the line. </param>
+/// <param name="point0"> The start Point const & for the line. </param>
+/// <param name="point1"> The end Point const & for the line. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawLine(
     QPen pen,
-    QPointF const & point0,
-    QPointF const & point1)
+    Point const & point0,
+    Point const & point1)
 {
 
 //#if DEBUG
@@ -49,15 +49,15 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawLine(
 ///     Note that this API does not accept a Brush, as there is no area to fill.
 /// </summary>
 /// <param name="pen"> The QPen with which to stroke the line. </param>
-/// <param name="point0"> The start QPointF const & for the line. </param>
+/// <param name="point0"> The start Point const & for the line. </param>
 /// <param name="point0Animations"> Optional AnimationClock * for point0. </param>
-/// <param name="point1"> The end QPointF const & for the line. </param>
+/// <param name="point1"> The end Point const & for the line. </param>
 /// <param name="point1Animations"> Optional AnimationClock * for point1. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawLine(
     QPen pen,
-    QPointF const & point0,
+    Point const & point0,
     AnimationClock * point0Animations,
-    QPointF const & point1,
+    Point const & point1,
     AnimationClock * point1Animations)
 {
 
@@ -127,11 +127,11 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawLine(
 ///     The QPen with which to stroke the rectangle.
 ///     This is optional, and can be nullptr, in which case no stroke is performed.
 /// </param>
-/// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+/// <param name="rectangle"> The Rect const & to fill and/or stroke. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawRectangle(
     QBrush brush,
     QPen pen,
-    QRectF const & rectangle)
+    Rect const & rectangle)
 {
 
 //#if DEBUG
@@ -155,12 +155,12 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRectangle(
 ///     The QPen with which to stroke the rectangle.
 ///     This is optional, and can be nullptr, in which case no stroke is performed.
 /// </param>
-/// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+/// <param name="rectangle"> The Rect const & to fill and/or stroke. </param>
 /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawRectangle(
     QBrush brush,
     QPen pen,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     AnimationClock * rectangleAnimations)
 {
 
@@ -225,7 +225,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRectangle(
 ///     The QPen with which to stroke the rectangle.
 ///     This is optional, and can be nullptr, in which case no stroke is performed.
 /// </param>
-/// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+/// <param name="rectangle"> The Rect const & to fill and/or stroke. </param>
 /// <param name="radiusX">
 ///     The radius in the X dimension of the rounded corners of this
 ///     rounded Rect.  This value will be clamped to the range [0..rectangle.Width/2]
@@ -237,7 +237,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRectangle(
 void DrawingDrawingContext::DrawingDrawingContext::DrawRoundedRectangle(
     QBrush brush,
     QPen pen,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     double radiusX,
     double radiusY)
 {
@@ -263,7 +263,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRoundedRectangle(
 ///     The QPen with which to stroke the rectangle.
 ///     This is optional, and can be nullptr, in which case no stroke is performed.
 /// </param>
-/// <param name="rectangle"> The QRectF const & to fill and/or stroke. </param>
+/// <param name="rectangle"> The Rect const & to fill and/or stroke. </param>
 /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
 /// <param name="radiusX">
 ///     The radius in the X dimension of the rounded corners of this
@@ -278,7 +278,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRoundedRectangle(
 void DrawingDrawingContext::DrawingDrawingContext::DrawRoundedRectangle(
     QBrush brush,
     QPen pen,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     AnimationClock * rectangleAnimations,
     double radiusX,
     AnimationClock * radiusXAnimations,
@@ -373,7 +373,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawRoundedRectangle(
 void DrawingDrawingContext::DrawingDrawingContext::DrawEllipse(
     QBrush brush,
     QPen pen,
-    QPointF const & center,
+    Point const & center,
     double radiusX,
     double radiusY)
 {
@@ -416,7 +416,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawEllipse(
 void DrawingDrawingContext::DrawingDrawingContext::DrawEllipse(
     QBrush brush,
     QPen pen,
-    QPointF const & center,
+    Point const & center,
     AnimationClock * centerAnimations,
     double radiusX,
     AnimationClock * radiusXAnimations,
@@ -525,17 +525,17 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawGeometry(
 ///     DrawImage -
 ///     Draw an Image into the region specified by the Rect.
 ///     The Image will potentially be stretched and distorted to fit the Rect.
-///     For more fine grained control, consider filling a QRectF const & with an ImageBrush via
+///     For more fine grained control, consider filling a Rect const & with an ImageBrush via
 ///     DrawRectangle.
 /// </summary>
 /// <param name="imageSource"> The ImageSource to draw. </param>
 /// <param name="rectangle">
-///     The QRectF const & into which the ImageSource will be fit.
+///     The Rect const & into which the ImageSource will be fit.
 /// </param>
 /*
 void DrawingDrawingContext::DrawingDrawingContext::DrawImage(
     ImageSource imageSource,
-    QRectF const & rectangle)
+    Rect const & rectangle)
 {
 
 //#if DEBUG
@@ -550,17 +550,17 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawImage(
 ///     DrawImage -
 ///     Draw an Image into the region specified by the Rect.
 ///     The Image will potentially be stretched and distorted to fit the Rect.
-///     For more fine grained control, consider filling a QRectF const & with an ImageBrush via
+///     For more fine grained control, consider filling a Rect const & with an ImageBrush via
 ///     DrawRectangle.
 /// </summary>
 /// <param name="imageSource"> The ImageSource to draw. </param>
 /// <param name="rectangle">
-///     The QRectF const & into which the ImageSource will be fit.
+///     The Rect const & into which the ImageSource will be fit.
 /// </param>
 /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawImage(
     ImageSource imageSource,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     AnimationClock * rectangleAnimations)
 {
 
@@ -624,7 +624,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawImage(
 /// </param>
 void DrawingDrawingContext::DrawImage(
     QImage imageSource,
-    QRectF const & rectangle)
+    Rect const & rectangle)
 {
 
 #if DEBUG
@@ -649,7 +649,7 @@ void DrawingDrawingContext::DrawImage(
 /// <param name="rectangleAnimations"> Optional AnimationClock for rectangle. </param>
 void DrawingDrawingContext::DrawImage(
     QImage imageSource,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     AnimationClock * rectangleAnimations)
 {
 
@@ -701,7 +701,7 @@ void DrawingDrawingContext::DrawImage(
 /// <summary>
 ///     DrawDrawing -
 ///     Draw a Drawing.
-///     For more fine grained control, consider filling a QRectF const & with an DrawingBrush via
+///     For more fine grained control, consider filling a Rect const & with an DrawingBrush via
 ///     DrawRect.
 /// </summary>
 /// <param name="drawing"> The Drawing to draw. </param>
@@ -735,17 +735,17 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawDrawing(
 ///     DrawVideo -
 ///     Draw a Video into the region specified by the Rect.
 ///     The Video will potentially be stretched and distorted to fit the Rect.
-///     For more fine grained control, consider filling a QRectF const & with an VideoBrush via
+///     For more fine grained control, consider filling a Rect const & with an VideoBrush via
 ///     DrawRectangle.
 /// </summary>
 /// <param name="player"> The MediaPlayer to draw. </param>
 /// <param name="rectangle">
-///     The QRectF const & into which the MediaPlayer will be fit.
+///     The Rect const & into which the MediaPlayer will be fit.
 /// </param>
 /*
 void DrawingDrawingContext::DrawingDrawingContext::DrawVideo(
     MediaPlayer player,
-    QRectF const & rectangle)
+    Rect const & rectangle)
 {
 
 //#if DEBUG
@@ -760,17 +760,17 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawVideo(
 ///     DrawVideo -
 ///     Draw a Video into the region specified by the Rect.
 ///     The Video will potentially be stretched and distorted to fit the Rect.
-///     For more fine grained control, consider filling a QRectF const & with an VideoBrush via
+///     For more fine grained control, consider filling a Rect const & with an VideoBrush via
 ///     DrawRectangle.
 /// </summary>
 /// <param name="player"> The MediaPlayer to draw. </param>
 /// <param name="rectangle">
-///     The QRectF const & into which the MediaPlayer will be fit.
+///     The Rect const & into which the MediaPlayer will be fit.
 /// </param>
 /// <param name="rectangleAnimations"> Optional AnimationClock * for rectangle. </param>
 void DrawingDrawingContext::DrawingDrawingContext::DrawVideo(
     MediaPlayer player,
-    QRectF const & rectangle,
+    Rect const & rectangle,
     AnimationClock * rectangleAnimations)
 {
 
@@ -944,7 +944,7 @@ void DrawingDrawingContext::DrawingDrawingContext::PushOpacity(
 /// </summary>
 /// <param name="transform"> The Transform to push. </param>
 void DrawingDrawingContext::DrawingDrawingContext::PushTransform(
-    QTransform transform)
+    Transform const & transform)
 {
 
 //#if DEBUG
@@ -1269,7 +1269,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
         // Call CloseCore with the root DrawingGroup's children
         //
 
-        QList<Drawing*> rootChildren;
+        List<Drawing*> rootChildren;
 
         if (_currentDrawingGroup != nullptr)
          {
@@ -1286,8 +1286,8 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
             //
             // This collection is needed by DrawingGroup.Open because
             // Open always replaces it's Children collection.  It isn't
-            // strictly needed for Append, but always using a collection
-            // simplifies the TransactionalAppend implementation (i.e.,
+            // strictly needed for Add, but always using a collection
+            // simplifies the TransactionalAdd implementation (i.e.,
             // a seperate implemention isn't needed for a single element)
             //rootChildren = new DrawingCollection();
 
@@ -1300,7 +1300,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
 
             if (_rootDrawing != nullptr)
             {
-                rootChildren.append(_rootDrawing);
+                rootChildren.Add(_rootDrawing);
             }
         }
 
@@ -1326,7 +1326,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
 /// <remarks>
 ///     This will only be called once (at most) per instance.
 /// </remarks>
-void DrawingDrawingContext::DrawingDrawingContext::CloseCore(QList<Drawing*> rootDrawingGroupChildren)
+void DrawingDrawingContext::DrawingDrawingContext::CloseCore(List<Drawing*> rootDrawingGroupChildren)
 {
     // Default implementation is a no-op
 }
@@ -1491,8 +1491,8 @@ void DrawingDrawingContext::AddDrawing(Drawing* newDrawing)
         //    );
 
         // Add both Children
-        _currentDrawingGroup->Children().append(_rootDrawing);
-        _currentDrawingGroup->Children().append(newDrawing);
+        _currentDrawingGroup->Children().Add(_rootDrawing);
+        _currentDrawingGroup->Children().Add(newDrawing);
 
         // Set the new DrawingGroup as the current
         _rootDrawing = _currentDrawingGroup;
@@ -1501,7 +1501,7 @@ void DrawingDrawingContext::AddDrawing(Drawing* newDrawing)
     {
         // If there already is a current drawing group, then simply add
         // the new drawing too it.
-        _currentDrawingGroup->Children().append(newDrawing);
+        _currentDrawingGroup->Children().Add(newDrawing);
     }
 }
 

@@ -3,9 +3,9 @@
 
 #include "Internal/Ink/serializationflags.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
-
-#include <QList>
-#include <QSharedPointer>
+#include "Windows/Media/matrix.h"
+#include "Collections/Generic/list.h"
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -51,7 +51,7 @@ public:
 
     PersistenceFormat CurrentPersistenceFormat = PersistenceFormat::InkSerializedFormat;
     CompressionMode CurrentCompressionMode = CompressionMode::Compressed;
-    QList<int> StrokeIds;
+    List<int> StrokeIds;
     //#endregion
 
     //#region Decoding
@@ -219,7 +219,7 @@ private:
     /// </summary>
     /// <param name="tdrd"></param>
     /// <returns></returns>
-    QMatrix LoadTransform(TransformDescriptor* tdrd);
+    Matrix LoadTransform(TransformDescriptor* tdrd);
 
 
     /// <summary>
@@ -229,7 +229,7 @@ private:
     /// <param name="tag"></param>
     /// <param name="block"></param>
     /// <returns></returns>
-    StylusPointPropertyInfo GetStylusPointPropertyInfo(QUuid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block);
+    StylusPointPropertyInfo GetStylusPointPropertyInfo(Guid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block);
 
 
     /// <summary>
@@ -240,7 +240,7 @@ private:
     /// <param name="block"></param>
     /// <param name="guidList"></param>
     /// <returns></returns>
-    QSharedPointer<StylusPointDescription> BuildStylusPointDescription(StrokeDescriptor* strd, MetricBlock* block, GuidList& guidList);
+    SharedPointer<StylusPointDescription> BuildStylusPointDescription(StrokeDescriptor* strd, MetricBlock* block, GuidList& guidList);
     //#endregion
 
     //#endregion // Decoding
@@ -447,7 +447,7 @@ public:
         // Compression algorithm data
         quint8 CompressionData = 0;
 
-        QVector<QVector<int>> ISFReadyStrokeData;
+        Array<Array<int>> ISFReadyStrokeData;
         bool StorePressure = false;
     };
 
@@ -476,19 +476,19 @@ private:
 
     StrokeCollection& _coreStrokes;
 private:
-    QList<StrokeDescriptor*> _strokeDescriptorTable;
-    QList<TransformDescriptor*> _transformTable;
-    QList<QSharedPointer<DrawingAttributes>> _drawingAttributesTable;
-    QList<MetricBlock*> _metricTable;
-    QPointF _himetricSize;
+    List<StrokeDescriptor*> _strokeDescriptorTable;
+    List<TransformDescriptor*> _transformTable;
+    List<SharedPointer<DrawingAttributes>> _drawingAttributesTable;
+    List<MetricBlock*> _metricTable;
+    Point _himetricSize;
 
 
         // The ink space rectangle (e.g. bounding box for GIF) is stored
         //      with the serialization info so that load/save roundtrip the
         //      rectangle
-    QRectF _inkSpaceRectangle;
+    Rect _inkSpaceRectangle;
 
-    QMap<QSharedPointer<Stroke>, StrokeLookupEntry*> _strokeLookupTable;
+    QMap<SharedPointer<Stroke>, StrokeLookupEntry*> _strokeLookupTable;
 
     //#endregion
 };
@@ -504,7 +504,7 @@ public:
     /// </summary>
     /// <param name="strokes">strokes</param>
     /// <returns></returns>
-    static QVector<int> GetStrokeIds(StrokeCollection& strokes);
+    static Array<int> GetStrokeIds(StrokeCollection& strokes);
 };
 
 INKCANVAS_END_NAMESPACE

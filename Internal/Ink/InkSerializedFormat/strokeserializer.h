@@ -2,14 +2,11 @@
 #define STROKESERIALIZER_H
 
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
-
-#include <QSharedPointer>
-#include <QVector>
+#include "sharedptr.h"
 
 #define OLD_ISF 0
 
 class QIODevice;
-class QMatrix;
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -19,6 +16,7 @@ class StylusPointDescription;
 class DrawingAttributes;
 class Compressor;
 class Stroke;
+class Matrix;
 class StylusPointCollection;
 class ExtendedPropertyCollection;
 
@@ -67,13 +65,13 @@ public:
                              uint size,
                              GuidList& guidList,
                              StrokeDescriptor& strokeDescriptor,
-                             QSharedPointer<StylusPointDescription> stylusPointDescription,
-                             QSharedPointer<DrawingAttributes> drawingAttributes,
-                             QMatrix& transform,
+                             SharedPointer<StylusPointDescription> stylusPointDescription,
+                             SharedPointer<DrawingAttributes> drawingAttributes,
+                             Matrix& transform,
 #if OLD_ISF
                              Compressor& compressor,
 #endif
-                             QSharedPointer<Stroke>& stroke);
+                             SharedPointer<Stroke>& stroke);
 
 #if OLD_ISF
     /// <summary>
@@ -128,9 +126,9 @@ public:
         uint totalBytesInStrokeBlockOfIsfStream,
         GuidList& guidList,
         StrokeDescriptor& strokeDescriptor,
-        QSharedPointer<StylusPointDescription> stylusPointDescription,
-        QMatrix& transform,
-        QSharedPointer<StylusPointCollection>& stylusPoints,
+        SharedPointer<StylusPointDescription> stylusPointDescription,
+        Matrix& transform,
+        SharedPointer<StylusPointCollection>& stylusPoints,
         ExtendedPropertyCollection*& extendedProperties);
 
 #if OLD_ISF
@@ -155,9 +153,9 @@ public:
 #if OLD_ISF
                             Compressor& compressor,
 #endif
-                            QSharedPointer<StylusPointDescription> stylusPointDescription,
-                            QMatrix& transform,
-                            QSharedPointer<StylusPointCollection>& stylusPoints);
+                            SharedPointer<StylusPointDescription> stylusPointDescription,
+                            Matrix& transform,
+                            SharedPointer<StylusPointCollection>& stylusPoints);
 
 private:
     /// <summary>
@@ -172,7 +170,7 @@ private:
         int pointCount,
         int buttonCount,
         int buttonIndex,
-        QVector<int> packets,
+        Array<int> packets,
         QByteArray buttonData);
 
 
@@ -306,12 +304,12 @@ public:
     /// <param name="algo"></param>
 #endif
     static uint SavePacketPropertyData(
-        QVector<int> packetdata,
+        Array<int> packetdata,
         QIODevice& stream,
 #if OLD_ISF
         Compressor& compressor,
 #endif
-        QUuid const & guid,
+        Guid const & guid,
         quint8& algo);
 
     //#endregion

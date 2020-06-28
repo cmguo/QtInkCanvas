@@ -2,12 +2,12 @@
 #define STYLUSPLUGINCOLLECTION_H
 
 #include "InkCanvas_global.h"
-
+#include "Windows/Media/matrix.h"
 #include "Collections/ObjectModel/collection.h"
 
-#include <QList>
 #include <QMutex>
-#include <QTransform>
+
+#include <Windows/rect.h>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -41,26 +41,26 @@ public:
    /// </summary>
    /// <param name="index">index at which to insert the StylusPlugIn object
    /// <param name="plugIn">StylusPlugIn object to insert, downcast to an object
-   void InsertItem(int index, StylusPlugIn* plugIn);
+   void InsertItem(int index, StylusPlugIn* const & plugIn) override;
 
    /// <summary>
    /// Remove all the StylusPlugIn objects from the collection.
    /// This method should be called from the application context only.
    /// </summary>
-   void ClearItems();
+   void ClearItems() override;
 
    /// <summary>
    /// Remove the StylusPlugIn in the collection at the specified index.
    /// This method should be called from the application context only.
    /// </summary>
    /// <param name="index">
-   void RemoveItem(int index);
+   void RemoveItem(int index) override;
 
    /// <summary>
    /// Indexer to retrieve/set a StylusPlugIn at a given index in the collection
    /// Accessible from both the real time context and application context.
    /// </summary>
-   void SetItem(int index, StylusPlugIn* plugIn);
+   void SetItem(int index, StylusPlugIn* const & plugIn) override;
 
    //#endregion
 
@@ -96,13 +96,13 @@ public:
    /// Get the transform matrix from the root visual to the current UIElement
    /// This method is called from the real-time context.
    /// </summary>
-   QTransform ViewToElement();
+   GeneralTransform ViewToElement();
 
    /// <summary>
    /// Get the current rect for the Element that the StylusPlugInCollection is attached to.
    /// May be empty rect if plug in is not in tree.
    /// </summary>
-   QRectF Rect();
+   Rect GetRect();
 
    /// <summary>
    /// Get the current rect for the Element that the StylusPlugInCollection is attached to.
@@ -201,10 +201,10 @@ private:
 private:
    //#region Fields
    UIElement* _element;
-   QRectF _rc; // In window root measured units
-   QTransform _viewToElement;
+   Rect _rc; // In window root measured units
+   GeneralTransform _viewToElement;
 
-   QTransform _lastRenderTransform;
+   GeneralTransform _lastRenderTransform;
 
    // Note that this is only set when the Element is in a state to receive input (visible,enabled,in tree).
    /// <securitynote>

@@ -52,7 +52,7 @@ QtStreamGeometryContext::QtStreamGeometryContext(StreamGeometry* geometry)
     QPainterPath2::begin(path_);
 }
 
-void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFilled, bool isClosed)
+void QtStreamGeometryContext::BeginFigure(const Point &startPoint, bool isFilled, bool isClosed)
 {
     //qDebug() << "BeginFigure" << startPoint;
     if (isStarted_) {
@@ -66,37 +66,37 @@ void QtStreamGeometryContext::BeginFigure(const QPointF &startPoint, bool isFill
     path_.moveTo(startPoint);
 }
 
-void QtStreamGeometryContext::LineTo(const QPointF &point, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::LineTo(const Point &point, bool isStroked, bool isSmoothJoin)
 {
     //qDebug() << "LineTo" << point;
     (void) isStroked; (void) isSmoothJoin;
     path_.lineTo(point);
 }
 
-void QtStreamGeometryContext::QuadraticBezierTo(const QPointF &point1, const QPointF &point2, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::QuadraticBezierTo(const Point &point1, const Point &point2, bool isStroked, bool isSmoothJoin)
 {
     //qDebug() << "QuadraticBezierTo" << point1 << point2;
     (void) isStroked; (void) isSmoothJoin;
     path_.quadTo(point1, point2);
 }
 
-void QtStreamGeometryContext::BezierTo(const QPointF &point1, const QPointF &point2, const QPointF &point3, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::BezierTo(const Point &point1, const Point &point2, const Point &point3, bool isStroked, bool isSmoothJoin)
 {
     //qDebug() << "BezierTo" << point1 << point2 << point3;
     (void) isStroked; (void) isSmoothJoin;
     path_.cubicTo(point1, point2, point3);
 }
 
-void QtStreamGeometryContext::PolyLineTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyLineTo(const List<Point> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
-    for (QPointF const & pt : points) {
+    for (Point const & pt : points) {
         //qDebug() << "PolyLineTo" << pt;
         path_.lineTo(pt);
     }
 }
 
-void QtStreamGeometryContext::PolyQuadraticBezierTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyQuadraticBezierTo(const List<Point> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
     for (int i = 0; i < points.Count(); i += 2) {
@@ -105,7 +105,7 @@ void QtStreamGeometryContext::PolyQuadraticBezierTo(const List<QPointF> &points,
     }
 }
 
-void QtStreamGeometryContext::PolyBezierTo(const List<QPointF> &points, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::PolyBezierTo(const List<Point> &points, bool isStroked, bool isSmoothJoin)
 {
     (void) isStroked; (void) isSmoothJoin;
     for (int i = 0; i < points.Count(); i += 3) {
@@ -115,7 +115,7 @@ void QtStreamGeometryContext::PolyBezierTo(const List<QPointF> &points, bool isS
 }
 
 
-void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
+void QtStreamGeometryContext::ArcTo(const Point &point, const Size &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
 {
     //qDebug() << "ArcTo" << point << size;
     (void) isStroked; (void) isSmoothJoin;
@@ -130,14 +130,14 @@ void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, do
     //   |   | = |               | * |     | * |              |
     //   |pa2|   |cos(t2) sin(t2)|   |0  ry|   |-sin(r) cos(r)|
     rotationAngle = rotationAngle * M_PI / 180;
-    //QPointF rotate(cos(rotationAngle), sin(rotationAngle)); // [cos(r), sin(r)]
-    qreal rx = size.width(), ry = size.height();
+    //Point rotate(cos(rotationAngle), sin(rotationAngle)); // [cos(r), sin(r)]
+    qreal rx = size.Width(), ry = size.Height();
     //QMatrix matrix(rx * rotate.x(), rx * rotate.y(),
     //            -ry * rotate.y(), ry * rotate.x(), 0, 0);
     QMatrix matrix(rx, 0, 0, ry, 0, 0);
     // t = [pt1 - pt2] / 2 = [cos(t1) - cos(t2), sin(t1) - sin(t2)] / 2;
     //                     = [-sin((t1 + t2) / 2) * sin((t1 - t2) / 2), cos((t1 + t2) / 2) * sin((t1 - t2) / 2)]
-    QPointF t = matrix.inverted().map(path_.currentPosition() - point) / 2;
+    QPointF t = matrix.inverted().map(path_.currentPosition() - (QPointF)point) / 2;
     //qInfo() << "t" << t;
     // a1 = (t1 + t2) / 2, a2 = (t1 - t2) / 2; t1 > t2
     qreal a1 = atan(-t.x() / t.y());
@@ -162,7 +162,7 @@ void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, do
     QPointF pt2(cos(t2), sin(t2));
     //qInfo() << "pt1 <-> pt2" << pt1 << pt2;
     //qInfo() << "t" << (pt1 - pt2) / 2;
-    QPointF c = point - matrix.map(pt2);
+    QPointF c = (QPointF)point - matrix.map(pt2);
     //
     QRectF rect(-rx, -ry, rx * 2, ry * 2);
     QPointF pe1(pt1.x() * rx, pt1.y() * ry);

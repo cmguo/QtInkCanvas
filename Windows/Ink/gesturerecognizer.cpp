@@ -16,7 +16,7 @@ GestureRecognizer::GestureRecognizer()
 /// The constructor which take an array of the enabled application gestures.
 /// </summary>
 /// <param name="enabledApplicationGestures"></param>
-GestureRecognizer::GestureRecognizer(QList<ApplicationGesture> enabledApplicationGestures)
+GestureRecognizer::GestureRecognizer(List<ApplicationGesture> enabledApplicationGestures)
 {
     _nativeRecognizer = NativeRecognizer::CreateInstance();
     if (_nativeRecognizer == nullptr)
@@ -63,7 +63,7 @@ GestureRecognizer::GestureRecognizer(QList<ApplicationGesture> enabledApplicatio
 ///     }
 ///
 /// </remarks>
-void GestureRecognizer::SetEnabledGestures(QList<ApplicationGesture> applicationGestures)
+void GestureRecognizer::SetEnabledGestures(List<ApplicationGesture> applicationGestures)
 {
     VerifyAccess();
     VerifyDisposed();
@@ -75,7 +75,7 @@ void GestureRecognizer::SetEnabledGestures(QList<ApplicationGesture> application
     // we don't wrap the COM exceptions generated from the Recognizer
     // with our own exception
     //
-    QList<ApplicationGesture> enabledGestures =
+    List<ApplicationGesture> enabledGestures =
         _nativeRecognizer->SetEnabledGestures(applicationGestures);
 
     //only update the state when SetEnabledGestures succeeds (since it verifies the array)
@@ -87,7 +87,7 @@ void GestureRecognizer::SetEnabledGestures(QList<ApplicationGesture> application
 /// Get the enabled gestures
 /// </summary>
 /// <returns></returns>
-QList<ApplicationGesture> GestureRecognizer::GetEnabledGestures()
+List<ApplicationGesture> GestureRecognizer::GetEnabledGestures()
 {
     VerifyAccess();
     VerifyDisposed();
@@ -118,7 +118,7 @@ QList<ApplicationGesture> GestureRecognizer::GetEnabledGestures()
 ///             UnmanagedCode is the only permission we assert.
 /// </SecurityNote>
 //[SecurityCritical]
-QList<GestureRecognitionResult> GestureRecognizer::Recognize(QSharedPointer<StrokeCollection> strokes)
+List<GestureRecognitionResult> GestureRecognizer::Recognize(SharedPointer<StrokeCollection> strokes)
 {
     //
     // due to possible exploits in the Tablet PC Gesture recognizer's Recognize method,
@@ -145,7 +145,7 @@ QList<GestureRecognitionResult> GestureRecognizer::Recognize(QSharedPointer<Stro
 /// </SecurityNote>
 // Built into Core, also used by Framework.
 //[SecurityCritical]
-QList<GestureRecognitionResult> GestureRecognizer::CriticalRecognize(QSharedPointer<StrokeCollection> strokes)
+List<GestureRecognitionResult> GestureRecognizer::CriticalRecognize(SharedPointer<StrokeCollection> strokes)
 {
     return RecognizeImpl(strokes);
 }
@@ -161,13 +161,13 @@ QList<GestureRecognitionResult> GestureRecognizer::CriticalRecognize(QSharedPoin
 ///     Critical: Calls SecurityCritical method NativeRecognizer.Recognize
 /// </SecurityNote>
 //[SecurityCritical]
-QList<GestureRecognitionResult> GestureRecognizer::RecognizeImpl(QSharedPointer<StrokeCollection> strokes)
+List<GestureRecognitionResult> GestureRecognizer::RecognizeImpl(SharedPointer<StrokeCollection> strokes)
 {
     if (strokes == nullptr)
     {
         throw std::exception("strokes"); // nullptr is not allowed as the argument value
     }
-    if (strokes->size() > 2)
+    if (strokes->Count() > 2)
     {
         throw std::exception("strokes");
     }
@@ -175,7 +175,7 @@ QList<GestureRecognitionResult> GestureRecognizer::RecognizeImpl(QSharedPointer<
     VerifyDisposed();
     VerifyRecognizerAvailable();
 
-    return QList<GestureRecognitionResult>(_nativeRecognizer->Recognize(strokes));
+    return List<GestureRecognitionResult>(_nativeRecognizer->Recognize(strokes));
 }
 
 

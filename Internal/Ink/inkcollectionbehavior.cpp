@@ -134,7 +134,7 @@ void InkCollectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
         case InkCanvasEditingMode::Select:
             {
                 // Make a copy of the current cached points.
-                QSharedPointer<StylusPointCollection> cachedPoints = !_stylusPoints.isEmpty() ?
+                SharedPointer<StylusPointCollection> cachedPoints = !_stylusPoints.isEmpty() ?
                                                         _stylusPoints.first()->Clone() : nullptr ;
 
                 // Discard the collected ink.
@@ -237,7 +237,7 @@ QCursor InkCollectionBehavior::GetCurrentCursor()
 ///         stylusPoints were user initiated
 /// </SecurityNote>
 //[SecurityCritical]
-void InkCollectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void InkCollectionBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     _userInitiated = false;
 
@@ -283,7 +283,7 @@ void InkCollectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollectio
 ///         stylusPoints were user initiated
 /// </SecurityNote>
 //[SecurityCritical]
-void InkCollectionBehavior::StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void InkCollectionBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     //we never set _userInitated to true after it is initialized, only to false
     if (!userInitiated)
@@ -333,7 +333,7 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
             {
                 //Debug.Assert(_strokeDrawingAttributes != nullptr , "_strokeDrawingAttributes can not be nullptr , did we not see a down?");
 
-                QSharedPointer<Stroke>  stroke(new Stroke(spc, _strokeDrawingAttributes));
+                SharedPointer<Stroke>  stroke(new Stroke(spc, _strokeDrawingAttributes));
 
                 //we don't add the stroke to the InkCanvas stroke collection until RaiseStrokeCollected
                 //since this might be a gesture and in some modes, gestures don't get added
@@ -351,30 +351,30 @@ void InkCollectionBehavior::StylusInputEnd(bool commit)
     //}
 }
 
-void InkCollectionBehavior::StylusInput(QSharedPointer<StylusPointCollection> stylusPoints)
+void InkCollectionBehavior::StylusInput(SharedPointer<StylusPointCollection> stylusPoints)
 {
     if (stylusPoints->Description()->HasProperty(Stylus::StylusPointIdPropertyInfo)) {
         QList<int> old = _stylusPoints.keys();
         for (StylusPoint const & sp : *stylusPoints) {
             int touchId = sp.GetPropertyValue(Stylus::StylusPointIdPropertyInfo);
-            QSharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
+            SharedPointer<StylusPointCollection>& c = _stylusPoints[touchId];
             if (c == nullptr) {
                 c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
             } else {
                 old.removeOne(touchId);
             }
-            c->AddItem(sp);
+            c->Add(sp);
         }
         for (int id : old) {
-            QSharedPointer<StylusPointCollection> spc = _stylusPoints.take(id);
-            QSharedPointer<Stroke> stroke(new Stroke(spc, _strokeDrawingAttributes));
+            SharedPointer<StylusPointCollection> spc = _stylusPoints.take(id);
+            SharedPointer<Stroke> stroke(new Stroke(spc, _strokeDrawingAttributes));
             //we don't add the stroke to the InkCanvas stroke collection until RaiseStrokeCollected
             //since this might be a gesture and in some modes, gestures don't get added
             InkCanvasStrokeCollectedEventArgs argsStroke(stroke);
             GetInkCanvas().RaiseGestureOrStrokeCollected(argsStroke, _userInitiated);
         }
-    } else if (stylusPoints->count() > 0) {
-        QSharedPointer<StylusPointCollection>& c = _stylusPoints[0];
+    } else if (stylusPoints->Count() > 0) {
+        SharedPointer<StylusPointCollection>& c = _stylusPoints[0];
         if (c == nullptr) {
             c.reset(new StylusPointCollection(stylusPoints->Description(), 100));
         }
@@ -424,17 +424,16 @@ QCursor InkCollectionBehavior::PenCursor()
     if ( /*_cachedPenCursor == nullptr ||*/ !_cursorDrawingAttributes || *_cursorDrawingAttributes != *GetInkCanvas().DefaultDrawingAttributes() )
     {
         //adjust the DA for any Layout/Render transforms.
-        QMatrix xf = GetElementTransformMatrix();
+        Matrix xf = GetElementTransformMatrix();
 
-        QSharedPointer<DrawingAttributes> da = GetInkCanvas().DefaultDrawingAttributes();
-        if ( !xf.isIdentity() )
+        SharedPointer<DrawingAttributes> da = GetInkCanvas().DefaultDrawingAttributes();
+        if ( !xf.IsIdentity() )
         {
             //scale the DA, zero the offsets.
             xf *= da->StylusTipTransform();
-            //xf.OffsetX = 0;
-            //xf.OffsetY = 0;
-            xf = QMatrix(xf.m11(), xf.m12(), xf.m21(), xf.m22(), 0, 0);
-            if ( xf.isInvertible() )
+            xf.SetOffsetX(0);
+            xf.SetOffsetY(0);
+            if ( xf.HasInverse() )
             {
                 da = da->Clone();
                 da->SetStylusTipTransform(xf);

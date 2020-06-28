@@ -80,11 +80,17 @@ INKCANVAS_END_NAMESPACE
 
 INKCANVAS_BEGIN_NAMESPACE
 
+inline DrawingFlag operator ~(DrawingFlag f)
+{
+    return static_cast<DrawingFlag>(~static_cast<int>(f));
+}
+
 Q_DECLARE_FLAGS(DrawingFlags, DrawingFlag)
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(DrawingFlags)
 
 INKCANVAS_END_NAMESPACE
 
-Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(DrawingFlag))
 Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(DrawingFlags))
 
 #endif

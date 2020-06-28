@@ -41,7 +41,7 @@ StylusDevice* StylusEventArgs::GetStylusDevice()
 /// <summary>
 ///     Calculates the position of the stylus relative to a particular element.
 /// </summary>
-QPointF StylusEventArgs::GetPosition(Visual* relativeTo)
+Point StylusEventArgs::GetPosition(Visual* relativeTo)
 {
     return GetStylusDevice()->GetPosition(relativeTo);
 }
@@ -70,7 +70,7 @@ bool StylusEventArgs::Inverted()
 ///     Returns a StylusPointCollection for processing the data from input.
 ///     This method creates a new StylusPointCollection and copies the data.
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* relativeTo)
+SharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* relativeTo)
 {
     return GetStylusDevice()->GetStylusPoints(relativeTo);
 }
@@ -80,7 +80,7 @@ QSharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* r
 ///     Returns a StylusPointCollection for processing the data from input.
 ///     This method creates a new StylusPointCollection and copies the data.
 /// </summary>
-QSharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* relativeTo, QSharedPointer<StylusPointDescription> subsetToReformatTo)
+SharedPointer<StylusPointCollection> StylusEventArgs::GetStylusPoints(Visual* relativeTo, SharedPointer<StylusPointDescription> subsetToReformatTo)
 {
     return GetStylusDevice()->GetStylusPoints(relativeTo, subsetToReformatTo);
 }

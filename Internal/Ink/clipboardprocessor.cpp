@@ -78,22 +78,22 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
     InkCanvasClipboardDataFormats copiedDataFormat = InkCanvasClipboardDataFormat::None;
     InkCanvasSelection& inkCanvasSelection = GetInkCanvas().GetInkCanvasSelection();
 
-    QSharedPointer<StrokeCollection> strokes = inkCanvasSelection.SelectedStrokes();
-    if (strokes->size() > 1)
+    SharedPointer<StrokeCollection> strokes = inkCanvasSelection.SelectedStrokes();
+    if (strokes->Count() > 1)
     {
         // NTRAID#WINDOWS-1541633-2006/03/03-SAMGEO,
         // order the strokes so they are in the correct z-order
         // they appear in on the InkCanvas, or else they will be inconsistent
         // if copied / pasted
-        QSharedPointer<StrokeCollection> orderedStrokes(new StrokeCollection());
-        QSharedPointer<StrokeCollection> inkCanvasStrokes = GetInkCanvas().Strokes(); //cache to avoid multiple property gets
-        for (int i = 0; i < inkCanvasStrokes->size() && strokes->size() != orderedStrokes->size(); i++)
+        SharedPointer<StrokeCollection> orderedStrokes(new StrokeCollection());
+        SharedPointer<StrokeCollection> inkCanvasStrokes = GetInkCanvas().Strokes(); //cache to avoid multiple property gets
+        for (int i = 0; i < inkCanvasStrokes->Count() && strokes->Count() != orderedStrokes->Count(); i++)
         {
-            for (int j = 0; j < strokes->size(); j++)
+            for (int j = 0; j < strokes->Count(); j++)
             {
                 if ((*inkCanvasStrokes)[i] == (*strokes)[j])
                 {
-                    orderedStrokes->AddItem((*strokes)[j]);
+                    orderedStrokes->Add((*strokes)[j]);
                     break;
                 }
             }
@@ -110,21 +110,21 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
         strokes = strokes->Clone();
     }
 
-    QList<UIElement*> elements(inkCanvasSelection.SelectedElements());
-    QRectF bounds = inkCanvasSelection.SelectionBounds();
+    List<UIElement*> elements(inkCanvasSelection.SelectedElements());
+    Rect bounds = inkCanvasSelection.SelectionBounds();
 
     // Now copy the selection in the below orders.
-    if ( strokes->size() != 0 || elements.size() != 0 )
+    if ( strokes->Count() != 0 || elements.Count() != 0 )
     {
         // NTRAID-WINDOWS#1412097-2005/12/08-WAYNEZEN,
         // The selection should be translated to the origin (0, 0) related to its bounds.
         // Get the translate transform as a relative bounds.
-        QMatrix transform = QMatrix(1, 0, 0, 1, -bounds.left(), -bounds.top());
+        Matrix transform(1, 0, 0, 1, -bounds.Left(), -bounds.Top());
         //transform.OffsetX = -bounds.Left;
         //transform.OffsetY = -bounds.Top;
 
         // Add ISF data first.
-        if ( strokes->size() != 0 )
+        if ( strokes->Count() != 0 )
         {
             // Transform the strokes first.
             inkCanvasSelection.TransformStrokes(strokes, transform);
@@ -155,7 +155,7 @@ InkCanvasClipboardDataFormats ClipboardProcessor::CopySelectedData(DataObject * 
 /// <param name="dataObject">The DataObject instance</param>
 /// <param name="newStrokes">The strokes which are converted from the data in the DataObject</param>
 /// <param name="newElements">The elements array which are converted from the data in the DataObject</param>
-bool ClipboardProcessor::PasteData(DataObject const* dataObject, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements)
+bool ClipboardProcessor::PasteData(DataObject const* dataObject, SharedPointer<StrokeCollection>& newStrokes, List<UIElement*>& newElements)
 {
     Debug::Assert(dataObject != nullptr/* && _preferredClipboardData!= nullptr*/);
 
@@ -174,7 +174,7 @@ bool ClipboardProcessor::PasteData(DataObject const* dataObject, QSharedPointer<
                     //XamlClipboardData* xamlData = (XamlClipboardData)data;
                     //xamlData.PasteFromDataObject(dataObject);
 
-                    //QList<UIElement*> elements = xamlData.Elements;
+                    //List<UIElement*> elements = xamlData.Elements;
 
                     //if (elements != nullptr && elements.size() != 0)
                     {
@@ -224,13 +224,13 @@ bool ClipboardProcessor::PasteData(DataObject const* dataObject, QSharedPointer<
 
 //#endregion Methods
 
-QList<InkCanvasClipboardFormat> ClipboardProcessor::PreferredFormats()
+List<InkCanvasClipboardFormat> ClipboardProcessor::PreferredFormats()
 {
     //Debug::Assert(_preferredClipboardData != nullptr);
     return  _preferredClipboardData.keys();
 }
 
-void ClipboardProcessor::SetPreferredFormats(QList<InkCanvasClipboardFormat> value)
+void ClipboardProcessor::SetPreferredFormats(List<InkCanvasClipboardFormat> value)
 {
     //Debug::Assert(value != nullptr);
 
@@ -293,7 +293,7 @@ void ClipboardProcessor::SetPreferredFormats(QList<InkCanvasClipboardFormat> val
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
 
-bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements, QMatrix transform, QSizeF size)
+bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, SharedPointer<StrokeCollection> strokes, List<UIElement*> elements, Matrix transform, Size size)
 {
     //NOTE: after meeting with the partial trust team, we have
     //collectively decided to only allow copy / cut of XAML if the caller
@@ -305,7 +305,7 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
     //else
     {
 
-        QSharedPointer<InkCanvas> inkCanvas(new InkCanvas());
+        SharedPointer<InkCanvas> inkCanvas(new InkCanvas());
 
         /*
         // NOTICE-2005/12/06-WAYNEZEN,
@@ -375,22 +375,22 @@ bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, QSharedPoin
     }
 }
 
-void ClipboardProcessor::TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements)
+void ClipboardProcessor::TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, SharedPointer<StrokeCollection>& newStrokes, List<UIElement*>& newElements)
 {
     newStrokes = rootInkCanvas.Strokes();
 
-    if ( rootInkCanvas.Children().size() != 0 )
+    if ( rootInkCanvas.Children().Count() != 0 )
     {
-        QList<UIElement*> children;//(rootGetInkCanvas().Children.Count);
+        List<UIElement*> children;//(rootGetInkCanvas().Children.Count);
         for (UIElement* uiElement : rootInkCanvas.Children())
         {
-            children.append(uiElement);
+            children.Add(uiElement);
         }
 
         // Remove the children for the container
         for( UIElement* child : children )
         {
-            rootInkCanvas.Children().removeOne(child);
+            rootInkCanvas.Children().Remove(child);
         }
 
         // The new elements will be the children.

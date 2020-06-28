@@ -99,7 +99,7 @@ void EraserBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
         case InkCanvasEditingMode::Select:
             {
                 // Make a copy of the current cached points.
-                QSharedPointer<StylusPointCollection> cachedPoints = _stylusPoints != nullptr ?
+                SharedPointer<StylusPointCollection> cachedPoints = _stylusPoints != nullptr ?
                                                         _stylusPoints->Clone() : nullptr;
 
                 // Commit the current behavior.
@@ -162,7 +162,7 @@ void EraserBehavior::OnActivate()
             && ( _cachedStylusShape->Width() != GetInkCanvas().EraserShape()->Width()
                 || _cachedStylusShape->Height() != GetInkCanvas().EraserShape()->Height()
                 || _cachedStylusShape->Rotation() != GetInkCanvas().EraserShape()->Rotation()
-                || _cachedStylusShape->metaObject() != GetInkCanvas().EraserShape()->metaObject()) )
+                || _cachedStylusShape->IsEllipse() != GetInkCanvas().EraserShape()->IsEllipse()) )
         {
             //Debug::Assert(_cachedPointEraserCursor != nullptr, "_cachedPointEraserCursor shouldn't be nullptr.");
             ResetCachedPointEraserCursor();
@@ -182,7 +182,7 @@ void EraserBehavior::OnActivate()
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void EraserBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void EraserBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     //
     // get a disposable dynamic hit-tester and add event handler
@@ -211,7 +211,7 @@ void EraserBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> styl
     //
     // start erasing
     //
-    _incrementalStrokeHitTester->AddPoints(*stylusPoints);
+    _incrementalStrokeHitTester->AddPoints(stylusPoints);
 
     // NTRAID:WINDOWSOS#1642274-2006/05/10-WAYNEZEN,
     // Since InkCanvas will ignore the animated tranforms when it receives the property changes.
@@ -229,11 +229,11 @@ void EraserBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> styl
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void EraserBehavior::StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void EraserBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     _stylusPoints->Add(*stylusPoints);
 
-    _incrementalStrokeHitTester->AddPoints(*stylusPoints);
+    _incrementalStrokeHitTester->AddPoints(stylusPoints);
 }
 
 /// <summary>
@@ -289,20 +289,19 @@ QCursor EraserBehavior::GetCurrentCursor()
 
             // NTRAID-WINDOWS#1430638-2006/01/04-WAYNEZEN,
             // The eraser QCursor should respect the InkCanvas' Transform properties as the pen tip.
-            QMatrix xf = GetElementTransformMatrix();
-            if ( !xf.isIdentity() )
+            Matrix xf = GetElementTransformMatrix();
+            if ( !xf.IsIdentity() )
             {
                 // Zero the offsets if the element's transform in invertable.
                 // Otherwise fallback the matrix to the identity.
-                if ( xf.isInvertible() )
+                if ( xf.HasInverse() )
                 {
-                    //xf.OffsetX = 0;
-                    //xf.OffsetY = 0;
-                    xf = QMatrix(xf.m11(), xf.m12(), xf.m21(), xf.m22(), 0, 0);
+                    xf.SetOffsetX(0);
+                    xf.SetOffsetY(0);
                 }
                 else
                 {
-                    xf = QMatrix();
+                    xf = Matrix();
                 }
             }
             //DpiScale dpi = GetInkCanvas().GetDpi();
@@ -376,7 +375,7 @@ void EraserBehavior::OnStrokeEraseResultChanged(StrokeHitEventArgs& e)
         if ( !args.Cancel() )
         {
             // Erase only if the event wasn't cancelled
-            GetInkCanvas().Strokes()->RemoveItem(e.HitStroke());
+            GetInkCanvas().Strokes()->Remove(e.HitStroke());
             GetInkCanvas().RaiseInkErased();
         }
 
@@ -422,16 +421,16 @@ void EraserBehavior::OnPointEraseResultChanged(StrokeHitEventArgs& e)
         if ( !args.Cancel() )
         {
             // Erase only if the event wasn't cancelled
-            QSharedPointer<StrokeCollection> eraseResult = e.GetPointEraseResults();
+            SharedPointer<StrokeCollection> eraseResult = e.GetPointEraseResults();
             Debug::Assert(eraseResult != nullptr, "eraseResult cannot be nullptr");
 
-            QSharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection());
-            strokesToReplace->AddItem(e.HitStroke());
+            SharedPointer<StrokeCollection> strokesToReplace(new StrokeCollection());
+            strokesToReplace->Add(e.HitStroke());
 
             try
             {
                 // replace or remove the stroke
-                if (eraseResult->size() > 0)
+                if (eraseResult->Count() > 0)
                 {
                     GetInkCanvas().Strokes()->Replace(strokesToReplace, eraseResult);
                 }

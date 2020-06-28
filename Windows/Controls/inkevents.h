@@ -4,10 +4,8 @@
 #include "Windows/routedeventargs.h"
 #include "Windows/Ink/events.h"
 #include "Windows/Ink/gesturerecognitionresult.h"
-
-#include <QSharedPointer>
-#include <QRectF>
-#include <QPointF>
+#include "Windows/rect.h"
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -26,12 +24,12 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    InkCanvasStrokeCollectedEventArgs(QSharedPointer<Stroke> stroke);
+    InkCanvasStrokeCollectedEventArgs(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<Stroke> GetStroke()
+    SharedPointer<Stroke> GetStroke()
     {
         return _stroke;
     }
@@ -49,7 +47,7 @@ public:
     //virtual void InvokeEventHandler(Delegate genericHandler, QObject* genericTarget);
 
 private:
-    QSharedPointer<Stroke> _stroke;
+    SharedPointer<Stroke> _stroke;
 };
 
 /// <summary>
@@ -66,12 +64,12 @@ public:
     /// <summary>
     /// InkCanvasStrokesReplacedEventArgs
     /// </summary>
-    InkCanvasStrokesReplacedEventArgs(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> previousStrokes);
+    InkCanvasStrokesReplacedEventArgs(SharedPointer<StrokeCollection> newStrokes, SharedPointer<StrokeCollection> previousStrokes);
 
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<StrokeCollection> NewStrokes()
+    SharedPointer<StrokeCollection> NewStrokes()
     {
         return _newStrokes;
     }
@@ -79,14 +77,14 @@ public:
     /// <summary>
     /// [TBS]
     /// </summary>
-    QSharedPointer<StrokeCollection> PreviousStrokes()
+    SharedPointer<StrokeCollection> PreviousStrokes()
     {
         return _previousStrokes;
     }
 
 private:
-    QSharedPointer<StrokeCollection> _newStrokes;
-    QSharedPointer<StrokeCollection> _previousStrokes;
+    SharedPointer<StrokeCollection> _newStrokes;
+    SharedPointer<StrokeCollection> _previousStrokes;
 
 };
 
@@ -104,8 +102,8 @@ private:
 class InkCanvasSelectionChangingEventArgs : public CancelEventArgs
 {
 private:
-    QSharedPointer<StrokeCollection>        _strokes;
-    QList<UIElement*>         _elements;
+    SharedPointer<StrokeCollection>        _strokes;
+    List<UIElement*>         _elements;
     bool                    _strokesChanged;
     bool                    _elementsChanged;
 
@@ -113,7 +111,7 @@ public:
     /// <summary>
     /// Constructor
     /// </summary>
-    InkCanvasSelectionChangingEventArgs(QSharedPointer<StrokeCollection> selectedStrokes, QList<UIElement*> selectedElements);
+    InkCanvasSelectionChangingEventArgs(SharedPointer<StrokeCollection> selectedStrokes, List<UIElement*> selectedElements);
 
     /// <summary>
     /// An flag which indicates the Strokes has changed.
@@ -135,13 +133,13 @@ public:
     /// Set the selected elements
     /// </summary>
     /// <param name="selectedElements">The new selected elements</param>
-    void SetSelectedElements(QList<UIElement*> selectedElements);
+    void SetSelectedElements(List<UIElement*> selectedElements);
 
     /// <summary>
     /// Get the selected elements
     /// </summary>
     /// <returns>The selected elements</returns>
-   QList<UIElement*> GetSelectedElements()
+   List<UIElement*> GetSelectedElements()
     {
         return _elements;
     }
@@ -150,13 +148,13 @@ public:
     /// Set the selected strokes
     /// </summary>
     /// <param name="selectedStrokes">The new selected strokes</param>
-    void SetSelectedStrokes(QSharedPointer<StrokeCollection> selectedStrokes);
+    void SetSelectedStrokes(SharedPointer<StrokeCollection> selectedStrokes);
 
     /// <summary>
     /// Get the selected strokes
     /// </summary>
     /// <returns>The selected strokes</returns>
-    QSharedPointer<StrokeCollection> GetSelectedStrokes();
+    SharedPointer<StrokeCollection> GetSelectedStrokes();
 };
 
 
@@ -170,19 +168,19 @@ public:
 /// </summary>
 class  InkCanvasSelectionEditingEventArgs : public CancelEventArgs
 {
-    QRectF _oldRectangle;
-    QRectF _newRectangle;
+    Rect _oldRectangle;
+    Rect _newRectangle;
 
 public:
     /// <summary>
     /// Constructor
     /// </summary>
-     InkCanvasSelectionEditingEventArgs(QRectF const & oldRectangle, QRectF const & newRectangle);
+     InkCanvasSelectionEditingEventArgs(Rect const & oldRectangle, Rect const & newRectangle);
 
     /// <summary>
     /// Read access to the OldRectangle, from before the edit.
     /// </summary>
-    QRectF& OldRectangle()
+    Rect& OldRectangle()
     {
         return _oldRectangle;
     }
@@ -190,11 +188,11 @@ public:
     /// <summary>
     /// Read access to the NewRectangle, resulting from this edit.
     /// </summary>
-    QRectF& NewRectangle()
+    Rect& NewRectangle()
     {
         return _newRectangle;
     }
-    void SetNewRectangle(QRectF& value)
+    void SetNewRectangle(Rect& value)
     {
         _newRectangle = value;
     }
@@ -210,18 +208,18 @@ public:
 /// </summary>
 class InkCanvasStrokeErasingEventArgs : public CancelEventArgs
 {
-    QSharedPointer<Stroke> _stroke;
+    SharedPointer<Stroke> _stroke;
 
 public:
     /// <summary>
     /// Constructor
     /// </summary>
-    InkCanvasStrokeErasingEventArgs(QSharedPointer<Stroke> stroke);
+    InkCanvasStrokeErasingEventArgs(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Read access to the stroke about to be deleted
     /// </summary>
-    QSharedPointer<Stroke> GetStroke()
+    SharedPointer<Stroke> GetStroke()
     {
         return _stroke;
     }
@@ -240,8 +238,8 @@ public:
 
 class InkCanvasGestureEventArgs : public RoutedEventArgs
 {
-    QSharedPointer<StrokeCollection> _strokes;
-    QList<GestureRecognitionResult> _gestureRecognitionResults;
+    SharedPointer<StrokeCollection> _strokes;
+    List<GestureRecognitionResult> _gestureRecognitionResults;
     bool                _cancel;
 
 public:
@@ -250,12 +248,12 @@ public:
     /// </summary>
     /// <param name="strokes">strokes</param>
     /// <param name="gestureRecognitionResults">gestureRecognitionResults</param>
-    InkCanvasGestureEventArgs(QSharedPointer<StrokeCollection> strokes, QList<GestureRecognitionResult> gestureRecognitionResults);
+    InkCanvasGestureEventArgs(SharedPointer<StrokeCollection> strokes, List<GestureRecognitionResult> gestureRecognitionResults);
 
     /// <summary>
     /// TBD
     /// </summary>
-    QSharedPointer<StrokeCollection> Strokes()
+    SharedPointer<StrokeCollection> Strokes()
     {
         return _strokes;
     }
@@ -264,7 +262,7 @@ public:
     /// TBD
     /// </summary>
     /// <returns></returns>
-    QList<GestureRecognitionResult> GetGestureRecognitionResults()
+    List<GestureRecognitionResult> GetGestureRecognitionResults()
     {
         return _gestureRecognitionResults;
     }

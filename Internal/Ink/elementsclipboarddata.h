@@ -2,8 +2,7 @@
 #define ELEMENTSCLIPBOARDDATA_H
 
 #include "Activities/Presentation/clipboarddata.h"
-
-#include <QList>
+#include "Collections/Generic/list.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -25,7 +24,7 @@ public:
     ElementsClipboardData() { }
 
     // The constructor which takes a FrameworkElement array.
-    ElementsClipboardData(QList<UIElement*> elements)
+    ElementsClipboardData(List<UIElement*> elements)
     {
         //if ( elements != null )
         //{
@@ -44,7 +43,7 @@ public:
     //#region Properties
 
     // Gets the element array.
-    QList<UIElement*>& Elements()
+    List<UIElement*>& Elements()
     {
         //if ( ElementList() != null )
         {
@@ -68,7 +67,7 @@ public:
 
     // Sets/Gets the array list
 protected:
-    QList<UIElement*>& ElementList()
+    List<UIElement*>& ElementList()
     {
         return _elementList;
     }
@@ -84,7 +83,7 @@ protected:
     //#region Private Fields
 
 private:
-    QList<UIElement*> _elementList;
+    List<UIElement*> _elementList;
 
     //#endregion Private Fields
 

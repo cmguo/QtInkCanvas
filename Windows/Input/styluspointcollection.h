@@ -8,7 +8,7 @@
 #include "Windows/Media/matrix.h"
 #include "sharedptr.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QObject>
 #endif
 
@@ -20,7 +20,7 @@ class CancelEventArgs;
 
 // namespace System.Windows.Input
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 class INKCANVAS_EXPORT StylusPointCollection : public QObject, public Collection<StylusPoint>
 {
     Q_OBJECT

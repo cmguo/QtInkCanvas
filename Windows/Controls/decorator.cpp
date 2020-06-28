@@ -37,7 +37,7 @@ UIElement* Adorner::AdornedElement()
     return adornedElement_;
 }
 
-QTransform Adorner::GetDesiredTransform(const QTransform &transform)
+GeneralTransform Adorner::GetDesiredTransform(const GeneralTransform &transform)
 {
     return transform;
 }

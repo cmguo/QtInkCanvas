@@ -2,9 +2,9 @@
 #define INPUTDEVICE_H
 
 #include "InkCanvas_global.h"
+#include "Collections/Generic/array.h"
+#include "sharedptr.h"
 
-#include <QPointF>
-#include <QSharedPointer>
 #include <QObject>
 
 class QInputEvent;
@@ -47,9 +47,9 @@ public:
 
     virtual int Id() = 0;
 
-    virtual QSharedPointer<StylusPointDescription> PointDescription() = 0;
+    virtual SharedPointer<StylusPointDescription> PointDescription() = 0;
 
-    virtual QVector<int> PacketData(QEvent& event) = 0;
+    virtual Array<int> PacketData(QEvent& event) = 0;
 };
 
 INKCANVAS_END_NAMESPACE

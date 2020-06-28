@@ -30,7 +30,6 @@ public:
 
 
 #ifdef INKCANVAS_QT
-#include <Matrix>
 #include <QBrush>
 #include <QDebug>
 #include <QThread>
@@ -154,7 +153,7 @@ Stroke::Stroke(Stroke const & o)
 /// <summary>Transforms the ink and also changes the StylusTip</summary>
 /// <param name="transformMatrix">Matrix to transform the stroke by</param>
 /// <param name="applyToStylusTip">Boolean if true the transform matrix will be applied to StylusTip</param>
-void Stroke::Transform(Matrix & transformMatrix, bool applyToStylusTip)
+void Stroke::Transform(Matrix const & transformMatrix, bool applyToStylusTip)
 {
     if (transformMatrix.IsIdentity())
     {
@@ -201,9 +200,10 @@ void Stroke::Transform(Matrix & transformMatrix, bool applyToStylusTip)
             {
                 Matrix newMatrix = _drawingAttributes->StylusTipTransform();
                 // Don't allow a Translation in the matrix
-                transformMatrix.SetOffsetX(0);
-                transformMatrix.SetOffsetY(0);
-                newMatrix *= transformMatrix;
+                Matrix m = transformMatrix;
+                m.SetOffsetX(0);
+                m.SetOffsetY(0);
+                newMatrix *= m;
                 //only persist the StylusTipTransform if there is an inverse.
                 //there are cases where two invertible xf's result in a non-invertible one
                 //we decided not to throw here because it is so unobvious

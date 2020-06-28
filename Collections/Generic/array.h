@@ -55,6 +55,7 @@ class Array : private QVector<T>
 {
 public:
     Array() {}
+    Array(int n) { resize(n); }
     Array(QVector<T> const & array) : QVector<T>(array) {}
     Array(QVector<T> && array) : QVector<T>(std::move(array)) {}
     Array(Array const & array) : QVector<T>(array) {}
@@ -65,9 +66,9 @@ public:
     Array & operator=(Array && array) { QVector<T>::operator=(std::move(array)); return *this; }
 
     int Length() const { return size(); }
-    void Add(T const & t) { push_back(t); }
-    void Insert(int index, T const & t) { insert(begin() + index, t); }
-    void Clear() { clear(); }
+    //void Add(T const & t) { push_back(t); }
+    //void Insert(int index, T const & t) { insert(begin() + index, t); }
+    //void Clear() { clear(); }
 
     T & operator[](int index) { return QVector<T>::operator[](static_cast<size_t>(index)); }
     T const & operator[](int index) const { return QVector<T>::operator[](static_cast<size_t>(index)); }

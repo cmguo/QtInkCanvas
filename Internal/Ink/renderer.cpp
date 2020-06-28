@@ -21,7 +21,7 @@ public:
     /// </summary>
     /// <param name="stroke">a stroke to render into this visual</param>
     /// <param name="renderer">a renderer associated to this visual</param>
-    StrokeVisual(QSharedPointer<Stroke> stroke, Renderer& renderer)
+    StrokeVisual(SharedPointer<Stroke> stroke, Renderer& renderer)
         : _renderer(renderer)
     {
         //Debug::Assert(renderer != nullptr);
@@ -49,7 +49,7 @@ public:
     /// <summary>
     /// The Stroke rendedered into this visual.
     /// </summary>
-    QSharedPointer<Stroke> GetStroke()
+    SharedPointer<Stroke> GetStroke()
     {
         return _stroke;
     }
@@ -72,7 +72,7 @@ public:
                 return;
             }
 
-            QSharedPointer<DrawingAttributes> da;
+            SharedPointer<DrawingAttributes> da;
             if (highContrast)
             {
                 da = _stroke->GetDrawingAttributes()->Clone();
@@ -133,7 +133,7 @@ public:
 
 
 private:
-    QSharedPointer<Stroke>                      _stroke;
+    SharedPointer<Stroke>                      _stroke;
     bool                        _cachedIsHighlighter;
     QColor                       _cachedColor;
     Renderer&                    _renderer;
@@ -196,7 +196,7 @@ Visual* Renderer::RootVisual() { return _rootVisual; }
 /// The Renderer will then listen to changes to the StrokeCollection
 /// and update its state to reflect the changes.
 /// </summary>
-QSharedPointer<StrokeCollection> Renderer::Strokes()
+SharedPointer<StrokeCollection> Renderer::Strokes()
 {
     // We should never return a nullptr value.
     if ( _strokes == nullptr )
@@ -211,7 +211,7 @@ QSharedPointer<StrokeCollection> Renderer::Strokes()
 
     return _strokes;
 }
-void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
+void Renderer::SetStrokes(SharedPointer<StrokeCollection> value)
 {
     if (value == nullptr)
     {
@@ -244,7 +244,7 @@ void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
     _strokes = value;
 
     // Create visuals
-    for (QSharedPointer<Stroke> stroke : *_strokes)
+    for (SharedPointer<Stroke> stroke : *_strokes)
     {
         // Create a visual per stroke
         StrokeVisual* visual = new StrokeVisual(stroke, *this);
@@ -270,7 +270,7 @@ void Renderer::SetStrokes(QSharedPointer<StrokeCollection> value)
 /// </summary>
 /// <param name="visual">visual to attach</param>
 /// <param name="drawingAttributes">drawing attributes that used in the incremental rendering</param>
-void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+void Renderer::AttachIncrementalRendering(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes)
 {
     // Check the input parameters
     if (visual == nullptr)
@@ -300,7 +300,7 @@ void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Drawing
     //else
     {
         // Create the list to register attached visuals in
-    //    _attachedVisuals = new QList<Visual*>();
+    //    _attachedVisuals = new List<Visual*>();
     }
 
 
@@ -314,7 +314,7 @@ void Renderer::AttachIncrementalRendering(Visual* visual, QSharedPointer<Drawing
         parent->Children().Add(visual);
 
         // Put the visual into the list of visuals attached via this method
-        _attachedVisuals.append(visual);
+        _attachedVisuals.Add(visual);
     }
 }
 
@@ -330,7 +330,7 @@ void Renderer::DetachIncrementalRendering(Visual* visual)
     }
 
     // Remove the visual in the list of attached via AttachIncrementalRendering
-    if ((_attachedVisuals.removeOne(visual) == false))
+    if ((_attachedVisuals.Remove(visual) == false))
     {
         throw std::runtime_error("SR.Get(SRID.VisualCannotBeDetached)");
     }
@@ -350,15 +350,15 @@ bool Renderer::ContainsAttachedIncrementalRenderingVisual(Visual* visual)
         return false;
     }
 
-    return _attachedVisuals.contains(visual);
+    return _attachedVisuals.Contains(visual);
 }
 
 /// <summary>
 /// helper used to determine if a visual is in the right spot in the visual tree
 /// </summary>
-bool Renderer::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+bool Renderer::AttachedVisualIsPositionedCorrectly(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes)
 {
-    if (visual == nullptr || drawingAttributes == nullptr || !_attachedVisuals.contains(visual))
+    if (visual == nullptr || drawingAttributes == nullptr || !_attachedVisuals.Contains(visual))
     {
         return false;
     }
@@ -417,11 +417,11 @@ void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
     ////System.Diagnostics.Debug::Assert(sender == _strokes);
 
     // Read the args
-    QSharedPointer<StrokeCollection> added = eventArgs.Added();
-    QSharedPointer<StrokeCollection> removed = eventArgs.Removed();
+    SharedPointer<StrokeCollection> added = eventArgs.Added();
+    SharedPointer<StrokeCollection> removed = eventArgs.Removed();
 
     // Add new strokes
-    for (QSharedPointer<Stroke> stroke : *added)
+    for (SharedPointer<Stroke> stroke : *added)
     {
         // Verify that it's not a dupe
         if (_visuals.contains(stroke))
@@ -441,7 +441,7 @@ void Renderer::OnStrokesChanged(StrokeCollectionChangedEventArgs& eventArgs)
     }
 
     // Deal with removed strokes first
-    for (QSharedPointer<Stroke> stroke : *removed)
+    for (SharedPointer<Stroke> stroke : *removed)
     {
         // Verify that the event is in sync with the view
         StrokeVisual* visual = nullptr;
@@ -471,7 +471,7 @@ void Renderer::OnStrokeInvalidated(EventArgs& eventArgs)
 
     // Find the visual associated with the changed stroke.
     StrokeVisual* visual;
-    QSharedPointer<Stroke> stroke = static_cast<Stroke*>(sender())->sharedFromThis();
+    SharedPointer<Stroke> stroke = static_cast<Stroke*>(sender())->sharedFromThis();
     if (_visuals.contains(stroke) == false)
     {
         throw std::runtime_error("SR.Get(SRID.UnknownStroke1)");
@@ -528,7 +528,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
 
         //insert StrokeVisuals under any non-StrokeVisuals used for dynamic inking
         int i = 0;
-        for (int j = parent->Children().size() - 1; j >= 0; j--)
+        for (int j = parent->Children().Count() - 1; j >= 0; j--)
         {
             //if (parent->Children()[j]->metaObject()->inherits(&StrokeVisual::staticMetaObject))
             {
@@ -550,7 +550,7 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
         int i = 0;
         if (buildingStrokeCollection)
         {
-            QSharedPointer<Stroke> visualStroke = visual->GetStroke();
+            SharedPointer<Stroke> visualStroke = visual->GetStroke();
             //we're building up a stroke collection, no need to start at IndexOf,
             i = qMin(_visuals.size(), _strokes->Count()); //not -1, we're about to decrement
             while (--i >= 0)
@@ -567,13 +567,13 @@ void Renderer::AttachVisual(StrokeVisual* visual, bool buildingStrokeCollection)
         }
         while (--i >= 0)
         {
-            QSharedPointer<Stroke> stroke = (*_strokes)[i];
+            SharedPointer<Stroke> stroke = (*_strokes)[i];
             if ((stroke->GetDrawingAttributes()->IsHighlighter() == false)
                 && (_visuals.contains(stroke) == true)
                 && ((precedingVisual = _visuals.value(stroke))->parentItem() != nullptr))
             {
                 VisualCollection & children = ContainerVisual::fromItem(precedingVisual->parentItem())->Children();
-                int index = children.indexOf(precedingVisual);
+                int index = children.IndexOf(precedingVisual);
                 children.Insert(index + 1, visual);
                 break;
             }
@@ -603,7 +603,7 @@ void Renderer::DetachVisual(Visual* visual)
         // If the parent is a childless highlighter, detach it too.
         HighlighterContainerVisual* hcVisual = qobject_cast<HighlighterContainerVisual*>(parent);
         if (hcVisual != nullptr &&
-            hcVisual->Children().size() == 0 &&
+            hcVisual->Children().Count() == 0 &&
             //_highlighters != nullptr &&
             _highlighters.values().contains(hcVisual))
         {
@@ -617,7 +617,7 @@ void Renderer::DetachVisual(Visual* visual)
 /// <summary>
 /// Attaches event handlers to stroke events
 /// </summary>
-void Renderer::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void Renderer::StartListeningOnStrokeEvents(SharedPointer<Stroke> stroke)
 {
     ////System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated += new EventHandler(OnStrokeInvalidated);
@@ -628,7 +628,7 @@ void Renderer::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
 /// <summary>
 /// Detaches event handlers from stroke
 /// </summary>
-void Renderer::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void Renderer::StopListeningOnStrokeEvents(SharedPointer<Stroke> stroke)
 {
     ////System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated -= new EventHandler(OnStrokeInvalidated);
@@ -651,7 +651,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// </summary>
 /// <param name="drawingAttributes">drawing attributes</param>
 /// <returns>visual</returns>
-ContainerVisual* Renderer::GetContainerVisual(QSharedPointer<DrawingAttributes> drawingAttributes)
+ContainerVisual* Renderer::GetContainerVisual(SharedPointer<DrawingAttributes> drawingAttributes)
 {
     ////System.Diagnostics.Debug::Assert(drawingAttributes != nullptr);
 

@@ -3,8 +3,7 @@
 
 #include "Windows/uielement.h"
 #include "Windows/Controls/decorator.h"
-
-#include <QSharedPointer>
+#include "sharedptr.h"
 
 #include <utility>
 
@@ -55,7 +54,7 @@ public:
     /// </summary>
     /// <param name="visual">The stroke visual which needs to be attached</param>
     /// <param name="drawingAttributes">The DrawingAttributes of the stroke</param>
-    void AttachVisuals(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    void AttachVisuals(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>
     /// DetachVisual method
@@ -81,8 +80,8 @@ public:
     /// <summary>
     /// Gets/Sets the Strokes property.
     /// </summary>
-    QSharedPointer<StrokeCollection> Strokes();
-    void SetStrokes(QSharedPointer<StrokeCollection> value);
+    SharedPointer<StrokeCollection> Strokes();
+    void SetStrokes(SharedPointer<StrokeCollection> value);
 
 private:
     static void OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e);
@@ -104,20 +103,20 @@ private:
     /// <param name="constraint">Constraint size.</param>
     /// <returns>Computed desired size.</returns>
 protected:
-    virtual QSizeF MeasureOverride(QSizeF constraint);
+    virtual Size MeasureOverride(Size constraint);
 
     /// <summary>
     /// Override of <seealso cref="FrameworkElement.ArrangeOverride" />.
     /// </summary>
     /// <param name="arrangeSize">Size that element should use to arrange itself and its children.</param>
     /// <returns>The InkPresenter's desired size.</returns>
-    virtual QSizeF ArrangeOverride(QSizeF arrangeSize);
+    virtual Size ArrangeOverride(Size arrangeSize);
 
     /// <summary>
     /// The overridden GetLayoutClip method
     /// </summary>
     /// <returns>Geometry to use as additional clip if ClipToBounds=true</returns>
-    virtual Geometry* GetLayoutClip(QSizeF layoutSlotSize);
+    virtual Geometry* GetLayoutClip(Size layoutSlotSize);
 
     /// <summary>
     /// Returns the child at the specified index.
@@ -156,7 +155,7 @@ public:
     /// <summary>
     /// Internal helper used to determine if a visual is in the right spot in the visual tree
     /// </summary>
-    bool AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    bool AttachedVisualIsPositionedCorrectly(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes);
 
     //#endregion Internal Methods
     //------------------------------------------------------
@@ -184,14 +183,14 @@ private:
     //#region Methods
 
 private:
-    void StrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes);
+    void StrokesChangedHandlers(SharedPointer<StrokeCollection> newStrokes, SharedPointer<StrokeCollection> oldStrokes);
 
     /// <summary>
     /// StrokeCollectionChanged event handler
     /// </summary>
     void OnStrokesChanged2(StrokeCollectionChangedEventArgs& eventArgs);
 
-    void SetStrokeChangedHandlers(QSharedPointer<StrokeCollection> addedStrokes, QSharedPointer<StrokeCollection> removedStrokes);
+    void SetStrokeChangedHandlers(SharedPointer<StrokeCollection> addedStrokes, SharedPointer<StrokeCollection> removedStrokes);
 
     void OnStrokeChanged(EventArgs& e);
 
@@ -203,12 +202,12 @@ private:
     /// <summary>
     /// Attaches event handlers to stroke events
     /// </summary>
-    void StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke);
+    void StartListeningOnStrokeEvents(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Detaches event handlers from stroke
     /// </summary>
-    void StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke);
+    void StopListeningOnStrokeEvents(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Ensure the renderer root to be connected. The method is called from
@@ -228,7 +227,7 @@ private:
 
     //#region Properties
 
-    QRectF StrokesBounds();
+    Rect StrokesBounds();
 
     //#endregion Properties
 
@@ -240,14 +239,14 @@ private:
 private:
     //#region Fields
     Renderer*    _renderer = nullptr;
-    std::pair<QRectF, bool>  _cachedBounds;
+    std::pair<Rect, bool>  _cachedBounds;
     bool            _hasAddedRoot = false;
     //
     // HighContrast support
     //
     InkPresenterHighContrastCallback*    _contrastCallback = nullptr;
 
-    QSizeF                                _constraintSize;
+    Size                                 _constraintSize;
 
     //#endregion Fields
 

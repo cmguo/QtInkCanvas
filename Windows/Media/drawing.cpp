@@ -27,7 +27,7 @@ DrawingGroup::~DrawingGroup()
 {
     for (Drawing * d : children_)
         delete d;
-    children_.clear();
+    children_.Clear();
 }
 
 DrawingGroupDrawingContext::DrawingGroupDrawingContext(DrawingGroup* drawingGroup)
@@ -35,7 +35,7 @@ DrawingGroupDrawingContext::DrawingGroupDrawingContext(DrawingGroup* drawingGrou
 {
 }
 
-void DrawingGroupDrawingContext::CloseCore(QList<Drawing*> rootDrawingGroupChildren)
+void DrawingGroupDrawingContext::CloseCore(List<Drawing*> rootDrawingGroupChildren)
 {
     drawingGroup_->Close(rootDrawingGroupChildren);
 }
@@ -45,20 +45,20 @@ DrawingContext* DrawingGroup::Open()
 {
     for (Drawing * d : children_)
         delete d;
-    children_.clear();
+    children_.Clear();
     return new DrawingGroupDrawingContext(this);
 }
 
-QList<Drawing*>& DrawingGroup::Children()
+List<Drawing*>& DrawingGroup::Children()
 {
     return children_;
 }
 
-QRectF DrawingGroup::Bounds()
+Rect DrawingGroup::Bounds()
 {
-    QRectF bounds;
+    Rect bounds;
     for (Drawing * d : children_)
-        bounds |= d->Bounds();
+        bounds.Union(d->Bounds());
     return bounds;
 }
 
@@ -68,7 +68,7 @@ void DrawingGroup::Draw(QPainter &painer)
         d->Draw(painer);
 }
 
-void DrawingGroup::Close(QList<Drawing*> rootDrawingGroupChildren)
+void DrawingGroup::Close(List<Drawing*> rootDrawingGroupChildren)
 {
     children_.swap(rootDrawingGroupChildren);
 }
@@ -99,7 +99,7 @@ void GeometryDrawing::SetGeometry(Geometry * g)
     geometry_ = g;
 }
 
-QRectF GeometryDrawing::Bounds()
+Rect GeometryDrawing::Bounds()
 {
     return geometry_->Bounds();
 }
@@ -126,12 +126,12 @@ void ImageDrawing::SetImageSource(QImage image)
     image_ = image;
 }
 
-void ImageDrawing::SetRect(QRectF r)
+void ImageDrawing::SetRect(Rect r)
 {
     rect_ = r;
 }
 
-QRectF ImageDrawing::Bounds()
+Rect ImageDrawing::Bounds()
 {
     return rect_;
 }
@@ -156,12 +156,12 @@ void SvgImageDrawing::SetImageSource(QSvgRenderer *renderer)
     renderer_ = renderer;
 }
 
-void SvgImageDrawing::SetRect(QRectF r)
+void SvgImageDrawing::SetRect(Rect r)
 {
     rect_ = r;
 }
 
-QRectF SvgImageDrawing::Bounds()
+Rect SvgImageDrawing::Bounds()
 {
     return rect_;
 }

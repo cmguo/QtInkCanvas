@@ -129,7 +129,7 @@ private:
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
-    InkCanvasSelectionHitResult HitTestOnSelectionAdorner(QPointF const & position);
+    InkCanvasSelectionHitResult HitTestOnSelectionAdorner(Point const & position);
 
     /// <summary>
     /// This method updates the cursor when the mouse is hovering ont the selection adorner.
@@ -138,7 +138,7 @@ private:
     ///  OnAdornerMouseEvent
     /// </summary>
     /// <param name="hitPoint">the handle is being hit</param>
-    void UpdateSelectionCursor(QPointF const & hitPoint);
+    void UpdateSelectionCursor(Point const & hitPoint);
 
 
     //#endregion Methods

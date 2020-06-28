@@ -3,8 +3,7 @@
 
 #include "editingbehavior.h"
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
-
-#include <QRectF>
+#include "Windows/rect.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -91,26 +90,26 @@ private:
     /// Get the new feedback rectangle based on the location
     /// </summary>
     /// <param name="newPoint"></param>
-    QRectF ChangeFeedbackRectangle(QPointF & newPoint);
+    Rect ChangeFeedbackRectangle(Point & newPoint);
 
     /// <summary>
     ///     Resize a given element based on the grab handle
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
-    QRectF CalculateRect(double x, double y);
+    Rect CalculateRect(double x, double y);
 
     // ExtendSelectionLeft
-    static QRectF ExtendSelectionLeft(QRectF const & rect, double extendBy);
+    static Rect ExtendSelectionLeft(Rect const & rect, double extendBy);
 
     // ExtendSelectionTop
-    static QRectF ExtendSelectionTop(QRectF const & rect, double extendBy);
+    static Rect ExtendSelectionTop(Rect const & rect, double extendBy);
 
     // ExtendSelectionRight
-    static QRectF ExtendSelectionRight(QRectF const & rect, double extendBy);
+    static Rect ExtendSelectionRight(Rect const & rect, double extendBy);
 
     // ExtendSelectionBottom
-    static QRectF ExtendSelectionBottom(QRectF const & rect, double extendBy);
+    static Rect ExtendSelectionBottom(Rect const & rect, double extendBy);
 
     /// <summary>
     /// Capture Mouse
@@ -136,9 +135,9 @@ private:
 
 private:
     static constexpr double MinimumHeightWidthSize = 16.0;
-    QPointF _previousLocation;
-    QRectF _previousRect;
-    QRectF _selectionRect;
+    Point _previousLocation;
+    Rect _previousRect;
+    Rect _selectionRect;
     InkCanvasSelectionHitResult _hitResult;
     bool _actionStarted = false;
 

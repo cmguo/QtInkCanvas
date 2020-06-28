@@ -2,11 +2,10 @@
 #define PENCURSORMANAGER_H
 
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
+#include "Windows/Media/matrix.h"
+#include "sharedptr.h"
 
 #include <QCursor>
-#include <QSharedPointer>
-#include <QMatrix>
-#include <QPointF>
 #include <QtSvg/QSvgRenderer>
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -41,7 +40,7 @@ public:
     ///                  Also the size of the cursor will be limited to the half size of the current primary screen.
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    static QCursor GetPenCursor(QSharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY);
+    static QCursor GetPenCursor(SharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY);
 
     /// <summary>
     /// Create a point eraser cursor from StylusShape
@@ -49,13 +48,13 @@ public:
     /// <param name="stylusShape">Eraser Shape</param>
     /// <param name="tranform">Transform</param>
     /// <returns></returns>
-    static QCursor GetPointEraserCursor(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
+    static QCursor GetPointEraserCursor(StylusShape& stylusShape, Matrix const & tranform, double dpiScaleX, double dpiScaleY);
 
     static QCursor GetPointEraserCursor1(double dpiScaleX, double dpiScaleY);
 
-    static QCursor GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY);
+    static QCursor GetPointEraserCursor2(StylusShape& stylusShape, Matrix const & tranform, double dpiScaleX, double dpiScaleY);
 
-    static Drawing* GetEraserImage(QRectF const & bound);
+    static Drawing* GetEraserImage(Rect const & bound);
 
     /// <summary>
     /// Create a stroke eraser cursor
@@ -98,7 +97,7 @@ private:
     ///     Critical: Critical as this code calls IconHelper.CreateIconCursor which is Critical
     /// </SecurityNote>
     //[SecurityCritical]
-    static QCursor CreateCursorFromDrawing(Drawing& drawing, QPointF hotspot);
+    static QCursor CreateCursorFromDrawing(Drawing& drawing, Point const & hotspot);
 
     /// <summary>
     /// Create a DrawingVisual from a Drawing
@@ -112,7 +111,7 @@ private:
     /// <summary>
     /// Custom Pen Drawing
     /// </summary>
-    static Drawing* CreatePenDrawing(QSharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY);
+    static Drawing* CreatePenDrawing(SharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY);
 
     /// <summary>
     /// Custom StrokeEraser Drawing

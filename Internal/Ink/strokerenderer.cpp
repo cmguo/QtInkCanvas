@@ -9,7 +9,7 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-Point StrokeRenderer::ArcToMarker(-DBL_MAX, -DBL_MAX);
+Point StrokeRenderer::ArcToMarker(Double::MinValue, Double::MinValue);
 
 /// <summary>
 /// Calculate the StreamGeometry for the StrokeNodes.
@@ -251,7 +251,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
             double maxExtent = Math::Max(drawingAttributes.Height(), drawingAttributes.Width());
             percentIntersect += Math::Min(4.99999, ((maxExtent / 20) * 5));
 
-            double prevAngle = -DBL_MAX;
+            double prevAngle = Double::MinValue;
             bool isStartOfSegment = true;
             bool isEllipse = drawingAttributes.GetStylusTip() == StylusTip::Ellipse;
             bool ignorePressure = drawingAttributes.IgnorePressure();
@@ -430,7 +430,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
                         strokeNode = emptyStrokeNode;
                         //strokeNodeBounds = empty;
 
-                        prevAngle = -DBL_MAX; //invalidate
+                        prevAngle = Double::MinValue; //invalidate
 
                         // go back to our main loop
                         continue;
@@ -512,7 +512,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 
 
 
-                if (prevAngle == -DBL_MAX)
+                if (prevAngle == Double::MinValue)
                 {
                     //prevAngle is no longer valid
                     prevAngle = GetAngleBetween(prevPrevStrokeNode.Position(), prevStrokeNode.Position());

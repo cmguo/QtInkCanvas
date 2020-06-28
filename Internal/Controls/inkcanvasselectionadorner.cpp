@@ -65,14 +65,14 @@ InkCanvasSelectionAdorner::InkCanvasSelectionAdorner(UIElement* adornedElement)
         dc->DrawRectangle(
             QBrush(Qt::transparent),
             QPen(Qt::NoPen),
-            QRectF(0.0, 0.0, 1, 1));
+            Rect(0.0, 0.0, 1, 1));
 
         QPen squareCapPen(Qt::black, LineThickness);
         squareCapPen.setCapStyle(Qt::SquareCap);
         //squareCapPen.EndLineCap = PenLineCap.Square;
 
         dc->DrawLine(squareCapPen,
-            QPointF(1, 0), QPointF(0, 1));
+            Point(1, 0), Point(0, 1));
     }
     //finally
     //{
@@ -85,7 +85,7 @@ InkCanvasSelectionAdorner::InkCanvasSelectionAdorner(UIElement* adornedElement)
 
     QBrush tileBrush;// = new DrawingBrush(hatchDG);
     //tileBrush.TileMode = TileMode.Tile;
-    //tileBrush.Viewport = QRectF(0, 0, HatchBorderMargin, HatchBorderMargin);
+    //tileBrush.Viewport = Rect(0, 0, HatchBorderMargin, HatchBorderMargin);
     //tileBrush.ViewportUnits = BrushMappingMode.Absolute;
     //tileBrush.Freeze();
 
@@ -101,22 +101,22 @@ InkCanvasSelectionAdorner::InkCanvasSelectionAdorner(UIElement* adornedElement)
 /// </summary>
 /// <param name="point"></param>
 /// <returns></returns>
-InkCanvasSelectionHitResult InkCanvasSelectionAdorner::SelectionHandleHitTest(QPointF const & point)
+InkCanvasSelectionHitResult InkCanvasSelectionAdorner::SelectionHandleHitTest(Point const & point)
 {
     InkCanvasSelectionHitResult result = InkCanvasSelectionHitResult::None;
-    QRectF rectWireFrame = GetWireFrameRect();
+    Rect rectWireFrame = GetWireFrameRect();
 
-    if ( !rectWireFrame.isEmpty() )
+    if ( !rectWireFrame.IsEmpty() )
     {
         // Hit test on the grab handles first
         for ( InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::TopLeft;
                 hitResult <= InkCanvasSelectionHitResult::Left; hitResult = (InkCanvasSelectionHitResult)((int)hitResult + 1) )
         {
-            QRectF toleranceRect;
-            QRectF visibleRect;
+            Rect toleranceRect;
+            Rect visibleRect;
             GetHandleRect(hitResult, rectWireFrame, visibleRect, toleranceRect);
 
-            if (toleranceRect.contains(point))
+            if (toleranceRect.Contains(point))
             {
                 result = hitResult;
                 break;
@@ -126,9 +126,8 @@ InkCanvasSelectionHitResult InkCanvasSelectionAdorner::SelectionHandleHitTest(QP
         // Now, check if we hit on the frame
         if ( result == InkCanvasSelectionHitResult::None )
         {
-            QRectF outterRect = rectWireFrame.adjusted(-CornerResizeHandleSize / 2, CornerResizeHandleSize / 2,
-                                                     -CornerResizeHandleSize / 2, CornerResizeHandleSize / 2);
-            if ( outterRect.contains(point) )
+            Rect outterRect = Rect::Inflate(rectWireFrame, -CornerResizeHandleSize / 2, CornerResizeHandleSize / 2);
+            if ( outterRect.Contains(point) )
             {
                 result = InkCanvasSelectionHitResult::Selection;
 
@@ -148,7 +147,7 @@ InkCanvasSelectionHitResult InkCanvasSelectionAdorner::SelectionHandleHitTest(QP
 /// </summary>
 /// <param name="strokesBounds"></param>
 /// <param name="hatchBounds"></param>
-void InkCanvasSelectionAdorner::UpdateSelectionWireFrame(QRectF const & strokesBounds, QList<QRectF> hatchBounds)
+void InkCanvasSelectionAdorner::UpdateSelectionWireFrame(Rect const & strokesBounds, List<Rect> hatchBounds)
 {
     bool isStrokeBoundsDifferent = false;
     bool isElementsBoundsDifferent = false;
@@ -161,8 +160,8 @@ void InkCanvasSelectionAdorner::UpdateSelectionWireFrame(QRectF const & strokesB
     }
 
     // Check if the elements' bounds are changed.
-    int count = hatchBounds.size();
-    if ( count != _elementsBounds.size() )
+    int count = hatchBounds.Count();
+    if ( count != _elementsBounds.Count() )
     {
         isElementsBoundsDifferent = true;
     }
@@ -201,8 +200,8 @@ void InkCanvasSelectionAdorner::OnRender(DrawingContext& drawingContext)
     DrawBackgound(drawingContext);
 
     // Draw the selection frame.
-    QRectF rectWireFrame = GetWireFrameRect();
-    if ( !rectWireFrame.isEmpty() )
+    Rect rectWireFrame = GetWireFrameRect();
+    if ( !rectWireFrame.IsEmpty() )
     {
         // Draw the wire frame.
         drawingContext.DrawRectangle(QBrush(),
@@ -220,14 +219,14 @@ void InkCanvasSelectionAdorner::OnRender(DrawingContext& drawingContext)
 /// </summary>
 /// <param name="drawingContext"></param>
 /// <param name="rectWireFrame"></param>
-void InkCanvasSelectionAdorner::DrawHandles(DrawingContext& drawingContext, QRectF const & rectWireFrame)
+void InkCanvasSelectionAdorner::DrawHandles(DrawingContext& drawingContext, Rect const & rectWireFrame)
 {
     for ( InkCanvasSelectionHitResult hitResult = InkCanvasSelectionHitResult::TopLeft;
             hitResult <= InkCanvasSelectionHitResult::Left; hitResult = (InkCanvasSelectionHitResult)((int)hitResult + 1))
     {
         // Draw the handle
-        QRectF toleranceRect;
-        QRectF visibleRect;
+        Rect toleranceRect;
+        Rect visibleRect;
         GetHandleRect(hitResult, rectWireFrame, visibleRect, toleranceRect);
 
         drawingContext.DrawRectangle(_adornerFillBrush, _adornerPenBrush, visibleRect);
@@ -243,49 +242,49 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
     PathGeometry* hatchGeometry = nullptr;
     Geometry* rectGeometry = nullptr;
 
-    int count = _elementsBounds.size();
+    int count = _elementsBounds.Count();
     if ( count != 0 )
     {
         // Create a union collection of the element regions.
         for ( int i = 0; i < count; i++ )
         {
-            QRectF hatchRect = _elementsBounds[i];
+            Rect hatchRect = _elementsBounds[i];
 
-            if ( hatchRect.isEmpty() )
+            if ( hatchRect.IsEmpty() )
             {
                 continue;
             }
 
-            hatchRect.adjust(-HatchBorderMargin / 2, -HatchBorderMargin / 2, HatchBorderMargin / 2, HatchBorderMargin / 2);
+            hatchRect.Inflate(HatchBorderMargin / 2, HatchBorderMargin / 2);
 
             if ( hatchGeometry == nullptr )
             {
                 //PathFigure path = new PathFigure();
-                //path.StartPoint = QPointF(hatchRect.left(), hatchRect.top());
+                //path.StartPoint = new Point(hatchRect.Left, hatchRect.Top);
 
-                QPainterPath path(QPointF(hatchRect.left(), hatchRect.top()));
+                QPainterPath path(hatchRect.TopLeft());
 
                 //PathSegmentCollection segments = new PathSegmentCollection();
 
                 //PathSegment line = new LineSegment(new Point(hatchRect.right(), hatchRect.top()), true);
                 //line.Freeze();
                 //segments.Add(line);
-                path.lineTo(QPointF(hatchRect.right(), hatchRect.top()));
+                path.lineTo(hatchRect.TopRight());
 
                 //line = new LineSegment(new Point(hatchRect.right(), hatchRect.bottom()), true);
                 //line.Freeze();
                 //segments.Add(line);
-                path.lineTo(QPointF(hatchRect.right(), hatchRect.bottom()));
+                path.lineTo(hatchRect.BottomRight());
 
                 //line = new LineSegment(new Point(hatchRect.left(), hatchRect.bottom()), true);
                 //line.Freeze();
                 //segments.Add(line);
-                path.lineTo(QPointF(hatchRect.left(), hatchRect.bottom()));
+                path.lineTo(hatchRect.BottomLeft());
 
                 //line = new LineSegment(new Point(hatchRect.left(), hatchRect.top()), true);
                 //line.Freeze();
                 //segments.Add(line);
-                path.lineTo(QPointF(hatchRect.left(), hatchRect.top()));
+                path.lineTo(hatchRect.TopLeft());
 
                 //segments.Freeze();
                 //path.Segments = segments;
@@ -309,12 +308,12 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
 
     // Then, create a region which equals to "SelectionFrame - element1 bounds - element2 bounds - ..."
     GeometryGroup* backgroundGeometry = new GeometryGroup( );
-    QList<Geometry*> geometryCollection;
+    List<Geometry*> geometryCollection;
 
     // Add the entile rectanlge to the group.
-    rectGeometry = new RectangleGeometry(QRectF(0, 0, RenderSize().width(), RenderSize().height()));
+    rectGeometry = new RectangleGeometry(Rect(0, 0, RenderSize().Width(), RenderSize().Height()));
     //rectGeometry.Freeze();
-    geometryCollection.append(rectGeometry);
+    geometryCollection.Add(rectGeometry);
 
     // Add the union of the element rectangles. Then the group will do oddeven operation.
     Geometry* outlineGeometry = nullptr;
@@ -325,9 +324,9 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
 
         outlineGeometry = hatchGeometry->GetOutlinedPathGeometry();
         //outlineGeometry.Freeze();
-        if ( count == 1 && qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectedStrokes()->size() == 0 )
+        if ( count == 1 && qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectedStrokes()->Count() == 0 )
         {
-            geometryCollection.append(outlineGeometry);
+            geometryCollection.Add(outlineGeometry);
         }
     }
 
@@ -354,7 +353,7 @@ void InkCanvasSelectionAdorner::DrawBackgound(DrawingContext& drawingContext)
 /// <summary>
 /// Returns the handle rect (both visibile and the tolerance one)
 /// </summary>
-void InkCanvasSelectionAdorner::GetHandleRect(InkCanvasSelectionHitResult hitResult, QRectF const & rectWireFrame, QRectF& visibleRect, QRectF& toleranceRect)
+void InkCanvasSelectionAdorner::GetHandleRect(InkCanvasSelectionHitResult hitResult, Rect const & rectWireFrame, Rect& visibleRect, Rect& toleranceRect)
 {
     QPointF center;
     double size = 0;
@@ -365,74 +364,74 @@ void InkCanvasSelectionAdorner::GetHandleRect(InkCanvasSelectionHitResult hitRes
         case InkCanvasSelectionHitResult::TopLeft:
             {
                 size = CornerResizeHandleSize;
-                center = QPointF(rectWireFrame.left(), rectWireFrame.top());
+                center = rectWireFrame.TopLeft();
                 break;
             }
         case InkCanvasSelectionHitResult::Top:
             {
                 size = MiddleResizeHandleSize;
-                center = QPointF(rectWireFrame.left() + rectWireFrame.width() / 2, rectWireFrame.top());
+                center = QPointF(rectWireFrame.Left() + rectWireFrame.Width() / 2, rectWireFrame.Top());
                 tolerance = (CornerResizeHandleSize - MiddleResizeHandleSize) + ResizeHandleTolerance;
                 break;
             }
         case InkCanvasSelectionHitResult::TopRight:
             {
                 size = CornerResizeHandleSize;
-                center = QPointF(rectWireFrame.right(), rectWireFrame.top());
+                center = QPointF(rectWireFrame.Right(), rectWireFrame.Top());
                 break;
             }
         case InkCanvasSelectionHitResult::Left:
             {
                 size = MiddleResizeHandleSize;
-                center = QPointF(rectWireFrame.left(), rectWireFrame.top() + rectWireFrame.height() / 2);
+                center = QPointF(rectWireFrame.Left(), rectWireFrame.Top() + rectWireFrame.Height() / 2);
                 tolerance = (CornerResizeHandleSize - MiddleResizeHandleSize) + ResizeHandleTolerance;
                 break;
             }
         case InkCanvasSelectionHitResult::Right:
             {
                 size = MiddleResizeHandleSize;
-                center = QPointF(rectWireFrame.right(), rectWireFrame.top() + rectWireFrame.height() / 2);
+                center = QPointF(rectWireFrame.Right(), rectWireFrame.Top() + rectWireFrame.Height() / 2);
                 tolerance = (CornerResizeHandleSize - MiddleResizeHandleSize) + ResizeHandleTolerance;
                 break;
             }
         case InkCanvasSelectionHitResult::BottomLeft:
             {
                 size = CornerResizeHandleSize;
-                center = QPointF(rectWireFrame.left(), rectWireFrame.bottom());
+                center = QPointF(rectWireFrame.Left(), rectWireFrame.Bottom());
                 break;
             }
         case InkCanvasSelectionHitResult::Bottom:
             {
                 size = MiddleResizeHandleSize;
-                center = QPointF(rectWireFrame.left() + rectWireFrame.width() / 2, rectWireFrame.bottom());
+                center = QPointF(rectWireFrame.Left() + rectWireFrame.Width() / 2, rectWireFrame.Bottom());
                 tolerance = (CornerResizeHandleSize - MiddleResizeHandleSize) + ResizeHandleTolerance;
                 break;
             }
         case InkCanvasSelectionHitResult::BottomRight:
             {
                 size = CornerResizeHandleSize;
-                center = QPointF(rectWireFrame.right(), rectWireFrame.bottom());
+                center = QPointF(rectWireFrame.Right(), rectWireFrame.Bottom());
                 break;
             }
     }
 
-    visibleRect = QRectF(center.x() - size / 2, center.y() - size / 2, size, size);
+    visibleRect = Rect(center.x() - size / 2, center.y() - size / 2, size, size);
     toleranceRect = visibleRect;
-    toleranceRect.adjust(-tolerance, -tolerance, tolerance, tolerance);
+    toleranceRect.Inflate(tolerance, tolerance);
 }
 
 /// <summary>
 /// Returns the wire frame bounds which crosses the center of the selection handles
 /// </summary>
 /// <returns></returns>
-QRectF InkCanvasSelectionAdorner::GetWireFrameRect()
+Rect InkCanvasSelectionAdorner::GetWireFrameRect()
 {
-    QRectF frameRect;
-    QRectF selectionRect = qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectionBounds();
+    Rect frameRect = Rect::Empty();
+    Rect selectionRect = qobject_cast<InkCanvasInnerCanvas*>(AdornedElement())->GetInkCanvas().GetSelectionBounds();
 
-    if ( !selectionRect.isEmpty() )
+    if ( !selectionRect.IsEmpty() )
     {
-        frameRect = selectionRect.adjusted(-BorderMargin, -BorderMargin, BorderMargin, BorderMargin);
+        frameRect = Rect::Inflate(selectionRect, BorderMargin, BorderMargin);
     }
 
     return frameRect;

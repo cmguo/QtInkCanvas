@@ -74,8 +74,8 @@ Array<StrokeFIndices> StrokeIntersection::GetHitSegments(Array<StrokeIntersectio
 }
 
 
-Array<StrokeIntersection> StrokeIntersection::GetMaskedHitSegments(Array<StrokeIntersection> &intersections,
-                                                                      Array<StrokeIntersection> &mask)
+List<StrokeIntersection> StrokeIntersection::GetMaskedHitSegments(List<StrokeIntersection> &intersections,
+                                                                      Array<StrokeIntersection> const & mask)
 {
     List<StrokeIntersection> result;
     int j = 0;
@@ -103,7 +103,7 @@ Array<StrokeIntersection> StrokeIntersection::GetMaskedHitSegments(Array<StrokeI
             result.back().SetHitBegin(mask[j].HitSegment().EndFIndex());
         }
     }
-    return result.ToArray();
+    return result;
 }
 
 INKCANVAS_END_NAMESPACE

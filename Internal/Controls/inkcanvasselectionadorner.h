@@ -3,11 +3,11 @@
 
 #include "Windows/Controls/inkcanvasselectionhitresult.h"
 #include "Windows/Controls/decorator.h"
+#include <Collections/Generic/list.h>
+#include <Windows/rect.h>
 
 #include <QPen>
 #include <QBrush>
-#include <QRectF>
-#include <QList>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -33,7 +33,7 @@ public:
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    InkCanvasSelectionHitResult SelectionHandleHitTest(QPointF const & point);
+    InkCanvasSelectionHitResult SelectionHandleHitTest(Point const & point);
 
     /// <summary>
     /// Update the selection wire frame.
@@ -42,7 +42,7 @@ public:
     /// </summary>
     /// <param name="strokesBounds"></param>
     /// <param name="hatchBounds"></param>
-    void UpdateSelectionWireFrame(QRectF const & strokesBounds, QList<QRectF> hatchBounds);
+    void UpdateSelectionWireFrame(Rect const & strokesBounds, List<Rect> hatchBounds);
 
 protected:
     /// <summary>
@@ -57,7 +57,7 @@ private:
     /// </summary>
     /// <param name="drawingContext"></param>
     /// <param name="rectWireFrame"></param>
-    void DrawHandles(DrawingContext& drawingContext, QRectF const & rectWireFrame);
+    void DrawHandles(DrawingContext& drawingContext, Rect const & rectWireFrame);
 
     /// <summary>
     /// Draw the hatches and the transparent area where isn't covering the elements.
@@ -68,21 +68,21 @@ private:
     /// <summary>
     /// Returns the handle rect (both visibile and the tolerance one)
     /// </summary>
-    void GetHandleRect(InkCanvasSelectionHitResult hitResult, QRectF const & rectWireFrame, QRectF& visibleRect, QRectF& toleranceRect);
+    void GetHandleRect(InkCanvasSelectionHitResult hitResult, Rect const & rectWireFrame, Rect& visibleRect, Rect& toleranceRect);
 
     /// <summary>
     /// Returns the wire frame bounds which crosses the center of the selection handles
     /// </summary>
     /// <returns></returns>
-    QRectF GetWireFrameRect();
+    Rect GetWireFrameRect();
 
 private:
     QPen             _adornerBorderPen;
     QPen             _adornerPenBrush;
     QBrush           _adornerFillBrush;
     QPen             _hatchPen;
-    QRectF           _strokesBounds;
-    QList<QRectF>      _elementsBounds;
+    Rect             _strokesBounds;
+    List<Rect>       _elementsBounds;
 
     // The buffer around the outside of this element
     static constexpr double    HatchBorderMargin = 6;

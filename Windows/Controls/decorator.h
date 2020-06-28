@@ -29,7 +29,7 @@ public:
 
     UIElement* AdornedElement();
 
-    virtual QTransform GetDesiredTransform(QTransform const& transform);
+    virtual GeneralTransform GetDesiredTransform(GeneralTransform const& transform);
 
     virtual void OnRender(DrawingContext& drawingContext) = 0;
 

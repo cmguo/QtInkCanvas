@@ -1,11 +1,14 @@
 #ifndef INKCANVAS_GLOBAL_H
 #define INKCANVAS_GLOBAL_H
 
-#ifndef INKCANVAS_CORE
-#include <QtCore/qglobal.h>
-#else
+#ifdef INKCANVAS_CORE
 #define Q_DECL_EXPORT
 #define Q_DECL_IMPORT
+#define INKCANVAS_NAMESPACE InkCanvasCore
+#else
+#include <QtCore/qglobal.h>
+#define INKCANVAS_NAMESPACE InkCanvasQt
+#define INKCANVAS_QT 1
 #endif
 
 #if defined(INKCANVAS_LIBRARY)
@@ -13,8 +16,6 @@
 #else
 #  define INKCANVAS_EXPORT Q_DECL_IMPORT
 #endif
-
-#define INKCANVAS_NAMESPACE QtInkCanvas
 
 #ifdef INKCANVAS_NAMESPACE
 # define INKCANVAS_BEGIN_NAMESPACE namespace INKCANVAS_NAMESPACE {

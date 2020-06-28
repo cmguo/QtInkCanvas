@@ -130,6 +130,16 @@ INKCANVAS_BEGIN_NAMESPACE
 
 typedef QVariant Variant;
 
+inline bool operator==(Variant const & l, nullptr_t)
+{
+    return l.isNull();
+}
+
+inline bool operator!=(Variant const & l, nullptr_t)
+{
+    return !l.isNull();
+}
+
 INKCANVAS_END_NAMESPACE
 
 #endif

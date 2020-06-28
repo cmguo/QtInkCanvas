@@ -34,13 +34,13 @@ QSvgRenderer PenCursorManager::EraserImage;
 ///                  Also the size of the cursor will be limited to the half size of the current primary screen.
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
-QCursor PenCursorManager::GetPenCursor(QSharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY)
+QCursor PenCursorManager::GetPenCursor(SharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY)
 {
     // Create pen Drawing.
     std::unique_ptr<Drawing> penDrawing(CreatePenDrawing(drawingAttributes, isHollow, isRightToLeft, dpiScaleX, dpiScaleY));
 
     // Create Cursor from Drawing
-    return CreateCursorFromDrawing(*penDrawing, QPointF(0, 0));
+    return CreateCursorFromDrawing(*penDrawing, Point(0, 0));
 }
 
 /// <summary>
@@ -49,11 +49,11 @@ QCursor PenCursorManager::GetPenCursor(QSharedPointer<DrawingAttributes> drawing
 /// <param name="stylusShape">Eraser Shape</param>
 /// <param name="tranform">Transform</param>
 /// <returns></returns>
-QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY)
+QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, Matrix const & tranform, double dpiScaleX, double dpiScaleY)
 {
     // Create a DA with IsHollow being set. A point eraser will be rendered to a hollow stroke.
-    QSharedPointer<DrawingAttributes> da(new DrawingAttributes);
-    if (stylusShape.metaObject()->inherits(&RectangleStylusShape::staticMetaObject))
+    SharedPointer<DrawingAttributes> da(new DrawingAttributes);
+    if (stylusShape.IsPolygon())
     {
         da->SetStylusTip(StylusTip::Rectangle);
     }
@@ -66,7 +66,7 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
     da->SetWidth(stylusShape.Width());
     da->SetColor(Qt::black);
 
-    if ( !tranform.isIdentity() )
+    if ( !tranform.IsIdentity() )
     {
         // Apply the LayoutTransform and/or RenderTransform
         da->SetStylusTipTransform(da->StylusTipTransform() * tranform);
@@ -75,8 +75,8 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, QMatrix
     if ( !DoubleUtil::IsZero(stylusShape.Rotation()) )
     {
         // Apply the tip rotation
-        QMatrix rotationMatrix;
-        rotationMatrix.rotate(stylusShape.Rotation());
+        Matrix rotationMatrix;
+        rotationMatrix.Rotate(stylusShape.Rotation());
         da->SetStylusTipTransform(da->StylusTipTransform() * rotationMatrix);
     }
 
@@ -91,17 +91,20 @@ QCursor PenCursorManager::GetPointEraserCursor1(double dpiScaleX, double dpiScal
     return eraserCursor;
 }
 
-QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, QMatrix tranform, double dpiScaleX, double dpiScaleY)
+QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, Matrix const &tranform, double dpiScaleX, double dpiScaleY)
 {
-    Debug::Assert(DoubleUtil::IsZero(tranform.dx()) && DoubleUtil::IsZero(tranform.dy()), "The EraserShape cannot be translated.");
-    Debug::Assert(tranform.isInvertible(), "The transform has to be invertable.");
+    Debug::Assert(DoubleUtil::IsZero(tranform.OffsetX()) && DoubleUtil::IsZero(tranform.OffsetY()), "The EraserShape cannot be translated.");
+    Debug::Assert(tranform.HasInverse(), "The transform has to be invertable.");
 
-    QRectF rect = QPolygonF(stylusShape.GetVerticesAsVectors().toQVector()).boundingRect();
-    std::unique_ptr<Drawing> eraserDrawing(GetEraserImage(tranform.mapRect(rect)));
-    return CreateCursorFromDrawing(*eraserDrawing, QPointF(0, 0));
+    QPolygonF polygon;
+    for (Vector const & p : stylusShape.GetVerticesAsVectors())
+        polygon.append((Point)p);
+    Rect rect = polygon.boundingRect();
+    std::unique_ptr<Drawing> eraserDrawing(GetEraserImage(tranform.Transform(rect)));
+    return CreateCursorFromDrawing(*eraserDrawing, Point(0, 0));
 }
 
-Drawing* PenCursorManager::GetEraserImage(QRectF const & bound)
+Drawing* PenCursorManager::GetEraserImage(Rect const & bound)
 {
     if (!EraserImage.isValid())
         EraserImage.load(QString(":/inkcanvas/eraser.svg"));
@@ -128,7 +131,7 @@ QCursor PenCursorManager::GetStrokeEraserCursor()
     {
         // Get Drawing
         std::unique_ptr<Drawing> drawing(CreateStrokeEraserDrawing());
-        s_StrokeEraserCursor = CreateCursorFromDrawing(*drawing, QPointF(5, 5));
+        s_StrokeEraserCursor = CreateCursorFromDrawing(*drawing, Point(5, 5));
     }
 
     // Return cursor.
@@ -224,19 +227,19 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
 ///     Critical: Critical as this code calls IconHelper.CreateIconCursor which is Critical
 /// </SecurityNote>
 //[SecurityCritical]
-QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, QPointF hotspot)
+QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const & hotspot)
 {
     // A default cursor.
     QCursor cursor = Qt::ArrowCursor;
 
-    QRectF drawingBounds = drawing.Bounds();
+    Rect drawingBounds = drawing.Bounds();
 
     //double originalWidth = drawingBounds.width();
     //double originalHeight = drawingBounds.height();
 
     // Cursors like to be multiples of 8 in dimension.
-    int width = AlignToBytes(drawingBounds.width(), 1);
-    int height = AlignToBytes(drawingBounds.height(), 1);
+    int width = AlignToBytes(drawingBounds.Width(), 1);
+    int height = AlignToBytes(drawingBounds.Height(), 1);
 
     // Now inflate the drawing bounds to the new dimension.
     //drawingBounds.adjust(-(width - originalWidth) / 2, -(height - originalHeight) / 2, (width - originalWidth) / 2, (height - originalHeight) / 2);
@@ -277,9 +280,9 @@ QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, QPointF hots
 class DrawingBrush : public Drawing
 {
 public:
-    DrawingBrush(Drawing* d, QRectF const & r) : d_(d), r_(r) {}
+    DrawingBrush(Drawing* d, Rect const & r) : d_(d), r_(r) {}
 
-    virtual QRectF Bounds()
+    virtual Rect Bounds()
     {
         QRectF b = d_->Bounds();
         b.moveTopLeft({0, 0});
@@ -288,9 +291,9 @@ public:
 
     virtual void Draw(QPainter& painer)
     {
-        QRectF b = d_->Bounds();
+        Rect b = d_->Bounds();
         painer.translate(r_.center());
-        painer.scale(r_.width() / b.width(), r_.height() / b.height());
+        painer.scale(r_.width() / b.Width(), r_.height() / b.Height());
         d_->Draw(painer);
     }
 
@@ -314,7 +317,7 @@ DrawingVisual* PenCursorManager::CreateCursorDrawingVisual(Drawing& drawing, int
     //db.AlignmentX = AlignmentX.Center;
     //db.AlignmentY = AlignmentY.Center;
 
-    //QRectF bound(drawing.Bounds());
+    //Rect bound(drawing.Bounds());
     //QPixmap rtb(bound.size().toSize());
     //QPainter painter(&rtb);
     //painter.translate(-bound.topLeft());
@@ -333,8 +336,8 @@ DrawingVisual* PenCursorManager::CreateCursorDrawingVisual(Drawing& drawing, int
             }
         });
         dc.reset(drawingVisual->RenderOpen());
-        //dc->DrawRectangle(db, Qt::NoPen, QRectF(0, 0, width, height));
-        dc->DrawDrawing(new DrawingBrush(&drawing, QRectF(0, 0, width, height)));
+        //dc->DrawRectangle(db, Qt::NoPen, Rect(0, 0, width, height));
+        dc->DrawDrawing(new DrawingBrush(&drawing, Rect(0, 0, width, height)));
     }
     //finally
     //{
@@ -350,14 +353,14 @@ DrawingVisual* PenCursorManager::CreateCursorDrawingVisual(Drawing& drawing, int
 /// <summary>
 /// Custom Pen Drawing
 /// </summary>
-Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY)
+Drawing* PenCursorManager::CreatePenDrawing(SharedPointer<DrawingAttributes> drawingAttributes, bool isHollow, bool isRightToLeft, double dpiScaleX, double dpiScaleY)
 {
     // Create a single point stroke.
-    QSharedPointer<StylusPointCollection> stylusPoints(new StylusPointCollection());
+    SharedPointer<StylusPointCollection> stylusPoints(new StylusPointCollection());
     StylusPoint point(0, 0);
-    stylusPoints->AddItem(point);
+    stylusPoints->Add(point);
 
-    QSharedPointer<DrawingAttributes> da(new DrawingAttributes);
+    SharedPointer<DrawingAttributes> da(new DrawingAttributes);
     da->SetColor(drawingAttributes->Color());
     da->SetWidth(drawingAttributes->Width());
     da->SetHeight(drawingAttributes->Height());
@@ -365,7 +368,7 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
     da->SetIsHighlighter(drawingAttributes->IsHighlighter());
     da->SetStylusTip(drawingAttributes->GetStylusTip());
 
-    QSharedPointer<Stroke> singleStroke(new Stroke(stylusPoints, da));
+    SharedPointer<Stroke> singleStroke(new Stroke(stylusPoints, da));
     // NTRAID#WINDOWS-1326403-2005/10/03-waynezen,
     // We should draw our cursor in the device unit since it's device dependent object.
     singleStroke->GetDrawingAttributes()->SetWidth(ConvertToPixel(singleStroke->GetDrawingAttributes()->Width(), dpiScaleX));
@@ -382,27 +385,27 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
     // over maxLength or under 1.0.  The simplest way to check if we're too big
     // is by checking the bounds of the stroke, which takes both into account
     //
-    QRectF strokeBounds = singleStroke->GetBounds();
+    Rect strokeBounds = singleStroke->GetBounds();
     bool outOfBounds = false;
 
     // Make sure that the cursor won't exceed the minimum or the maximum boundary.
-    if ( DoubleUtil::LessThan(strokeBounds.width(), 1.0) )
+    if ( DoubleUtil::LessThan(strokeBounds.Width(), 1.0) )
     {
         singleStroke->GetDrawingAttributes()->SetWidth(1.0);
         outOfBounds = true;
     }
-    else if ( DoubleUtil::GreaterThan(strokeBounds.width(), maxLength) )
+    else if ( DoubleUtil::GreaterThan(strokeBounds.Width(), maxLength) )
     {
         singleStroke->GetDrawingAttributes()->SetWidth(maxLength);
         outOfBounds = true;
     }
 
-    if ( DoubleUtil::LessThan(strokeBounds.height(), 1.0) )
+    if ( DoubleUtil::LessThan(strokeBounds.Height(), 1.0) )
     {
         singleStroke->GetDrawingAttributes()->SetHeight(1.0);
         outOfBounds = true;
     }
-    else if ( DoubleUtil::GreaterThan(strokeBounds.height(), maxLength) )
+    else if ( DoubleUtil::GreaterThan(strokeBounds.Height(), maxLength) )
     {
         singleStroke->GetDrawingAttributes()->SetHeight(maxLength);
         outOfBounds = true;
@@ -413,17 +416,17 @@ Drawing* PenCursorManager::CreatePenDrawing(QSharedPointer<DrawingAttributes> dr
     //case (scaling over or under with a STT) that we don't care.
     if (outOfBounds)
     {
-        singleStroke->GetDrawingAttributes()->SetStylusTipTransform(QMatrix());
+        singleStroke->GetDrawingAttributes()->SetStylusTipTransform(Matrix());
     }
 
     if (isRightToLeft)
     {
         //reverse left to right to right to left
-        QMatrix xf = singleStroke->GetDrawingAttributes()->StylusTipTransform();
-        xf.scale(-1, 1);
+        Matrix xf = singleStroke->GetDrawingAttributes()->StylusTipTransform();
+        xf.Scale(-1, 1);
 
         //only set the xf if it has an inverse or the STT will throw
-        if (xf.isInvertible())
+        if (xf.HasInverse())
         {
             singleStroke->GetDrawingAttributes()->SetStylusTipTransform(xf);
         }
@@ -496,28 +499,28 @@ Drawing* PenCursorManager::CreateStrokeEraserDrawing()
         PathGeometry* pathGeometry = new PathGeometry;
 
         //PathFigure path = new PathFigure();
-        //path.StartPoint = QPointF(5, 5);
-        QPainterPath path(QPointF(5, 5));
+        //path.StartPoint = Point(5, 5);
+        QPainterPath path(Point(5, 5));
 
-        //LineSegment segment = new LineSegment(QPointF(16, 5), true);
+        //LineSegment segment = new LineSegment(Point(16, 5), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(16, 5));
+        path.lineTo(Point(16, 5));
 
-        //segment = new LineSegment(QPointF(26, 15), true);
+        //segment = new LineSegment(Point(26, 15), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(26, 15));
+        path.lineTo(Point(26, 15));
 
-        //segment = new LineSegment(QPointF(15, 15), true);
+        //segment = new LineSegment(Point(15, 15), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(15, 15));
+        path.lineTo(Point(15, 15));
 
-        //segment = new LineSegment(QPointF(5, 5), true);
+        //segment = new LineSegment(Point(5, 5), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(5, 5));
+        path.lineTo(Point(5, 5));
 
         //path.IsClosed = true;
         //path.Freeze();
@@ -526,30 +529,30 @@ Drawing* PenCursorManager::CreateStrokeEraserDrawing()
         pathGeometry->Add(path);
 
         //path = new PathFigure();
-        //path.StartPoint = QPointF(5, 5);
-        path = QPainterPath(QPointF(5, 5));
+        //path.StartPoint = Point(5, 5);
+        path = QPainterPath(Point(5, 5));
 
-        //segment = new LineSegment(QPointF(5, 10), true);
+        //segment = new LineSegment(Point(5, 10), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(5, 10));
+        path.lineTo(Point(5, 10));
 
-        //segment = new LineSegment(QPointF(15, 19), true);
+        //segment = new LineSegment(Point(15, 19), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(15, 19));
+        path.lineTo(Point(15, 19));
 
-        //segment = new LineSegment(QPointF(15, 15), true);
+        //segment = new LineSegment(Point(15, 15), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(15, 15));
+        path.lineTo(Point(15, 15));
 
-        //segment = new LineSegment(QPointF(5, 5), true);
+        //segment = new LineSegment(Point(5, 5), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
         //path.IsClosed = true;
         //path.Freeze();
-        path.lineTo(QPointF(5, 5));
+        path.lineTo(Point(5, 5));
         path.closeSubpath();
 
         pathGeometry->Add(path);
@@ -557,30 +560,30 @@ Drawing* PenCursorManager::CreateStrokeEraserDrawing()
 
         PathGeometry* pathGeometry1 = new PathGeometry;
         //path = new PathFigure();
-        //path.StartPoint = QPointF(15, 15);
-        path = QPainterPath(QPointF(15, 15));
+        //path.StartPoint = Point(15, 15);
+        path = QPainterPath(Point(15, 15));
 
-        //segment = new LineSegment(QPointF(15, 19), true);
+        //segment = new LineSegment(Point(15, 19), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(15, 19));
+        path.lineTo(Point(15, 19));
 
-        //segment = new LineSegment(QPointF(26, 19), true);
+        //segment = new LineSegment(Point(26, 19), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(26, 19));
+        path.lineTo(Point(26, 19));
 
-        //segment = new LineSegment(QPointF(26, 15), true);
+        //segment = new LineSegment(Point(26, 15), true);
         //segment.Freeze();
         //path.Segments.Add(segment);
-        path.lineTo(QPointF(26, 15));
+        path.lineTo(Point(26, 15));
         //segment.Freeze();
-        //segment = new LineSegment(QPointF(15, 15), true);
+        //segment = new LineSegment(Point(15, 15), true);
 
         //path.Segments.Add(segment);
         //path.IsClosed = true;
         //path.Freeze();
-        path.lineTo(QPointF(15, 15));
+        path.lineTo(Point(15, 15));
         path.closeSubpath();
 
         pathGeometry1->Add(path);
@@ -588,11 +591,11 @@ Drawing* PenCursorManager::CreateStrokeEraserDrawing()
 
         dc->DrawGeometry(brush1, pen1, pathGeometry);
         dc->DrawGeometry(brush2, pen1, pathGeometry1);
-        dc->DrawLine(pen1, QPointF(5, 5), QPointF(5, 0));
-        dc->DrawLine(pen1, QPointF(5, 5), QPointF(0, 5));
-        dc->DrawLine(pen1, QPointF(5, 5), QPointF(2, 2));
-        dc->DrawLine(pen1, QPointF(5, 5), QPointF(8, 2));
-        dc->DrawLine(pen1, QPointF(5, 5), QPointF(2, 8));
+        dc->DrawLine(pen1, Point(5, 5), Point(5, 0));
+        dc->DrawLine(pen1, Point(5, 5), Point(0, 5));
+        dc->DrawLine(pen1, Point(5, 5), Point(2, 2));
+        dc->DrawLine(pen1, Point(5, 5), Point(8, 2));
+        dc->DrawLine(pen1, Point(5, 5), Point(2, 8));
     }
     //finally
     {

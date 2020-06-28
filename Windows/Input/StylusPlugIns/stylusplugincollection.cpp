@@ -15,7 +15,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// </summary>
 /// <param name="index">index at which to insert the StylusPlugIn object
 /// <param name="plugIn">StylusPlugIn object to insert, downcast to an object
-void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
+void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* const & plugIn)
 {
     // Verify it's called from the app dispatcher
     _element->VerifyAccess();
@@ -26,7 +26,7 @@ void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
         throw std::runtime_error("plugIn");
     }
 
-    if (indexOf(plugIn) != -1)
+    if (IndexOf(plugIn) != -1)
     {
         throw std::runtime_error("plugIn");
     }
@@ -40,15 +40,15 @@ void StylusPlugInCollection::InsertItem(int index, StylusPlugIn* plugIn)
             // If we are currently active for input then we have a _penContexts that we must lock!
             {
                 QMutexLocker l(&PenContextsSyncRoot());
-                Debug::Assert(size() > 0); // If active must have more than one plugin already
-                insert(index, plugIn);
+                Debug::Assert(Count() > 0); // If active must have more than one plugin already
+                Collection::InsertItem(index, plugIn);
                 plugIn->Added(this);
             }
         }
         else
         {
             EnsureEventsHooked(); // Hook up events to track changes to the plugin's element
-            insert(index, plugIn);
+            Collection::InsertItem(index, plugIn);
             //try
             {
                 FinallyHelper final([this](){
@@ -73,7 +73,7 @@ void StylusPlugInCollection::ClearItems()
     // Verify it's called from the app dispatcher
     _element->VerifyAccess();
 
-    if (size() != 0)
+    if (Count() != 0)
     {
         // Disable processing of the queue during blocking operations to prevent unrelated reentrancy
         // which a call to Lock() can cause.
@@ -84,7 +84,7 @@ void StylusPlugInCollection::ClearItems()
                 // If we are currently active for input then we have a _penContexts that we must lock!
                 QMutexLocker l(&PenContextsSyncRoot());
                 {
-                    while (size() > 0)
+                    while (Count() > 0)
                     {
                         RemoveItem(0);  // Does work to fire event and remove from collection and pencontexts
                     }
@@ -92,7 +92,7 @@ void StylusPlugInCollection::ClearItems()
             }
             else
             {
-                while (size() > 0)
+                while (Count() > 0)
                 {
                     RemoveItem(0);  // Does work to fire event and remove from collection.
                 }
@@ -121,7 +121,7 @@ void StylusPlugInCollection::RemoveItem(int index)
             {
                 QMutexLocker l(&PenContextsSyncRoot());
                 StylusPlugIn* removedItem = (*this)[index];
-                removeAt(index);
+                Collection::RemoveItem(index);
                 //try
                 {
                     FinallyHelper final([removedItem](){
@@ -138,7 +138,7 @@ void StylusPlugInCollection::RemoveItem(int index)
         else
         {
             StylusPlugIn* removedItem = (*this)[index];
-            removeAt(index);
+            Collection::RemoveItem(index);
             //try
             {
                 FinallyHelper final([removedItem](){
@@ -158,7 +158,7 @@ void StylusPlugInCollection::RemoveItem(int index)
 /// Indexer to retrieve/set a StylusPlugIn at a given index in the collection
 /// Accessible from both the real time context and application context.
 /// </summary>
-void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
+void StylusPlugInCollection::SetItem(int index, StylusPlugIn* const & plugIn)
 {
     // Verify it's called from the app dispatcher
     _element->VerifyAccess();
@@ -168,7 +168,7 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
         throw std::runtime_error("plugIn");
     }
 
-    if (indexOf(plugIn) != -1)
+    if (IndexOf(plugIn) != -1)
     {
         throw std::runtime_error("plugIn");
     }
@@ -183,7 +183,7 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
             {
                 QMutexLocker l(&PenContextsSyncRoot());
                 StylusPlugIn* originalPlugIn = (*this)[index];
-                at(index) = plugIn;
+                Collection::SetItem(index, plugIn);
                 //try
                 {
                     FinallyHelper final([plugIn, this](){
@@ -200,7 +200,7 @@ void StylusPlugInCollection::SetItem(int index, StylusPlugIn* plugIn)
         else
         {
             StylusPlugIn* originalPlugIn = (*this)[index];
-            at(index) = plugIn;
+            Collection::SetItem(index, plugIn);
             //try
             {
                 FinallyHelper final([plugIn, this](){
@@ -252,7 +252,7 @@ void StylusPlugInCollection::UpdateRect()
     // The RenderSize is only valid if IsArrangeValid is true.
     if (_element->IsArrangeValid() && _element->IsEnabled() && _element->IsVisible() && _element->IsHitTestVisible())
     {
-        _rc = QRectF(QPointF(), _element->RenderSize());// _element->GetContentBoundingBox();
+        _rc = Rect(QPointF(), _element->RenderSize());// _element->GetContentBoundingBox();
         Visual* root = nullptr; //VisualTreeHelper.GetContainingVisual2D(InputElement.GetRootVisual(_element));
 
         try
@@ -263,17 +263,17 @@ void StylusPlugInCollection::UpdateRect()
         {
             // This gets hit if the transform is not invertable.  In that case
             // we will just not allow this plugin to be hit.
-            _rc = QRectF(); // empty rect so we don't hittest it.
-            _viewToElement = QTransform();
+            _rc = Rect(); // empty rect so we don't hittest it.
+            _viewToElement = GeneralTransform();
         }
     }
     else
     {
-        _rc = QRectF(); // empty rect so we don't hittest it.
+        _rc = Rect(); // empty rect so we don't hittest it.
     }
     //if (_viewToElement == nullptr)
     //{
-    //    _viewToElement = QTransform();
+    //    _viewToElement = GeneralTransform();
     //}
 }
 
@@ -285,16 +285,16 @@ void StylusPlugInCollection::UpdateRect()
 /// <returns>true if the point is within the bound of the element; false otherwise</returns>
 bool StylusPlugInCollection::IsHit(QPointF pt)
 {
-    QPointF ptElement = pt;
-    ptElement = _viewToElement.map(ptElement);
-    return _rc.contains(ptElement);
+    Point ptElement = pt;
+    ptElement = _viewToElement.Transform(ptElement);
+    return _rc.Contains(ptElement);
 }
 
 /// <summary>
 /// Get the transform matrix from the root visual to the current UIElement
 /// This method is called from the real-time context.
 /// </summary>
-QTransform StylusPlugInCollection::ViewToElement()
+GeneralTransform StylusPlugInCollection::ViewToElement()
 {
     return _viewToElement;
 }
@@ -303,7 +303,7 @@ QTransform StylusPlugInCollection::ViewToElement()
 /// Get the current rect for the Element that the StylusPlugInCollection is attached to.
 /// May be empty rect if plug in is not in tree.
 /// </summary>
-QRectF StylusPlugInCollection::Rect()
+Rect StylusPlugInCollection::GetRect()
 {
    return _rc;
 }
@@ -348,7 +348,7 @@ void StylusPlugInCollection::FireEnterLeave(bool isEnter, RawStylusInput& rawSty
         // If we are currently active for input then we have a _penContexts that we must lock!
         {
             QMutexLocker l(&PenContextsSyncRoot());
-            for (int i = 0; i < size(); i++)
+            for (int i = 0; i < Count(); i++)
             {
                 (*this)[i]->StylusEnterLeave(isEnter, rawStylusInput, confirmed);
             }
@@ -356,7 +356,7 @@ void StylusPlugInCollection::FireEnterLeave(bool isEnter, RawStylusInput& rawSty
     }
     else
     {
-        for (int i = 0; i < size(); i++)
+        for (int i = 0; i < Count(); i++)
         {
             (*this)[i]->StylusEnterLeave(isEnter, rawStylusInput, confirmed);
         }
@@ -380,7 +380,7 @@ void StylusPlugInCollection::FireRawStylusInput(RawStylusInput& args)
             // If we are currently active for input then we have a _penContexts that we must lock!
             {
                 QMutexLocker l(&PenContextsSyncRoot());
-                for (int i = 0; i < size(); i++)
+                for (int i = 0; i < Count(); i++)
                 {
                     StylusPlugIn* plugIn = (*this)[i];
                     // set current plugin so any callback data gets an owner.
@@ -391,7 +391,7 @@ void StylusPlugInCollection::FireRawStylusInput(RawStylusInput& args)
         }
         else
         {
-            for (int i = 0; i < size(); i++)
+            for (int i = 0; i < Count(); i++)
             {
                 StylusPlugIn* plugIn = (*this)[i];
                 // set current plugin so any callback data gets an owner.
@@ -431,7 +431,7 @@ PenContexts* StylusPlugInCollection::GetPenContexts()
 /// </securitynote>
 void StylusPlugInCollection::EnsureEventsHooked()
 {
-    if (size() == 0)
+    if (Count() == 0)
     {
         // Grab current element info
         UpdateRect();
@@ -463,7 +463,7 @@ void StylusPlugInCollection::EnsureEventsHooked()
 /// </summary>
 void StylusPlugInCollection::EnsureEventsAndPenContextsUnhooked()
 {
-    if (size() == 0)
+    if (Count() == 0)
     {
         // Unhook events.
         //_element->IsEnabledChanged -= _isEnabledChangedEventHandler;

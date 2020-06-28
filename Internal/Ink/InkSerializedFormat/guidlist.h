@@ -3,9 +3,8 @@
 
 #include "InkCanvas_global.h"
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
-
-#include <QUuid>
-#include <QList>
+#include "Collections/Generic/list.h"
+#include "guid.h"
 
 #define OLD_ISF 0
 
@@ -19,11 +18,11 @@ INKCANVAS_BEGIN_NAMESPACE
 class GuidList
 {
 private:
-    QList<QUuid> _CustomGuids;
+    List<Guid> _CustomGuids;
 
 
 public:
-    static QUuid Empty;
+    static Guid Empty;
 
     GuidList();
 
@@ -33,7 +32,7 @@ public:
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
-    bool Add(QUuid const & guid);
+    bool Add(Guid const & guid);
 
 
     /// <summary>
@@ -41,7 +40,7 @@ public:
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
-    static KnownTagCache::KnownTagIndex FindKnownTag(QUuid const & guid);
+    static KnownTagCache::KnownTagIndex FindKnownTag(Guid const & guid);
 
 
     /// <summary>
@@ -49,7 +48,7 @@ public:
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
-    KnownTagCache::KnownTagIndex FindCustomTag(QUuid const & guid);
+    KnownTagCache::KnownTagIndex FindCustomTag(Guid const & guid);
 
 
     /// <summary>
@@ -58,7 +57,7 @@ public:
     /// <param name="guid"></param>
     /// <param name="bFindInKnownListFirst"></param>
     /// <returns></returns>
-    KnownTagCache::KnownTagIndex FindTag(QUuid const & guid, bool bFindInKnownListFirst);
+    KnownTagCache::KnownTagIndex FindTag(Guid const & guid, bool bFindInKnownListFirst);
 
 
     /// <summary>
@@ -66,7 +65,7 @@ public:
     /// </summary>
     /// <param name="tag"></param>
     /// <returns></returns>
-    static QUuid const & FindKnownGuid(KnownTagCache::KnownTagIndex tag);
+    static Guid const & FindKnownGuid(KnownTagCache::KnownTagIndex tag);
 
 
     /// <summary>
@@ -74,7 +73,7 @@ public:
     /// </summary>
     /// <param name="tag"></param>
     /// <returns></returns>
-    QUuid const & FindCustomGuid(KnownTagCache::KnownTagIndex tag);
+    Guid const & FindCustomGuid(KnownTagCache::KnownTagIndex tag);
 
 
     /// <summary>
@@ -82,7 +81,7 @@ public:
     /// </summary>
     /// <param name="tag"></param>
     /// <returns></returns>
-    QUuid const & FindGuid(KnownTagCache::KnownTagIndex tag);
+    Guid const & FindGuid(KnownTagCache::KnownTagIndex tag);
 
 
     /// <summary>
@@ -90,7 +89,7 @@ public:
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
-    static quint32 GetDataSizeIfKnownGuid(QUuid const & guid);
+    static quint32 GetDataSizeIfKnownGuid(Guid const & guid);
 
     /// <summary>
     /// Serializes the GuidList in the memory stream and returns the size

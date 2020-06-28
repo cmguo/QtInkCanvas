@@ -13,12 +13,12 @@ AlgoModule::AlgoModule()
 /// <param name="input">assumed to be point data (x,x,x,x,x,x,x)</param>
 /// <param name="compression">magic byte specifying the compression to use</param>
 /// <returns></returns>
-QByteArray AlgoModule::CompressPacketData(QVector<int> input, quint8 compression)
+QByteArray AlgoModule::CompressPacketData(Array<int> input, quint8 compression)
 {
-    QByteArray output(input.size() * 4 + 1, 0);
-    compression = (quint8)(input.size() * 4);
+    QByteArray output(input.Length() * 4 + 1, 0);
+    compression = (quint8)(input.Length() * 4);
     output[0] = compression;
-    memcpy(output.data() + 1, input.data(), input.length() * 4);
+    memcpy(output.data() + 1, &input[0], input.Length() * 4);
     return output;
 }
 

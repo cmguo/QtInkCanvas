@@ -2,6 +2,8 @@
 #define STYLUSEDITINGBEHAVIOR_H
 
 #include "editingbehavior.h"
+#include "sharedptr.h"
+#include "Collections/Generic/list.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -20,7 +22,7 @@ public:
     /// </summary>
     /// <param name="stylusPoints">stylusPoints</param>
     /// <param name="userInitiated">only true if eventArgs.UserInitiated is true</param>
-    virtual void AddStylusPoints(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated) = 0;
+    virtual void AddStylusPoints(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated) = 0;
 };
 
 /// <summary>
@@ -85,7 +87,7 @@ public:
     ///     InkCollectionBehavior calls a critical method with the stylusPoints as an argument.
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void AddStylusPoints(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
+    virtual void AddStylusPoints(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated);
 
     //#endregion IStylusEditing Interface
 
@@ -139,7 +141,7 @@ public:
     ///     InkCollectionBehavior calls a critical method with the stylusPoints as an argument.
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+    virtual void StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
     {
         (void)stylusPoints;
         (void)userInitiated;
@@ -161,7 +163,7 @@ public:
     ///     InkCollectionBehavior calls a critical method with the stylusPoints as an argument.
     /// </SecurityNote>
     //[SecurityCritical]
-    virtual void StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+    virtual void StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
     {
         (void)stylusPoints;
         (void)userInitiated;

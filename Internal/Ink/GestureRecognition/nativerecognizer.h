@@ -4,11 +4,11 @@
 #include "InkCanvas_global.h"
 #include "Windows/Ink/applicationgesture.h"
 #include "Windows/Ink/gesturerecognitionresult.h"
+#include "Collections/Generic/list.h"
+#include "guid.h"
+#include "sharedptr.h"
 
 #include <QMutex>
-#include <QList>
-#include <QSharedPointer>
-#include <QUuid>
 
 #include <Windows.h>
 extern "C"
@@ -95,7 +95,7 @@ public:
     ///         used maliciously. And we verify the length of the passed in array.
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    QList<ApplicationGesture> SetEnabledGestures(QList<ApplicationGesture> applicationGestures);
+    List<ApplicationGesture> SetEnabledGestures(List<ApplicationGesture> applicationGestures);
 
     /// <summary>
     /// Recognize the strokes.
@@ -111,10 +111,10 @@ public:
     ///             InvokeGetLatticePtr
     /// </SecurityNote>
     //[SecurityCritical]
-    QList<GestureRecognitionResult> Recognize(QSharedPointer<StrokeCollection> strokes);
+    List<GestureRecognitionResult> Recognize(SharedPointer<StrokeCollection> strokes);
 
 
-    static QList<ApplicationGesture> GetApplicationGestureArrayAndVerify(QList<ApplicationGesture> applicationGestures);
+    static List<ApplicationGesture> GetApplicationGestureArrayAndVerify(List<ApplicationGesture> applicationGestures);
 
     //#endregion Methods
 
@@ -169,7 +169,7 @@ private:
     ///                 NativeRecognizer.UnsafeNativeMethods.SetEnabledUnicodeRanges
     /// </SecurityNote>
     //[SecurityCritical]
-    int SetEnabledGestures(HRECOCONTEXT recContext, QList<ApplicationGesture> enabledGestures);
+    int SetEnabledGestures(HRECOCONTEXT recContext, List<ApplicationGesture> enabledGestures);
 
     /// <summary>
     /// Add the strokes to the recoContext.
@@ -182,7 +182,7 @@ private:
     ///                 ReleaseResourcesinPacketDescription
     /// </SecurityNote>
     //[SecurityCritical]
-    int AddStrokes(HRECOCONTEXT recContext, QSharedPointer<StrokeCollection> strokes);
+    int AddStrokes(HRECOCONTEXT recContext, SharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Retrieve the packet description, packets data and XFORM which is the information the native recognizer needs.
@@ -194,7 +194,7 @@ private:
     //[SecurityCritical]
     void GetPacketData
     (
-        QSharedPointer<Stroke> stroke,
+        SharedPointer<Stroke> stroke,
         PACKET_DESCRIPTION& packetDescription,
         int& countOfBytes,
         QVector<int>& packets,
@@ -223,7 +223,7 @@ private:
     ///                 NativeRecognizer.UnsafeNativeMethods.DestroyAlternate
     /// </SecurityNote>
     //[SecurityCritical]
-    QList<GestureRecognitionResult> InvokeGetAlternateList();
+    List<GestureRecognitionResult> InvokeGetAlternateList();
 
     /// <summary>
     /// Invokes GetLatticePtr in the native dll
@@ -235,7 +235,7 @@ private:
     ///               And uses unsafe code
     /// </SecurityNote>
     //[SecurityCritical]
-    QList<GestureRecognitionResult> InvokeGetLatticePtr();
+    List<GestureRecognitionResult> InvokeGetLatticePtr();
 
     //#endregion Methods
 
@@ -271,10 +271,10 @@ private:
     static constexpr ushort IRAS_DefaultCount = 10;
     static constexpr ushort MaxStylusPoints = 10000;
 
-    // The QUuid has been copied from public\internal\drivers\inc\tpcQUuid.h
+    // The Guid has been copied from public\internal\drivers\inc\tpcGuid.h
     //// {7DFE11A7-FB5D-4958-8765-154ADF0D833F}
-    //DEFINE_QUuid(GUID_CONFIDENCELEVEL, 0x7dfe11a7, 0xfb5d, 0x4958, 0x87, 0x65, 0x15, 0x4a, 0xdf, 0xd, 0x83, 0x3f);
-    static const QUuid GUID_CONFIDENCELEVEL;
+    //DEFINE_Guid(GUID_CONFIDENCELEVEL, 0x7dfe11a7, 0xfb5d, 0x4958, 0x87, 0x65, 0x15, 0x4a, 0xdf, 0xd, 0x83, 0x3f);
+    static const Guid GUID_CONFIDENCELEVEL;
 
     /// <summary>
     /// IDisposable support
@@ -305,9 +305,9 @@ private:
     static HRECOGNIZER s_hRec;
 
     /// <summary>
-    /// The QUuid of the GestureRecognizer used for registry lookup
+    /// The Guid of the GestureRecognizer used for registry lookup
     /// </summary>
-    static QUuid                             s_Gesture;
+    static Guid                             s_Gesture;
 
     /// <summary>
     /// can we load the recognizer?

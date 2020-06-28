@@ -77,7 +77,7 @@ void InkCanvas::Initialize()
     //
     _dynamicRenderer = new DynamicRenderer();
     _dynamicRenderer->SetEnabled(false);
-    StylusPlugIns().InsertItem(StylusPlugIns().size(), _dynamicRenderer);
+    StylusPlugIns().InsertItem(StylusPlugIns().Count(), _dynamicRenderer);
 
     //
     // create and initialize an editing coordinator
@@ -137,7 +137,7 @@ void InkCanvas::InitializeInkObject()
 }
 
 
-QSizeF InkCanvas::MeasureOverride(QSizeF availableSize)
+Size InkCanvas::MeasureOverride(Size availableSize)
 {
     // No need to invoke VerifyAccess since _localAdornerDecorator.Measure should check it.
     if ( _localAdornerDecorator == nullptr )
@@ -155,7 +155,7 @@ QSizeF InkCanvas::MeasureOverride(QSizeF availableSize)
 /// </summary>
 /// <param name="arrangeSize"></param>
 /// <returns></returns>
-QSizeF InkCanvas::ArrangeOverride(QSizeF arrangeSize)
+Size InkCanvas::ArrangeOverride(Size arrangeSize)
 {
     // No need to invoke VerifyAccess since _localAdornerDecorator.Arrange should check it.
 
@@ -164,7 +164,7 @@ QSizeF InkCanvas::ArrangeOverride(QSizeF arrangeSize)
         ApplyTemplate();
     }
 
-    _localAdornerDecorator->Arrange(QRectF(QPointF(0, 0), arrangeSize));
+    _localAdornerDecorator->Arrange(Rect(Point(0, 0), arrangeSize));
 
     return arrangeSize;
 }
@@ -182,14 +182,14 @@ DependencyProperty const * const InkCanvas::BackgroundProperty =
 /// Top DependencyProperty
 /// </summary>
 DependencyProperty const * const InkCanvas::TopProperty =
-        new DependencyProperty(nan(""),
+        new DependencyProperty(Double::NaN,
                                &InkCanvas::OnPositioningChanged);
 
 /// <summary>
 /// The Bottom DependencyProperty
 /// </summary>
 DependencyProperty const * const InkCanvas::BottomProperty =
-        new DependencyProperty(nan(""),
+        new DependencyProperty(Double::NaN,
                                &InkCanvas::OnPositioningChanged);
 
 
@@ -197,14 +197,14 @@ DependencyProperty const * const InkCanvas::BottomProperty =
 /// The Left DependencyProperty
 /// </summary>
 DependencyProperty const * const InkCanvas::LeftProperty =
-        new DependencyProperty(nan(""),
+        new DependencyProperty(Double::NaN,
                                &InkCanvas::OnPositioningChanged);
 
 /// <summary>
 /// The Right DependencyProperty
 /// </summary>
 DependencyProperty const * const InkCanvas::RightProperty =
-        new DependencyProperty(nan(""),
+        new DependencyProperty(Double::NaN,
                                &InkCanvas::OnPositioningChanged);
 
 
@@ -249,8 +249,8 @@ HitTestResult InkCanvas::HitTestCore(PointHitTestParameters hitTestParams)
 {
     VerifyAccess();
 
-    QRectF r(QPointF(), RenderSize());
-    if (r.contains(hitTestParams.HitPoint()))
+    Rect r(Point(), RenderSize());
+    if (r.Contains(hitTestParams.HitPoint()))
     {
         return PointHitTestResult(this, hitTestParams.HitPoint());
     }
@@ -383,8 +383,8 @@ DependencyProperty const * const InkCanvas::StrokesProperty =
 void InkCanvas::OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e)
 {
     InkCanvas& inkCanvas = static_cast<InkCanvas&>(d);
-    QSharedPointer<StrokeCollection> oldValue = e.OldValue().value<QSharedPointer<StrokeCollection>>();
-    QSharedPointer<StrokeCollection> newValue = e.NewValue().value<QSharedPointer<StrokeCollection>>();
+    SharedPointer<StrokeCollection> oldValue = e.OldValue().value<SharedPointer<StrokeCollection>>();
+    SharedPointer<StrokeCollection> newValue = e.NewValue().value<SharedPointer<StrokeCollection>>();
 
     // Bind the InkPresenter.Strokes to InkCanvas.Strokes
     inkCanvas.GetInkPresenter().SetStrokes(newValue);
@@ -396,7 +396,7 @@ void InkCanvas::OnStrokesChanged(DependencyObject& d, DependencyPropertyChangedE
     if ( oldValue != newValue )
     {
         // Clear the selected strokes without raising event.
-        inkCanvas.CoreChangeSelection(QSharedPointer<StrokeCollection>(new StrokeCollection()), inkCanvas.GetInkCanvasSelection().SelectedElements(), false);
+        inkCanvas.CoreChangeSelection(SharedPointer<StrokeCollection>(new StrokeCollection()), inkCanvas.GetInkCanvasSelection().SelectedElements(), false);
 
         inkCanvas.InitializeInkObject();
 
@@ -511,11 +511,11 @@ DependencyProperty const * const InkCanvas::DefaultDrawingAttributesProperty =
 /// <summary>
 /// Gets/Sets the DefaultDrawingAttributes property.
 /// </summary>
-QSharedPointer<DrawingAttributes> InkCanvas::DefaultDrawingAttributes()
+SharedPointer<DrawingAttributes> InkCanvas::DefaultDrawingAttributes()
 {
-    return GetValue<QSharedPointer<DrawingAttributes>>(DefaultDrawingAttributesProperty);
+    return GetValue<SharedPointer<DrawingAttributes>>(DefaultDrawingAttributesProperty);
 }
-void InkCanvas::SetDefaultDrawingAttributes(QSharedPointer<DrawingAttributes> value)
+void InkCanvas::SetDefaultDrawingAttributes(SharedPointer<DrawingAttributes> value)
 {
     SetValue(DefaultDrawingAttributesProperty, value);
 }
@@ -524,8 +524,8 @@ void InkCanvas::OnDefaultDrawingAttributesChanged(DependencyObject& d, Dependenc
 {
     InkCanvas& inkCanvas = static_cast<InkCanvas&>(d);
 
-    QSharedPointer<DrawingAttributes> oldValue = e.OldValue().value<QSharedPointer<DrawingAttributes>>();
-    QSharedPointer<DrawingAttributes> newValue = e.NewValue().value<QSharedPointer<DrawingAttributes>>();
+    SharedPointer<DrawingAttributes> oldValue = e.OldValue().value<SharedPointer<DrawingAttributes>>();
+    SharedPointer<DrawingAttributes> newValue = e.NewValue().value<SharedPointer<DrawingAttributes>>();
 
     // This can throw, so call it first
     inkCanvas.UpdateDynamicRenderer(newValue);
@@ -574,7 +574,7 @@ void InkCanvas::SetEraserShape(StylusShape * value)
         _eraserShape.reset(value);
 
         if ( oldShape->Width() != _eraserShape->Width() || oldShape->Height() != _eraserShape->Height()
-            || oldShape->Rotation() != _eraserShape->Rotation() || oldShape->metaObject() != _eraserShape->metaObject())
+            || oldShape->Rotation() != _eraserShape->Rotation() || oldShape->IsEllipse() != _eraserShape->IsEllipse())
         {
             GetEditingCoordinator().UpdatePointEraserCursor();
         }
@@ -688,13 +688,13 @@ void InkCanvas::SetResizeEnabled(bool value)
 /// Read/Write access to the DefaultPacketDescription property.
 /// </summary>
 //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-QSharedPointer<StylusPointDescription> InkCanvas::DefaultStylusPointDescription()
+SharedPointer<StylusPointDescription> InkCanvas::DefaultStylusPointDescription()
 {
     VerifyAccess();
 
     return _defaultStylusPointDescription;
 }
-void InkCanvas::SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescription> value)
+void InkCanvas::SetDefaultStylusPointDescription(SharedPointer<StylusPointDescription> value)
 {
     VerifyAccess();
 
@@ -713,13 +713,13 @@ void InkCanvas::SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescr
 /// Read/Write the enabled ClipboardFormats
 /// </summary>
 //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-QList<InkCanvasClipboardFormat> InkCanvas::PreferredPasteFormats()
+List<InkCanvasClipboardFormat> InkCanvas::PreferredPasteFormats()
 {
     VerifyAccess();
 
     return GetClipboardProcessor().PreferredFormats();
 }
-void InkCanvas::SetPreferredPasteFormats(QList<InkCanvasClipboardFormat> value)
+void InkCanvas::SetPreferredPasteFormats(List<InkCanvasClipboardFormat> value)
 {
     VerifyAccess();
 
@@ -796,7 +796,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
         FinallyHelper final([this, &addStrokeToInkCanvas, &e](){
             if ( addStrokeToInkCanvas )
             {
-                Strokes()->AddItem(e.GetStroke());
+                Strokes()->Add(e.GetStroke());
             }
         });
 
@@ -812,17 +812,17 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
                   ActiveEditingMode() == InkCanvasEditingMode::GestureOnly) &&
                   GetGestureRecognizer().IsRecognizerAvailable())
             {
-                QSharedPointer<StrokeCollection> strokes(new StrokeCollection());
-                strokes->AddItem(e.GetStroke());
+                SharedPointer<StrokeCollection> strokes(new StrokeCollection());
+                strokes->Add(e.GetStroke());
 
                 //
                 // GestureRecognizer.Recognize demands unmanaged code, we assert it here
                 // as this codepath is only called in response to user input
                 //
-                QList<GestureRecognitionResult> results =
+                List<GestureRecognitionResult> results =
                     GetGestureRecognizer().CriticalRecognize(strokes);
 
-                if (results.size() > 0)
+                if (results.Count() > 0)
                 {
                     InkCanvasGestureEventArgs args(strokes, results);
 
@@ -866,7 +866,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
             ActiveEditingMode() == InkCanvasEditingMode::InkAndGesture )
         {
             //add the stroke to the StrokeCollection and raise this event
-            Strokes()->AddItem(e.GetStroke());
+            Strokes()->Add(e.GetStroke());
             OnStrokeCollected(e);
         }
     }
@@ -1351,13 +1351,13 @@ void InkCanvas::RaiseSelectionChanged(EventArgs& e)
 /// is false
 /// </summary>
 /// <returns></returns>
-QList<ApplicationGesture> InkCanvas::GetEnabledGestures()
+List<ApplicationGesture> InkCanvas::GetEnabledGestures()
 {
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
 #if WIN32
-    return QList<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
+    return List<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
 #else
     return {};
 #endif
@@ -1368,7 +1368,7 @@ QList<ApplicationGesture> InkCanvas::GetEnabledGestures()
 /// is false
 /// </summary>
 /// <returns></returns>
-void InkCanvas::SetEnabledGestures(QList<ApplicationGesture> applicationGestures)
+void InkCanvas::SetEnabledGestures(List<ApplicationGesture> applicationGestures)
 {
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
@@ -1382,7 +1382,7 @@ void InkCanvas::SetEnabledGestures(QList<ApplicationGesture> applicationGestures
 /// Get the selection bounds.
 /// </summary>
 /// <returns></returns>
-QRectF InkCanvas::GetSelectionBounds()
+Rect InkCanvas::GetSelectionBounds()
 {
     VerifyAccess();
 
@@ -1392,7 +1392,7 @@ QRectF InkCanvas::GetSelectionBounds()
 /// <summary>
 /// provides access to the currently selected elements which are children of this InkCanvas
 /// </summary>
-QList<UIElement*> InkCanvas::GetSelectedElements()
+List<UIElement*> InkCanvas::GetSelectedElements()
 {
     VerifyAccess();
     return GetInkCanvasSelection().SelectedElements();
@@ -1401,11 +1401,11 @@ QList<UIElement*> InkCanvas::GetSelectedElements()
 /// <summary>
 /// provides read access to the currently selected strokes
 /// </summary>
-QSharedPointer<StrokeCollection> InkCanvas::GetSelectedStrokes()
+SharedPointer<StrokeCollection> InkCanvas::GetSelectedStrokes()
 {
     VerifyAccess();
 
-    QSharedPointer<StrokeCollection> sc(new StrokeCollection());
+    SharedPointer<StrokeCollection> sc(new StrokeCollection());
     sc->Add(GetInkCanvasSelection().SelectedStrokes());
     return sc;
 }
@@ -1414,7 +1414,7 @@ QSharedPointer<StrokeCollection> InkCanvas::GetSelectedStrokes()
 /// Overload which calls the more complex version, passing null for selectedElements
 /// </summary>
 /// <param name="selectedStrokes">The strokes to select</param>
-void InkCanvas::Select(QSharedPointer<StrokeCollection> selectedStrokes)
+void InkCanvas::Select(SharedPointer<StrokeCollection> selectedStrokes)
 {
     // No need to invoke VerifyAccess since this call is forwarded.
     Select(selectedStrokes, {});
@@ -1424,7 +1424,7 @@ void InkCanvas::Select(QSharedPointer<StrokeCollection> selectedStrokes)
 /// Overload which calls the more complex version, passing null for selectedStrokes
 /// </summary>
 /// <param name="selectedElements">The elements to select</param>
-void InkCanvas::Select(QList<UIElement*> selectedElements)
+void InkCanvas::Select(List<UIElement*> selectedElements)
 {
     // No need to invoke VerifyAccess since this call is forwarded.
     Select(nullptr, selectedElements);
@@ -1435,7 +1435,7 @@ void InkCanvas::Select(QList<UIElement*> selectedElements)
 /// </summary>
 /// <param name="selectedStrokes">The strokes to select</param>
 /// <param name="selectedElements">The elements to select</param>
-void InkCanvas::Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<UIElement*> selectedElements)
+void InkCanvas::Select(SharedPointer<StrokeCollection> selectedStrokes, List<UIElement*> selectedElements)
 {
     VerifyAccess();
 
@@ -1446,8 +1446,8 @@ void InkCanvas::Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<U
         //
         // validate
         //
-        QList<UIElement*> validElements = ValidateSelectedElements(selectedElements);
-        QSharedPointer<StrokeCollection> validStrokes = ValidateSelectedStrokes(selectedStrokes);
+        List<UIElement*> validElements = ValidateSelectedElements(selectedElements);
+        SharedPointer<StrokeCollection> validStrokes = ValidateSelectedStrokes(selectedStrokes);
 
         //
         // this will raise the 'SelectionChanging' event ONLY if the selection
@@ -1462,7 +1462,7 @@ void InkCanvas::Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<U
 /// </summary>
 /// <param name="point"></param>
 /// <returns></returns>
-InkCanvasSelectionHitResult InkCanvas::HitTestSelection(QPointF const &point)
+InkCanvasSelectionHitResult InkCanvas::HitTestSelection(Point const &point)
 {
     VerifyAccess();
 
@@ -1516,20 +1516,20 @@ void InkCanvas::Paste()
     // No need to call VerifyAccess since this call is forwarded.
 
     // We always paste the data to the default location which is (0,0).
-    Paste(QPointF(c_pasteDefaultLocation, c_pasteDefaultLocation));
+    Paste(Point(c_pasteDefaultLocation, c_pasteDefaultLocation));
 }
 
 /// <summary>
 /// Paste the contents of the clipboard to the specified location in the InkCanvas
 /// </summary>
-void InkCanvas::Paste(QPointF const &point)
+void InkCanvas::Paste(Point const &point)
 {
     VerifyAccess();
 
-    if (DoubleUtil::IsNaN(point.x()) ||
-        DoubleUtil::IsNaN(point.y()) ||
-        qIsInf(point.x())||
-        qIsInf(point.y()) )
+    if (DoubleUtil::IsNaN(point.X()) ||
+        DoubleUtil::IsNaN(point.Y()) ||
+        Double::IsInfinity(point.X())||
+        Double::IsInfinity(point.Y()) )
     {
             throw std::runtime_error("point");
     }
@@ -1665,7 +1665,7 @@ void InkCanvas::SetDynamicRenderer(DynamicRenderer* value)
         if (_dynamicRenderer != nullptr)
         {
             //remove the plugin from the collection
-            previousIndex = StylusPlugIns().indexOf(_dynamicRenderer);
+            previousIndex = StylusPlugIns().IndexOf(_dynamicRenderer);
             if (-1 != previousIndex)
             {
                 StylusPlugIns().RemoveItem(previousIndex);
@@ -1684,7 +1684,7 @@ void InkCanvas::SetDynamicRenderer(DynamicRenderer* value)
         if (_dynamicRenderer != nullptr) //null is acceptable
         {
             //remove the plugin from the collection
-            if (!StylusPlugIns().contains(_dynamicRenderer))
+            if (!StylusPlugIns().Contains(_dynamicRenderer))
             {
                 if (-1 != previousIndex)
                 {
@@ -1693,7 +1693,7 @@ void InkCanvas::SetDynamicRenderer(DynamicRenderer* value)
                 }
                 else
                 {
-                    StylusPlugIns().InsertItem(StylusPlugIns().size(), _dynamicRenderer);
+                    StylusPlugIns().InsertItem(StylusPlugIns().Count(), _dynamicRenderer);
                 }
             }
 
@@ -1788,14 +1788,14 @@ bool InkCanvas::PrivateCanPaste()
 /// <summary>
 /// This method pastes data from an DataObject object
 /// </summary>
-void InkCanvas::PasteFromDataObject(DataObject const * dataObj, QPointF const & point)
+void InkCanvas::PasteFromDataObject(DataObject const * dataObj, Point const & point)
 {
     // Reset the current selection
     ClearSelection(false);
 
     // Assume that there is nothing to be selected.
-    QSharedPointer<StrokeCollection> newStrokes(new StrokeCollection());
-    QList<UIElement*> newElements;
+    SharedPointer<StrokeCollection> newStrokes(new StrokeCollection());
+    List<UIElement*> newElements;
 
     // Paste the data from the data object.
     if ( !GetClipboardProcessor().PasteData(dataObj, newStrokes, newElements) )
@@ -1803,17 +1803,17 @@ void InkCanvas::PasteFromDataObject(DataObject const * dataObj, QPointF const & 
         // Paste was failed.
         return;
     }
-    else if ( newStrokes->size() == 0 && newElements.size() == 0 )
+    else if ( newStrokes->Count() == 0 && newElements.Count() == 0 )
     {
         // Nothing has been received from the clipboard.
         return;
     }
 
     // We add elements here. Then we have to wait for the layout update.
-    QList<UIElement*> children = Children();
+    List<UIElement*> children = Children();
     for ( UIElement* element : newElements )
     {
-        children.append(element);
+        children.Add(element);
     }
 
     if ( newStrokes != nullptr )
@@ -1822,8 +1822,8 @@ void InkCanvas::PasteFromDataObject(DataObject const * dataObj, QPointF const & 
     }
 
     FinallyHelper final([this, &point](){
-        QRectF bounds = GetSelectionBounds( );
-        GetInkCanvasSelection().CommitChanges(bounds.translated(-bounds.left() + point.x(), -bounds.top() + point.y()), false);
+        Rect bounds = GetSelectionBounds( );
+        GetInkCanvasSelection().CommitChanges(Rect::Offset(bounds, -bounds.Left() + point.X(), -bounds.Top() + point.Y()), false);
 
         if (EditingMode() != InkCanvasEditingMode::Select)
         {
@@ -1839,7 +1839,7 @@ void InkCanvas::PasteFromDataObject(DataObject const * dataObj, QPointF const & 
     //finally
     //{
         // Now move the selection to the desired location.
-    //    QRectF bounds = GetSelectionBounds( );
+    //    Rect bounds = GetSelectionBounds( );
     //    GetInkCanvasSelection().CommitChanges(Rect.Offset(bounds, -bounds.Left + point.X, -bounds.Top + point.Y), false);
 
     //    if (EditingMode != InkCanvasEditingMode::Select)
@@ -1944,15 +1944,15 @@ void InkCanvas::BeginDynamicSelection(Visual* visual)
 
     _dynamicallySelectedStrokes.reset(new StrokeCollection());
 
-    GetInkPresenter().AttachVisuals(visual, QSharedPointer<DrawingAttributes>(new DrawingAttributes()));
+    GetInkPresenter().AttachVisuals(visual, SharedPointer<DrawingAttributes>(new DrawingAttributes()));
 }
 
 /// <summary>
 /// Internal helper called by LassoSelectionBehavior to update the display
 /// of dynamically added strokes
 /// </summary>
-void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strokesToDynamicallySelect,
-                                        QSharedPointer<StrokeCollection> strokesToDynamicallyUnselect)
+void InkCanvas::UpdateDynamicSelection(   SharedPointer<StrokeCollection> strokesToDynamicallySelect,
+                                        SharedPointer<StrokeCollection> strokesToDynamicallyUnselect)
 {
     GetEditingCoordinator().DebugCheckActiveBehavior(GetEditingCoordinator().GetLassoSelectionBehavior());
 
@@ -1961,19 +1961,19 @@ void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strok
     //
     if (strokesToDynamicallySelect != nullptr)
     {
-        for (QSharedPointer<Stroke> s : *strokesToDynamicallySelect)
+        for (SharedPointer<Stroke> s : *strokesToDynamicallySelect)
         {
-            _dynamicallySelectedStrokes->AddItem(s);
+            _dynamicallySelectedStrokes->Add(s);
             s->SetIsSelected(true);
         }
     }
 
     if (strokesToDynamicallyUnselect != nullptr)
     {
-        for (QSharedPointer<Stroke> s : *strokesToDynamicallyUnselect)
+        for (SharedPointer<Stroke> s : *strokesToDynamicallyUnselect)
         {
             //System.Diagnostics.Debug::Assert(_dynamicallySelectedStrokes.Contains(s));
-            _dynamicallySelectedStrokes->RemoveItem(s);
+            _dynamicallySelectedStrokes->Remove(s);
             s->SetIsSelected(false);
         }
     }
@@ -1982,13 +1982,13 @@ void InkCanvas::UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strok
 /// <summary>
 /// Internal helper used by LassoSelectionBehavior
 /// </summary>
-QSharedPointer<StrokeCollection> InkCanvas::EndDynamicSelection(Visual* visual)
+SharedPointer<StrokeCollection> InkCanvas::EndDynamicSelection(Visual* visual)
 {
     GetEditingCoordinator().DebugCheckActiveBehavior(GetEditingCoordinator().GetLassoSelectionBehavior());
 
     GetInkPresenter().DetachVisuals(visual);
 
-    QSharedPointer<StrokeCollection> selectedStrokes = _dynamicallySelectedStrokes;
+    SharedPointer<StrokeCollection> selectedStrokes = _dynamicallySelectedStrokes;
     _dynamicallySelectedStrokes = nullptr;
 
     return selectedStrokes;
@@ -2015,7 +2015,7 @@ bool InkCanvas::ClearSelectionRaiseSelectionChanging()
     //
     // attempt to clear selection
     //
-    ChangeInkCanvasSelection(QSharedPointer<StrokeCollection>(new StrokeCollection()), QList<UIElement*>());
+    ChangeInkCanvasSelection(SharedPointer<StrokeCollection>(new StrokeCollection()), List<UIElement*>());
 
     return !GetInkCanvasSelection().HasSelection();
 }
@@ -2031,7 +2031,7 @@ void InkCanvas::ClearSelection(bool raiseSelectionChangedEvent)
     if ( GetInkCanvasSelection().HasSelection() )
     {
         // Reset the current selection
-        CoreChangeSelection(QSharedPointer<StrokeCollection>(new StrokeCollection()), QList<UIElement*>(), raiseSelectionChangedEvent);
+        CoreChangeSelection(SharedPointer<StrokeCollection>(new StrokeCollection()), List<UIElement*>(), raiseSelectionChangedEvent);
     }
 }
 
@@ -2040,7 +2040,7 @@ void InkCanvas::ClearSelection(bool raiseSelectionChangedEvent)
 /// Helper that creates selection for an InkCanvas.  Used by the SelectedStrokes and
 /// SelectedElements properties
 /// </summary>
-void InkCanvas::ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements)
+void InkCanvas::ChangeInkCanvasSelection(SharedPointer<StrokeCollection> strokes, List<UIElement*> elements)
 {
     //validate in debug only for this internal static
     Debug::Assert(strokes != nullptr,
@@ -2053,8 +2053,8 @@ void InkCanvas::ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> stroke
     {
         InkCanvasSelectionChangingEventArgs args(strokes, elements);
 
-        QSharedPointer<StrokeCollection> validStrokes = strokes;
-        QList<UIElement*> validElements = elements;
+        SharedPointer<StrokeCollection> validStrokes = strokes;
+        List<UIElement*> validElements = elements;
 
         RaiseSelectionChanging(args);
 
@@ -2074,12 +2074,12 @@ void InkCanvas::ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> stroke
             if ( args.StrokesChanged() )
             {
                 validStrokes = ValidateSelectedStrokes(args.GetSelectedStrokes());
-                int countOldSelectedStrokes = strokes->size();
+                int countOldSelectedStrokes = strokes->Count();
                 for ( int i = 0; i < countOldSelectedStrokes; i++ )
                 {
                     // PERF-2006/05/02-WAYNEZEN,
                     // We only have to reset IsSelected for the elements no longer exists in the new collection.
-                    if ( !validStrokes->contains((*strokes)[i]) )
+                    if ( !validStrokes->Contains((*strokes)[i]) )
                     {
                         // NTRAID#WINDOWS-1045099-2006/05/02-waynezen,
                         // Make sure we reset the IsSelected property which could have been
@@ -2101,13 +2101,13 @@ void InkCanvas::ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> stroke
         }
         else
         {
-            QSharedPointer<StrokeCollection> currentSelectedStrokes = GetInkCanvasSelection().SelectedStrokes();
-            int countOldSelectedStrokes = strokes->size();
+            SharedPointer<StrokeCollection> currentSelectedStrokes = GetInkCanvasSelection().SelectedStrokes();
+            int countOldSelectedStrokes = strokes->Count();
             for ( int i = 0; i < countOldSelectedStrokes; i++ )
             {
                 // Make sure we reset the IsSelected property which could have been
                 // set to true in the dynamic selection but not being selected previously.
-                if ( !currentSelectedStrokes->contains((*strokes)[i]) )
+                if ( !currentSelectedStrokes->Contains((*strokes)[i]) )
                 {
                     (*strokes)[i]->SetIsSelected(false);
                 }
@@ -2123,7 +2123,7 @@ void InkCanvas::ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> stroke
 /// <param name="validStrokes">validStrokes</param>
 /// <param name="validElements">validElements</param>
 /// <param name="raiseSelectionChanged">raiseSelectionChanged</param>
-void InkCanvas::CoreChangeSelection(QSharedPointer<StrokeCollection> validStrokes, QList<UIElement*> validElements, bool raiseSelectionChanged)
+void InkCanvas::CoreChangeSelection(SharedPointer<StrokeCollection> validStrokes, List<UIElement*> validElements, bool raiseSelectionChanged)
 {
     GetInkCanvasSelection().Select(validStrokes, validElements, raiseSelectionChanged);
 }
@@ -2142,11 +2142,11 @@ ContainerVisual RendererRootContainer()
 /// <param name="subset">The possible subset</param>
 /// <param name="superset">The container set</param>
 /// <returns>True if subset is a subset of superset, false otherwise</returns>
-QSharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(QSharedPointer<StrokeCollection> subset, QSharedPointer<StrokeCollection> superset)
+SharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(SharedPointer<StrokeCollection> subset, SharedPointer<StrokeCollection> superset)
 {
-    QSharedPointer<StrokeCollection> validStrokes(new StrokeCollection());
+    SharedPointer<StrokeCollection> validStrokes(new StrokeCollection());
 
-    int subsetCount = subset->size();
+    int subsetCount = subset->Count();
 
     // special case an empty subset as a guaranteed subset
     if ( subsetCount == 0 )
@@ -2156,17 +2156,17 @@ QSharedPointer<StrokeCollection> InkCanvas::GetValidStrokes(QSharedPointer<Strok
 
     for ( int i = 0; i < subsetCount; i++ )
     {
-        QSharedPointer<Stroke> stroke = (*subset)[i];
-        if ( superset->contains(stroke) )
+        SharedPointer<Stroke> stroke = (*subset)[i];
+        if ( superset->Contains(stroke) )
         {
-            validStrokes->AddItem(stroke);
+            validStrokes->Add(stroke);
         }
 #if STROKE_COLLECTION_MULTIPLE_LAYER
         else
         {
             for (QObject * c : superset->children()) {
-                if (qobject_cast<StrokeCollection*>(c)->contains(stroke)) {
-                    validStrokes->AddItem(stroke);
+                if (qobject_cast<StrokeCollection*>(c)->Contains(stroke)) {
+                    validStrokes->Add(stroke);
                     break;
                 }
             }
@@ -2250,14 +2250,14 @@ void InkCanvas::_RegisterClipboardHandlers()
 /// Private helper used to ensure that any stroke collection
 /// passed to the InkCanvas is valid.  Throws exceptions if the argument is invalid
 /// </summary>
-QSharedPointer<StrokeCollection> InkCanvas::ValidateSelectedStrokes(QSharedPointer<StrokeCollection> strokes)
+SharedPointer<StrokeCollection> InkCanvas::ValidateSelectedStrokes(SharedPointer<StrokeCollection> strokes)
 {
     //
     //  null is a valid input
     //
     if (strokes == nullptr)
     {
-        return QSharedPointer<StrokeCollection>(new StrokeCollection());
+        return SharedPointer<StrokeCollection>(new StrokeCollection());
     }
     else
     {
@@ -2269,26 +2269,26 @@ QSharedPointer<StrokeCollection> InkCanvas::ValidateSelectedStrokes(QSharedPoint
 /// Private helper used to ensure that a UIElement* argument passed in
 /// is valid.
 /// </summary>
-QList<UIElement*> InkCanvas::ValidateSelectedElements(QList<UIElement*> selectedElements)
+List<UIElement*> InkCanvas::ValidateSelectedElements(List<UIElement*> selectedElements)
 {
     //if (selectedElements == nullptr)
     //{
     //    return new UIElement*[]{};
     //}
 
-    QList<UIElement*> elements;
+    List<UIElement*> elements;
     for (UIElement* element : selectedElements)
     {
         // NTRAID:WINDOWSOS#1621480-2006/04/26-WAYNEZEN,
         // Don't add the duplicated element.
-        if ( !elements.contains(element) )
+        if ( !elements.Contains(element) )
         {
             //
             // check the common case first, e
             //
             if ( InkCanvasIsAncestorOf(element) )
             {
-                elements.append(element);
+                elements.Add(element);
             }
         }
     }
@@ -2348,7 +2348,7 @@ void InkCanvas::UpdateDynamicRenderer()
 /// <summary>
 /// Helper method used to set up the GetDynamicRenderer()->
 /// </summary>
-void InkCanvas::UpdateDynamicRenderer(QSharedPointer<DrawingAttributes> newDrawingAttributes)
+void InkCanvas::UpdateDynamicRenderer(SharedPointer<DrawingAttributes> newDrawingAttributes)
 {
     ApplyTemplate();
 
@@ -2426,17 +2426,17 @@ void InkCanvas::DeleteCurrentSelection(bool removeSelectedStrokes, bool removeSe
     //Debug::Assert(removeSelectedStrokes || removeSelectedElements, "At least either Strokes or Elements should be removed!");
 
     // Now delete the current selection.
-    QSharedPointer<StrokeCollection> strokes = GetSelectedStrokes();
-    QList<UIElement*> elements = GetSelectedElements();
+    SharedPointer<StrokeCollection> strokes = GetSelectedStrokes();
+    List<UIElement*> elements = GetSelectedElements();
 
     // Clear the selection first.
     CoreChangeSelection(
-        removeSelectedStrokes ? QSharedPointer<StrokeCollection>(new StrokeCollection()) : strokes,
-        removeSelectedElements ? QList<UIElement*>() : elements,
+        removeSelectedStrokes ? SharedPointer<StrokeCollection>(new StrokeCollection()) : strokes,
+        removeSelectedElements ? List<UIElement*>() : elements,
         true);
 
     // Remove the ink.
-    if ( removeSelectedStrokes && strokes != nullptr && strokes->size() != 0 )
+    if ( removeSelectedStrokes && strokes != nullptr && strokes->Count() != 0 )
     {
         Strokes()->Remove(strokes);
     }
@@ -2444,10 +2444,10 @@ void InkCanvas::DeleteCurrentSelection(bool removeSelectedStrokes, bool removeSe
     // Remove the elements.
     if ( removeSelectedElements )
     {
-        QList<UIElement*> children = Children();
+        List<UIElement*> children = Children();
         for ( UIElement* element : elements )
         {
-            children.removeOne(element);
+            children.Remove(element);
         }
     }
 }
@@ -2484,7 +2484,7 @@ void InkCanvas::_OnCommandExecuted()
         {
             if ( inkCanvas.ActiveEditingMode() == InkCanvasEditingMode::Select )
             {
-                QList<UIElement*> uiElementCollection = inkCanvas.Children();
+                List<UIElement*> uiElementCollection = inkCanvas.Children();
                 inkCanvas.Select(inkCanvas.Strokes(), uiElementCollection);
             }
         }
@@ -2528,7 +2528,7 @@ void InkCanvas::_OnCommandExecuted()
         } else if (shortcut->key().matches(QKeySequence::SelectAll)) {
             if ( ActiveEditingMode() == InkCanvasEditingMode::Select )
             {
-                QList<UIElement*> uiElementCollection;// = Children();
+                List<UIElement*> uiElementCollection;// = Children();
                 Select(Strokes(), uiElementCollection);
             }
         } else if (shortcut->key().matches(QKeySequence::Paste)) {
@@ -2734,7 +2734,7 @@ public:
     {
         // The static strokes already have been taken care of by GetInkPresenter().
         // We only update the RTI renderer here.
-        QSharedPointer<DrawingAttributes> highContrastDa = _thisInkCanvas.DefaultDrawingAttributes()->Clone();
+        SharedPointer<DrawingAttributes> highContrastDa = _thisInkCanvas.DefaultDrawingAttributes()->Clone();
         highContrastDa->SetColor(highContrastColor);
         _thisInkCanvas.UpdateDynamicRenderer(highContrastDa);
     }

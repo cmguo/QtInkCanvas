@@ -2,9 +2,9 @@
 #define RAWSTYLUSINPUT_H
 
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
-
-#include <QTransform>
-#include <QSharedPointer>
+#include "Windows/Media/matrix.h"
+#include "sharedptr.h"
+#include "Collections/Generic/list.h"
 
 class QEvent;
 class QTouchEvent;
@@ -40,8 +40,8 @@ public:
     /// <param name="tabletToElementTransform">[TBS]
     /// <param name="targetPlugInCollection">[TBS]
     RawStylusInput(
-        QEvent&    event,
-        QTransform        tabletToElementTransform,
+        QEvent& event,
+        Matrix const & tabletToElementTransform,
         StylusPlugInCollection* targetPlugInCollection);
 
     QEvent& inputEvent() { return inputEvent_; }
@@ -66,7 +66,7 @@ public:
     /// <summary>
     /// Returns a copy of the StylusPoints
     /// </summary>
-    QSharedPointer<StylusPointCollection> GetStylusPoints();
+    SharedPointer<StylusPointCollection> GetStylusPoints();
 
     /// <summary>
     /// method called by StylusDevice to prevent two copies
@@ -80,7 +80,7 @@ public:
     ///                                 StylusDevice.UpdateEventStylusPoints(RawStylusInputReport, Boolean)
     /// </securitynote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    QSharedPointer<StylusPointCollection> GetStylusPoints(QTransform transform);
+    SharedPointer<StylusPointCollection> GetStylusPoints(Matrix const & transform);
 
     /// <summary>
     /// Replaces the StylusPoints.
@@ -92,7 +92,7 @@ public:
     /// <securitynote>
     ///     Callers must have Unmanaged code permission to call this API.
     /// </securitynote>
-    void SetStylusPoints(QSharedPointer<StylusPointCollection> stylusPoints);
+    void SetStylusPoints(SharedPointer<StylusPointCollection> stylusPoints);
 
     /// <summary>
     /// Returns the RawStylusInputCustomDataList used to notify plugins before
@@ -115,11 +115,11 @@ public:
     /// <summary>
     /// Matrix that was used for rawstylusinput packets.
     /// </summary>
-    QTransform ElementTransform();
+    Matrix ElementTransform();
     /// <summary>
     /// Retrieves the RawStylusInputCustomDataList associated with this input.
     /// </summary>
-    QList<RawStylusInputCustomData> CustomDataList();
+    List<RawStylusInputCustomData> CustomDataList();
     /// <summary>
     /// StylusPlugIn that is adding a notify event.
     /// </summary>
@@ -134,11 +134,11 @@ private:
 
     //RawStylusInputReport*    _report;
     InputDevice* device_;
-    QTransform        _tabletToElementTransform;
+    Matrix _tabletToElementTransform;
     StylusPlugInCollection*  _targetPlugInCollection;
-    QSharedPointer<StylusPointCollection>   _stylusPoints;
+    SharedPointer<StylusPointCollection>   _stylusPoints;
     StylusPlugIn*            _currentNotifyPlugIn;
-    QList<RawStylusInputCustomData>    _customData;
+    List<RawStylusInputCustomData>    _customData;
 
 };
 

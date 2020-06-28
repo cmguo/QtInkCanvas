@@ -55,7 +55,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
         maximumStreamSize -= cb;
 
         // Get the guid based on the tag
-        QUuid guid = guidList.FindGuid (tag);
+        Guid guid = guidList.FindGuid (tag);
         if (guid == GuidList::Empty)
         {
             throw std::runtime_error("Drawing Attribute tag embedded in ISF stream does not match guid table");
@@ -197,7 +197,7 @@ quint32 DrawingAttributeSerializer::DecodeAsISF(QIODevice& stream, GuidList& gui
                 QVariant data;
                 cb = ExtendedPropertySerializer::DecodeAsISF(stream, maximumStreamSize, guidList, tag, guid, data);
 
-                QMatrix matrix;// = Matrix.Parse((string)data);
+                Matrix matrix;// = Matrix.Parse((string)data);
                 da.SetStylusTipTransform(matrix);
             }
             //catch (InvalidOperationException) // Matrix.Parse failed.
@@ -510,7 +510,7 @@ void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da
         //
         if (epcClone[x].Id() == KnownIds::StylusTipTransform)
         {
-            QMatrix matrix = epcClone[x].Value().value<QMatrix>();
+            Matrix matrix = epcClone[x].Value().value<Matrix>();
             QString matrixString;
             epcClone[x].SetValue(matrixString);
             continue;
@@ -580,7 +580,7 @@ void DrawingAttributeSerializer::PersistWidthHeight(DrawingAttributes& da, QIODe
     // Save the pen tip's width and height.
     for (int i = 0; i < 2; i++)
     {
-        QUuid const & guid = (i == 0) ? KnownIds::StylusWidth : KnownIds::StylusHeight;
+        Guid const & guid = (i == 0) ? KnownIds::StylusWidth : KnownIds::StylusHeight;
         double size = (0 == i) ? stylusWidth : stylusHeight;
 
         //

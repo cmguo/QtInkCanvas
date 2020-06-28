@@ -102,23 +102,23 @@ void LassoSelectionBehavior::OnSwitchToMode(InkCanvasEditingMode mode)
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void LassoSelectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void LassoSelectionBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     (void) userInitiated;
-    Debug::Assert(stylusPoints->count() != 0, "An empty stylusPoints has been passed in.");
+    Debug::Assert(stylusPoints->Count() != 0, "An empty stylusPoints has been passed in.");
 
     _disableLasso = false;
 
     bool startLasso = false;
 
-    QList<QPointF> points;
-    for ( int x = 0; x < stylusPoints->size(); x++ )
+    List<Point> points;
+    for ( int x = 0; x < stylusPoints->Count(); x++ )
     {
-        QPointF point = ( (*stylusPoints)[x] );
+        Point point = ( (*stylusPoints)[x] );
         if ( x == 0 )
         {
             _startPoint = point;
-            points.append(point);
+            points.Add(point);
             continue;
         }
 
@@ -126,19 +126,19 @@ void LassoSelectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollecti
         {
             // If startLasso hasn't be flagged, we should check if the distance between two points is greater than
             // our tolerance. If so, we should flag startLasso.
-            QPointF vector = point - _startPoint;
-            double distanceSquared = LengthSquared(vector);
+            Vector vector = point - _startPoint;
+            double distanceSquared = vector.LengthSquared();
 
             if ( DoubleUtil::GreaterThan(distanceSquared, LassoHelper::MinDistanceSquared) )
             {
-                points.append(point);
+                points.Add(point);
                 startLasso = true;
             }
         }
         else
         {
             // The flag is set. We just add the point.
-            points.append(point);
+            points.Add(point);
         }
     }
 
@@ -154,7 +154,7 @@ void LassoSelectionBehavior::StylusInputBegin(QSharedPointer<StylusPointCollecti
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void LassoSelectionBehavior::StylusInputContinue(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void LassoSelectionBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     // Check whether Lasso has started.
     if ( _lassoHelper != nullptr )
@@ -163,13 +163,13 @@ void LassoSelectionBehavior::StylusInputContinue(QSharedPointer<StylusPointColle
         // pump packets to the LassoHelper, it will convert them into an array of equidistant
         // lasso points, render those lasso point and return them to hit test against.
         //
-        QList<QPointF> points;
-        for ( int x = 0; x < stylusPoints->size(); x++ )
+        List<Point> points;
+        for ( int x = 0; x < stylusPoints->Count(); x++ )
         {
-            points.append((*stylusPoints)[x]);
+            points.Add((*stylusPoints)[x]);
         }
-        QVector<QPointF> lassoPoints = _lassoHelper->AddPoints(points);
-        if ( 0 != lassoPoints.size() )
+        Array<Point> lassoPoints = _lassoHelper->AddPoints(points);
+        if ( 0 != lassoPoints.Length() )
         {
             _incrementalLassoHitTester->AddPoints(lassoPoints);
         }
@@ -179,28 +179,28 @@ void LassoSelectionBehavior::StylusInputContinue(QSharedPointer<StylusPointColle
         // If Lasso hasn't start and been disabled, we should try to start it when it is needed.
         bool startLasso = false;
 
-        QList<QPointF> points ;
-        for ( int x = 0; x < stylusPoints->size(); x++ )
+        List<Point> points ;
+        for ( int x = 0; x < stylusPoints->Count(); x++ )
         {
-            QPointF point = (*stylusPoints)[x];
+            Point point = (*stylusPoints)[x];
 
             if ( !startLasso )
             {
                 // If startLasso hasn't be flagged, we should check if the distance between two points is greater than
                 // our tolerance. If so, we should flag startLasso.
-                QPointF vector = point - _startPoint;
-                double distanceSquared = LengthSquared(vector);
+                Vector vector = point - _startPoint;
+                double distanceSquared = vector.LengthSquared();
 
                 if ( DoubleUtil::GreaterThan(distanceSquared, LassoHelper::MinDistanceSquared) )
                 {
-                    points.append(point);
+                    points.Add(point);
                     startLasso = true;
                 }
             }
             else
             {
                 // The flag is set. We just add the point.
-                points.append(point);
+                points.Add(point);
             }
         }
 
@@ -220,8 +220,8 @@ void LassoSelectionBehavior::StylusInputContinue(QSharedPointer<StylusPointColle
 void LassoSelectionBehavior::StylusInputEnd(bool commit)
 {
     // Initialize with empty selection
-    QSharedPointer<StrokeCollection> selectedStrokes(new StrokeCollection());
-    QList<UIElement*> elementsToSelect;
+    SharedPointer<StrokeCollection> selectedStrokes(new StrokeCollection());
+    List<UIElement*> elementsToSelect;
 
     if ( _lassoHelper != nullptr )
     {
@@ -252,7 +252,7 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         // This is a tap selection.
 
         // Now try the tap selection
-        QSharedPointer<Stroke> tappedStroke;
+        SharedPointer<Stroke> tappedStroke;
         UIElement* tappedElement;
 
         TapSelectObject(_startPoint,  tappedStroke,  tappedElement);
@@ -262,12 +262,12 @@ void LassoSelectionBehavior::StylusInputEnd(bool commit)
         {
             Debug::Assert(tappedElement == nullptr);
             selectedStrokes.reset(new StrokeCollection());
-            selectedStrokes->AddItem(tappedStroke);
+            selectedStrokes->Add(tappedStroke);
         }
         else if ( tappedElement != nullptr )
         {
             Debug::Assert(tappedStroke == nullptr);
-            elementsToSelect.append(tappedElement);
+            elementsToSelect.Add(tappedElement);
         }
     }
 
@@ -324,17 +324,17 @@ void LassoSelectionBehavior::OnSelectionChanged(LassoSelectionChangedEventArgs& 
 /// <summary>
 /// Private helper that will hit test for elements
 /// </summary>
-QList<UIElement*> LassoSelectionBehavior::HitTestForElements()
+List<UIElement*> LassoSelectionBehavior::HitTestForElements()
 {
-    QList<UIElement*> elementsToSelect;
+    List<UIElement*> elementsToSelect;
 
-    QList<UIElement *> children = GetInkCanvas().Children();
-    if ( children.size() == 0 )
+    List<UIElement *> children = GetInkCanvas().Children();
+    if ( children.Count() == 0 )
     {
         return elementsToSelect;
     }
 
-    for (int x = 0; x < children.size(); x++)
+    for (int x = 0; x < children.Count(); x++)
     {
         UIElement* uiElement = children[x];
         HitTestElement(GetInkCanvas().InnerCanvas(), uiElement, elementsToSelect);
@@ -347,12 +347,12 @@ QList<UIElement*> LassoSelectionBehavior::HitTestForElements()
 /// Private helper that will turn an element in any nesting level into a stroke
 /// in the InkCanvas's coordinate space.  This method calls itself recursively
 /// </summary>
-void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, QList<UIElement*> elementsToSelect)
+void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElement* uiElement, List<UIElement*> elementsToSelect)
 {
     ElementCornerPoints elementPoints = LassoSelectionBehavior::GetTransformedElementCornerPoints(parent, uiElement);
     if (elementPoints.Set != false)
     {
-        QVector<QPointF> points = GeneratePointGrid(elementPoints);
+        Array<Point> points = GeneratePointGrid(elementPoints);
 
         //
         // perform hit testing against our lasso
@@ -360,7 +360,7 @@ void LassoSelectionBehavior::HitTestElement(InkCanvasInnerCanvas& parent, UIElem
         //System.Diagnostics.Debug::Assert(null != _lassoHelper);
         if (_lassoHelper->ArePointsInLasso(points, _percentIntersectForElements))
         {
-            elementsToSelect.append(uiElement);
+            elementsToSelect.Add(uiElement);
         }
     }
     //
@@ -393,14 +393,14 @@ LassoSelectionBehavior::ElementCornerPoints LassoSelectionBehavior::GetTransform
     //
     // get the transform from us to our parent InkCavas
     //
-    QTransform parentTransform = childElement->TransformToAncestor(&canvas);
+    GeneralTransform parentTransform = childElement->TransformToAncestor(&canvas);
 
     //
 
-    elementPoints.UpperLeft = parentTransform.map(QPointF(0, 0));
-    elementPoints.UpperRight = parentTransform.map(QPointF(childElement->RenderSize().width(), 0));
-    elementPoints.LowerLeft = parentTransform.map(QPointF(0, childElement->RenderSize().height()));
-    elementPoints.LowerRight = parentTransform.map(QPointF(childElement->RenderSize().width(), childElement->RenderSize().height()));
+    elementPoints.UpperLeft = parentTransform.Transform(Point(0, 0));
+    elementPoints.UpperRight = parentTransform.Transform(Point(childElement->RenderSize().Width(), 0));
+    elementPoints.LowerLeft = parentTransform.Transform(Point(0, childElement->RenderSize().Height()));
+    elementPoints.LowerRight = parentTransform.Transform(Point(childElement->RenderSize().Width(), childElement->RenderSize().Height()));
 
     elementPoints.Set = true;
     return elementPoints;
@@ -410,25 +410,25 @@ LassoSelectionBehavior::ElementCornerPoints LassoSelectionBehavior::GetTransform
 /// Private helper that will generate a grid of points 5 px apart given the elements bounding points
 /// this works with any affline transformed points
 /// </summary>
-QVector<QPointF> LassoSelectionBehavior::GeneratePointGrid(ElementCornerPoints elementPoints)
+Array<Point> LassoSelectionBehavior::GeneratePointGrid(ElementCornerPoints elementPoints)
 {
     if (!elementPoints.Set)
     {
-        return QVector<QPointF>();
+        return QVector<Point>();
     }
-    QVector<QPointF> pointArray;
+    List<Point> pointArray;
 
     UpdatePointDistances(elementPoints);
 
     //
     // add our original points
     //
-    pointArray.append(elementPoints.UpperLeft);
-    pointArray.append(elementPoints.UpperRight);
+    pointArray.Add(elementPoints.UpperLeft);
+    pointArray.Add(elementPoints.UpperRight);
     FillInPoints(pointArray, elementPoints.UpperLeft, elementPoints.UpperRight);
 
-    pointArray.append(elementPoints.LowerLeft);
-    pointArray.append(elementPoints.LowerRight);
+    pointArray.Add(elementPoints.LowerLeft);
+    pointArray.Add(elementPoints.LowerRight);
     FillInPoints(pointArray, elementPoints.LowerLeft, elementPoints.LowerRight);
 
     FillInGrid( pointArray,
@@ -437,22 +437,22 @@ QVector<QPointF> LassoSelectionBehavior::GeneratePointGrid(ElementCornerPoints e
                 elementPoints.LowerRight,
                 elementPoints.LowerLeft);
 
-    //Point[] retPointArray = QPointF[pointArray.Count];
+    //Point[] retPointArray = Point[pointArray.Count];
     //pointArray.CopyTo(retPointArray);
-    return pointArray;
+    return pointArray.ToArray();
 }
 
 /// <summary>
 /// Private helper that fills in the points between two points by calling itself
 /// recursively in a divide and conquer fashion
 /// </summary>
-void LassoSelectionBehavior::FillInPoints(QVector<QPointF> & pointArray, QPointF const & point1, QPointF const & point2)
+void LassoSelectionBehavior::FillInPoints(List<Point> & pointArray, Point const & point1, Point const & point2)
 {
     // this algorithm improves perf by 20%
     if(!PointsAreCloseEnough(point1, point2))
     {
-        QPointF midPoint = LassoSelectionBehavior::GeneratePointBetweenPoints(point1, point2);
-        pointArray.append(midPoint);
+        Point midPoint = LassoSelectionBehavior::GeneratePointBetweenPoints(point1, point2);
+        pointArray.Add(midPoint);
 
         if(!PointsAreCloseEnough(point1, midPoint))
         {
@@ -471,19 +471,19 @@ void LassoSelectionBehavior::FillInPoints(QVector<QPointF> & pointArray, QPointF
 /// Private helper that fills in the points between four points by calling itself
 /// recursively in a divide and conquer fashion
 /// </summary>
-void LassoSelectionBehavior::FillInGrid(QVector<QPointF> & pointArray,
-                                        QPointF const & upperLeft,
-                                        QPointF const & upperRight,
-                                        QPointF const & lowerRight,
-                                        QPointF const & lowerLeft)
+void LassoSelectionBehavior::FillInGrid(List<Point> & pointArray,
+                                        Point const & upperLeft,
+                                        Point const & upperRight,
+                                        Point const & lowerRight,
+                                        Point const & lowerLeft)
 {
     // this algorithm improves perf by 20%
     if(!PointsAreCloseEnough(upperLeft, lowerLeft))
     {
-        QPointF midPointLeft = LassoSelectionBehavior::GeneratePointBetweenPoints(upperLeft, lowerLeft);
-        QPointF midPointRight = LassoSelectionBehavior::GeneratePointBetweenPoints(upperRight, lowerRight);
-        pointArray.append(midPointLeft);
-        pointArray.append(midPointRight);
+        Point midPointLeft = LassoSelectionBehavior::GeneratePointBetweenPoints(upperLeft, lowerLeft);
+        Point midPointRight = LassoSelectionBehavior::GeneratePointBetweenPoints(upperRight, lowerRight);
+        pointArray.Add(midPointLeft);
+        pointArray.Add(midPointRight);
         FillInPoints(pointArray, midPointLeft, midPointRight);
 
         if(!PointsAreCloseEnough(upperLeft, midPointLeft))
@@ -500,29 +500,29 @@ void LassoSelectionBehavior::FillInGrid(QVector<QPointF> & pointArray,
 }
 
 /// <summary>
-/// Private helper that will generate a QPointF between two points
+/// Private helper that will generate a Point between two points
 /// </summary>
-QPointF LassoSelectionBehavior::GeneratePointBetweenPoints(QPointF const & point1, QPointF const & point2)
+Point LassoSelectionBehavior::GeneratePointBetweenPoints(Point const & point1, Point const & point2)
 {
     //
-    // compute the QPointF in the middle of the previous two
+    // compute the Point in the middle of the previous two
     //
-    double maxX = point1.x() > point2.x() ? point1.x() : point2.x();
-    double minX = point1.x() < point2.x() ? point1.x() : point2.x();
-    double maxY = point1.y() > point2.y() ? point1.y() : point2.y();
-    double minY = point1.y() < point2.y() ? point1.y() : point2.y();
+    double maxX = point1.X() > point2.X() ? point1.X() : point2.X();
+    double minX = point1.X() < point2.X() ? point1.X() : point2.X();
+    double maxY = point1.Y() > point2.Y() ? point1.Y() : point2.Y();
+    double minY = point1.Y() < point2.Y() ? point1.Y() : point2.Y();
 
-    return QPointF( (minX + ((maxX - minX) * 0.5)),
+    return Point( (minX + ((maxX - minX) * 0.5)),
                         (minY + ((maxY - minY) * 0.5)));
 }
 
 /// <summary>
 /// Private helper used to determine if we're close enough between two points
 /// </summary>
-bool LassoSelectionBehavior::PointsAreCloseEnough(QPointF const & point1, QPointF const & point2)
+bool LassoSelectionBehavior::PointsAreCloseEnough(Point const & point1, Point const & point2)
 {
-    double x = point1.x() - point2.x();
-    double y = point1.y() - point2.y();
+    double x = point1.X() - point2.X();
+    double y = point1.Y() - point2.Y();
     if ((x < _xDiff && x > -_xDiff) && (y < _yDiff && y > -_yDiff))
     {
         return true;
@@ -538,13 +538,13 @@ void LassoSelectionBehavior::UpdatePointDistances(ElementCornerPoints elementPoi
     //
     // calc the x and y diffs
     //
-    double width = elementPoints.UpperLeft.x() - elementPoints.UpperRight.x();
+    double width = elementPoints.UpperLeft.X() - elementPoints.UpperRight.X();
     if (width < 0)
     {
         width = -width;
     }
 
-    double height = elementPoints.UpperLeft.y() - elementPoints.LowerLeft.y();
+    double height = elementPoints.UpperLeft.Y() - elementPoints.LowerLeft.Y();
     if (height < 0)
     {
         height = -height;
@@ -575,7 +575,7 @@ void LassoSelectionBehavior::UpdatePointDistances(ElementCornerPoints elementPoi
 /// StartLasso
 /// </summary>
 /// <param name="points"></param>
-void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
+void LassoSelectionBehavior::StartLasso(List<Point> points)
 {
     Debug::Assert(!_disableLasso && _lassoHelper == nullptr, "StartLasso is called unexpectedly.");
 
@@ -606,8 +606,8 @@ void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
         _lassoHelper = new LassoHelper();
         GetInkCanvas().BeginDynamicSelection(_lassoHelper->GetVisual());
 
-        QVector<QPointF> lassoPoints = _lassoHelper->AddPoints(points);
-        if ( 0 != lassoPoints.size() )
+        Array<Point> lassoPoints = _lassoHelper->AddPoints(points);
+        if ( 0 != lassoPoints.Length() )
         {
             _incrementalLassoHitTester->AddPoints(lassoPoints);
         }
@@ -625,20 +625,20 @@ void LassoSelectionBehavior::StartLasso(QList<QPointF> points)
 /// <param name="point"></param>
 /// <param name="tappedStroke"></param>
 /// <param name="tappedElement"></param>
-void LassoSelectionBehavior::TapSelectObject(QPointF const & point,  QSharedPointer<Stroke>& tappedStroke,  UIElement*& tappedElement)
+void LassoSelectionBehavior::TapSelectObject(Point const & point,  SharedPointer<Stroke>& tappedStroke,  UIElement*& tappedElement)
 {
     tappedStroke = nullptr;
     tappedElement = nullptr;
 
-    QSharedPointer<StrokeCollection> hitTestStrokes = GetInkCanvas().Strokes()->HitTest(point, 5.0);
-    if ( hitTestStrokes->size() > 0 )
+    SharedPointer<StrokeCollection> hitTestStrokes = GetInkCanvas().Strokes()->HitTest(point, 5.0);
+    if ( hitTestStrokes->Count() > 0 )
     {
-        tappedStroke = (*hitTestStrokes)[hitTestStrokes->size() - 1];
+        tappedStroke = (*hitTestStrokes)[hitTestStrokes->Count() - 1];
     }
     else
     {
-        QTransform transformToInnerCanvas = GetInkCanvas().TransformToVisual(&GetInkCanvas().InnerCanvas());
-        QPointF pointOnInnerCanvas = transformToInnerCanvas.map(point);
+        GeneralTransform transformToInnerCanvas = GetInkCanvas().TransformToVisual(&GetInkCanvas().InnerCanvas());
+        Point pointOnInnerCanvas = transformToInnerCanvas.Transform(point);
 
         // Try to find  whether we have a pre-select object.
         tappedElement = GetInkCanvas().InnerCanvas().HitTestOnElements(pointOnInnerCanvas);

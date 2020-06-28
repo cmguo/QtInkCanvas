@@ -31,21 +31,21 @@ public:
     /// <summary>
     /// The overridden GetDesiredTransform method
     /// </summary>
-    virtual QTransform GetDesiredTransform(QTransform const & transform) override;
+    virtual GeneralTransform GetDesiredTransform(GeneralTransform const & transform) override;
 
 private:
     /// <summary>
     /// The OnBoundsUpdated method
     /// </summary>
     /// <param name="rect"></param>
-    void OnBoundsUpdated(QRectF const &rect);
+    void OnBoundsUpdated(Rect const &rect);
 
 protected:
     /// <summary>
     /// The overridden MeasureOverride method
     /// </summary>
     /// <param name="constraint"></param>
-    virtual QSizeF MeasureOverride(QSizeF constraint) override;
+    virtual Size MeasureOverride(Size constraint) override;
 
     /// <summary>
     /// The overridden OnRender method
@@ -58,12 +58,12 @@ public:
     /// The method is called by InkCanvasSelection.UpdateFeedbackRect
     /// </summary>
     /// <param name="rect"></param>
-    void UpdateBounds(QRectF const &rect);
+    void UpdateBounds(Rect const &rect);
 
 private:
     InkCanvas&   _inkCanvas;
-    QSizeF        _frameSize;
-    QRectF        _previousRect;
+    Size        _frameSize;
+    Rect        _previousRect = Rect::Empty();
     double      _offsetX = 0;
     double      _offsetY = 0;
 

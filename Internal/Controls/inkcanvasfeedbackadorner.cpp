@@ -40,7 +40,7 @@ InkCanvasFeedbackAdorner::InkCanvasFeedbackAdorner(InkCanvas& inkCanvas)
 /// <summary>
 /// The overridden GetDesiredTransform method
 /// </summary>
-QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform const &transform)
+GeneralTransform InkCanvasFeedbackAdorner::GetDesiredTransform(GeneralTransform const &transform)
 {
     //if ( transform == null )
     //{
@@ -48,13 +48,13 @@ QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform const &trans
     //}
 
     VerifyAccess();
-    QTransform desiredTransform = transform;
+    GeneralTransform desiredTransform = transform;
 
     // Check if we need translate the adorner.
     if ( !DoubleUtil::AreClose(_offsetX, 0) || !DoubleUtil::AreClose(_offsetY, 0) )
     {
         //desiredTransform *= QTransform::fromTranslate(_offsetX, _offsetY);
-        desiredTransform.translate(_offsetX, _offsetY);
+        desiredTransform.Translate(_offsetX, _offsetY);
     }
 
     return desiredTransform;
@@ -64,30 +64,30 @@ QTransform InkCanvasFeedbackAdorner::GetDesiredTransform(QTransform const &trans
 /// The OnBoundsUpdated method
 /// </summary>
 /// <param name="rect"></param>
-void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF const &rect)
+void InkCanvasFeedbackAdorner::OnBoundsUpdated(Rect const &rect)
 {
     VerifyAccess();
 
     // Check if the rectangle has been changed.
     if ( rect != _previousRect )
     {
-        QSizeF newSize;
+        Size newSize;
         double offsetX;
         double offsetY;
         bool invalidArrange = false;
 
-        if ( !rect.isEmpty() )
+        if ( !rect.IsEmpty() )
         {
             double offset = BorderMargin + CornerResizeHandleSize / 2;
-            QRectF adornerRect = rect.adjusted(-offset, -offset, offset, offset);
+            Rect adornerRect = Rect::Inflate(rect, offset, offset);
 
-            newSize = adornerRect.size();
-            offsetX = adornerRect.left();
-            offsetY = adornerRect.top();
+            newSize = adornerRect.GetSize();
+            offsetX = adornerRect.Left();
+            offsetY = adornerRect.Top();
         }
         else
         {
-            newSize = QSizeF(0, 0);
+            newSize = Size(0, 0);
             offsetX = 0;
             offsetY = 0;
         }
@@ -115,7 +115,7 @@ void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF const &rect)
             if ( parent != nullptr   )
             {
                Parent()->InvalidateArrange( );
-               Arrange(QRectF(_offsetX, _offsetY, _frameSize.width(), _frameSize.height()));
+               Arrange(Rect(_offsetX, _offsetY, _frameSize.Width(), _frameSize.Height()));
             }
         }
 
@@ -127,7 +127,7 @@ void InkCanvasFeedbackAdorner::OnBoundsUpdated(QRectF const &rect)
 /// The overridden MeasureOverride method
 /// </summary>
 /// <param name="constraint"></param>
-QSizeF InkCanvasFeedbackAdorner::MeasureOverride(QSizeF constraint)
+Size InkCanvasFeedbackAdorner::MeasureOverride(Size)
 {
     VerifyAccess();
 
@@ -143,18 +143,18 @@ void InkCanvasFeedbackAdorner::OnRender(DrawingContext& drawingContext)
 {
     // No need to invoke VerifyAccess since this method calls DrawingContext.DrawRectangle.
 
-    Debug::Assert(_frameSize != QSizeF(0, 0));
+    Debug::Assert(_frameSize != Size(0, 0));
     // Draw the wire frame.
     drawingContext.DrawRectangle(QBrush(), _adornerBorderPen,
-        QRectF(CornerResizeHandleSize / 2, CornerResizeHandleSize / 2,
-            _frameSize.width() - CornerResizeHandleSize, _frameSize.height() - CornerResizeHandleSize));
+        Rect(CornerResizeHandleSize / 2, CornerResizeHandleSize / 2,
+            _frameSize.Width() - CornerResizeHandleSize, _frameSize.Height() - CornerResizeHandleSize));
 }
 
 /// <summary>
 /// The method is called by InkCanvasSelection.UpdateFeedbackRect
 /// </summary>
 /// <param name="rect"></param>
-void InkCanvasFeedbackAdorner::UpdateBounds(QRectF const &rect)
+void InkCanvasFeedbackAdorner::UpdateBounds(Rect const &rect)
 {
     // Invoke OnBoundsUpdated.
     OnBoundsUpdated(rect);

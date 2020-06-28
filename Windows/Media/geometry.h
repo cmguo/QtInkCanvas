@@ -109,8 +109,8 @@ private:
 class RectangleGeometry : public Geometry
 {
 public:
-    RectangleGeometry(Rect rectangle);
-    RectangleGeometry(Rect rectangle, double radiusX, double radiusY);
+    RectangleGeometry(Rect const & rectangle);
+    RectangleGeometry(Rect const & rectangle, double radiusX, double radiusY);
 
     virtual Rect Bounds() override;
 
@@ -126,7 +126,7 @@ private:
 class EllipseGeometry : public Geometry
 {
 public:
-    EllipseGeometry(Point center, double radiusX, double radiusY);
+    EllipseGeometry(Point const & center, double radiusX, double radiusY);
 
     virtual Rect Bounds() override;
 

@@ -14,7 +14,9 @@ StylusShape::StylusShape()
 #if STROKE_COLLECTION_EDIT_MASK
 StylusShape::StylusShape(QPolygonF const & polygon)
 {
-    m_vertices = polygon.mid(0, polygon.size() - 1);
+    m_vertices.resize(polygon.size() - 1);
+    for (int i = 0; i < polygon.size() - 1; ++i)
+        m_vertices[i] = polygon[i];
 }
 #endif
 

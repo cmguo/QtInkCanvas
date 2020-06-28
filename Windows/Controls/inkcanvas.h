@@ -185,14 +185,14 @@ protected:
     /// </summary>
     /// <param name="availableSize"></param>
     /// <returns></returns>
-    virtual QSizeF MeasureOverride(QSizeF availableSize) override;
+    virtual Size MeasureOverride(Size availableSize) override;
 
     /// <summary>
     /// ArrangeOverride
     /// </summary>
     /// <param name="arrangeSize"></param>
     /// <returns></returns>
-    virtual QSizeF ArrangeOverride(QSizeF arrangeSize) override;
+    virtual Size ArrangeOverride(Size arrangeSize) override;
 
 
     /// <summary>
@@ -401,11 +401,11 @@ public:
     /// <summary>
     /// Gets/Sets the Strokes property.
     /// </summary>
-    QSharedPointer<StrokeCollection> Strokes()
+    SharedPointer<StrokeCollection> Strokes()
     {
-        return GetValue<QSharedPointer<StrokeCollection>>(StrokesProperty);
+        return GetValue<SharedPointer<StrokeCollection>>(StrokesProperty);
     }
-    void SetStrokes(QSharedPointer<StrokeCollection> value)
+    void SetStrokes(SharedPointer<StrokeCollection> value)
     {
         SetValue(StrokesProperty, value);
     }
@@ -470,8 +470,8 @@ public:
     /// <summary>
     /// Gets/Sets the DefaultDrawingAttributes property.
     /// </summary>
-    QSharedPointer<DrawingAttributes> DefaultDrawingAttributes();
-    void SetDefaultDrawingAttributes(QSharedPointer<DrawingAttributes> value);
+    SharedPointer<DrawingAttributes> DefaultDrawingAttributes();
+    void SetDefaultDrawingAttributes(SharedPointer<DrawingAttributes> value);
 
     static void OnDefaultDrawingAttributesChanged(DependencyObject& d, DependencyPropertyChangedEventArgs& e);
 
@@ -599,15 +599,15 @@ public:
     /// Read/Write access to the DefaultPacketDescription property.
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    QSharedPointer<StylusPointDescription> DefaultStylusPointDescription();
-    void SetDefaultStylusPointDescription(QSharedPointer<StylusPointDescription> value);
+    SharedPointer<StylusPointDescription> DefaultStylusPointDescription();
+    void SetDefaultStylusPointDescription(SharedPointer<StylusPointDescription> value);
 
     /// <summary>
     /// Read/Write the enabled ClipboardFormats
     /// </summary>
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    QList<InkCanvasClipboardFormat> PreferredPasteFormats();
-    void SetPreferredPasteFormats(QList<InkCanvasClipboardFormat> value);
+    List<InkCanvasClipboardFormat> PreferredPasteFormats();
+    void SetPreferredPasteFormats(List<InkCanvasClipboardFormat> value);
 
 public:
     /// <summary>
@@ -1058,25 +1058,25 @@ public:
     /// is false
     /// </summary>
     /// <returns></returns>
-    QList<ApplicationGesture> GetEnabledGestures();
+    List<ApplicationGesture> GetEnabledGestures();
 
     /// <summary>
     /// Sets the enabled gestures.  This method throws an exception if GestureRecognizerAvailable
     /// is false
     /// </summary>
     /// <returns></returns>
-    void SetEnabledGestures(QList<ApplicationGesture> applicationGestures);
+    void SetEnabledGestures(List<ApplicationGesture> applicationGestures);
 
     /// <summary>
     /// Get the selection bounds.
     /// </summary>
     /// <returns></returns>
-    QRectF GetSelectionBounds();
+    Rect GetSelectionBounds();
 
     /// <summary>
     /// provides access to the currently selected elements which are children of this InkCanvas
     /// </summary>
-    QList<UIElement*> GetSelectedElements();
+    List<UIElement*> GetSelectedElements();
     //{
     //    VerifyAccess();
     //    return InkCanvasSelection.SelectedElements;
@@ -1085,33 +1085,33 @@ public:
     /// <summary>
     /// provides read access to the currently selected strokes
     /// </summary>
-    QSharedPointer<StrokeCollection> GetSelectedStrokes();
+    SharedPointer<StrokeCollection> GetSelectedStrokes();
 
     /// <summary>
     /// Overload which calls the more complex version, passing nullptr for selectedElements
     /// </summary>
     /// <param name="selectedStrokes">The strokes to select</param>
-    void Select(QSharedPointer<StrokeCollection> selectedStrokes);
+    void Select(SharedPointer<StrokeCollection> selectedStrokes);
 
     /// <summary>
     /// Overload which calls the more complex version, passing nullptr for selectedStrokes
     /// </summary>
     /// <param name="selectedElements">The elements to select</param>
-    void Select(QList<UIElement*> selectedElements);
+    void Select(List<UIElement*> selectedElements);
 
     /// <summary>
     /// Overload which calls the more complex version, passing nullptr for selectedStrokes
     /// </summary>
     /// <param name="selectedStrokes">The strokes to select</param>
     /// <param name="selectedElements">The elements to select</param>
-    void Select(QSharedPointer<StrokeCollection> selectedStrokes, QList<UIElement*> selectedElements);
+    void Select(SharedPointer<StrokeCollection> selectedStrokes, List<UIElement*> selectedElements);
 
     /// <summary>
     /// Hit test on the selection
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    InkCanvasSelectionHitResult HitTestSelection(QPointF const &point);
+    InkCanvasSelectionHitResult HitTestSelection(Point const &point);
 
     /// <summary>
     /// Copy the current selection in the InkCanvas to the clipboard
@@ -1131,7 +1131,7 @@ public:
     /// <summary>
     /// Paste the contents of the clipboard to the specified location in the InkCanvas
     /// </summary>
-    void Paste(QPointF const &point);
+    void Paste(Point const &point);
 
     /// <summary>
     /// Return true if clipboard contents can be pasted into the InkCanvas.
@@ -1238,7 +1238,7 @@ public:
     /// <summary>
     /// This method pastes data from an DataObject object
     /// </summary>
-    void PasteFromDataObject(DataObject const * dataObj, QPointF const & point);
+    void PasteFromDataObject(DataObject const * dataObj, Point const & point);
 
     /// <summary>
     /// Copies the InkCanvas contents to a DataObject and returns it to the caller.
@@ -1288,13 +1288,13 @@ public:
     /// Internal helper called by LassoSelectionBehavior to update the display
     /// of dynamically added strokes
     /// </summary>
-    void UpdateDynamicSelection(   QSharedPointer<StrokeCollection> strokesToDynamicallySelect,
-                                            QSharedPointer<StrokeCollection> strokesToDynamicallyUnselect);
+    void UpdateDynamicSelection(   SharedPointer<StrokeCollection> strokesToDynamicallySelect,
+                                            SharedPointer<StrokeCollection> strokesToDynamicallyUnselect);
 
     /// <summary>
     /// Internal helper used by LassoSelectionBehavior
     /// </summary>
-    QSharedPointer<StrokeCollection> EndDynamicSelection(Visual* visual);
+    SharedPointer<StrokeCollection> EndDynamicSelection(Visual* visual);
 
     /// <summary>
     /// Clears the selection in the ink canvas
@@ -1322,7 +1322,7 @@ public:
     /// Helper that creates selection for an InkCanvas.  Used by the SelectedStrokes and
     /// SelectedElements properties
     /// </summary>
-    void ChangeInkCanvasSelection(QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements);
+    void ChangeInkCanvasSelection(SharedPointer<StrokeCollection> strokes, List<UIElement*> elements);
 
 
     /// <summary>
@@ -1331,7 +1331,7 @@ public:
     /// <param name="validStrokes">validStrokes</param>
     /// <param name="validElements">validElements</param>
     /// <param name="raiseSelectionChanged">raiseSelectionChanged</param>
-    void CoreChangeSelection(QSharedPointer<StrokeCollection> validStrokes, QList<UIElement*> validElements, bool raiseSelectionChanged);
+    void CoreChangeSelection(SharedPointer<StrokeCollection> validStrokes, List<UIElement*> validElements, bool raiseSelectionChanged);
 
 #if DEBUG_LASSO_FEEDBACK
     ContainerVisual RendererRootContainer()
@@ -1347,7 +1347,7 @@ public:
     /// <param name="subset">The possible subset</param>
     /// <param name="superset">The container set</param>
     /// <returns>True if subset is a subset of superset, false otherwise</returns>
-    static QSharedPointer<StrokeCollection> GetValidStrokes(QSharedPointer<StrokeCollection> subset, QSharedPointer<StrokeCollection> superset);
+    static SharedPointer<StrokeCollection> GetValidStrokes(SharedPointer<StrokeCollection> subset, SharedPointer<StrokeCollection> superset);
 
 private:
     /// <summary>
@@ -1365,13 +1365,13 @@ private:
     /// Private helper used to ensure that any stroke collection
     /// passed to the InkCanvas is valid.  Throws exceptions if the argument is invalid
     /// </summary>
-    QSharedPointer<StrokeCollection> ValidateSelectedStrokes(QSharedPointer<StrokeCollection> strokes);
+    SharedPointer<StrokeCollection> ValidateSelectedStrokes(SharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Private helper used to ensure that a UIElement* argument passed in
     /// is valid.
     /// </summary>
-    QList<UIElement*> ValidateSelectedElements(QList<UIElement*> selectedElements);
+    List<UIElement*> ValidateSelectedElements(List<UIElement*> selectedElements);
 
     /// <summary>
     /// Helper method used by DesignActivation to see if an element
@@ -1401,7 +1401,7 @@ private:
     /// <summary>
     /// Helper method used to set up the DynamicRenderer.
     /// </summary>
-    void UpdateDynamicRenderer(QSharedPointer<DrawingAttributes> newDrawingAttributes);
+    void UpdateDynamicRenderer(SharedPointer<DrawingAttributes> newDrawingAttributes);
 
     bool EnsureActiveEditingMode(InkCanvasEditingMode newEditingMode);
 
@@ -1600,7 +1600,7 @@ private:
     /// <summary>
     /// Runtime Selection StrokeCollection
     /// </summary>
-    QSharedPointer<StrokeCollection>            _dynamicallySelectedStrokes;
+    SharedPointer<StrokeCollection>            _dynamicallySelectedStrokes;
 
     /// <summary>
     /// Our editing logic
@@ -1610,7 +1610,7 @@ private:
     /// <summary>
     /// Defines the default StylusPointDescription
     /// </summary>
-    QSharedPointer<StylusPointDescription>     _defaultStylusPointDescription;
+    SharedPointer<StylusPointDescription>     _defaultStylusPointDescription;
 
 
     /// <summary>

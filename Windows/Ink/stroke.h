@@ -6,15 +6,11 @@
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Media/geometry.h"
 #include "Collections/Generic/list.h"
-#include <sharedptr.h>
+#include "sharedptr.h"
 
 #ifdef INKCANVAS_QT
 #include <QMap>
 #include <QObject>
-#endif
-
-#ifndef INKCANVAS_CORE
-class DrawingContext;
 #endif
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -28,6 +24,10 @@ class EventArgs;
 class StylusPointsReplacedEventArgs;
 class DrawingAttributesReplacedEventArgs;
 class ExtendedPropertyCollection;
+
+#ifndef INKCANVAS_CORE
+class DrawingContext;
+#endif
 
 // namespace System.Windows.Ink
 
@@ -81,7 +81,7 @@ public:
     /// <summary>Transforms the ink and also changes the StylusTip</summary>
     /// <param name="transformMatrix">Matrix to transform the stroke by</param>
     /// <param name="applyToStylusTip">Boolean if true the transform matrix will be applied to StylusTip</param>
-    virtual void Transform(Matrix & transformMatrix, bool applyToStylusTip);
+    virtual void Transform(Matrix const & transformMatrix, bool applyToStylusTip);
 
     /// <summary>
     /// Returns a Bezier smoothed version of the StylusPoints

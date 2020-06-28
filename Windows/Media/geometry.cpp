@@ -63,7 +63,7 @@ Rect PathGeometry::Bounds()
     return path_.boundingRect();
 }
 
-void PathGeometry::Draw(Painter &painter)
+void PathGeometry::Draw(QPainter &painter)
 {
     painter.drawPath(path_);
 }
@@ -110,17 +110,17 @@ Rect LineGeometry::Bounds()
 }
 
 #ifndef INKCANVAS_CORE
-void LineGeometry::Draw(Painter &painter)
+void LineGeometry::Draw(QPainter &painter)
 {
     painter.drawLine(start_, end_);
 }
 #endif
 
-RectangleGeometry::RectangleGeometry(Rect rectangle)
+RectangleGeometry::RectangleGeometry(Rect const & rectangle)
     : RectangleGeometry(rectangle, 0, 0)
 {
 }
-RectangleGeometry::RectangleGeometry(Rect rectangle, double radiusX, double radiusY)
+RectangleGeometry::RectangleGeometry(Rect const & rectangle, double radiusX, double radiusY)
     : rectangle_(rectangle)
     , radius_(radiusX, radiusY)
 {
@@ -134,18 +134,20 @@ Rect RectangleGeometry::Bounds()
 #ifndef INKCANVAS_CORE
 void RectangleGeometry::Draw(QPainter &painter)
 {
-    if (radius_.Empty())
+    if (radius_.IsEmpty())
         painter.drawRect(rectangle_);
     else
         painter.drawRoundedRect(rectangle_, radius_.Width(), radius_.Height());
 }
 #endif
 
-EllipseGeometry::EllipseGeometry(Point center, double radiusX, double radiusY)
+EllipseGeometry::EllipseGeometry(Point const & center, double radiusX, double radiusY)
     : rectangle_(0, 0, radiusX, radiusY)
 {
 #ifndef INKCANVAS_CORE
-    rectangle_.moveCenter(center);
+    QRectF r(rectangle_);
+    r.moveCenter(center);
+    rectangle_ = r;
 #endif
 }
 

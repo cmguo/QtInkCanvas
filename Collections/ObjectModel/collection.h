@@ -70,25 +70,24 @@ public:
 
     void SetCapacity(int n) { items.reserve(n); }
 
-    typename std::vector<T>::const_iterator begin() const
+    auto begin() const
     {
         return items.begin();
     }
 
-    typename std::vector<T>::const_iterator end() const
+    auto end() const
     {
         return items.end();
     }
 
     int IndexOf(T const & t) const
     {
-        auto iter = find(t);
-        return iter == end() ? -1 : static_cast<int>(iter - begin());
+        return items.IndexOf(t);
     }
 
     bool Contains(T const & t) const
     {
-        return IndexOf(t) >= 0;
+        return items.Contains(t);
     }
 
 protected:

@@ -74,7 +74,7 @@ public:
     /// </summary>
     QString ToString() const
     {
-        return "{Id=" +
+        return QString("{Id=") +
             StylusPointPropertyIds::GetStringRepresentation(_id) +
             ", IsButton=" +
             _isButton +

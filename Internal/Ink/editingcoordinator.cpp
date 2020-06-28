@@ -765,7 +765,7 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
 
         if ( stylusEditingBehavior != nullptr )
         {
-            QSharedPointer<StylusPointCollection> stylusPoints;
+            SharedPointer<StylusPointCollection> stylusPoints;
             if ( _capturedStylus != nullptr )
             {
                 stylusPoints = _capturedStylus->GetStylusPoints(&_inkCanvas, _commonDescription);
@@ -779,7 +779,7 @@ void EditingCoordinator::OnInkCanvasDeviceMove(InputEventArgs& args)
                     return;
                 }
 
-                stylusPoints.reset(new StylusPointCollection(QVector<QPointF>{ _capturedMouse->GetPosition(&_inkCanvas) }));
+                stylusPoints.reset(new StylusPointCollection(Array<Point>{ _capturedMouse->GetPosition(&_inkCanvas) }));
             }
 
             bool fSucceeded = false;
@@ -937,7 +937,7 @@ void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEdit
     Debug::Assert(stylusEditingBehavior != nullptr, "stylusEditingBehavior cannot be null.");
     Debug::Assert(!IsInMidStroke(), "The previous device hasn't been released yet.");
 
-    QSharedPointer<StylusPointCollection> stylusPoints;
+    SharedPointer<StylusPointCollection> stylusPoints;
 
     _capturedStylus = qobject_cast<StylusDevice*>(inputDevice);
     _capturedMouse = qobject_cast<MouseDevice*>(inputDevice);
@@ -948,7 +948,7 @@ void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEdit
     if ( _capturedStylus != nullptr )
     {
 
-        QSharedPointer<StylusPointCollection> newPoints = _capturedStylus->GetStylusPoints(&_inkCanvas, nullptr);
+        SharedPointer<StylusPointCollection> newPoints = _capturedStylus->GetStylusPoints(&_inkCanvas, nullptr);
 
         _commonDescription =
             StylusPointDescription::GetCommonDescription(_inkCanvas.DefaultStylusPointDescription(),
@@ -991,7 +991,7 @@ void EditingCoordinator::InitializeCapture(InputDevice* inputDevice, IStylusEdit
 
         _commonDescription = nullptr;
 
-        QVector<QPointF> points = { _capturedMouse->GetPosition(&_inkCanvas) };
+        Array<Point> points = { _capturedMouse->GetPosition(&_inkCanvas) };
         stylusPoints.reset(new StylusPointCollection(points));
         stylusEditingBehavior->AddStylusPoints(stylusPoints, userInitiated);
 

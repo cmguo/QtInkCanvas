@@ -1,9 +1,8 @@
 #ifndef POINTHITTESTPARAMETERS_H
 #define POINTHITTESTPARAMETERS_H
 
-#include "hittestparameters.h"
-
-#include <QPointF>
+#include "Windows/Media/hittestparameters.h"
+#include "Windows/point.h"
 
 // namespace System.Windows.Media
 INKCANVAS_BEGIN_NAMESPACE
@@ -17,7 +16,7 @@ public:
     /// <summary>
     /// The constructor takes the point to hit test with.
     /// </summary>
-    PointHitTestParameters(QPointF const & point) : HitTestParameters()
+    PointHitTestParameters(Point const & point) : HitTestParameters()
     {
         _hitPoint = point;
     }
@@ -25,18 +24,18 @@ public:
     /// <summary>
     /// The point to hit test against.
     /// </summary>
-    QPointF & HitPoint()
+    Point & HitPoint()
     {
         return _hitPoint;
     }
 
-    void SetHitPoint(QPointF const & hitPoint)
+    void SetHitPoint(Point const & hitPoint)
     {
         _hitPoint = hitPoint;
     }
 
 private:
-    QPointF _hitPoint;
+    Point _hitPoint;
 };
 
 INKCANVAS_END_NAMESPACE

@@ -74,7 +74,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
         return Quad::Empty();
     }
 
-    // Get the QPointF const &between the node positions
+    // Get the Point const &between the node positions
     Vector spine = endNode.Position() - beginNode.Position();
     if (_nodeShapeToCircle.IsIdentity() == false)
     {
@@ -84,7 +84,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
     double beginRadius = _radius * beginNode.PressureFactor();
     double endRadius = _radius * endNode.PressureFactor();
 
-    // Get the QPointF const &and the distance between the node positions
+    // Get the Point const &and the distance between the node positions
     double distanceSquared = spine.LengthSquared();
     double delta = endRadius - beginRadius;
     double deltaSquared = DoubleUtil::IsZero(delta) ? 0 : (delta * delta);
@@ -628,7 +628,7 @@ double EllipticalNodeOperations::ClipTest(Vector const &spineVector, double begi
 
     if (DoubleUtil::IsZero(Vector::Determinant(spineVector, hitVector)))
     {
-        // hitQPointF const &and spineQPointF const &are parallel
+        // hitPoint const &and spinePoint const &are parallel
         findex = ClipTest(spineVector, beginRadius, endRadius, GetNearest(hitBegin, hitEnd));
         Debug::Assert(!Double::IsNaN(findex));
     }
@@ -751,7 +751,7 @@ double EllipticalNodeOperations::ClipTest(Vector const &spine, double beginRadiu
 /// Helper function to find out the relative location of a segment {segBegin, segEnd} against
 /// a strokeNode (spine).
 /// </summary>
-/// <param name="spine">the spineQPointF const &of the StrokeNode</param>
+/// <param name="spine">the spinePoint const &of the StrokeNode</param>
 /// <param name="segBegin">Start position of the line segment</param>
 /// <param name="segEnd">End position of the line segment</param>
 /// <returns>HitResult</returns>
@@ -771,7 +771,7 @@ EllipticalNodeOperations::HitResult EllipticalNodeOperations::WhereIsNodeAboutSe
 /// <summary>
 /// Helper method to calculate the exact location to cut
 /// </summary>
-/// <param name="spineVector">QPointF the relative location of the two inking nodes</param>
+/// <param name="spineVector">Point the relative location of the two inking nodes</param>
 /// <param name="hitBegin">the begin point of the hitting segment</param>
 /// <param name="hitEnd">the end point of the hitting segment</param>
 /// <param name="endRadius">endNode radius</param>

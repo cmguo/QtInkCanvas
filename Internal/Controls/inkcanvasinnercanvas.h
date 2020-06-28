@@ -54,7 +54,7 @@ protected:
     /// </summary>
     /// <param name="constraint">Constraint size.</param>
     /// <returns>Computed desired size.</returns>
-    virtual QSizeF MeasureOverride(QSizeF constraint);
+    virtual Size MeasureOverride(Size constraint);
 
     /// <summary>
     /// Canvas computes a position for each of its children taking into account their margin and
@@ -64,7 +64,7 @@ protected:
     /// This code is same as the Canvas'.
     /// </summary>
     /// <param name="arrangeSize">Size that Canvas will assume to position children.</param>
-    virtual QSizeF ArrangeOverride(QSizeF arrangeSize);
+    virtual Size ArrangeOverride(Size arrangeSize);
 
     /// <summary>
     /// OnChildDesiredSizeChanged
@@ -78,18 +78,18 @@ protected:
     /// </summary>
     /// <param name="logicalParent"></param>
     /// <returns></returns>
-    virtual QList<UIElement*> CreateUIElementCollection(UIElement* logicalParent);
+    virtual List<UIElement*> CreateUIElementCollection(UIElement* logicalParent);
 
     /// <summary>
     /// Returns LogicalChildren
     /// </summary>
-    virtual QList<UIElement*> LogicalChildren();
+    virtual List<UIElement*> LogicalChildren();
 
     /// <summary>
     /// The overridden GetLayoutClip method
     /// </summary>
     /// <returns>Geometry to use as additional clip if ClipToBounds=true</returns>
-    virtual Geometry* GetLayoutClip(QSizeF layoutSlotSize);
+    virtual Geometry* GetLayoutClip(Size layoutSlotSize);
     //#endregion Protected Methods
 
     //------------------------------------------------------
@@ -106,12 +106,12 @@ public:
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    UIElement* HitTestOnElements(QPointF point);
+    UIElement* HitTestOnElements(Point point);
 
     /// <summary>
     /// Returns the private logical children
     /// </summary>
-    QList<UIElement*> PrivateLogicalChildren();
+    List<UIElement*> PrivateLogicalChildren();
 
     /// <summary>
     /// Returns the associated InkCanvas

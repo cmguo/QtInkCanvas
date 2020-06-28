@@ -2,6 +2,7 @@
 #define EDITINGBEHAVIOR_H
 
 #include "editingcoordinator.h"
+#include "Windows/Media/matrix.h"
 
 #include <QCursor>
 
@@ -148,7 +149,7 @@ protected:
     /// Calculate the transform which is accumalated with the InkCanvas' XXXTransform properties.
     /// </summary>
     /// <returns></returns>
-    QMatrix GetElementTransformMatrix();
+    Matrix GetElementTransformMatrix();
 
     /// <summary>
     /// OnTransformChanged

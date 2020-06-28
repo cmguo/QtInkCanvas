@@ -3,6 +3,7 @@
 
 #include "Internal/doubleutil.h"
 #include "cmath.h"
+#include "double.h"
 
 // namespace MS.Internal.Ink
 INKCANVAS_BEGIN_NAMESPACE
@@ -21,13 +22,13 @@ private:
     /// </summary>
     /// <value></value>
 public:
-    static constexpr double BeforeFirst = -DBL_MAX;
+    static constexpr double BeforeFirst = Double::MinValue;
 
     /// <summary>
     /// AfterLast
     /// </summary>
     /// <value></value>
-    static constexpr double AfterLast = DBL_MAX;
+    static constexpr double AfterLast = Double::MaxValue;
 
     StrokeFIndices()
     {

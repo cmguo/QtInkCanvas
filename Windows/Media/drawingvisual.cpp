@@ -26,7 +26,7 @@ public:
     {
     }
 
-    virtual void CloseCore(QList<Drawing*> rootDrawingGroupChildren) override
+    virtual void CloseCore(List<Drawing*> rootDrawingGroupChildren) override
     {
         DrawingGroupDrawingContext::CloseCore(rootDrawingGroupChildren);
         visual_->RenderClose();
@@ -56,7 +56,7 @@ DrawingGroup * DrawingVisual::GetDrawing()
 
 QRectF DrawingVisual::boundingRect() const
 {
-    return drawing_ ? drawing_->Bounds() : QRectF();
+    return drawing_ ? drawing_->Bounds() : Rect();
 }
 
 void DrawingVisual::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

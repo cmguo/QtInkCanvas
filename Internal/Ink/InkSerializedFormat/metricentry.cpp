@@ -4,6 +4,7 @@
 #include "Internal/doubleutil.h"
 
 #include <QBuffer>
+#include <QDataStream>
 
 INKCANVAS_BEGIN_NAMESPACE
 

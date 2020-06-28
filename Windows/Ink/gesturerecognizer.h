@@ -4,9 +4,8 @@
 #include "Windows/dependencyobject.h"
 #include "applicationgesture.h"
 #include "gesturerecognitionresult.h"
-
-#include <QList>
-#include <QSharedPointer>
+#include "Collections/Generic/list.h"
+#include "sharedptr.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -44,7 +43,7 @@ public:
     /// The constructor which take an array of the enabled application gestures.
     /// </summary>
     /// <param name="enabledApplicationGestures"></param>
-    GestureRecognizer(QList<ApplicationGesture> enabledApplicationGestures);
+    GestureRecognizer(List<ApplicationGesture> enabledApplicationGestures);
 
     //#endregion Constructors
 
@@ -74,13 +73,13 @@ public:
     ///     }
     ///
     /// </remarks>
-    void SetEnabledGestures(QList<ApplicationGesture> applicationGestures);
+    void SetEnabledGestures(List<ApplicationGesture> applicationGestures);
 
     /// <summary>
     /// Get the enabled gestures
     /// </summary>
     /// <returns></returns>
-    QList<ApplicationGesture> GetEnabledGestures();
+    List<ApplicationGesture> GetEnabledGestures();
 
     /// <summary>
     /// Performs gesture recognition on the StrokeCollection if a gesture recognizer
@@ -99,7 +98,7 @@ public:
     ///             UnmanagedCode is the only permission we assert.
     /// </SecurityNote>
     //[SecurityCritical]
-    QList<GestureRecognitionResult> Recognize(QSharedPointer<StrokeCollection> strokes);
+    List<GestureRecognitionResult> Recognize(SharedPointer<StrokeCollection> strokes);
 
     /// <summary>
     /// Performs gesture recognition on the StrokeCollection if a gesture recognizer
@@ -117,7 +116,7 @@ public:
     /// </SecurityNote>
     // Built into Core, also used by Framework.
     //[SecurityCritical]
-    QList<GestureRecognitionResult> CriticalRecognize(QSharedPointer<StrokeCollection> strokes);
+    List<GestureRecognitionResult> CriticalRecognize(SharedPointer<StrokeCollection> strokes);
 
 private:
     /// <summary>
@@ -130,7 +129,7 @@ private:
     ///     Critical: Calls SecurityCritical method NativeRecognizer.Recognize
     /// </SecurityNote>
     //[SecurityCritical]
-    QList<GestureRecognitionResult> RecognizeImpl(QSharedPointer<StrokeCollection> strokes);
+    List<GestureRecognitionResult> RecognizeImpl(SharedPointer<StrokeCollection> strokes);
 
 
 
@@ -190,7 +189,7 @@ private:
 
     //#region Fields
 
-    QList<ApplicationGesture>        _enabledGestures;
+    List<ApplicationGesture>        _enabledGestures;
     NativeRecognizer*            _nativeRecognizer;
     bool                        _disposed;
 

@@ -65,11 +65,11 @@ void InkCanvasInnerCanvas::OnVisualChildrenChanged(DependencyObject* visualAdded
 /// </summary>
 /// <param name="constraint">Constraint size.</param>
 /// <returns>Computed desired size.</returns>
-QSizeF InkCanvasInnerCanvas::MeasureOverride(QSizeF constraint)
+Size InkCanvasInnerCanvas::MeasureOverride(Size constraint)
 {
-    QSizeF childConstraint = QSizeF(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
+    Size childConstraint = Size(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
 
-    QSizeF newSize;
+    Size newSize;
     for ( UIElement* child : InternalChildren() )
     {
         if ( child == nullptr ) { continue; }
@@ -80,23 +80,23 @@ QSizeF InkCanvasInnerCanvas::MeasureOverride(QSizeF constraint)
         // For Right/Bottom, only the child->width()/Height will be used. Those properties will be used by the arrange
         // but not the measure.
         double left = (double)GetInkCanvas().GetLeft(child);
-        if ( !qIsNaN(left) )
+        if ( !Double::IsNaN(left) )
         {
-            newSize.setWidth(qMax(newSize.width(), left + child->DesiredSize().width()));
+            newSize.setWidth(qMax(newSize.Width(), left + child->DesiredSize().Width()));
         }
         else
         {
-            newSize.setWidth(qMax(newSize.width(), child->DesiredSize().width()));
+            newSize.setWidth(qMax(newSize.Width(), child->DesiredSize().Width()));
         }
 
         double top = (double)GetInkCanvas().GetTop(child);
-        if ( !qIsNaN(top) )
+        if ( !Double::IsNaN(top) )
         {
-            newSize.setHeight(qMax(newSize.height(), top + child->DesiredSize().height()));
+            newSize.setHeight(Math::Max(newSize.Height(), top + child->DesiredSize().Height()));
         }
         else
         {
-            newSize.setHeight(qMax(newSize.height(), child->DesiredSize().height()));
+            newSize.setHeight(Math::Max(newSize.Height(), child->DesiredSize().Height()));
         }
     }
 
@@ -111,7 +111,7 @@ QSizeF InkCanvasInnerCanvas::MeasureOverride(QSizeF constraint)
 /// This code is same as the Canvas'.
 /// </summary>
 /// <param name="arrangeSize">Size that Canvas will assume to position children.</param>
-QSizeF InkCanvasInnerCanvas::ArrangeOverride(QSizeF arrangeSize)
+Size InkCanvasInnerCanvas::ArrangeOverride(Size arrangeSize)
 {
     //Canvas arranges children at their DesiredSize.
     //This means that Margin on children is actually respected and added
@@ -131,7 +131,7 @@ QSizeF InkCanvasInnerCanvas::ArrangeOverride(QSizeF arrangeSize)
         //If Left is not specified, then Right is used
         //If both are not there, then 0
         double left = GetInkCanvas().GetLeft(child);
-        if ( !qIsNaN(left) )
+        if ( !Double::IsNaN(left) )
         {
             x = left;
         }
@@ -139,14 +139,14 @@ QSizeF InkCanvasInnerCanvas::ArrangeOverride(QSizeF arrangeSize)
         {
             double right = GetInkCanvas().GetRight(child);
 
-            if ( !qIsNaN(right) )
+            if ( !Double::IsNaN(right) )
             {
-                x = arrangeSize.width() - child->DesiredSize().width() - right;
+                x = arrangeSize.Width() - child->DesiredSize().Width() - right;
             }
         }
 
         double top = GetInkCanvas().GetTop(child);
-        if ( !qIsNaN(top) )
+        if ( !Double::IsNaN(top) )
         {
             y = top;
         }
@@ -154,13 +154,13 @@ QSizeF InkCanvasInnerCanvas::ArrangeOverride(QSizeF arrangeSize)
         {
             double bottom = GetInkCanvas().GetBottom(child);
 
-            if ( !qIsNaN(bottom) )
+            if ( !Double::IsNaN(bottom) )
             {
-                y = arrangeSize.height() - child->DesiredSize().height() - bottom;
+                y = arrangeSize.Height() - child->DesiredSize().Height() - bottom;
             }
         }
 
-        child->Arrange(QRectF(QPointF(x, y), child->DesiredSize()));
+        child->Arrange(Rect(Point(x, y), child->DesiredSize()));
     }
 
     return arrangeSize;
@@ -184,7 +184,7 @@ void InkCanvasInnerCanvas::OnChildDesiredSizeChanged(UIElement* child)
 /// </summary>
 /// <param name="logicalParent"></param>
 /// <returns></returns>
-QList<UIElement*> InkCanvasInnerCanvas::CreateUIElementCollection(UIElement* logicalParent)
+List<UIElement*> InkCanvasInnerCanvas::CreateUIElementCollection(UIElement* logicalParent)
 {
     (void) logicalParent;
     // Replace the logical parent of the InnerCanvas children with our GetInkCanvas().
@@ -194,17 +194,17 @@ QList<UIElement*> InkCanvasInnerCanvas::CreateUIElementCollection(UIElement* log
 /// <summary>
 /// Returns LogicalChildren
 /// </summary>
-QList<UIElement*> InkCanvasInnerCanvas::LogicalChildren()
+List<UIElement*> InkCanvasInnerCanvas::LogicalChildren()
 {
     // InnerCanvas won't have any logical children publicly.
-    return QList<UIElement*>();
+    return List<UIElement*>();
 }
 
 /// <summary>
 /// The overridden GetLayoutClip method
 /// </summary>
 /// <returns>Geometry to use as additional clip if ClipToBounds=true</returns>
-Geometry* InkCanvasInnerCanvas::GetLayoutClip(QSizeF layoutSlotSize)
+Geometry* InkCanvasInnerCanvas::GetLayoutClip(Size layoutSlotSize)
 {
     // NTRAID:WINDOWSOS#1516798-2006/02/17-WAYNEZEN
     // By default an FE will clip its content if the ink size exceeds the layout size (the final arrange size).
@@ -234,7 +234,7 @@ Geometry* InkCanvasInnerCanvas::GetLayoutClip(QSizeF layoutSlotSize)
 /// </summary>
 /// <param name="point"></param>
 /// <returns></returns>
-UIElement* InkCanvasInnerCanvas::HitTestOnElements(QPointF point)
+UIElement* InkCanvasInnerCanvas::HitTestOnElements(Point point)
 {
     UIElement* hitElement = nullptr;
 
@@ -264,7 +264,7 @@ UIElement* InkCanvasInnerCanvas::HitTestOnElements(QPointF point)
             {
                 // Break when we hit the inner canvas in the visual tree.
                 hitElement = currentObject;
-                Debug::Assert(Children().contains(hitElement), "The hit element should be a child of InnerCanvas.");
+                Debug::Assert(Children().Contains(hitElement), "The hit element should be a child of InnerCanvas.");
                 break;
             }
             else
@@ -280,7 +280,7 @@ UIElement* InkCanvasInnerCanvas::HitTestOnElements(QPointF point)
 /// <summary>
 /// Returns the private logical children
 /// </summary>
-QList<UIElement*> InkCanvasInnerCanvas::PrivateLogicalChildren()
+List<UIElement*> InkCanvasInnerCanvas::PrivateLogicalChildren()
 {
     // Return the logical children of the base - Canvas
     return UIElement::LogicalChildren();

@@ -188,9 +188,9 @@ UIElement* StylusPlugIn::GetElement()
 /// <summary>
 /// [TBS] - both Dispatchers
 /// </summary>
-QRectF StylusPlugIn::ElementBounds()
+Rect StylusPlugIn::ElementBounds()
 {
-     return (_pic != nullptr) ? _pic->Rect() : QRectF();
+     return (_pic != nullptr) ? _pic->GetRect() : Rect();
 }
 /////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -278,7 +278,7 @@ void StylusPlugIn::OnEnabledChanged()
 void StylusPlugIn::InvalidateIsActiveForInput()
 {
 
-    bool newIsActive = (_pic != nullptr) ? (Enabled() &&  _pic->contains(this) &&
+    bool newIsActive = (_pic != nullptr) ? (Enabled() &&  _pic->Contains(this) &&
         _pic->IsActiveForInput()) : false;
 
     if (newIsActive != _activeForInput)

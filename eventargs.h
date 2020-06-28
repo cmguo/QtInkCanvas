@@ -3,6 +3,8 @@
 
 #include "InkCanvas_global.h"
 
+#include <vector>
+
 INKCANVAS_BEGIN_NAMESPACE
 
 class EventArgs;
@@ -12,7 +14,7 @@ class EventHandler
 public:
     EventHandler() : data_(nullptr), handle_(nullptr) {}
 
-    //EventHandler(nullptr_t) : data_(nullptr), handle_(nullptr) {}
+    EventHandler(nullptr_t) : data_(nullptr), handle_(nullptr) {}
 
     void operator()(EventArgs & e) const
     {

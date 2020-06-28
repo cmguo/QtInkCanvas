@@ -18,7 +18,6 @@
 #include "Internal/finallyhelper.h"
 #include "Internal/debug.h"
 
-#include <QSharedPointer>
 #include <QIODevice>
 #include <QBuffer>
 #include <QtMath>
@@ -84,18 +83,18 @@ void StrokeCollectionSerializer::DecodeISF(QIODevice& inkData)
             Debug::Assert(inkData.bytesAvailable() > isfBase64PrefixLength);
 
             inkData.seek((long)isfBase64PrefixLength);
-            QList<char> charData;
+            List<char> charData;
             charData.reserve((int)inkData.size());
             char intByte;
             while (inkData.getChar(&intByte))
             {
-                charData.append(intByte);
+                charData.Add(intByte);
             }
 
-            if (0 == (quint8)(charData[charData.size() - 1]))
+            if (0 == (quint8)(charData[charData.Count() - 1]))
             {
                 //strip the null terminator
-                charData.pop_back();
+                charData.RemoveAt(charData.Count() - 1);
             }
 
             //char[] chars = charData.ToArray();
@@ -315,16 +314,16 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
     GuidList guidList;
     int strokeIndex = 0;
 
-    QSharedPointer<StylusPointDescription> currentStylusPointDescription;
-    QMatrix currentTabletToInkTransform;
+    SharedPointer<StylusPointDescription> currentStylusPointDescription;
+    Matrix currentTabletToInkTransform;
 
-    _strokeDescriptorTable.clear();
-    _drawingAttributesTable.clear();
-    _transformTable.clear();
-    _metricTable.clear();
+    _strokeDescriptorTable.Clear();
+    _drawingAttributesTable.Clear();
+    _transformTable.Clear();
+    _metricTable.Clear();
 
     // First make sure this ink is empty
-    if (0 != _coreStrokes.size() || const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties().Count() != 0)
+    if (0 != _coreStrokes.Count() || const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties().Count() != 0)
     {
         throw std::runtime_error(("ISF decoder cannot operate on non-empty ink container"));
     }
@@ -416,11 +415,11 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 //to dr.DrawingFlags = 0 because this was a perf hot spot
                                 //and instancing the epc first mitigates it
                                 ExtendedPropertyCollection* epc = new ExtendedPropertyCollection();
-                                epc->Add(KnownIds::DrawingFlags, QVariant::fromValue(DrawingFlag::Polyline));
-                                QSharedPointer<DrawingAttributes> dr(new DrawingAttributes(epc));
+                                epc->Add(KnownIds::DrawingFlags, QVariant::fromValue(DrawingFlags(DrawingFlag::Polyline)));
+                                SharedPointer<DrawingAttributes> dr(new DrawingAttributes(epc));
                                 localBytesDecoded = DrawingAttributeSerializer::DecodeAsISF(inputStream, guidList, bytesDecodedInCurrentTag, *dr);
 
-                                _drawingAttributesTable.append(dr);
+                                _drawingAttributesTable.Add(dr);
                                 drawingAttributesBlockDecoded = true;
                                 break;
                             }
@@ -455,8 +454,8 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 MetricBlock* blk;
 
                                 localBytesDecoded = DecodeMetricBlock(inputStream, bytesDecodedInCurrentTag, blk);
-                                _metricTable.clear();
-                                _metricTable.append(blk);
+                                _metricTable.Clear();
+                                _metricTable.Add(blk);
                                 metricBlockDecoded = true;
                                 break;
                             }
@@ -570,7 +569,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 {
                                     if (oldStrokeDescriptorTableIndex != strokeDescriptorTableIndex)
                                     {
-                                        if (_strokeDescriptorTable.size() <= strokeDescriptorTableIndex)
+                                        if (_strokeDescriptorTable.Count() <= strokeDescriptorTableIndex)
                                             throw std::runtime_error(("Invalid ISF data"));
                                     }
 
@@ -583,7 +582,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                     // if transform was specified in the ISF stream
                                     if (transformDecoded)
                                     {
-                                        if (_transformTable.size() <= transformTableIndex)
+                                        if (_transformTable.Count() <= transformTableIndex)
                                             throw std::runtime_error(("Invalid ISF data"));
 
                                         // Load the transform descriptor based on the index from the list of unique
@@ -595,7 +594,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
                                     // since ISF is stored in HIMETRIC, and we want to expose packet data
                                     //      as Avalon units, we'll update the convert the transform before loading the stroke
-                                    currentTabletToInkTransform.scale(HimetricToAvalonMultiplier, HimetricToAvalonMultiplier);
+                                    currentTabletToInkTransform.Scale(HimetricToAvalonMultiplier, HimetricToAvalonMultiplier);
                                 }
 
                                 MetricBlock* metricBlock = nullptr;
@@ -605,26 +604,26 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 {
                                     if (oldMetricDescriptorTableIndex != metricDescriptorTableIndex)
                                     {
-                                        if (_metricTable.size() <= metricDescriptorTableIndex)
+                                        if (_metricTable.Count() <= metricDescriptorTableIndex)
                                             throw std::runtime_error(("Invalid ISF data"));
                                     }
 
                                     metricBlock = _metricTable[(int)metricDescriptorTableIndex];
                                 }
 
-                                QSharedPointer<DrawingAttributes> activeDrawingAttributes;
+                                SharedPointer<DrawingAttributes> activeDrawingAttributes;
 
                                 // Load the drawing attributes based on the index from the list of unique drawing attributes
                                 if (drawingAttributesBlockDecoded)
                                 {
                                     if (oldDrawingAttributesTableIndex != drawingAttributesTableIndex)
                                     {
-                                        if (_drawingAttributesTable.size() <= drawingAttributesTableIndex)
+                                        if (_drawingAttributesTable.Count() <= drawingAttributesTableIndex)
                                             throw std::runtime_error(("Invalid ISF data"));
 
                                         oldDrawingAttributesTableIndex = drawingAttributesTableIndex;
                                     }
-                                    QSharedPointer<DrawingAttributes> currDA = _drawingAttributesTable[(int)drawingAttributesTableIndex];
+                                    SharedPointer<DrawingAttributes> currDA = _drawingAttributesTable[(int)drawingAttributesTableIndex];
                                     //we always clone so we don't get strokes that share DAs, which can lead
                                     //to all sorts of unpredictable behavior (ex: see Windows OS Bugs 1450047)
                                     activeDrawingAttributes = currDA->Clone();
@@ -645,7 +644,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                                 }
 
                                 // Load the stroke
-                                QSharedPointer<Stroke> localStroke;
+                                SharedPointer<Stroke> localStroke;
 #if OLD_ISF
                                 localBytesDecoded = StrokeSerializer::DecodeStroke(inputStream, bytesDecodedInCurrentTag, guidList, strokeDescriptor, currentStylusPointDescription, activeDrawingAttributes, currentTabletToInkTransform, compressor, localStroke);
 #else
@@ -687,8 +686,8 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 
                     bytesDecodedInCurrentTag = DecodeTransformBlock(inputStream, isfTag, remainingBytesInStream, false, xform);
                     transformDecoded = true;
-                    _transformTable.clear();
-                    _transformTable.append(xform);
+                    _transformTable.Clear();
+                    _transformTable.Add(xform);
                     break;
                 }
 
@@ -740,7 +739,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
                         // Loads any custom property data
                         bytesDecodedInCurrentTag = remainingBytesInStream;
 
-                        QUuid guid = guidList.FindGuid(isfTag);
+                        Guid guid = guidList.FindGuid(isfTag);
                         if (guid == GuidList::Empty)
                         {
                             throw std::runtime_error(("Global Custom Attribute tag embedded in ISF stream does not match guid table"));
@@ -798,7 +797,7 @@ void StrokeCollectionSerializer::DecodeRawISF(QIODevice& inputStream)
 /// </summary>
 quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList& guidList, quint32 cbSize)
 {
-    _drawingAttributesTable.clear();
+    _drawingAttributesTable.Clear();
 
     // First, allocate a temporary buffer and read the stream into it.
     // These will be compressed DRAW_ATTR structures.
@@ -823,7 +822,7 @@ quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList
 
 
         // Create a new drawing attribute
-        QSharedPointer<DrawingAttributes> attributes(new DrawingAttributes());
+        SharedPointer<DrawingAttributes> attributes(new DrawingAttributes());
         // pull off our defaults onthe drawing attribute as we need to
         //  respect what the ISF has.
         attributes->SetDrawingFlags(0);
@@ -837,7 +836,7 @@ quint32 StrokeCollectionSerializer::LoadDrawAttrsTable(QIODevice& strm, GuidList
         cbTotal -= cbDA;
 
         // Add this attribute to the global list
-        _drawingAttributesTable.append(attributes);
+        _drawingAttributesTable.Add(attributes);
     }
 
     if (0 != cbTotal)
@@ -876,7 +875,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
             throw std::runtime_error(("Invalid ISF data"));
 
         cbBlock -= cb;
-        descr->Template.append(tag);
+        descr->Template.Add(tag);
 
         // If this is TAG_BUTTONS
         if (KnownTagCache::KnownTagIndex::Buttons == tag && cbBlock > 0)
@@ -889,7 +888,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
                 throw std::runtime_error(("Invalid ISF data"));
 
             cbBlock -= cb;
-            descr->Template.append((KnownTagCache::KnownTagIndex)cbButton);
+            descr->Template.Add((KnownTagCache::KnownTagIndex)cbButton);
             while (cbBlock > 0 && cbButton > 0)
             {
                 quint32 dw;
@@ -900,7 +899,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
 
                 cbBlock -= cb;
                 cbButton--;
-                descr->Template.append((KnownTagCache::KnownTagIndex)dw);
+                descr->Template.Add((KnownTagCache::KnownTagIndex)dw);
             }
         }
         else if (KnownTagCache::KnownTagIndex::StrokePropertyList == tag && cbBlock > 0)
@@ -916,7 +915,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
                     throw std::runtime_error(("Invalid ISF data"));
 
                 cbBlock -= cb;
-                descr->Template.append((KnownTagCache::KnownTagIndex)dw);
+                descr->Template.Add((KnownTagCache::KnownTagIndex)dw);
             }
         }
     }
@@ -937,7 +936,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptor(QIODevice& strm, quin
 /// <returns></returns>
 quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorBlock(QIODevice& strm, quint32 cbSize)
 {
-    _strokeDescriptorTable.clear();
+    _strokeDescriptorTable.Clear();
     if (0 == cbSize)
         return 0;
 
@@ -947,7 +946,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorBlock(QIODevice& strm,
     if (cbRead != cbSize)
         throw std::runtime_error(("Invalid ISF data"));
 
-    _strokeDescriptorTable.append(descr);
+    _strokeDescriptorTable.Add(descr);
     return cbRead;
 }
 
@@ -961,7 +960,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorBlock(QIODevice& strm,
 /// <returns></returns>
 quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm, quint32 cbSize)
 {
-    _strokeDescriptorTable.clear();
+    _strokeDescriptorTable.Clear();
     if (0 == cbSize)
         return 0;
 
@@ -994,7 +993,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm,
         cbTotal -= cb;
 
         // Add this stroke descriptor to the list of global stroke descriptors
-        _strokeDescriptorTable.append(descr);
+        _strokeDescriptorTable.Add(descr);
     }
 
     if (0 != cbTotal)
@@ -1013,7 +1012,7 @@ quint32 StrokeCollectionSerializer::DecodeStrokeDescriptorTable(QIODevice& strm,
 /// <returns></returns>
 quint32 StrokeCollectionSerializer::DecodeMetricTable(QIODevice& strm, quint32 cbSize)
 {
-    _metricTable.clear();
+    _metricTable.Clear();
     if (cbSize == 0)
         return 0;
 
@@ -1043,7 +1042,7 @@ quint32 StrokeCollectionSerializer::DecodeMetricTable(QIODevice& strm, quint32 c
 
 
         cbTotal -= cb;
-        _metricTable.append(newblock);
+        _metricTable.Add(newblock);
     }
 
     if (0 != cbTotal)
@@ -1136,7 +1135,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformTable(QIODevice& strm, quint3
     //      (e.g. first pass through transform table)
     if (!useDoubles)
     {
-        _transformTable.clear();
+        _transformTable.Clear();
     }
 
     if (0 == cbSize)
@@ -1167,7 +1166,7 @@ quint32 StrokeCollectionSerializer::DecodeTransformTable(QIODevice& strm, quint3
         }
         else
         {
-            _transformTable.append(xform);
+            _transformTable.Add(xform);
         }
 
         tableIndex++;
@@ -1322,7 +1321,7 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
 
     cbTotal -= cb;
     cbRead += cb;
-    _inkSpaceRectangle.setX(data);
+    _inkSpaceRectangle.SetX(data);
     if (cbRead > cbSize)
         throw std::runtime_error(("Invalid ISF data"));
 
@@ -1333,7 +1332,7 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
 
     cbTotal -= cb;
     cbRead += cb;
-    _inkSpaceRectangle.setY(data);
+    _inkSpaceRectangle.SetY(data);
     if (cbRead > cbSize)
         throw std::runtime_error(("Invalid ISF data"));
 
@@ -1344,7 +1343,7 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
 
     cbTotal -= cb;
     cbRead += cb;
-    _inkSpaceRectangle.setWidth(data - _inkSpaceRectangle.left());
+    _inkSpaceRectangle.SetWidth(data - _inkSpaceRectangle.Left());
     if (cbRead > cbSize)
         throw std::runtime_error(("Invalid ISF data"));
 
@@ -1355,7 +1354,7 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
 
     cbTotal -= cb;
     cbRead += cb;
-    _inkSpaceRectangle.setHeight(data - _inkSpaceRectangle.top());
+    _inkSpaceRectangle.SetHeight(data - _inkSpaceRectangle.Top());
     if (cbRead > cbSize)
         throw std::runtime_error(("Invalid ISF data"));
 
@@ -1368,7 +1367,7 @@ quint32 StrokeCollectionSerializer::DecodeInkSpaceRectangle(QIODevice& strm, qui
 /// </summary>
 /// <param name="tdrd"></param>
 /// <returns></returns>
-QMatrix StrokeCollectionSerializer::LoadTransform(TransformDescriptor* tdrd)
+Matrix StrokeCollectionSerializer::LoadTransform(TransformDescriptor* tdrd)
 {
     double M00 = 0.0f, M01 = 0.0f, M10 = 0.0f, M11 = 0.0f, M20 = 0.0f, M21 = 0.0f;
 
@@ -1420,7 +1419,7 @@ QMatrix StrokeCollectionSerializer::LoadTransform(TransformDescriptor* tdrd)
         M21 = tdrd->Transform[5];
     }
 
-    return QMatrix(M00, M01, M10, M11, M20, M21);
+    return Matrix(M00, M01, M10, M11, M20, M21);
 }
 
 
@@ -1431,7 +1430,7 @@ QMatrix StrokeCollectionSerializer::LoadTransform(TransformDescriptor* tdrd)
 /// <param name="tag"></param>
 /// <param name="block"></param>
 /// <returns></returns>
-StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(QUuid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block)
+StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(Guid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block)
 {
     int dw = 0;
     bool fSetDefault = false;
@@ -1547,19 +1546,19 @@ StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(Q
 /// <param name="block"></param>
 /// <param name="guidList"></param>
 /// <returns></returns>
-QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPointDescription(StrokeDescriptor* strd, MetricBlock* block, GuidList& guidList)
+SharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPointDescription(StrokeDescriptor* strd, MetricBlock* block, GuidList& guidList)
 {
     int cTags = 0;
     int packetPropertyCount = 0;
     quint32 buttonCount = 0;
-    QVector<QUuid> buttonguids;
-    QList<KnownTagCache::KnownTagIndex> tags;
+    QVector<Guid> buttonguids;
+    List<KnownTagCache::KnownTagIndex> tags;
 
     // if strd is null, it means there is only default descriptor with X & Y
     if (nullptr != strd)
     {
-        //tags = new QList<KnownTagCache::KnownTagIndex>();
-        while (cTags < strd->Template.size())
+        //tags = new List<KnownTagCache::KnownTagIndex>();
+        while (cTags < strd->Template.Count())
         {
             KnownTagCache::KnownTagIndex tag = (KnownTagCache::KnownTagIndex)strd->Template[cTags];
 
@@ -1575,7 +1574,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
                 buttonguids.resize(buttonCount);
                 for (quint32 u = 0; u < buttonCount; u++)
                 {
-                    QUuid const & guid = guidList.FindGuid(strd->Template[cTags]);
+                    Guid const & guid = guidList.FindGuid(strd->Template[cTags]);
                     if (guid == GuidList::Empty)
                     {
                         throw std::runtime_error(("Button guid tag embedded in ISF stream does not match guid table"));
@@ -1597,7 +1596,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
                     throw std::runtime_error(("Invalid ISF with NoX or NoY specified"));
                 }
 
-                tags.append(strd->Template[cTags]);
+                tags.Add(strd->Template[cTags]);
                 packetPropertyCount++;
                 cTags++;
             }
@@ -1605,18 +1604,18 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
     }
 
 
-    QVector<StylusPointPropertyInfo> stylusPointPropertyInfos;
-    stylusPointPropertyInfos.append(GetStylusPointPropertyInfo(KnownIds::X, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::X, block));
-    stylusPointPropertyInfos.append(GetStylusPointPropertyInfo(KnownIds::Y, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::Y, block));
-    stylusPointPropertyInfos.append(GetStylusPointPropertyInfo(KnownIds::NormalPressure, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::NormalPressure, block));
+    List<StylusPointPropertyInfo> stylusPointPropertyInfos;
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::X, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::X, block));
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::Y, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::Y, block));
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::NormalPressure, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::NormalPressure, block));
 
     int pressureIndex = -1;
     //if (tags != null)
     if (strd != nullptr)
     {
-        for (int i = 0; i < tags.size(); i++)
+        for (int i = 0; i < tags.Count(); i++)
         {
-            QUuid const & guid = guidList.FindGuid(tags[i]);
+            Guid const & guid = guidList.FindGuid(tags[i]);
             if (guid == GuidList::Empty)
             {
                 throw std::runtime_error(("Packet Description Property tag embedded in ISF stream does not match guid table"));
@@ -1627,7 +1626,7 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
                 continue; //we've already added pressure (above)
             }
 
-            stylusPointPropertyInfos.append(GetStylusPointPropertyInfo(guid, tags[i], block));
+            stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(guid, tags[i], block));
         }
 
         //if (null != buttonguids)
@@ -1639,12 +1638,12 @@ QSharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPo
             {
                 StylusPointProperty buttonProperty(buttonguids[i], true);
                 StylusPointPropertyInfo buttonInfo(buttonProperty);
-                stylusPointPropertyInfos.append(buttonInfo);
+                stylusPointPropertyInfos.Add(buttonInfo);
             }
         }
     }
 
-    return QSharedPointer<StylusPointDescription>(new StylusPointDescription(stylusPointPropertyInfos, pressureIndex));
+    return SharedPointer<StylusPointDescription>(new StylusPointDescription(stylusPointPropertyInfos, pressureIndex));
 }
 //#endregion
 
@@ -1663,14 +1662,14 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
     //    new QDictionary<Stroke, StrokeLookupEntry>(_coreStrokes.Count);
 
     // Next go through all the strokes
-    for (int i = 0; i < _coreStrokes.size(); i++)
+    for (int i = 0; i < _coreStrokes.Count(); i++)
     {
         _strokeLookupTable.insert(_coreStrokes[i], new StrokeLookupEntry());
     }
 
     // Initialize all Arraylists
     //_strokeDescriptorTable = new List<StrokeDescriptor>(_coreStrokes.Count);
-    _strokeDescriptorTable.reserve(_coreStrokes.size());
+    _strokeDescriptorTable.reserve(_coreStrokes.Count());
     //_drawingAttributesTable = new List<DrawingAttributes>();
     //_metricTable = new List<MetricBlock>();
     //_transformTable = new List<TransformDescriptor>();
@@ -1684,7 +1683,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
         quint32 localEncodedSize = 0;
 
         quint8 xpData = (CurrentCompressionMode == CompressionMode::NoCompression) ? AlgoModule::NoCompression : AlgoModule::DefaultCompression;
-        for (QSharedPointer<Stroke> s : _coreStrokes)
+        for (SharedPointer<Stroke> s : _coreStrokes)
         {
             _strokeLookupTable[s]->CompressionData = xpData;
 
@@ -1693,7 +1692,7 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
             // know if pressure was used (and thus if we need to add Pressure
             // to the ISF packet description
             //
-            QVector<QVector<int>> isfReadyData;
+            Array<Array<int>> isfReadyData;
             bool shouldStorePressure;
             s->StylusPoints()->ToISFReadyArrays(isfReadyData, shouldStorePressure);
             _strokeLookupTable[s]->ISFReadyStrokeData = isfReadyData;
@@ -1705,21 +1704,21 @@ void StrokeCollectionSerializer::EncodeISF(QIODevice& outputStream)
 
 
         // Store Ink space rectangle information if necessary and anything other than default
-        if (_inkSpaceRectangle != QRectF())
+        if (_inkSpaceRectangle != Rect())
         {
             localEncodedSize = cumulativeEncodedSize;
 
-            QRectF inkSpaceRectangle = _inkSpaceRectangle;
+            Rect inkSpaceRectangle = _inkSpaceRectangle;
             cumulativeEncodedSize += SerializationHelper::Encode(localStream, (uint)KnownTagCache::KnownTagIndex::InkSpaceRectangle);
 
-            int i = (int)inkSpaceRectangle.left();
+            int i = (int)inkSpaceRectangle.Left();
 
             cumulativeEncodedSize += SerializationHelper::SignEncode(localStream, i);
-            i = (int)inkSpaceRectangle.top();
+            i = (int)inkSpaceRectangle.Top();
             cumulativeEncodedSize += SerializationHelper::SignEncode(localStream, i);
-            i = (int)inkSpaceRectangle.right();
+            i = (int)inkSpaceRectangle.Right();
             cumulativeEncodedSize += SerializationHelper::SignEncode(localStream, i);
-            i = (int)inkSpaceRectangle.bottom();
+            i = (int)inkSpaceRectangle.Bottom();
             cumulativeEncodedSize += SerializationHelper::SignEncode(localStream, i);
 
             // validate that the expected inkspace rectangle block in ISF was the actual size encoded
@@ -1873,10 +1872,10 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
     quint32 uCurrMetricDescriptorTableIndex = 0;
     quint32 currentTransformTableIndex = 0;
 
-    QVector<int> strokeIds = StrokeIdGenerator::GetStrokeIds(_coreStrokes);
-    for (int i = 0; i < _coreStrokes.size(); i++)
+    Array<int> strokeIds = StrokeIdGenerator::GetStrokeIds(_coreStrokes);
+    for (int i = 0; i < _coreStrokes.Count(); i++)
     {
-        QSharedPointer<Stroke> s = _coreStrokes[i];
+        SharedPointer<Stroke> s = _coreStrokes[i];
         quint32 cbStroke = 0;
 
         qDebug() << ("Encoding Stroke Id#") << strokeIds[i];
@@ -1985,11 +1984,11 @@ void StrokeCollectionSerializer::StoreStrokeData(QIODevice& localStream, GuidLis
 /// <param name="forceSave">save ids even if they are contiguous</param>
 quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIODevice& strm, bool forceSave)
 {
-    if (0 == strokes.size())
+    if (0 == strokes.Count())
         return 0;
 
     // Define an ArrayList to store the stroke ids
-    QVector<int> strkIds = StrokeIdGenerator::GetStrokeIds(strokes);
+    Array<int> strkIds = StrokeIdGenerator::GetStrokeIds(strokes);
 
     // First enumerate all strokes to collect the ids and also check if the follow the default sequence.
     // If they do we don't save the stroke ids
@@ -1999,7 +1998,7 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
     {
         // since the stroke allocation algorithm is i++, we check if any
         //  values are not equal to the sequential and consecutive list
-        for (int i = 0; i < strkIds.size(); i++)
+        for (int i = 0; i < strkIds.Length(); i++)
         {
             if (strkIds[i] != (i + 1))
             {
@@ -2032,12 +2031,12 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
     //if (data != nullptr)
     //{
         // First write the encoded size of the buffer
-    //    cbWrote += SerializationHelper::Encode(strm, (uint)(data.size() + SerializationHelper::VarSize((uint)strokes.Count)));
+    //    cbWrote += SerializationHelper::Encode(strm, (uint)(data.Count() + SerializationHelper::VarSize((uint)strokes.Count)));
 
         // Write the count of ids
-    //    cbWrote += SerializationHelper::Encode(strm, (uint)strokes.size());
-    //    strm.write(data, data.size());
-    //    cbWrote += (uint)data.size();
+    //    cbWrote += SerializationHelper::Encode(strm, (uint)strokes.Count());
+    //    strm.write(data, data.Count());
+    //    cbWrote += (uint)data.Count();
     //}
     // If compression fails for some reason, write the uncompressed data
     //else
@@ -2045,10 +2044,10 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
         quint8 bCompAlgo = 0;//AlgoModule.NoCompression;
 
         // Find the size of the data + size of the id count
-        quint32 cbStrokeId = (uint)(strokes.size() * 4 + 1 + SerializationHelper::VarSize((uint)strokes.size())); // 1 is for the compression header
+        quint32 cbStrokeId = (uint)(strokes.Count() * 4 + 1 + SerializationHelper::VarSize((uint)strokes.Count())); // 1 is for the compression header
 
         cbWrote += SerializationHelper::Encode(strm, cbStrokeId);
-        cbWrote += SerializationHelper::Encode(strm, (uint)strokes.size());
+        cbWrote += SerializationHelper::Encode(strm, (uint)strokes.Count());
         strm.putChar(bCompAlgo);
         cbWrote++;
 
@@ -2061,7 +2060,7 @@ quint32 StrokeCollectionSerializer::SaveStrokeIds(StrokeCollection& strokes, QIO
 //#pragma warning disable 6518
         QDataStream bw(&strm);
         bw.setVersion(QDataStream::Qt_4_0);
-        for (int i = 0; i < strkIds.size(); i++)
+        for (int i = 0; i < strkIds.Length(); i++)
         {
             bw << (strkIds[i]);
             cbWrote += 4;
@@ -2126,14 +2125,14 @@ GuidList StrokeCollectionSerializer::BuildGuidList()
 
     // First go through the list of ink properties
     auto& attributes = const_cast<StrokeCollection const &>(_coreStrokes).ExtendedProperties();
-    //for (i = 0; i < attributes.size(); i++)
-    for (QUuid const & id : attributes.GetGuidArray())
+    //for (i = 0; i < attributes.Count(); i++)
+    for (Guid const & id : attributes.GetGuidArray())
     {
         guidList.Add(id);
     }
 
     // Next go through all the strokes
-    for (int j = 0; j < _coreStrokes.size(); j++)
+    for (int j = 0; j < _coreStrokes.Count(); j++)
     {
         BuildStrokeGuidList(*_coreStrokes[j], guidList);
     }
@@ -2154,15 +2153,15 @@ void StrokeCollectionSerializer::BuildStrokeGuidList(Stroke const& stroke, GuidL
     // First drawing attributes
     //      Ignore the default Guids/attributes in the DrawingAttributes
     int count;
-    QVector<QUuid> guids = ExtendedPropertySerializer::GetUnknownGuids(stroke.GetDrawingAttributes()->ExtendedProperties(), count);
+    QVector<Guid> guids = ExtendedPropertySerializer::GetUnknownGuids(stroke.GetDrawingAttributes()->ExtendedProperties(), count);
 
     for (i = 0; i < count; i++)
     {
         guidList.Add(guids[i]);
     }
 
-    QVector<QUuid> descriptionGuids = stroke.StylusPoints()->Description()->GetStylusPointPropertyIds();
-    for (i = 0; i < descriptionGuids.size(); i++)
+    Array<Guid> descriptionGuids = stroke.StylusPoints()->Description()->GetStylusPointPropertyIds();
+    for (i = 0; i < descriptionGuids.Length(); i++)
     {
         guidList.Add(descriptionGuids[i]);
     }
@@ -2170,8 +2169,8 @@ void StrokeCollectionSerializer::BuildStrokeGuidList(Stroke const& stroke, GuidL
     if (stroke.ExtendedProperties().Count() > 0)
     {
         // Add the ExtendedProperty guids in the list
-        //for (i = 0; i < stroke.ExtendedProperties().size(); i++)
-        for (QUuid const & id : stroke.GetPropertyDataIds())
+        //for (i = 0; i < stroke.ExtendedProperties().Count(); i++)
+        for (Guid const & id : stroke.GetPropertyDataIds())
         {
             guidList.Add(id);
         }
@@ -2197,19 +2196,19 @@ quint8 StrokeCollectionSerializer::GetCompressionAlgorithm()
 /// <returns></returns>
 quint32 StrokeCollectionSerializer::SerializePacketDescrTable(QIODevice& strm)
 {
-    if (_strokeDescriptorTable.size() == 0)
+    if (_strokeDescriptorTable.Count() == 0)
         return 0;
 
     int count = 0;
     quint32 cbData = 0;
 
     // First add the appropriate header information
-    if (_strokeDescriptorTable.size() == 1)
+    if (_strokeDescriptorTable.Count() == 1)
     {
         StrokeDescriptor& tmp = *_strokeDescriptorTable[0];
 
         // If there is no tag, that means default template and only one entry in the list. Return from here
-        if (tmp.Template.size() == 0)
+        if (tmp.Template.Count() == 0)
             return 0;
         else
         {
@@ -2226,7 +2225,7 @@ quint32 StrokeCollectionSerializer::SerializePacketDescrTable(QIODevice& strm)
         quint32 cbTotal = 0;
 
         // First calculate the total encoded size of the all the Templates
-        for (count = 0; count < _strokeDescriptorTable.size(); count++)
+        for (count = 0; count < _strokeDescriptorTable.Count(); count++)
         {
             cbTotal += SerializationHelper::VarSize((_strokeDescriptorTable[count])->Size) + (_strokeDescriptorTable[count])->Size;
         }
@@ -2236,7 +2235,7 @@ quint32 StrokeCollectionSerializer::SerializePacketDescrTable(QIODevice& strm)
         cbData += SerializationHelper::Encode(strm, cbTotal);
 
         // Now write the encoded templates
-        for (count = 0; count < _strokeDescriptorTable.size(); count++)
+        for (count = 0; count < _strokeDescriptorTable.Count(); count++)
         {
             cbData += EncodeStrokeDescriptor(strm, *_strokeDescriptorTable[count]);
         }
@@ -2256,10 +2255,10 @@ quint32 StrokeCollectionSerializer::SerializeMetricTable(QIODevice& strm)
     quint32 cSize = 0;
     MetricBlock* block;
 
-    if (0 == _metricTable.size())
+    if (0 == _metricTable.Count())
         return 0;
 
-    for (int i = 0; i < _metricTable.size(); i++)
+    for (int i = 0; i < _metricTable.Count(); i++)
         cSize += _metricTable[i]->Size();
 
     quint32 cbData = 0;
@@ -2273,7 +2272,7 @@ quint32 StrokeCollectionSerializer::SerializeMetricTable(QIODevice& strm)
     {
         return 0;
     }
-    else if (1 == _metricTable.size())
+    else if (1 == _metricTable.Count())
     {
         cbData += SerializationHelper::Encode(strm, (uint)KnownTagCache::KnownTagIndex::MetricBlock);
     }
@@ -2283,7 +2282,7 @@ quint32 StrokeCollectionSerializer::SerializeMetricTable(QIODevice& strm)
         cbData += SerializationHelper::Encode(strm, cSize);
     }
 
-    for (int i = 0; i < _metricTable.size(); i++)
+    for (int i = 0; i < _metricTable.Count(); i++)
     {
         block = _metricTable[i];
         cbData += block->Pack(strm);
@@ -2305,7 +2304,7 @@ quint32 StrokeCollectionSerializer::EncodeStrokeDescriptor(QIODevice& strm, Stro
 
     // First encode the size of the descriptor
     cbData += SerializationHelper::Encode(strm, strd.Size);
-    for (int count = 0; count < strd.Template.size(); count++)
+    for (int count = 0; count < strd.Template.Count(); count++)
     {
         // Now encode all members of the descriptor
         cbData += SerializationHelper::Encode(strm, (uint)strd.Template[count]);
@@ -2324,7 +2323,7 @@ quint32 StrokeCollectionSerializer::SerializeTransformTable(QIODevice& strm)
 {
     // If there is only one entry in the TransformDescriptor table
     //      and it is the default descriptor, skip serialization of transforms
-    if (_transformTable.size() == 1 && _transformTable[0]->Size == 0)
+    if (_transformTable.Count() == 1 && _transformTable[0]->Size == 0)
     {
         return 0;
     }
@@ -2333,7 +2332,7 @@ quint32 StrokeCollectionSerializer::SerializeTransformTable(QIODevice& strm)
     quint32 doubleTotal = 0;
 
     // First count the size of all transforms (handling both float && double versions)
-    for (int i = 0; i < _transformTable.size(); i++)
+    for (int i = 0; i < _transformTable.Count(); i++)
     {
         TransformDescriptor* xform = _transformTable[i];
         quint32 cbLocal = SerializationHelper::VarSize((uint)xform->Tag);
@@ -2357,7 +2356,7 @@ quint32 StrokeCollectionSerializer::SerializeTransformTable(QIODevice& strm)
     quint32 cbTotal = 0;
 
     // If there is only one entry in the TransformDescriptor table
-    if (_transformTable.size() == 1)
+    if (_transformTable.Count() == 1)
     {
         TransformDescriptor* xform = _transformTable[0];
 
@@ -2368,7 +2367,7 @@ quint32 StrokeCollectionSerializer::SerializeTransformTable(QIODevice& strm)
         // Now first write the block descriptor and then write all transforms
         cbTotal += SerializationHelper::Encode(strm, (uint)KnownTagCache::KnownTagIndex::TransformTable);
         cbTotal += SerializationHelper::Encode(strm, floatTotal);
-        for (int i = 0; i < _transformTable.size(); i++)
+        for (int i = 0; i < _transformTable.Count(); i++)
         {
             cbTotal += EncodeTransformDescriptor(strm, *_transformTable[i], false);
         }
@@ -2378,7 +2377,7 @@ quint32 StrokeCollectionSerializer::SerializeTransformTable(QIODevice& strm)
         // Now first write the block descriptor and then write all transforms
         cbTotal += SerializationHelper::Encode(strm, (uint)KnownTagCache::KnownTagIndex::ExtendedTransformTable);
         cbTotal += SerializationHelper::Encode(strm, doubleTotal);
-        for (int i = 0; i < _transformTable.size(); i++)
+        for (int i = 0; i < _transformTable.Count(); i++)
         {
             cbTotal += EncodeTransformDescriptor(strm, *_transformTable[i], true);
         }
@@ -2470,10 +2469,10 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
     quint32 totalSizeOfSerializedBytes = 0;
     quint32 sizeOfHeaderInBytes = 0;
 
-    if (1 == _drawingAttributesTable.size())
+    if (1 == _drawingAttributesTable.Count())
     {
         //we always serialize a single DA, even if it has default values so we will write width back to the stream
-        QSharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[0];
+        SharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[0];
 
         // There is single drawing attribute. Save it along with the size
         totalSizeOfSerializedBytes += SerializationHelper::Encode(stream, (uint)KnownTagCache::KnownTagIndex::DrawingAttributesBlock);
@@ -2500,13 +2499,13 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
     else
     {
         // Temporarily declare an array to hold the size of the saved drawing attributes
-        QVector<uint> sizes(_drawingAttributesTable.size());
-        QVector<QBuffer*> drawingAttributeStreams(_drawingAttributesTable.size());
+        QVector<uint> sizes(_drawingAttributesTable.Count());
+        QVector<QBuffer*> drawingAttributeStreams(_drawingAttributesTable.Count());
 
         // First calculate the size of each attribute
-        for (int i = 0; i < _drawingAttributesTable.size(); i++)
+        for (int i = 0; i < _drawingAttributesTable.Count(); i++)
         {
-            QSharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[i];
+            SharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[i];
             drawingAttributeStreams[i] = new QBuffer;
             drawingAttributeStreams[i]->open(QIODevice::ReadWrite); //reasonable default based on profiling
 
@@ -2518,9 +2517,9 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
         totalSizeOfSerializedBytes = SerializationHelper::Encode(stream, (uint)KnownTagCache::KnownTagIndex::DrawingAttributesTable);
 
         totalSizeOfSerializedBytes += SerializationHelper::Encode(stream, sizeOfHeaderInBytes);
-        for (int i = 0; i < _drawingAttributesTable.size(); i++)
+        for (int i = 0; i < _drawingAttributesTable.Count(); i++)
         {
-            QSharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[i];
+            SharedPointer<DrawingAttributes> drawingAttributes = _drawingAttributesTable[i];
 
             // write the size of the block
             totalSizeOfSerializedBytes += SerializationHelper::Encode(stream, sizes[i]);
@@ -2548,16 +2547,16 @@ quint32 StrokeCollectionSerializer::SerializeDrawingAttrsTable(QIODevice& stream
 /// <param name="guidList"></param>
 void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 {
-    _transformTable.clear();
-    _strokeDescriptorTable.clear();
-    _metricTable.clear();
-    _drawingAttributesTable.clear();
+    _transformTable.Clear();
+    _strokeDescriptorTable.Clear();
+    _metricTable.Clear();
+    _drawingAttributesTable.Clear();
 
     int count = 0;
 
-    for (count = 0; count < _coreStrokes.size(); count++)
+    for (count = 0; count < _coreStrokes.Count(); count++)
     {
-        QSharedPointer<Stroke> stroke = _coreStrokes[count];
+        SharedPointer<Stroke> stroke = _coreStrokes[count];
 
         // First get the updated descriptor from the stroke
         StrokeDescriptor* strokeDescriptor;
@@ -2566,7 +2565,7 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
         bool fMatch = false;
 
         // Compare this with all the global stroke descriptor for a match
-        for (int descriptorIndex = 0; descriptorIndex < _strokeDescriptorTable.size(); descriptorIndex++)
+        for (int descriptorIndex = 0; descriptorIndex < _strokeDescriptorTable.Count(); descriptorIndex++)
         {
             if (strokeDescriptor->IsEqual(*_strokeDescriptorTable[descriptorIndex]))
             {
@@ -2577,14 +2576,14 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
         }
         if (false == fMatch)
         {
-            _strokeDescriptorTable.append(strokeDescriptor);
-            _strokeLookupTable[stroke]->StrokeDescriptorTableIndex = (uint)_strokeDescriptorTable.size() - 1;
+            _strokeDescriptorTable.Add(strokeDescriptor);
+            _strokeLookupTable[stroke]->StrokeDescriptorTableIndex = (uint)_strokeDescriptorTable.Count() - 1;
         }
 
         // If there is at least one entry in the metric block, check if the current Block is equvalent to
         // any of the existing one.
         fMatch = false;
-        for (int tmp = 0; tmp < _metricTable.size(); tmp++)
+        for (int tmp = 0; tmp < _metricTable.Count(); tmp++)
         {
             MetricBlock& block = *_metricTable[tmp];
             SetType type = SetType::SubSet;
@@ -2606,8 +2605,8 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 
         if (false == fMatch)
         {
-            _metricTable.append(metricBlock);
-            _strokeLookupTable[stroke]->MetricDescriptorTableIndex = (uint)(_metricTable.size() - 1);
+            _metricTable.Add(metricBlock);
+            _strokeLookupTable[stroke]->MetricDescriptorTableIndex = (uint)(_metricTable.Count() - 1);
         }
 
         // Now build the Transform Table
@@ -2619,7 +2618,7 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
         TransformDescriptor xform = IdentityTransformDescriptor;
 
         // First check to see if this matches with any existing Transform Blocks
-        for (int i = 0; i < _transformTable.size(); i++)
+        for (int i = 0; i < _transformTable.Count(); i++)
         {
             if (true == xform.Compare(*_transformTable[i]))
             {
@@ -2631,17 +2630,17 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 
         if (false == fMatch)
         {
-            _transformTable.append(new TransformDescriptor(xform));
-            _strokeLookupTable[stroke]->TransformTableIndex = (uint)(_transformTable.size() - 1);
+            _transformTable.Add(new TransformDescriptor(xform));
+            _strokeLookupTable[stroke]->TransformTableIndex = (uint)(_transformTable.Count() - 1);
         }
 
         // Now build the drawing attributes table
         fMatch = false;
 
-        QSharedPointer<DrawingAttributes> drattrs = _coreStrokes[count]->GetDrawingAttributes();
+        SharedPointer<DrawingAttributes> drattrs = _coreStrokes[count]->GetDrawingAttributes();
 
         // First check to see if this matches with any existing transform blocks
-        for (int i = 0; i < _drawingAttributesTable.size(); i++)
+        for (int i = 0; i < _drawingAttributesTable.Count(); i++)
         {
             if (true == drattrs->Equals(*_drawingAttributesTable[i]))
             {
@@ -2653,8 +2652,8 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 
         if (false == fMatch)
         {
-            _drawingAttributesTable.append(drattrs);
-            _strokeLookupTable[stroke]->DrawingAttributesTableIndex = (uint)_drawingAttributesTable.size() - 1;
+            _drawingAttributesTable.Add(drattrs);
+            _strokeLookupTable[stroke]->DrawingAttributesTableIndex = (uint)_drawingAttributesTable.Count() - 1;
         }
     }
 }
@@ -2665,12 +2664,12 @@ void StrokeCollectionSerializer::BuildTables(GuidList& guidList)
 /// </summary>
 /// <param name="strokes">strokes</param>
 /// <returns></returns>
-QVector<int> StrokeIdGenerator::GetStrokeIds(StrokeCollection& strokes)
+Array<int> StrokeIdGenerator::GetStrokeIds(StrokeCollection& strokes)
 {
     //Debug::Assert(strokes != null);
 
-    QVector<int> strokeIds(strokes.size());
-    for (int x = 0; x < strokeIds.size(); x++)
+    Array<int> strokeIds(strokes.Count());
+    for (int x = 0; x < strokeIds.Length(); x++)
     {
         //stroke ID's are 1 based (1,2,3...)
         strokeIds[x] = x + 1;

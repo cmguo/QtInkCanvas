@@ -48,7 +48,7 @@ InkPresenter::InkPresenter()
 /// </summary>
 /// <param name="visual">The stroke visual which needs to be attached</param>
 /// <param name="drawingAttributes">The DrawingAttributes of the stroke</param>
-void InkPresenter::AttachVisuals(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+void InkPresenter::AttachVisuals(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes)
 {
     VerifyAccess();
 
@@ -88,11 +88,11 @@ DependencyProperty const * const InkPresenter::StrokesProperty =
 /// <summary>
 /// Gets/Sets the Strokes property.
 /// </summary>
-QSharedPointer<StrokeCollection> InkPresenter::Strokes()
+SharedPointer<StrokeCollection> InkPresenter::Strokes()
 {
-    return GetValue<QSharedPointer<StrokeCollection>>(StrokesProperty);
+    return GetValue<SharedPointer<StrokeCollection>>(StrokesProperty);
 }
-void InkPresenter::SetStrokes(QSharedPointer<StrokeCollection> value)
+void InkPresenter::SetStrokes(SharedPointer<StrokeCollection> value)
 {
     SetValue(StrokesProperty, value);
 }
@@ -101,8 +101,8 @@ void InkPresenter::OnStrokesChanged(DependencyObject& d, DependencyPropertyChang
 {
     InkPresenter& inkPresenter = static_cast<InkPresenter&>(d);
 
-    QSharedPointer<StrokeCollection> oldValue = e.OldValue().value<QSharedPointer<StrokeCollection>>();
-    QSharedPointer<StrokeCollection> newValue = e.NewValue().value<QSharedPointer<StrokeCollection>>();
+    SharedPointer<StrokeCollection> oldValue = e.OldValue().value<SharedPointer<StrokeCollection>>();
+    SharedPointer<StrokeCollection> newValue = e.NewValue().value<SharedPointer<StrokeCollection>>();
 
     inkPresenter.StrokesChangedHandlers(newValue, oldValue);
     inkPresenter.OnStrokeChanged(EventArgs::Empty);
@@ -124,30 +124,30 @@ void InkPresenter::OnStrokesChanged(DependencyObject& d, DependencyPropertyChang
 /// </summary>
 /// <param name="constraint">Constraint size.</param>
 /// <returns>Computed desired size.</returns>
-QSizeF InkPresenter::MeasureOverride(QSizeF constraint)
+Size InkPresenter::MeasureOverride(Size constraint)
 {
     // No need to call VerifyAccess since we call the method on the base here.
 
-    QSharedPointer<StrokeCollection> strokes = Strokes();
+    SharedPointer<StrokeCollection> strokes = Strokes();
 
     // Measure the child first
-    QSizeF newSize = UIElement::MeasureOverride(constraint);
+    Size newSize = UIElement::MeasureOverride(constraint);
 
     // If there are strokes in IP, we need to combine the size to final size.
-    if ( strokes != nullptr && strokes->size() != 0 )
+    if ( strokes != nullptr && strokes->Count() != 0 )
     {
         // Get the bounds of the stroks
-        QRectF boundingRect = StrokesBounds();
+        Rect boundingRect = StrokesBounds();
 
         // If we have an empty bounding box or the Right/Bottom value is negative,
         // an empty size will be returned.
-        if ( !boundingRect.isEmpty() && boundingRect.right() > 0.0 && boundingRect.bottom() > 0.0 )
+        if ( !boundingRect.IsEmpty() && boundingRect.Right() > 0.0 && boundingRect.Bottom() > 0.0 )
         {
             // The new size needs to contain the right boundary and bottom boundary.
-            QSizeF sizeStrokes = QSizeF(boundingRect.right(), boundingRect.bottom());
+            Size sizeStrokes = Size(boundingRect.Right(), boundingRect.Bottom());
 
-            newSize.setWidth(qMax(newSize.width(), sizeStrokes.width()));
-            newSize.setHeight(qMax(newSize.height(), sizeStrokes.height()));
+            newSize.setWidth(qMax(newSize.Width(), sizeStrokes.Width()));
+            newSize.setHeight(qMax(newSize.Height(), sizeStrokes.Height()));
         }
     }
 
@@ -157,7 +157,7 @@ QSizeF InkPresenter::MeasureOverride(QSizeF constraint)
     }
     else
     {
-        _constraintSize = QSizeF();
+        _constraintSize = Size();
     }
 
     return newSize;
@@ -168,7 +168,7 @@ QSizeF InkPresenter::MeasureOverride(QSizeF constraint)
 /// </summary>
 /// <param name="arrangeSize">Size that element should use to arrange itself and its children.</param>
 /// <returns>The InkPresenter's desired size.</returns>
-QSizeF InkPresenter::ArrangeOverride(QSizeF arrangeSize)
+Size InkPresenter::ArrangeOverride(Size arrangeSize)
 {
     VerifyAccess();
 
@@ -177,11 +177,11 @@ QSizeF InkPresenter::ArrangeOverride(QSizeF arrangeSize)
     // NTRAID-WINDOWSOS#1091908-WAYNEZEN,
     // When we arrange the child, we shouldn't count in the strokes' bounds.
     // We only use the constraint size for the child.
-    QSizeF availableSize = arrangeSize;
-    if ( !_constraintSize.isEmpty() )
+    Size availableSize = arrangeSize;
+    if ( !_constraintSize.IsEmpty() )
     {
-        availableSize = QSizeF(qMin(arrangeSize.width(), _constraintSize.width()),
-                                        qMin(arrangeSize.height(), _constraintSize.height()));
+        availableSize = Size(qMin(arrangeSize.Width(), _constraintSize.Width()),
+                                        qMin(arrangeSize.Height(), _constraintSize.Height()));
     }
 
     // We arrange our child as what Decorator does
@@ -189,7 +189,7 @@ QSizeF InkPresenter::ArrangeOverride(QSizeF arrangeSize)
     UIElement* child = Child();
     if ( child != nullptr )
     {
-        child->Arrange(QRectF(QPointF(0, 0), availableSize));
+        child->Arrange(Rect(Point(0, 0), availableSize));
     }
 
     return arrangeSize;
@@ -199,7 +199,7 @@ QSizeF InkPresenter::ArrangeOverride(QSizeF arrangeSize)
 /// The overridden GetLayoutClip method
 /// </summary>
 /// <returns>Geometry to use as additional clip if ClipToBounds=true</returns>
-Geometry* InkPresenter::GetLayoutClip(QSizeF layoutSlotSize)
+Geometry* InkPresenter::GetLayoutClip(Size layoutSlotSize)
 {
     // NTRAID:WINDOWSOS#1516798-2006/02/17-WAYNEZEN
     // By default an FE will clip its content if the ink size exceeds the layout size (the final arrange size).
@@ -314,7 +314,7 @@ bool InkPresenter::ContainsAttachedVisual(Visual* visual)
 /// <summary>
 /// Internal helper used to determine if a visual is in the right spot in the visual tree
 /// </summary>
-bool InkPresenter::AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes)
+bool InkPresenter::AttachedVisualIsPositionedCorrectly(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes)
 {
     VerifyAccess();
     return _renderer->AttachedVisualIsPositionedCorrectly(visual, drawingAttributes);
@@ -425,7 +425,7 @@ private:
 
 //#region Methods
 
-void InkPresenter::StrokesChangedHandlers(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> oldStrokes)
+void InkPresenter::StrokesChangedHandlers(SharedPointer<StrokeCollection> newStrokes, SharedPointer<StrokeCollection> oldStrokes)
 {
     Debug::Assert(newStrokes != nullptr, "Cannot set a nullptr to InkPresenter");
 
@@ -460,7 +460,7 @@ void InkPresenter::OnStrokesChanged2(StrokeCollectionChangedEventArgs& eventArgs
     OnStrokeChanged(EventArgs::Empty);
 }
 
-void InkPresenter::SetStrokeChangedHandlers(QSharedPointer<StrokeCollection> addedStrokes, QSharedPointer<StrokeCollection> removedStrokes)
+void InkPresenter::SetStrokeChangedHandlers(SharedPointer<StrokeCollection> addedStrokes, SharedPointer<StrokeCollection> removedStrokes)
 {
     Debug::Assert(addedStrokes != nullptr, "The added StrokeCollection cannot be nullptr.");
     int count, i;
@@ -468,7 +468,7 @@ void InkPresenter::SetStrokeChangedHandlers(QSharedPointer<StrokeCollection> add
     if ( removedStrokes != nullptr )
     {
         // Deal with removed strokes first
-        count = removedStrokes->size();
+        count = removedStrokes->Count();
         for ( i = 0; i < count; i++ )
         {
             StopListeningOnStrokeEvents((*removedStrokes)[i]);
@@ -476,7 +476,7 @@ void InkPresenter::SetStrokeChangedHandlers(QSharedPointer<StrokeCollection> add
     }
 
     // Add new strokes
-    count = addedStrokes->size();
+    count = addedStrokes->Count();
     for ( i = 0; i < count; i++ )
     {
         StartListeningOnStrokeEvents((*addedStrokes)[i]);
@@ -502,7 +502,7 @@ void InkPresenter::OnStrokeChanged2()
 /// <summary>
 /// Attaches event handlers to stroke events
 /// </summary>
-void InkPresenter::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void InkPresenter::StartListeningOnStrokeEvents(SharedPointer<Stroke> stroke)
 {
     //System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated += new EventHandler(OnStrokeChanged);
@@ -513,7 +513,7 @@ void InkPresenter::StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
 /// <summary>
 /// Detaches event handlers from stroke
 /// </summary>
-void InkPresenter::StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke)
+void InkPresenter::StopListeningOnStrokeEvents(SharedPointer<Stroke> stroke)
 {
     //System.Diagnostics.Debug::Assert(stroke != nullptr);
     //stroke.Invalidated -= new EventHandler(OnStrokeChanged);
@@ -555,7 +555,7 @@ void InkPresenter::EnsureRootVisual()
 
 //#region Properties
 
-QRectF InkPresenter::StrokesBounds()
+Rect InkPresenter::StrokesBounds()
 {
     if ( !_cachedBounds.second )
     {

@@ -2,9 +2,7 @@
 #define DRAWING_H
 
 #include "Windows/Media/drawingdrawingcontext.h"
-
-#include <QRectF>
-#include <QList>
+#include "Windows/rect.h"
 
 class QPainter;
 class QSvgRenderer;
@@ -20,7 +18,7 @@ public:
 
     virtual ~Drawing();
 
-    virtual QRectF Bounds() = 0;
+    virtual Rect Bounds() = 0;
 
     virtual void Draw(QPainter& painer) = 0;
 
@@ -35,19 +33,19 @@ public:
 
     DrawingContext* Open();
 
-    QList<Drawing*>& Children();
+    List<Drawing*>& Children();
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
     virtual void Draw(QPainter& painer) override;
 
 private:
     friend class DrawingGroupDrawingContext;
 
-    void Close(QList<Drawing*> rootDrawingGroupChildren);
+    void Close(List<Drawing*> rootDrawingGroupChildren);
 
 private:
-    QList<Drawing*> children_;
+    List<Drawing*> children_;
 };
 
 #include <QBrush>
@@ -68,7 +66,7 @@ public:
 
     void SetGeometry(Geometry *);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
     virtual void Draw(QPainter& painer) override;
 
@@ -87,15 +85,15 @@ public:
 
     void SetImageSource(QImage);
 
-    void SetRect(QRectF);
+    void SetRect(Rect);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
     virtual void Draw(QPainter& painer) override;
 
 private:
     QImage image_;
-    QRectF rect_;
+    Rect rect_;
 };
 
 class SvgImageDrawing : public Drawing
@@ -107,15 +105,15 @@ public:
 
     void SetImageSource(QSvgRenderer * renderer);
 
-    void SetRect(QRectF);
+    void SetRect(Rect);
 
-    virtual QRectF Bounds() override;
+    virtual Rect Bounds() override;
 
     virtual void Draw(QPainter& painer) override;
 
 private:
     QSvgRenderer * renderer_;
-    QRectF rect_;
+    Rect rect_;
 };
 
 class DrawingGroupDrawingContext : public DrawingDrawingContext
@@ -123,7 +121,7 @@ class DrawingGroupDrawingContext : public DrawingDrawingContext
 public:
     DrawingGroupDrawingContext(DrawingGroup* drawingGroup);
 protected:
-    void CloseCore(QList<Drawing*> rootDrawingGroupChildren);
+    void CloseCore(List<Drawing*> rootDrawingGroupChildren);
 
 private:
     DrawingGroup* drawingGroup_ = nullptr;

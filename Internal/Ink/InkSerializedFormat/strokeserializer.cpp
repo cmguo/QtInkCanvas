@@ -34,13 +34,13 @@ uint StrokeSerializer::DecodeStroke(QIODevice& stream,
                          uint size,
                          GuidList& guidList,
                          StrokeDescriptor& strokeDescriptor,
-                         QSharedPointer<StylusPointDescription> stylusPointDescription,
-                         QSharedPointer<DrawingAttributes> drawingAttributes,
-                         QMatrix& transform,
-                         QSharedPointer<Stroke>& stroke)
+                         SharedPointer<StylusPointDescription> stylusPointDescription,
+                         SharedPointer<DrawingAttributes> drawingAttributes,
+                         Matrix& transform,
+                         SharedPointer<Stroke>& stroke)
 {
     ExtendedPropertyCollection* extendedProperties;
-    QSharedPointer<StylusPointCollection> stylusPoints;
+    SharedPointer<StylusPointCollection> stylusPoints;
 
     uint cb = DecodeISFIntoStroke(
         stream,
@@ -82,9 +82,9 @@ uint StrokeSerializer::DecodeISFIntoStroke(
     uint totalBytesInStrokeBlockOfIsfStream,
     GuidList& guidList,
     StrokeDescriptor& strokeDescriptor,
-    QSharedPointer<StylusPointDescription> stylusPointDescription,
-    QMatrix& transform,
-    QSharedPointer<StylusPointCollection>& stylusPoints,
+    SharedPointer<StylusPointDescription> stylusPointDescription,
+    Matrix& transform,
+    SharedPointer<StylusPointCollection>& stylusPoints,
     ExtendedPropertyCollection*& extendedProperties)
 {
     stylusPoints = nullptr;
@@ -116,7 +116,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
     }
 
     // Now read the extended propertes
-    for (int iTag = 1; iTag < strokeDescriptor.Template.size() && remainingBytesInStrokeBlock > 0; iTag++)
+    for (int iTag = 1; iTag < strokeDescriptor.Template.Count() && remainingBytesInStrokeBlock > 0; iTag++)
     {
         KnownTagCache::KnownTagIndex tag = strokeDescriptor.Template[iTag - 1];
 
@@ -125,12 +125,12 @@ uint StrokeSerializer::DecodeISFIntoStroke(
             case KnownTagCache::KnownTagIndex::StrokePropertyList:
                 {
                     // we've found the stroke extended properties. Load them now.
-                    while (iTag < strokeDescriptor.Template.size() && remainingBytesInStrokeBlock > 0)
+                    while (iTag < strokeDescriptor.Template.Count() && remainingBytesInStrokeBlock > 0)
                     {
                         tag = strokeDescriptor.Template[iTag];
 
-                        QVariant data;
-                        QUuid guid = guidList.FindGuid(tag);
+                        Variant data;
+                        Guid guid = guidList.FindGuid(tag);
                         if (guid == GuidList::Empty)
                         {
                             throw std::runtime_error(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
@@ -253,8 +253,8 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 
             default:
                 {
-                    QVariant data;
-                    QUuid guid = guidList.FindGuid(tag);
+                    Variant data;
+                    Guid guid = guidList.FindGuid(tag);
                     if (guid == GuidList::Empty)
                     {
                         throw std::runtime_error(("Stroke Custom Attribute tag embedded in ISF stream does not match guid table"));
@@ -291,9 +291,9 @@ uint StrokeSerializer::DecodeISFIntoStroke(
 /// </summary>
 uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
                         uint totalBytesInStrokeBlockOfIsfStream,
-                        QSharedPointer<StylusPointDescription> stylusPointDescription,
-                        QMatrix& transform,
-                        QSharedPointer<StylusPointCollection>& stylusPoints)
+                        SharedPointer<StylusPointDescription> stylusPointDescription,
+                        Matrix& transform,
+                        SharedPointer<StylusPointCollection>& stylusPoints)
 {
     stylusPoints = nullptr;
 
@@ -320,7 +320,7 @@ uint StrokeSerializer::LoadPackets(QIODevice& inputStream,
     int buttonIntsPerPoint = (buttonCount > 0 ? 1 : 0);
     int valueIntsPerPoint = intsPerPoint - buttonIntsPerPoint;
     //add one int per point for button data if it exists
-    QVector<int> rawPointData(pointCount * intsPerPoint);
+    Array<int> rawPointData(pointCount * intsPerPoint);
     QVector<int> packetDataSet(pointCount);
 
 
@@ -500,7 +500,7 @@ void StrokeSerializer::FillButtonData(
     int pointCount,
     int buttonCount,
     int buttonIndex,
-    QVector<int> packets,
+    Array<int> packets,
     QByteArray buttonData)
 {
     int intsPerPoint = buttonIndex + 1;
@@ -616,7 +616,7 @@ void StrokeSerializer::BuildStrokeDescriptor(
 
     // Uninitialized variable passed in AddMetricEntry
     MetricEntryType metricEntryType;
-    QSharedPointer<StylusPointDescription> stylusPointDescription = stroke.StylusPoints()->Description();
+    SharedPointer<StylusPointDescription> stylusPointDescription = stroke.StylusPoints()->Description();
 
     KnownTagCache::KnownTagIndex tag = guidList.FindTag(KnownIds::X, true);
     metricEntryType = metricBlock->AddMetricEntry(stylusPointDescription->GetPropertyInfo(StylusPointProperties::X), tag);
@@ -624,11 +624,11 @@ void StrokeSerializer::BuildStrokeDescriptor(
     tag = guidList.FindTag(KnownIds::Y, true);
     metricEntryType = metricBlock->AddMetricEntry(stylusPointDescription->GetPropertyInfo(StylusPointProperties::Y), tag);
 
-    QVector<StylusPointPropertyInfo> propertyInfos
+    List<StylusPointPropertyInfo> propertyInfos
         = stylusPointDescription->GetStylusPointProperties();
 
     int i = 0; //i is defined out of the for loop so we can use it later for buttons
-    for (i = 2/*past x,y*/; i < propertyInfos.size(); i++)
+    for (i = 2/*past x,y*/; i < propertyInfos.Count(); i++)
     {
         if (i == StylusPointDescription::RequiredPressureIndex/*2*/ &&
             !strokeLookupEntry.StorePressure)
@@ -647,7 +647,7 @@ void StrokeSerializer::BuildStrokeDescriptor(
 
         tag = guidList.FindTag(propertyInfo.Id(), true);
 
-        strokeDescriptor->Template.append(tag);
+        strokeDescriptor->Template.Add(tag);
         strokeDescriptor->Size += SerializationHelper::VarSize((uint)tag);
 
         // Create the MetricEntry for this property if necessary
@@ -684,7 +684,7 @@ void StrokeSerializer::BuildStrokeDescriptor(
     // Now write the extended properties in the template
     if (stroke.ExtendedProperties().Count() > 0)
     {
-        strokeDescriptor->Template.append(KnownTagCache::KnownTagIndex::StrokePropertyList);
+        strokeDescriptor->Template.Add(KnownTagCache::KnownTagIndex::StrokePropertyList);
         strokeDescriptor->Size += SerializationHelper::VarSize((uint)KnownTagCache::KnownTagIndex::StrokePropertyList);
 
         // Now write the tags corresponding to each extended properties of the stroke
@@ -692,7 +692,7 @@ void StrokeSerializer::BuildStrokeDescriptor(
         {
             tag = guidList.FindTag(stroke.ExtendedProperties()[(int)x].Id(), false);
 
-            strokeDescriptor->Template.append(tag);
+            strokeDescriptor->Template.Add(tag);
             strokeDescriptor->Size += SerializationHelper::VarSize((uint)tag);
         }
     }
@@ -714,21 +714,21 @@ uint StrokeSerializer::SavePackets(
     StrokeCollectionSerializer::StrokeLookupEntry& strokeLookupEntry)
 {
     // First write or calculate how many points are there
-    uint pointCount = (uint)stroke.StylusPoints()->size();
+    uint pointCount = (uint)stroke.StylusPoints()->Count();
     //uint localBytesWritten = (stream != null) ? SerializationHelper::Encode(stream, pointCount) : SerializationHelper::VarSize(pointCount);
     uint localBytesWritten = SerializationHelper::Encode(stream, pointCount);
     quint8 compressionAlgorithm;
 
-    QVector<QVector<int>> outputArrays = strokeLookupEntry.ISFReadyStrokeData;
+    Array<Array<int>> outputArrays = strokeLookupEntry.ISFReadyStrokeData;
     //We don't serialize button data, see Windows OS Bugs 1413460 for details
     //int valuesPerPoint = stroke.StylusPoints.Description.GetOutputArrayLengthPerPoint();
     //int buttonCount = stroke.StylusPoints.Description.ButtonCount;
 
-    QVector<StylusPointPropertyInfo> propertyInfos
+    List<StylusPointPropertyInfo> propertyInfos
         = stroke.StylusPoints()->Description()->GetStylusPointProperties();
 
     int i = 0;
-    for (; i < propertyInfos.size(); i++)
+    for (; i < propertyInfos.Count(); i++)
     {
         StylusPointPropertyInfo propertyInfo = propertyInfos[i];
         if (i == 2 && !strokeLookupEntry.StorePressure)
@@ -832,12 +832,12 @@ uint StrokeSerializer::SavePackets(
 /// <param name="guid"></param>
 /// <param name="algo"></param>
 uint StrokeSerializer::SavePacketPropertyData(
-    QVector<int> packetdata,
+    Array<int> packetdata,
     QIODevice& stream,
-    QUuid const & guid,
+    Guid const & guid,
     quint8& algo)
 {
-    if (packetdata.size() == 0)
+    if (packetdata.Length() == 0)
     {
         return 0;
     }

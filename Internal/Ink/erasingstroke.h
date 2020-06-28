@@ -3,6 +3,7 @@
 
 #include "Internal/Ink/strokenodeiterator.h"
 #include "Internal/Ink/strokenode.h"
+#include "Collections/Generic/list.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 

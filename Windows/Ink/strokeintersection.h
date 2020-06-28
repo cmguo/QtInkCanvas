@@ -3,7 +3,7 @@
 
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/doubleutil.h"
-#include "Collections/Generic/array.h"
+#include "Collections/Generic/list.h"
 #include "Windows/rect.h"
 
 // namespace System.Windows.Ink
@@ -51,6 +51,10 @@ public:
     /// hitBeginFIndex
     /// </summary>
     /// <value></value>
+    double HitBegin() const
+    {
+        return _hitSegment.BeginFIndex();
+    }
     void SetHitBegin(double value)
     {
         _hitSegment.SetBeginFIndex(value);
@@ -60,7 +64,7 @@ public:
     /// hitEndFIndex
     /// </summary>
     /// <value></value>
-    double HitEnd()
+    double HitEnd() const
     {
         return _hitSegment.EndFIndex();
     }
@@ -74,7 +78,7 @@ public:
     /// InBegin
     /// </summary>
     /// <value></value>
-    double InBegin()
+    double InBegin() const
     {
         return _inSegment.BeginFIndex();
     }
@@ -88,7 +92,7 @@ public:
     /// InEnd
     /// </summary>
     /// <value></value>
-    double InEnd()
+    double InEnd() const
     {
         return _inSegment.EndFIndex();
     }
@@ -103,7 +107,7 @@ public:
     /// </summary>
     QString ToString() const
     {
-        return "{"  + StrokeFIndices::GetStringRepresentation(_hitSegment.BeginFIndex()) + ","
+        return QString("{")  + StrokeFIndices::GetStringRepresentation(_hitSegment.BeginFIndex()) + ","
                     + StrokeFIndices::GetStringRepresentation(_inSegment.BeginFIndex())  + ","
                     + StrokeFIndices::GetStringRepresentation(_inSegment.EndFIndex())    + ","
                     + StrokeFIndices::GetStringRepresentation(_hitSegment.EndFIndex())   + "}";
@@ -164,13 +168,13 @@ public:
     /// <summary>
     ///
     /// </summary>
-    bool IsEmpty() { return _hitSegment.IsEmpty(); }
+    bool IsEmpty() const { return _hitSegment.IsEmpty(); }
 
 
     /// <summary>
     ///
     /// </summary>
-    StrokeFIndices & HitSegment()
+    StrokeFIndices  const & HitSegment() const
     {
         return _hitSegment;
     }
@@ -178,7 +182,7 @@ public:
     /// <summary>
     ///
     /// </summary>
-    StrokeFIndices & InSegment()
+    StrokeFIndices const & InSegment() const
     {
         return _inSegment;
     }
@@ -195,8 +199,8 @@ public:
     static Array<StrokeFIndices> GetHitSegments(Array<StrokeIntersection> & intersections);
 
 
-    static Array<StrokeIntersection> GetMaskedHitSegments(Array<StrokeIntersection> & intersections,
-                                                        Array<StrokeIntersection> & clip);
+    static List<StrokeIntersection> GetMaskedHitSegments(List<StrokeIntersection> & intersections,
+                                                        Array<StrokeIntersection> const & clip);
 
 private:
     StrokeFIndices _hitSegment;

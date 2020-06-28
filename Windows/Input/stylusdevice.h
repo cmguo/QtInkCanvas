@@ -5,9 +5,10 @@
 
 #include "Windows/Input/inputdevice.h"
 #include "Windows/routedeventargs.h"
+#include "Windows/point.h"
+#include "sharedptr.h"
 
 #include <QMap>
-#include <QList>
 
 class QTouchDevice;
 class QTouchEvent;
@@ -46,7 +47,7 @@ public:
 
     static void SetLastInput(QTouchEvent& input);
 
-    static QSharedPointer<StylusPointDescription> DefaultPointDescription();
+    static SharedPointer<StylusPointDescription> DefaultPointDescription();
 
     static StylusEvent StylusDownEvent;
 
@@ -86,11 +87,11 @@ public:
 
     bool Inverted();
 
-    QPointF GetPosition(Visual* relativeTo);
+    Point GetPosition(Visual* relativeTo);
 
-    QSharedPointer<StylusPointCollection> GetStylusPoints(Visual * visual);
+    SharedPointer<StylusPointCollection> GetStylusPoints(Visual * visual);
 
-    QSharedPointer<StylusPointCollection> GetStylusPoints(Visual * visual, QSharedPointer<StylusPointDescription> description);
+    SharedPointer<StylusPointCollection> GetStylusPoints(Visual * visual, SharedPointer<StylusPointDescription> description);
 
     UIElement* Captured();
 
@@ -98,16 +99,16 @@ public:
 
     virtual PresentationSource* ActiveSource() override;
 
-    virtual QSharedPointer<StylusPointDescription> PointDescription() override;
+    virtual SharedPointer<StylusPointDescription> PointDescription() override;
 
-    virtual QVector<int> PacketData(QEvent& event) override;
+    virtual Array<int> PacketData(QEvent& event) override;
 
     QMap<int, StylusGroup> const & StylusGroups() { return lastGroups_; }
 
 private:
     int id_;
     QTouchDevice * device_;
-    QSharedPointer<StylusPointDescription> description_;
+    SharedPointer<StylusPointDescription> description_;
     QList<QTouchEvent::TouchPoint> lastPoints_;
     QMap<int, StylusGroup> lastGroups_;
     QMap<int, int> groupMap_;

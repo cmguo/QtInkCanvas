@@ -25,12 +25,12 @@ public:
 
     static double Max(double v1, double v2)
     {
-        return std::max(v1, v2);
+        return (std::max)(v1, v2);
     }
 
     static double Min(double v1, double v2)
     {
-        return std::min(v1, v2);
+        return (std::min)(v1, v2);
     }
 
     static double Round(double v)

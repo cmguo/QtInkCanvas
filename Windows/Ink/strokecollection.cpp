@@ -20,7 +20,7 @@
 #ifdef INKCANVAS_QT
 #include <QIODevice>
 #include <QBuffer>
-#include <Matrix>
+#define shared_from_this sharedFromThis
 #endif
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -239,7 +239,7 @@ bool StrokeCollection::ContainsPropertyData(Guid const & propertyDataId) const
 /// cause each individual Stroke to be modified.
 /// If the StrokesChanged event fires, the changed parameter will be a pointer to 'this'
 /// collection, so any changes made to the changed event args will affect 'this' collection.</remarks>
-void StrokeCollection::Transform(Matrix & transformMatrix, bool applyToStylusTip)
+void StrokeCollection::Transform(Matrix const & transformMatrix, bool applyToStylusTip)
 {
     // Ensure that the transformMatrix is invertible.
     if ( false == transformMatrix.HasInverse() )
@@ -322,7 +322,7 @@ void StrokeCollection::RemoveItem(int index)
     RaiseStrokesChanged(nullptr /*added*/, removed, index);
 }
 
-bool StrokeCollection::RemoveItem(SharedPointer<Stroke> stroke)
+bool StrokeCollection::Remove(SharedPointer<Stroke> const & stroke)
 {
     int index = IndexOf(stroke);
     if (index < 0) {
@@ -330,7 +330,7 @@ bool StrokeCollection::RemoveItem(SharedPointer<Stroke> stroke)
         if (!children().isEmpty()) {
             // try in other collections
             SharedPointer<StrokeCollection> strokes(new StrokeCollection);
-            strokes->Items().AddItem(stroke);
+            strokes->Items().Add(stroke);
             Remove(strokes);
         }
 #endif
@@ -343,7 +343,7 @@ bool StrokeCollection::RemoveItem(SharedPointer<Stroke> stroke)
 /// <summary>
 /// called by base class Insert, Add methods
 /// </summary>
-void StrokeCollection::InsertItem(int index, SharedPointer<Stroke> stroke)
+void StrokeCollection::InsertItem(int index, SharedPointer<Stroke> const & stroke)
 {
     if ( stroke == nullptr )
     {
@@ -364,7 +364,7 @@ void StrokeCollection::InsertItem(int index, SharedPointer<Stroke> stroke)
 /// <summary>
 /// called by base class set_Item method
 /// </summary>
-void StrokeCollection::SetItem(int index, SharedPointer<Stroke> stroke)
+void StrokeCollection::SetItem(int index, SharedPointer<Stroke> const & stroke)
 {
     if ( stroke == nullptr )
     {
@@ -376,7 +376,7 @@ void StrokeCollection::SetItem(int index, SharedPointer<Stroke> stroke)
     }
 
     SharedPointer<Stroke> removedStroke = (*this)[index];
-    at(index) = stroke;
+    Collection::SetItem(index, stroke);
 
     SharedPointer<StrokeCollection> removed(new StrokeCollection);
     removed->Items().Add(removedStroke);
@@ -391,7 +391,7 @@ void StrokeCollection::SetItem(int index, SharedPointer<Stroke> stroke)
 /// </summary>
 /// <param name="stroke">stroke</param>
 /// <returns></returns>
-int StrokeCollection::IndexOf(SharedPointer<Stroke> stroke)
+int StrokeCollection::IndexOf(SharedPointer<Stroke> const & stroke)
 {
     if (stroke == nullptr)
     {
@@ -426,22 +426,22 @@ void StrokeCollection::Remove(SharedPointer<StrokeCollection> strokes)
     List<int> indexes = GetStrokeIndexes(strokes);
 
 #if STROKE_COLLECTION_MULTIPLE_LAYER
-    if (indexes.size() == 0 && !children().isEmpty()) {
+    if (indexes.Count() == 0 && !children().isEmpty()) {
         for (QObject * c : children()) {
             StrokeCollection * cc = qobject_cast<StrokeCollection*>(c);
             SharedPointer<StrokeCollection> ss(new StrokeCollection);
-            for (SharedPointer<Stroke> & s : static_cast<QVector<SharedPointer<Stroke>>&>(*strokes)) {
-                if (cc->contains(s)) {
-                    ss->append(s);
+            for (SharedPointer<Stroke> & s : strokes->Items()) {
+                if (cc->Contains(s)) {
+                    ss->Add(s);
                     s = nullptr;
                 }
             }
-            if (ss->size() > 0) {
+            if (ss->Count() > 0) {
                 cc->Remove(ss);
-                strokes->removeAll(nullptr);
+                strokes->Items().removeAll(nullptr);
             }
         }
-        if ( strokes->size() == 0 )
+        if ( strokes->Count() == 0 )
             return;
         indexes = GetStrokeIndexes(strokes);
     }
@@ -853,7 +853,7 @@ ErasingStroke *StrokeCollection::GetEditMask()
     if (mask_)
         return mask_;
     if (!maskShape_.empty()) {
-        Point c = maskShape_.boundingRect().center();
+        QPointF c = maskShape_.boundingRect().center();
         StylusShape ss(maskShape_.translated(-c));
         mask_ = new ErasingStroke(ss);
         mask_->MoveTo({c});
@@ -1193,12 +1193,12 @@ void StrokeCollection::Erase(List<Point> const & eraserPath, StylusShape& eraser
         erasingStroke.EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), intersections);
 #if STROKE_COLLECTION_EDIT_MASK
         if (GetEditMask()) {
-            QVector<StrokeIntersection> mask;
+            List<StrokeIntersection> mask;
             mask_->EraseTest(StrokeNodeIterator::GetIterator(*stroke, *stroke->GetDrawingAttributes()), mask);
-            if (!mask.isEmpty())
-                intersections = StrokeIntersection::GetMaskedHitSegments(intersections, mask);
+            if (mask.Count() != 0)
+                intersections = StrokeIntersection::GetMaskedHitSegments(intersections, mask.ToArray());
         }
-        if (intersections.isEmpty())
+        if (intersections.Count() == 0)
             continue;
 #endif
         SharedPointer<StrokeCollection> eraseResult = stroke->Erase(intersections.ToArray());
@@ -1239,13 +1239,13 @@ void StrokeCollection::Draw(DrawingContext& context)
 
     //The verification of UI context affinity is done in Stroke.Draw()
 
-    QList<SharedPointer<Stroke>> solidStrokes;
-    QMap<QColor, QList<SharedPointer<Stroke>>> highLighters;
+    List<SharedPointer<Stroke>> solidStrokes;
+    QMap<QColor, List<SharedPointer<Stroke>>> highLighters;
 
-    for (int i = 0; i < size(); i++)
+    for (int i = 0; i < Count(); i++)
     {
         SharedPointer<Stroke> stroke = (*this)[i];
-        QList<SharedPointer<Stroke>> strokes;
+        List<SharedPointer<Stroke>> strokes;
         if (stroke->GetDrawingAttributes()->IsHighlighter())
         {
             // It's very important to override the Alpha value so that Colors of the same RGB vale
@@ -1256,15 +1256,15 @@ void StrokeCollection::Draw(DrawingContext& context)
             //    strokes = new List<Stroke>();
             //    highLighters.Add(color, strokes);
             //}
-            highLighters[color].append(stroke);
+            highLighters[color].Add(stroke);
         }
         else
         {
-            solidStrokes.append(stroke);
+            solidStrokes.Add(stroke);
         }
     }
 
-    for (QList<SharedPointer<Stroke>> strokes : highLighters.values())
+    for (List<SharedPointer<Stroke>> strokes : highLighters.values())
     {
         context.PushOpacity(StrokeRenderer::HighlighterOpacity);
         FinallyHelper final([&context](){
@@ -1340,7 +1340,7 @@ SharedPointer<StrokeCollection> StrokeCollection::PointHitTest(Point const & poi
     }
 #if STROKE_COLLECTION_MULTIPLE_LAYER
     for (QObject * c : children()) {
-         hits->append(*qobject_cast<StrokeCollection*>(c)->PointHitTest(point, shape));
+         hits->Add(qobject_cast<StrokeCollection*>(c)->PointHitTest(point, shape));
     }
 #endif
 
@@ -1353,7 +1353,7 @@ void StrokeCollection::UpdateStrokeCollection(SharedPointer<Stroke> original, Sh
     //System.Diagnostics.Debug.Assert(index >= 0 && index < this.Count);
     if (toReplace->Count() == 0)
     {
-        RemoveItem(original);
+        Remove(original);
         index--;
     }
     else if (!(toReplace->Count() == 1 && (*toReplace)[0] == original))

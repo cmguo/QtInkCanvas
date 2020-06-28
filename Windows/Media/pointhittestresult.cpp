@@ -10,7 +10,7 @@ PointHitTestResult::PointHitTestResult()
 
 }
 
-PointHitTestResult::PointHitTestResult(UIElement * visualHit, QPointF const & pointHit)
+PointHitTestResult::PointHitTestResult(UIElement * visualHit, Point const & pointHit)
     : HitTestResult(visualHit)
 {
     _pointHit = pointHit;

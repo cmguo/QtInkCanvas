@@ -2,13 +2,12 @@
 #define CLIPBOARDPROCESSOR_H
 
 #include "InkCanvas_global.h"
-#include "inkcanvasclipboardformat.h"
+#include "Internal/Ink/inkcanvasclipboardformat.h"
+#include "Collections/Generic/list.h"
+#include "Windows/Media/matrix.h"
+#include "sharedptr.h"
 
 #include <QMap>
-#include <QList>
-#include <QSizeF>
-#include <QPointF>
-#include <QSharedPointer>
 #include <QMetaEnum>
 
 class QMimeData;
@@ -79,12 +78,12 @@ public:
     /// <param name="dataObject">The DataObject instance</param>
     /// <param name="newStrokes">The strokes which are converted from the data in the DataObject</param>
     /// <param name="newElements">The elements array which are converted from the data in the DataObject</param>
-    bool PasteData(DataObject const* dataObject, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements);
+    bool PasteData(DataObject const* dataObject, SharedPointer<StrokeCollection>& newStrokes, List<UIElement*>& newElements);
 
     //#endregion Methods
 
-    QList<InkCanvasClipboardFormat> PreferredFormats();
-    void SetPreferredFormats(QList<InkCanvasClipboardFormat> value);
+    List<InkCanvasClipboardFormat> PreferredFormats();
+    void SetPreferredFormats(List<InkCanvasClipboardFormat> value);
 
 
 
@@ -114,9 +113,9 @@ public:
     ///     TreatAsSafe: We only execute this code if the application has UnmanagedCode permission
     /// </SecurityNote>
     //[SecurityCritical, SecurityTreatAsSafe]
-    bool CopySelectionInXAML(DataObject* dataObject, QSharedPointer<StrokeCollection> strokes, QList<UIElement*> elements, QMatrix transform, QSizeF size);
+    bool CopySelectionInXAML(DataObject* dataObject, SharedPointer<StrokeCollection> strokes, List<UIElement*> elements, Matrix transform, Size size);
 
-    void TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, QSharedPointer<StrokeCollection>& newStrokes, QList<UIElement*>& newElements);
+    void TearDownInkCanvasContainer(InkCanvas& rootInkCanvas, SharedPointer<StrokeCollection>& newStrokes, List<UIElement*>& newElements);
 
     //#endregion Methods
 

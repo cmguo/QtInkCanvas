@@ -21,8 +21,14 @@ class StylusShape;
 /// This class serves as both the base class and public interface for
 /// incremental hit-testing implementaions.
 /// </summary>
+#ifdef INKCANVAS_QT
+class IncrementalHitTester : public QObject
+{
+    Q_OBJECT
+#else
 class IncrementalHitTester
 {
+#endif
 public:
     IncrementalHitTester();
 
@@ -298,8 +304,14 @@ class DrawingAttributesReplacedEventArgs;
 /// A helper class associated with a stroke. Used for caching the stroke's
 /// bounding box, hit-testing results, and for keeping an eye on the stroke changes
 /// </summary>
+#ifdef INKCANVAS_QT
+class StrokeInfo : public QObject
+{
+    Q_OBJECT
+#else
 class StrokeInfo
 {
+#endif
 public:
     /// <summary>
     /// StrokeInfo

@@ -4,8 +4,7 @@
 #include "InkCanvas_global.h"
 
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
-
-#include <QRectF>
+#include "Windows/rect.h"
 
 // namespace System.Windows.Input.StylusPlugIns
 INKCANVAS_BEGIN_NAMESPACE
@@ -127,7 +126,7 @@ public:
     /// <summary>
     /// [TBS] - both Dispatchers
     /// </summary>
-    QRectF ElementBounds();
+    Rect ElementBounds();
     /////////////////////////////////////////////////////////////////////
     /// <summary>
     /// [TBS] - get - both Dispatchers, set Dispatcher

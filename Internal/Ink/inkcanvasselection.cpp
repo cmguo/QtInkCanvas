@@ -27,7 +27,7 @@ InkCanvasSelection::InkCanvasSelection(InkCanvas& inkCanvas)
     //}
     //_inkCanvas = inkCanvas;
 
-    _inkCanvas.FeedbackAdorner().UpdateBounds(QRectF());
+    _inkCanvas.FeedbackAdorner().UpdateBounds(Rect());
 }
 
 //#endregion Constructors
@@ -43,7 +43,7 @@ InkCanvasSelection::InkCanvasSelection(InkCanvas& inkCanvas)
 /// <summary>
 /// Returns the collection of selected strokes
 /// </summary>
-QSharedPointer<StrokeCollection> InkCanvasSelection::SelectedStrokes()
+SharedPointer<StrokeCollection> InkCanvasSelection::SelectedStrokes()
 {
     if ( _selectedStrokes == nullptr )
     {
@@ -57,7 +57,7 @@ QSharedPointer<StrokeCollection> InkCanvasSelection::SelectedStrokes()
 /// <summary>
 /// Returns the collection of selected elements
 /// </summary>
-QList<UIElement*> InkCanvasSelection::SelectedElements()
+List<UIElement*> InkCanvasSelection::SelectedElements()
 {
     //if ( _selectedElements == nullptr )
     //{
@@ -72,15 +72,15 @@ QList<UIElement*> InkCanvasSelection::SelectedElements()
 /// </summary>
 bool InkCanvasSelection::HasSelection()
 {
-    return SelectedStrokes()->size() != 0 || SelectedElements().size() != 0;
+    return SelectedStrokes()->Count() != 0 || SelectedElements().Count() != 0;
 }
 
 /// <summary>
 /// Returns the selection bounds
 /// </summary>
-QRectF InkCanvasSelection::SelectionBounds()
+Rect InkCanvasSelection::SelectionBounds()
 {
-    return GetStrokesBounds() | GetElementsUnionBounds();
+    return Rect::Union(GetStrokesBounds(), GetElementsUnionBounds());
 }
 
 //#endregion Properties
@@ -99,7 +99,7 @@ QRectF InkCanvasSelection::SelectionBounds()
 /// </summary>
 /// <param name="feedbackRect"></param>
 /// <param name="activeSelectionHitResult"></param>
-void InkCanvasSelection::StartFeedbackAdorner(QRectF const & feedbackRect, InkCanvasSelectionHitResult activeSelectionHitResult)
+void InkCanvasSelection::StartFeedbackAdorner(Rect const & feedbackRect, InkCanvasSelectionHitResult activeSelectionHitResult)
 {
     Debug::Assert( _inkCanvas.GetEditingCoordinator().UserIsEditing() == true );
     Debug::Assert(activeSelectionHitResult != InkCanvasSelectionHitResult::None, "activeSelectionHitResult cannot be InkCanvasSelectionHitResult::None.");
@@ -125,7 +125,7 @@ void InkCanvasSelection::StartFeedbackAdorner(QRectF const & feedbackRect, InkCa
 /// This method is called from SelectionEditingBehavior.OnMouseMove.
 /// </summary>
 /// <param name="feedbackRect"></param>
-void InkCanvasSelection::UpdateFeedbackAdorner(QRectF const & feedbackRect)
+void InkCanvasSelection::UpdateFeedbackAdorner(Rect const & feedbackRect)
 {
     Debug::Assert(_inkCanvas.FeedbackAdorner().VisualParent()
         == AdornerLayer::GetAdornerLayer(&_inkCanvas.InnerCanvas()),
@@ -140,7 +140,7 @@ void InkCanvasSelection::UpdateFeedbackAdorner(QRectF const & feedbackRect)
 /// This method is called from SelectionEditingBehavior.OnMoveUp
 /// </summary>
 /// <param name="finalRectangle"></param>
-void InkCanvasSelection::EndFeedbackAdorner(QRectF const & finalRectangle)
+void InkCanvasSelection::EndFeedbackAdorner(Rect const & finalRectangle)
 {
     AdornerLayer* adornerLayer = AdornerLayer::GetAdornerLayer(&_inkCanvas.InnerCanvas());
     InkCanvasFeedbackAdorner& feedbackAdorner = _inkCanvas.FeedbackAdorner();
@@ -149,7 +149,7 @@ void InkCanvasSelection::EndFeedbackAdorner(QRectF const & finalRectangle)
         "feedbackAdorner should have been added to tree.");
 
     // Reset the feedback bounds and detach it from the adorner layer.
-    feedbackAdorner.UpdateBounds(QRectF());
+    feedbackAdorner.UpdateBounds(Rect());
     adornerLayer->Remove(&feedbackAdorner);
 
     // Commit the new rectange of the selection.
@@ -165,7 +165,7 @@ void InkCanvasSelection::EndFeedbackAdorner(QRectF const & finalRectangle)
 /// <param name="strokes"></param>
 /// <param name="elements"></param>
 /// <param name="raiseSelectionChanged"></param>
-void InkCanvasSelection::Select(QSharedPointer<StrokeCollection> strokes, QList<UIElement*> const & elements, bool raiseSelectionChanged)
+void InkCanvasSelection::Select(SharedPointer<StrokeCollection> strokes, List<UIElement*> const & elements, bool raiseSelectionChanged)
 {
     // Can't be nullptr.
     //Debug::Assert(strokes != nullptr && elements != nullptr);
@@ -183,7 +183,7 @@ void InkCanvasSelection::Select(QSharedPointer<StrokeCollection> strokes, QList<
     // So, we should make sure to remove _inkCanvasSelection in this case.
     if ( strokesAreDifferent || elementsAreDifferent )
     {
-        if ( strokesAreDifferent && SelectedStrokes()->size() != 0 )
+        if ( strokesAreDifferent && SelectedStrokes()->Count() != 0 )
         {
             // PERF-2006/05/02-WAYNEZEN,
             // Unsubscribe the event fisrt so that reseting IsSelected won't call into our handler.
@@ -192,7 +192,7 @@ void InkCanvasSelection::Select(QSharedPointer<StrokeCollection> strokes, QList<
             //
             QuitListeningToStrokeChanges();
 
-            count = SelectedStrokes()->size();
+            count = SelectedStrokes()->Count();
             for ( int i = 0; i < count; i++ )
             {
                 (*SelectedStrokes())[i]->SetIsSelected(false);
@@ -212,7 +212,7 @@ void InkCanvasSelection::Select(QSharedPointer<StrokeCollection> strokes, QList<
         {
             // NTRAID#T2-26511-2004/10/18-waynezen,
             // Updating the visuals of the hitted strokes.
-            count = strokes->size();
+            count = strokes->Count();
             for ( int i = 0; i < count; i++ )
             {
                 (*strokes)[i]->SetIsSelected(true);
@@ -241,17 +241,17 @@ void InkCanvasSelection::Select(QSharedPointer<StrokeCollection> strokes, QList<
 /// Our method to commit the current editing.
 /// Called by EndFeedbackAdorner or InkCanvas::PasteFromDataObject
 /// </summary>
-void InkCanvasSelection::CommitChanges(QRectF const & finalRectangle, bool raiseEvent)
+void InkCanvasSelection::CommitChanges(Rect const & finalRectangle, bool raiseEvent)
 {
 
     // The follow moving or resizing raises SelectionMove or SelectionResize event
     // The out-side code could throw exception in the their handlers. We use try/finally block to protect our status.
-    QRectF selectionBounds = SelectionBounds();
+    Rect selectionBounds = SelectionBounds();
 
     // NTRAID:WINDOWS#1464216-2006/01/27-WAYNEZEN
     // If the selection is cleared programmatically somehow during user interaction, we will get an empty source rect.
     // We should check if the source still valid here. If not, no selection needs to be changed.
-    if ( selectionBounds.isEmpty() )
+    if ( selectionBounds.IsEmpty() )
     {
         return;
     }
@@ -269,16 +269,16 @@ void InkCanvasSelection::CommitChanges(QRectF const & finalRectangle, bool raise
             //
             // see if we resized
             //
-            if ( !DoubleUtil::AreClose(finalRectangle.height(), selectionBounds.height())
-                || !DoubleUtil::AreClose(finalRectangle.width(), selectionBounds.width()) )
+            if ( !DoubleUtil::AreClose(finalRectangle.Height(), selectionBounds.Height())
+                || !DoubleUtil::AreClose(finalRectangle.Width(), selectionBounds.Width()) )
             {
                 //
                 // we resized
                 //
                 CommitResizeChange(finalRectangle);
             }
-            else if ( !DoubleUtil::AreClose(finalRectangle.top(), selectionBounds.top())
-                || !DoubleUtil::AreClose(finalRectangle.left(), selectionBounds.left()) )
+            else if ( !DoubleUtil::AreClose(finalRectangle.Top(), selectionBounds.Top())
+                || !DoubleUtil::AreClose(finalRectangle.Left(), selectionBounds.Left()) )
             {
                 //
                 // we moved
@@ -309,16 +309,16 @@ void InkCanvasSelection::CommitChanges(QRectF const & finalRectangle, bool raise
 void InkCanvasSelection::RemoveElement(UIElement* removedElement)
 {
     // No selected element. Bail out
-    if (_selectedElements.size() == 0 )
+    if (_selectedElements.Count() == 0 )
     {
         return;
     }
 
-    if ( _selectedElements.removeOne(removedElement) )
+    if ( _selectedElements.Remove(removedElement) )
     {
         // The element existed and was removed successfully.
         // Now if there is no selected element, we should remove our LayoutUpdated handler.
-        if ( _selectedElements.size() == 0 )
+        if ( _selectedElements.Count() == 0 )
         {
             UpdateCanvasLayoutUpdatedHandler();
             UpdateSelectionAdorner();
@@ -332,7 +332,7 @@ void InkCanvasSelection::RemoveElement(UIElement* removedElement)
 /// </summary>
 /// <param name="element"></param>
 /// <param name="transform"></param>
-void InkCanvasSelection::UpdateElementBounds(UIElement* element, QMatrix const & transform)
+void InkCanvasSelection::UpdateElementBounds(UIElement* element, Matrix const & transform)
 {
     UpdateElementBounds(element, element, transform);
 }
@@ -345,17 +345,17 @@ void InkCanvasSelection::UpdateElementBounds(UIElement* element, QMatrix const &
 /// <param name="originalElement"></param>
 /// <param name="updatedElement"></param>
 /// <param name="transform"></param>
-void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIElement* updatedElement, QMatrix const & transform)
+void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIElement* updatedElement, Matrix const & transform)
 {
     //if ( originalElement->DependencyObjectType.Id == updatedElement.DependencyObjectType.Id )
     {
         // Get the transform from element to Canvas
-        QTransform elementToCanvas = originalElement->TransformToAncestor(&_inkCanvas.InnerCanvas());
+        Matrix elementToCanvas = originalElement->TransformToAncestor(&_inkCanvas.InnerCanvas());
 
         //cast to a FrameworkElement, nothing inherits from UIElement besides it right now
         FrameworkElement* frameworkElement = qobject_cast<FrameworkElement*>(originalElement);
-        QSizeF size;
-        QRectF thickness;
+        Size size;
+        Rect thickness;
         if ( frameworkElement == nullptr )
         {
             // Get the element's render size.
@@ -363,41 +363,41 @@ void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIEleme
         }
         else
         {
-            size = QSizeF(frameworkElement->ActualWidth(), frameworkElement->ActualHeight());
+            size = Size(frameworkElement->ActualWidth(), frameworkElement->ActualHeight());
             thickness = frameworkElement->Margin();
         }
 
-        QRectF elementBounds(0, 0, size.width(), size.height());   // Rect in element space
-        elementBounds = elementToCanvas.map(elementBounds).boundingRect(); // Rect in Canvas space
+        Rect elementBounds(0, 0, size.Width(), size.Height());   // Rect in element space
+        elementBounds = elementToCanvas.Transform(elementBounds); // Rect in Canvas space
 
         // Now apply the matrix to the element bounds
-        QRectF newBounds = transform.map(elementBounds).boundingRect();
+        Rect newBounds = transform.Transform(elementBounds);
 
-        if ( !DoubleUtil::AreClose(elementBounds.width(), newBounds.width()) )
+        if ( !DoubleUtil::AreClose(elementBounds.Width(), newBounds.Width()) )
         {
             if ( frameworkElement == nullptr )
             {
-                QSizeF newSize = originalElement->RenderSize();
-                newSize.setWidth(newBounds.width());
+                Size newSize = originalElement->RenderSize();
+                newSize.setWidth(newBounds.Width());
                 updatedElement->SetRenderSize(newSize);
             }
             else
             {
-                ((FrameworkElement*)updatedElement)->SetWidth(newBounds.width());
+                ((FrameworkElement*)updatedElement)->SetWidth(newBounds.Width());
             }
         }
 
-        if ( !DoubleUtil::AreClose(elementBounds.height(), newBounds.height()) )
+        if ( !DoubleUtil::AreClose(elementBounds.Height(), newBounds.Height()) )
         {
             if ( frameworkElement == nullptr )
             {
-                QSizeF newSize = originalElement->RenderSize();
-                newSize.setHeight(newBounds.height());
+                Size newSize = originalElement->RenderSize();
+                newSize.setHeight(newBounds.Height());
                 updatedElement->RenderSize() = newSize;
             }
             else
             {
-                ( (FrameworkElement*)updatedElement )->SetHeight(newBounds.height());
+                ( (FrameworkElement*)updatedElement )->SetHeight(newBounds.Height());
             }
         }
 
@@ -406,54 +406,54 @@ void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIEleme
         double right = InkCanvas::GetRight(originalElement);
         double bottom = InkCanvas::GetBottom(originalElement);
 
-        QPointF originalPosition; // Default as (0, 0)
-        if ( !qIsNaN(left) )
+        Point originalPosition; // Default as (0, 0)
+        if ( !Double::IsNaN(left) )
         {
             originalPosition.setX(left);
         }
-        else if ( !qIsNaN(right) )
+        else if ( !Double::IsNaN(right) )
         {
             originalPosition.setX(right);
         }
 
-        if ( !qIsNaN(top) )
+        if ( !Double::IsNaN(top) )
         {
             originalPosition.setY(top);
         }
-        else if ( !qIsNaN(bottom) )
+        else if ( !Double::IsNaN(bottom) )
         {
             originalPosition.setY( bottom);
         }
 
-        QPointF newPosition = originalPosition * transform;
+        Point newPosition = originalPosition * transform;
 
-        if ( !qIsNaN(left) )
+        if ( !Double::IsNaN(left) )
         {
-            InkCanvas::SetLeft(updatedElement, newPosition.x() - thickness.left());           // Left wasn't auto
+            InkCanvas::SetLeft(updatedElement, newPosition.X() - thickness.Left());           // Left wasn't auto
         }
-        else if ( !qIsNaN(right) )
+        else if ( !Double::IsNaN(right) )
         {
             // NOTICE-2005/05/05-WAYNEZEN
             // Canvas.RightProperty means the distance between element right side and its parent Canvas
             // right side. The same definition is applied to Canvas.BottomProperty
-            InkCanvas::SetRight(updatedElement, ( right - ( newPosition.x() - originalPosition.x() ) )); // Right wasn't not auto
+            InkCanvas::SetRight(updatedElement, ( right - ( newPosition.X() - originalPosition.X() ) )); // Right wasn't not auto
         }
         else
         {
-            InkCanvas::SetLeft(updatedElement, newPosition.x() - thickness.left());           // Both Left and Right were aut. Modify Left by default.
+            InkCanvas::SetLeft(updatedElement, newPosition.X() - thickness.Left());           // Both Left and Right were aut. Modify Left by default.
         }
 
-        if ( !qIsNaN(top) )
+        if ( !Double::IsNaN(top) )
         {
-            InkCanvas::SetTop(updatedElement, newPosition.y() - thickness.top());           // Top wasn't auto
+            InkCanvas::SetTop(updatedElement, newPosition.Y() - thickness.Top());           // Top wasn't auto
         }
-        else if ( !qIsNaN(bottom) )
+        else if ( !Double::IsNaN(bottom) )
         {
-            InkCanvas::SetBottom(updatedElement, ( bottom - ( newPosition.y() - originalPosition.y() ) ));      // Bottom wasn't not auto
+            InkCanvas::SetBottom(updatedElement, ( bottom - ( newPosition.Y() - originalPosition.Y() ) ));      // Bottom wasn't not auto
         }
         else
         {
-            InkCanvas::SetTop(updatedElement, newPosition.y() - thickness.top());           // Both Top and Bottom were aut. Modify Left by default.
+            InkCanvas::SetTop(updatedElement, newPosition.Y() - thickness.Top());           // Both Top and Bottom were aut. Modify Left by default.
         }
     }
     //else
@@ -462,12 +462,12 @@ void InkCanvasSelection::UpdateElementBounds(UIElement* originalElement, UIEleme
     //}
 }
 
-void InkCanvasSelection::TransformStrokes(QSharedPointer<StrokeCollection> strokes, QMatrix const & matrix)
+void InkCanvasSelection::TransformStrokes(SharedPointer<StrokeCollection> strokes, Matrix const & matrix)
 {
     strokes->Transform(matrix, false /*Don't apply the transform to StylusTip*/);
 }
 
-InkCanvasSelectionHitResult InkCanvasSelection::HitTestSelection(QPointF const & pointOnInkCanvas)
+InkCanvasSelectionHitResult InkCanvasSelection::HitTestSelection(Point const & pointOnInkCanvas)
 {
     // If Selection is moving or resizing now, we should returns the active hit result.
     if ( _activeSelectionHitResult.second )
@@ -482,19 +482,19 @@ InkCanvasSelectionHitResult InkCanvasSelection::HitTestSelection(QPointF const &
     }
 
     // Get the transform from InkCanvas to SelectionAdorner
-    QTransform inkCanvasToSelectionAdorner = _inkCanvas.TransformToDescendant(&_inkCanvas.SelectionAdorner());
-    QPointF pointOnSelectionAdorner = inkCanvasToSelectionAdorner.map(pointOnInkCanvas);
+    GeneralTransform inkCanvasToSelectionAdorner = _inkCanvas.TransformToDescendant(&_inkCanvas.SelectionAdorner());
+    Point pointOnSelectionAdorner = inkCanvasToSelectionAdorner.Transform(pointOnInkCanvas);
 
     InkCanvasSelectionHitResult hitResult = _inkCanvas.SelectionAdorner().SelectionHandleHitTest(pointOnSelectionAdorner);
 
     // If the hit test returns Selection and there is one and only one element is selected.
     // We have to check whether we hit on inside the element.
     if ( hitResult == InkCanvasSelectionHitResult::Selection
-        && SelectedElements().size() == 1
-        && SelectedStrokes()->size() == 0 )
+        && SelectedElements().Count() == 1
+        && SelectedStrokes()->Count() == 0 )
     {
-        QTransform transformToInnerCanvas = _inkCanvas.TransformToDescendant(&_inkCanvas.InnerCanvas());
-        QPointF pointOnInnerCanvas = transformToInnerCanvas.map(pointOnInkCanvas);
+        GeneralTransform transformToInnerCanvas = _inkCanvas.TransformToDescendant(&_inkCanvas.InnerCanvas());
+        Point pointOnInnerCanvas = transformToInnerCanvas.Transform(pointOnInkCanvas);
 
         // Try to find out whether we hit the single selement. If so, just return None.
         if ( HasHitSingleSelectedElement(pointOnInnerCanvas) )
@@ -514,17 +514,17 @@ InkCanvasSelectionHitResult InkCanvasSelection::HitTestSelection(QPointF const &
 /// <param name="strokesAreDifferent">strokesAreDifferent</param>
 /// <param name="elements">elements</param>
 /// <param name="elementsAreDifferent">elementsAreDifferent</param>
-void InkCanvasSelection::SelectionIsDifferentThanCurrent(QSharedPointer<StrokeCollection> strokes,
+void InkCanvasSelection::SelectionIsDifferentThanCurrent(SharedPointer<StrokeCollection> strokes,
                                             bool& strokesAreDifferent,
-                                            QList<UIElement*> const & elements,
+                                            List<UIElement*> const & elements,
                                             bool& elementsAreDifferent)
 {
     strokesAreDifferent = false;
     elementsAreDifferent = false;
 
-    if ( SelectedStrokes()->size() == 0 )
+    if ( SelectedStrokes()->Count() == 0 )
     {
-        if ( strokes->size() > 0 )
+        if ( strokes->Count() > 0 )
         {
             strokesAreDifferent = true;
         }
@@ -534,9 +534,9 @@ void InkCanvasSelection::SelectionIsDifferentThanCurrent(QSharedPointer<StrokeCo
         strokesAreDifferent = true;
     }
 
-    if ( SelectedElements().size() == 0 )
+    if ( SelectedElements().Count() == 0 )
     {
-        if ( elements.size() > 0 )
+        if ( elements.Count() > 0 )
         {
             elementsAreDifferent = true;
         }
@@ -564,18 +564,18 @@ void InkCanvasSelection::SelectionIsDifferentThanCurrent(QSharedPointer<StrokeCo
 /// </summary>
 /// <param name="pointOnInnerCanvas"></param>
 /// <returns></returns>
-bool InkCanvasSelection::HasHitSingleSelectedElement(QPointF const & pointOnInnerCanvas)
+bool InkCanvasSelection::HasHitSingleSelectedElement(Point const & pointOnInnerCanvas)
 {
     bool hasHit = false;
 
-    if ( SelectedElements().size() == 1 )
+    if ( SelectedElements().Count() == 1 )
     {
-        QList<QRectF> list = SelectedElementsBoundsEnumerator();
-        QList<QRectF>::iterator enumerator = list.begin();
+        List<Rect> list = SelectedElementsBoundsEnumerator();
+        auto enumerator = list.begin();
         if ( enumerator != list.end())
         {
-            QRectF elementRect = *enumerator;
-            hasHit = elementRect.contains(pointOnInnerCanvas);
+            Rect elementRect = *enumerator;
+            hasHit = elementRect.Contains(pointOnInnerCanvas);
         }
         else
         {
@@ -598,7 +598,7 @@ void InkCanvasSelection::QuitListeningToStrokeChanges()
         //_inkCanvas.Strokes.StrokesChanged -= new StrokeCollectionChangedEventHandler(this.OnStrokeCollectionChanged);
     }
 
-    for ( QSharedPointer<Stroke> s : *SelectedStrokes() )
+    for ( SharedPointer<Stroke> s : *SelectedStrokes() )
     {
         QObject::disconnect(s.get(), &Stroke::Invalidated,
                             this, &InkCanvasSelection::OnStrokeInvalidated);
@@ -618,7 +618,7 @@ void InkCanvasSelection::ListenToStrokeChanges()
         //_inkCanvas.Strokes.StrokesChanged += new StrokeCollectionChangedEventHandler(this.OnStrokeCollectionChanged);
     }
 
-    for ( QSharedPointer<Stroke> s : *SelectedStrokes() )
+    for ( SharedPointer<Stroke> s : *SelectedStrokes() )
     {
         QObject::connect(s.get(), &Stroke::Invalidated,
                             this, &InkCanvasSelection::OnStrokeInvalidated);
@@ -630,9 +630,9 @@ void InkCanvasSelection::ListenToStrokeChanges()
 /// Helper method that take a finalRectangle and raised the appropriate
 /// events on the InkCanvas::  Handles cancellation
 /// </summary>
-void InkCanvasSelection::CommitMoveChange(QRectF finalRectangle)
+void InkCanvasSelection::CommitMoveChange(Rect finalRectangle)
 {
-    QRectF selectionBounds = SelectionBounds();
+    Rect selectionBounds = SelectionBounds();
     //
     //*** MOVED ***
     //
@@ -663,9 +663,9 @@ void InkCanvasSelection::CommitMoveChange(QRectF finalRectangle)
 /// Helper method that take a finalRectangle and raised the appropriate
 /// events on the InkCanvas::  Handles cancellation
 /// </summary>
-void InkCanvasSelection::CommitResizeChange(QRectF finalRectangle)
+void InkCanvasSelection::CommitResizeChange(Rect finalRectangle)
 {
-    QRectF selectionBounds = SelectionBounds();
+    Rect selectionBounds = SelectionBounds();
     //
     // *** RESIZED ***
     //
@@ -698,18 +698,18 @@ void InkCanvasSelection::CommitResizeChange(QRectF finalRectangle)
 /// </summary>
 /// <param name="previousRect"></param>
 /// <param name="newRect"></param>
-void InkCanvasSelection::MoveSelection(QRectF const & previousRect, QRectF const & newRect)
+void InkCanvasSelection::MoveSelection(Rect const & previousRect, Rect const & newRect)
 {
     //
     // compute our transform, but first remove our artificial border
     //
-    QMatrix matrix = InkCanvasSelection::MapRectToRect(newRect, previousRect);
+    Matrix matrix = InkCanvasSelection::MapRectToRect(newRect, previousRect);
 
     //
     // transform the elements
     //
-    int count = SelectedElements().size();
-    QList<UIElement*> elements = SelectedElements();
+    int count = SelectedElements().Count();
+    List<UIElement*> elements = SelectedElements();
     for ( int i = 0; i < count ; i++ )
     {
         UpdateElementBounds(elements[i], matrix);
@@ -718,14 +718,14 @@ void InkCanvasSelection::MoveSelection(QRectF const & previousRect, QRectF const
     //
     // transform the strokes
     //
-    if ( SelectedStrokes()->size() > 0 )
+    if ( SelectedStrokes()->Count() > 0 )
     {
         TransformStrokes(SelectedStrokes(), matrix);
         // Flag the change
         _areStrokesChanged = true;
     }
 
-    if ( SelectedElements().size() == 0 )
+    if ( SelectedElements().Count() == 0 )
     {
         // If there is no element in the current selection, the inner canvas won't have layout changes.
         // So there is no LayoutUpdated event. We have to manually update the selection bounds.
@@ -746,7 +746,7 @@ void InkCanvasSelection::MoveSelection(QRectF const & previousRect, QRectF const
 /// <param name="e"></param>
 void InkCanvasSelection::OnCanvasLayoutUpdated(EventArgs& e)
 {
-    Debug::Assert( SelectedElements().size() != 0,
+    Debug::Assert( SelectedElements().Count() != 0,
         "The handler only can be hooked up when there are elements being selected" );
 
     // Update the selection adorner when receive the layout changed
@@ -759,8 +759,8 @@ void InkCanvasSelection::OnCanvasLayoutUpdated(EventArgs& e)
 void InkCanvasSelection::OnStrokeInvalidated(EventArgs& e)
 {
     StrokeCollectionChangedEventArgs args(
-                QSharedPointer<StrokeCollection>(new StrokeCollection()),
-                QSharedPointer<StrokeCollection>(new StrokeCollection()));
+                SharedPointer<StrokeCollection>(new StrokeCollection()),
+                SharedPointer<StrokeCollection>(new StrokeCollection()));
     OnStrokeCollectionChanged(args);
 }
 
@@ -772,14 +772,14 @@ void InkCanvasSelection::OnStrokeInvalidated(EventArgs& e)
 void InkCanvasSelection::OnStrokeCollectionChanged(StrokeCollectionChangedEventArgs& e)
 {
     // If the strokes only get added to the InkCanvas, we don't have to update our selected strokes.
-    if ( e.Added()->size() != 0 && e.Removed()->size() == 0 )
+    if ( e.Added()->Count() != 0 && e.Removed()->Count() == 0 )
     {
         return;
     }
 
-    for (QSharedPointer<Stroke> s : *e.Removed())
+    for (SharedPointer<Stroke> s : *e.Removed())
     {
-        if ( SelectedStrokes()->contains(s) )
+        if ( SelectedStrokes()->Contains(s) )
         {
             QObject::disconnect(s.get(), &Stroke::Invalidated,
                                 this, &InkCanvasSelection::OnStrokeInvalidated);
@@ -787,7 +787,7 @@ void InkCanvasSelection::OnStrokeCollectionChanged(StrokeCollectionChangedEventA
             s->SetIsSelected(false);
 
             // Now remove the stroke from our collection.
-            SelectedStrokes()->RemoveItem(s);
+            SelectedStrokes()->Remove(s);
         }
     }
 
@@ -799,13 +799,13 @@ void InkCanvasSelection::OnStrokeCollectionChanged(StrokeCollectionChangedEventA
 /// <summary>
 /// Get the cached bounding boxes to be updated.
 /// </summary>
-QRectF InkCanvasSelection::GetStrokesBounds()
+Rect InkCanvasSelection::GetStrokesBounds()
 {
     // Update the strokes bounds if they are changed.
     if ( _areStrokesChanged )
     {
-        _cachedStrokesBounds = SelectedStrokes()->size() != 0 ?
-                                SelectedStrokes()->GetBounds( ) : QRectF();
+        _cachedStrokesBounds = SelectedStrokes()->Count() != 0 ?
+                                SelectedStrokes()->GetBounds( ) : Rect();
         _areStrokesChanged = false;
     }
 
@@ -816,16 +816,16 @@ QRectF InkCanvasSelection::GetStrokesBounds()
 /// Get the bounding boxes of the selected elements.
 /// </summary>
 /// <returns></returns>
-QList<QRectF> InkCanvasSelection::GetElementsBounds()
+List<Rect> InkCanvasSelection::GetElementsBounds()
 {
-    QList<QRectF> rects;
+    List<Rect> rects;
 
-    if ( SelectedElements().size() != 0 )
+    if ( SelectedElements().Count() != 0 )
     {
         // The SelectedElementsBounds property will ensure the size is got after rendering's done.
-        for ( QRectF elementRect : SelectedElementsBoundsEnumerator() )
+        for ( Rect elementRect : SelectedElementsBoundsEnumerator() )
         {
-            rects.append(elementRect);
+            rects.Add(elementRect);
         }
     }
 
@@ -836,19 +836,19 @@ QList<QRectF> InkCanvasSelection::GetElementsBounds()
 /// Get the union box of the selected elements.
 /// </summary>
 /// <returns></returns>
-QRectF InkCanvasSelection::GetElementsUnionBounds()
+Rect InkCanvasSelection::GetElementsUnionBounds()
 {
-    if ( SelectedElements().size() == 0 )
+    if ( SelectedElements().Count() == 0 )
     {
-        return QRectF();
+        return Rect();
     }
 
-    QRectF elementsBounds = QRectF();
+    Rect elementsBounds;
 
     // The SelectedElementsBounds property will ensure the size is got after rendering's done.
-    for ( QRectF elementRect : SelectedElementsBoundsEnumerator() )
+    for ( Rect elementRect : SelectedElementsBoundsEnumerator() )
     {
-        elementsBounds |= elementRect;
+        elementsBounds.Union(elementRect);
     }
 
     return elementsBounds;
@@ -903,9 +903,9 @@ void InkCanvasSelection::EnusreElementsBounds()
 /// <param name="target">Destination Rectangle</param>
 /// <param name="source">Source Rectangle</param>
 /// <returns>Transform that maps source rectangle to destination rectangle</returns>
-QMatrix InkCanvasSelection::MapRectToRect(QRectF const & target, QRectF const & source)
+Matrix InkCanvasSelection::MapRectToRect(Rect const & target, Rect const & source)
 {
-    if(source.isEmpty())
+    if(source.IsEmpty())
         throw std::runtime_error("source");
     /*
     In the horizontal direction:
@@ -923,17 +923,17 @@ QMatrix InkCanvasSelection::MapRectToRect(QRectF const & target, QRectF const & 
 
             Dx = target.left - M11*source.left
     */
-    double m11 = target.width() / source.width();
-    double dx = target.left() - m11 * source.left();
+    double m11 = target.Width() / source.Width();
+    double dx = target.Left() - m11 * source.Left();
 
     // Now do the same thing in the vertical direction
-    double m22 = target.height() / source.height();
-    double dy = target.top() - m22 * source.top();
+    double m22 = target.Height() / source.Height();
+    double dy = target.Top() - m22 * source.Top();
     /*
     We are looking for the transformation that takes one upright rectangle to
     another.  This involves neither rotation nor shear, so:
     */
-    return QMatrix(m11, 0, 0, m22, dx, dy);
+    return Matrix(m11, 0, 0, m22, dx, dy);
 }
 
 /// <summary>
@@ -943,7 +943,7 @@ void InkCanvasSelection::UpdateCanvasLayoutUpdatedHandler()
 {
     // If there are selected elements, we should create a LayoutUpdated handler in order to monitor their arrange changes.
     // Otherwise, we don't have to listen the LayoutUpdated if there is no selected element at all.
-    if ( SelectedElements().size() != 0 )
+    if ( SelectedElements().Count() != 0 )
     {
         // Make sure we hook up the event handler.
         if ( _layoutUpdatedHandler == nullptr )
@@ -971,7 +971,7 @@ void InkCanvasSelection::UpdateCanvasLayoutUpdatedHandler()
 /// or
 /// 2) both refer to the identical set of strokes
 /// </summary>
-bool InkCanvasSelection::StrokesAreEqual(QSharedPointer<StrokeCollection> strokes1, QSharedPointer<StrokeCollection> strokes2)
+bool InkCanvasSelection::StrokesAreEqual(SharedPointer<StrokeCollection> strokes1, SharedPointer<StrokeCollection> strokes2)
 {
     if ( strokes1 == nullptr && strokes2 == nullptr )
     {
@@ -987,13 +987,13 @@ bool InkCanvasSelection::StrokesAreEqual(QSharedPointer<StrokeCollection> stroke
 
         return false;
     }
-    if ( strokes1->size() != strokes2->size() )
+    if ( strokes1->Count() != strokes2->Count() )
     {
         return false;
     }
-    for ( QSharedPointer<Stroke> s : *strokes1 )
+    for ( SharedPointer<Stroke> s : *strokes1 )
     {
-        if ( !strokes2->contains(s) )
+        if ( !strokes2->Contains(s) )
         {
             return false;
         }
@@ -1007,7 +1007,7 @@ bool InkCanvasSelection::StrokesAreEqual(QSharedPointer<StrokeCollection> stroke
 /// or
 /// 2) both refer to the identical set of elements
 /// </summary>
-bool InkCanvasSelection::FrameworkElementArraysAreEqual(QList<UIElement*> const & elements1, QList<UIElement*> const & elements2)
+bool InkCanvasSelection::FrameworkElementArraysAreEqual(List<UIElement*> const & elements1, List<UIElement*> const & elements2)
 {
     //if ( elements1 == nullptr && elements2 == nullptr )
     //{
@@ -1022,13 +1022,13 @@ bool InkCanvasSelection::FrameworkElementArraysAreEqual(QList<UIElement*> const 
     //{
     //    return false;
     //}
-    if ( elements1.size() != elements2.size() )
+    if ( elements1.Count() != elements2.Count() )
     {
         return false;
     }
     for ( UIElement* e : elements1 )
     {
-        if ( !elements2.contains(e) )
+        if ( !elements2.Contains(e) )
         {
             return false;
         }
@@ -1049,24 +1049,24 @@ bool InkCanvasSelection::FrameworkElementArraysAreEqual(QList<UIElement*> const 
 /// <summary>
 /// Iterates the bounding boxes of the selected elements relevent to their parent (InnerCanvas)
 /// </summary>
-QList<QRectF> InkCanvasSelection::SelectedElementsBoundsEnumerator()
+List<Rect> InkCanvasSelection::SelectedElementsBoundsEnumerator()
 {
     // Ensure the elements have been rendered completely.
     EnusreElementsBounds();
-    QList<QRectF> list;
+    List<Rect> list;
     InkCanvasInnerCanvas &innerCanvas = _inkCanvas.InnerCanvas();
     for ( UIElement* element : SelectedElements() )
     {
         // Get the transform from element to Canvas
-        QTransform elementToCanvas = element->TransformToAncestor(&innerCanvas);
+        GeneralTransform elementToCanvas = element->TransformToAncestor(&innerCanvas);
 
         // Get the element's render size.
-        QSizeF size = element->RenderSize();
+        Size size = element->RenderSize();
 
-        QRectF rect(0, 0, size.width(), size.height());   // Rect in element space
-        rect = elementToCanvas.map(rect).boundingRect();          // Rect in Canvas space
+        Rect rect(0, 0, size.Width(), size.Height());   // Rect in element space
+        rect = elementToCanvas.Transform(rect);          // Rect in Canvas space
 
-        list.append(rect);
+        list.Add(rect);
     }
     return list;
 }

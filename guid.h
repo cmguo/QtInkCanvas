@@ -2,8 +2,9 @@
 #define GUID_H
 
 #include "InkCanvas_global.h"
+#include "Collections/Generic/array.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QUuid>
 #endif
 
@@ -93,6 +94,32 @@ public:
     {
     }
 
+
+    // Returns an unsigned byte array containing the GUID.
+    Array<byte> ToByteArray() const
+    {
+        Array<byte> g(16);
+
+        g[0] = (byte)(_a);
+        g[1] = (byte)(_a >> 8);
+        g[2] = (byte)(_a >> 16);
+        g[3] = (byte)(_a >> 24);
+        g[4] = (byte)(_b);
+        g[5] = (byte)(_b >> 8);
+        g[6] = (byte)(_c);
+        g[7] = (byte)(_c >> 8);
+        g[8] = _d;
+        g[9] = _e;
+        g[10] = _f;
+        g[11] = _g;
+        g[12] = _h;
+        g[13] = _i;
+        g[14] = _j;
+        g[15] = _k;
+
+        return g;
+    }
+
     friend bool operator==(Guid const & l, Guid const & r)
     {
         return l._a == r._a && l._b == r._b && l._c == r._c
@@ -106,11 +133,19 @@ public:
         return !(l == r);
     }
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
+
+    operator GUID() const
+    {
+        return {static_cast<ulong>(_a), static_cast<ushort>(_b),
+                    static_cast<ushort>(_c), {_d, _e, _f, _g, _h, _i, _j, _k}};
+    }
+
     operator QUuid() const
     {
         return QUuid(_a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k);
     }
+
 #endif
 };
 

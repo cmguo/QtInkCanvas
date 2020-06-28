@@ -1,6 +1,7 @@
 #include "matrixutil.h"
 #include "Windows/rect.h"
 #include "Windows/Media/matrix.h"
+#include "Internal/debug.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 

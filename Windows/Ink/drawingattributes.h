@@ -16,8 +16,6 @@
 
 #ifdef INKCANVAS_QT
 #include <QColor>
-#include <Matrix>
-#include <Variant>
 #endif
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -30,7 +28,7 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
     Q_OBJECT
@@ -214,7 +212,7 @@ public:
     //
     //------------------------------------------------------
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 
 signals:
     void PropertyChanged(PropertyChangedEventArgs & e);

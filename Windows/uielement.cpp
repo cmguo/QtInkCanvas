@@ -131,13 +131,13 @@ void UIElement::ApplyTemplate()
     OnPreApplyTemplate();
 }
 
-QList<UIElement*> UIElement::Children()
+List<UIElement*> UIElement::Children()
 {
-    QList<UIElement*> list;
+    List<UIElement*> list;
     for (QObject * c : children()) {
         UIElement * ui = qobject_cast<UIElement*>(c);
         if (ui)
-            list.append(ui);
+            list.Add(ui);
     }
     return list;
 }
@@ -153,41 +153,41 @@ void UIElement::InvalidateVisual()
 }
 
 
-QTransform UIElement::LayoutTransform()
+GeneralTransform UIElement::LayoutTransform()
 {
-    return QTransform();
+    return GeneralTransform();
 }
 
-QTransform UIElement::RenderTransform()
+GeneralTransform UIElement::RenderTransform()
 {
     return sceneTransform();
 }
 
-QTransform UIElement::TransformToVisual(UIElement* visual)
+GeneralTransform UIElement::TransformToVisual(UIElement* visual)
 {
     return itemTransform(visual);
 }
 
-QSizeF UIElement::DesiredSize()
+Size UIElement::DesiredSize()
 {
-    return QSizeF();
+    return Size();
 }
 
-QSizeF UIElement::RenderSize()
+Size UIElement::RenderSize()
 {
     return boundingRect().size();
 }
 
-void UIElement::SetRenderSize(QSizeF const & size)
+void UIElement::SetRenderSize(Size const & size)
 {
-    Arrange(QRectF(QPointF(0, 0), size));
+    Arrange(Rect(QPointF(0, 0), size));
     //rect.moveCenter(QPointF(0, 0));
 }
 
-void UIElement::Arrange(QRectF const & rect)
+void UIElement::Arrange(Rect const & rect)
 {
     prepareGeometryChange();
-    setData(ITEM_DATA_RECT, rect);
+    setData(ITEM_DATA_RECT, QRectF(rect));
 //    for (QGraphicsItem * o : childItems()) {
 //        UIElement* ue = fromItem(o);
 //        if (ue) {
@@ -293,7 +293,7 @@ void UIElement::ReleaseStylusCapture()
 }
 
 
-void UIElement::Measure(QSizeF)
+void UIElement::Measure(Size)
 {
 }
 
@@ -358,38 +358,38 @@ void UIElement::OnChildDesiredSizeChanged(UIElement* child)
     (void) child;
 }
 
-QList<UIElement*> UIElement::CreateUIElementCollection(UIElement* logicalParent)
+List<UIElement*> UIElement::CreateUIElementCollection(UIElement* logicalParent)
 {
     (void) logicalParent;
     return {};
 }
 
-QList<UIElement*> UIElement::LogicalChildren()
+List<UIElement*> UIElement::LogicalChildren()
 {
     return {};
 }
 
-QList<UIElement*> UIElement::InternalChildren()
+List<UIElement*> UIElement::InternalChildren()
 {
     return {};
 }
 
-Geometry* UIElement::GetLayoutClip(QSizeF layoutSlotSize)
+Geometry* UIElement::GetLayoutClip(Size layoutSlotSize)
 {
     (void) layoutSlotSize;
     return nullptr;
 }
 
-QSizeF UIElement::ArrangeOverride(QSizeF arrangeSize)
+Size UIElement::ArrangeOverride(Size arrangeSize)
 {
     (void) arrangeSize;
-    return QSizeF();
+    return Size();
 }
 
-QSizeF UIElement::MeasureOverride(QSizeF availableSize)
+Size UIElement::MeasureOverride(Size availableSize)
 {
     (void) availableSize;
-    return QSizeF();
+    return Size();
 }
 
 void UIElement::OnPreApplyTemplate()
@@ -469,9 +469,9 @@ QRectF UIElement::boundingRect() const
 DependencyProperty const * const FrameworkElement::LayoutTransformProperty =
     new DependencyProperty(nullptr);
 
-QRectF FrameworkElement::Margin()
+Rect FrameworkElement::Margin()
 {
-    return QRectF();
+    return Rect();
 }
 
 double FrameworkElement::ActualWidth()
@@ -484,7 +484,7 @@ double FrameworkElement::ActualHeight()
     return 0;
 }
 
-void FrameworkElement::BringIntoView(QRectF)
+void FrameworkElement::BringIntoView(Rect)
 {
 }
 
@@ -504,3 +504,6 @@ Visual* FrameworkElement::GetVisualChild(int index)
 }
 
 INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(RoutedEventStore)*)
+

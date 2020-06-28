@@ -5,6 +5,7 @@
 
 #include "Windows/dependencyobject.h"
 #include "pointhittestparameters.h"
+#include "Windows/Media/matrix.h"
 
 #include <QGraphicsItem>
 
@@ -23,9 +24,9 @@ public:
 public:
     void SetOpacity(double opacity);
 
-    QTransform TransformToAncestor(Visual* visual);
+    GeneralTransform TransformToAncestor(Visual* visual);
 
-    QTransform TransformToDescendant(Visual* visual);
+    GeneralTransform TransformToDescendant(Visual* visual);
 
     void AddVisualChild(Visual *);
 

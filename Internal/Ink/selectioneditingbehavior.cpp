@@ -120,11 +120,11 @@ QCursor SelectionEditingBehavior::GetCurrentCursor()
 void SelectionEditingBehavior::OnMouseMove(MouseEventArgs& args)
 {
     // Get the current mouse location.
-    QPointF curPoint = args.GetPosition(&GetInkCanvas().SelectionAdorner());
+    Point curPoint = args.GetPosition(&GetInkCanvas().SelectionAdorner());
 
     // Check if we have a mouse movement at all.
-    if ( !DoubleUtil::AreClose(curPoint.x(), _previousLocation.x())
-        || !DoubleUtil::AreClose(curPoint.y(), _previousLocation.y()) )
+    if ( !DoubleUtil::AreClose(curPoint.X(), _previousLocation.X())
+        || !DoubleUtil::AreClose(curPoint.Y(), _previousLocation.Y()) )
     {
         // We won't start the move until we really see a movement.
         if ( !_actionStarted )
@@ -133,7 +133,7 @@ void SelectionEditingBehavior::OnMouseMove(MouseEventArgs& args)
         }
 
         // Get the new rectangle
-        QRectF newRect = ChangeFeedbackRectangle(curPoint);
+        Rect newRect = ChangeFeedbackRectangle(curPoint);
 
         // Update the feedback rubber band and record the current tracking rectangle.
         GetInkCanvas().GetInkCanvasSelection().UpdateFeedbackAdorner(newRect);
@@ -151,7 +151,7 @@ void SelectionEditingBehavior::OnMouseUp(MouseButtonEventArgs& args)
     // We won't start the move until we really see a movement.
     if ( _actionStarted )
     {
-        QPointF point = args.GetPosition(&GetInkCanvas().SelectionAdorner());
+        Point point = args.GetPosition(&GetInkCanvas().SelectionAdorner());
         _previousRect = ChangeFeedbackRectangle(point);
     }
 
@@ -178,7 +178,7 @@ void SelectionEditingBehavior::OnLostMouseCapture(MouseEventArgs& args)
 /// Get the new feedback rectangle based on the location
 /// </summary>
 /// <param name="newPoint"></param>
-QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
+Rect SelectionEditingBehavior::ChangeFeedbackRectangle(Point & newPoint)
 {
     // First check to make sure that we are not going past the zero point on
     //  the original element in which we hit the resize handle.
@@ -188,9 +188,9 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
         _hitResult == InkCanvasSelectionHitResult::BottomLeft ||
         _hitResult == InkCanvasSelectionHitResult::Left )
     {
-        if ( newPoint.x() > _selectionRect.right() - MinimumHeightWidthSize )
+        if ( newPoint.X() > _selectionRect.Right() - MinimumHeightWidthSize )
         {
-            newPoint.setX(_selectionRect.right() - MinimumHeightWidthSize);
+            newPoint.setX(_selectionRect.Right() - MinimumHeightWidthSize);
         }
     }
 
@@ -199,9 +199,9 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
         _hitResult == InkCanvasSelectionHitResult::BottomRight ||
         _hitResult == InkCanvasSelectionHitResult::Right )
     {
-        if ( newPoint.x() < _selectionRect.left() + MinimumHeightWidthSize )
+        if ( newPoint.X() < _selectionRect.Left() + MinimumHeightWidthSize )
         {
-            newPoint.setX(_selectionRect.left() + MinimumHeightWidthSize);
+            newPoint.setX(_selectionRect.Left() + MinimumHeightWidthSize);
         }
     }
 
@@ -210,9 +210,9 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
         _hitResult == InkCanvasSelectionHitResult::TopRight ||
         _hitResult == InkCanvasSelectionHitResult::Top )
     {
-        if ( newPoint.y() > _selectionRect.bottom() - MinimumHeightWidthSize )
+        if ( newPoint.Y() > _selectionRect.Bottom() - MinimumHeightWidthSize )
         {
-            newPoint.setY(_selectionRect.bottom() - MinimumHeightWidthSize);
+            newPoint.setY(_selectionRect.Bottom() - MinimumHeightWidthSize);
         }
     }
 
@@ -221,14 +221,14 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
         _hitResult == InkCanvasSelectionHitResult::BottomRight ||
         _hitResult == InkCanvasSelectionHitResult::Bottom )
     {
-        if ( newPoint.y() < _selectionRect.top() + MinimumHeightWidthSize )
+        if ( newPoint.Y() < _selectionRect.Top() + MinimumHeightWidthSize )
         {
-            newPoint.setY(_selectionRect.top() + MinimumHeightWidthSize);
+            newPoint.setY(_selectionRect.Top() + MinimumHeightWidthSize);
         }
     }
 
     // Get the new boundary of the selection
-    QRectF newRect = CalculateRect(newPoint.x() - _previousLocation.x(), newPoint.y() - _previousLocation.y());
+    Rect newRect = CalculateRect(newPoint.X() - _previousLocation.X(), newPoint.Y() - _previousLocation.Y());
 
     // Depends on the current grab handle, we record the tracking position accordingly.
     if ( _hitResult == InkCanvasSelectionHitResult::BottomRight ||
@@ -237,18 +237,18 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
         _hitResult == InkCanvasSelectionHitResult::TopLeft ||
         _hitResult == InkCanvasSelectionHitResult::Selection )
     {
-        _previousLocation.setX(newPoint.x());
-        _previousLocation.setY(newPoint.y());
+        _previousLocation.setX(newPoint.X());
+        _previousLocation.setY(newPoint.Y());
     }
     else if ( _hitResult == InkCanvasSelectionHitResult::Left ||
         _hitResult == InkCanvasSelectionHitResult::Right )
     {
-        _previousLocation.setX(newPoint.x());
+        _previousLocation.setX(newPoint.X());
     }
     else if ( _hitResult == InkCanvasSelectionHitResult::Top ||
         _hitResult == InkCanvasSelectionHitResult::Bottom )
     {
-        _previousLocation.setY(newPoint.y());
+        _previousLocation.setY(newPoint.Y());
     }
 
     return newRect;
@@ -260,9 +260,9 @@ QRectF SelectionEditingBehavior::ChangeFeedbackRectangle(QPointF & newPoint)
 /// </summary>
 /// <param name="x"></param>
 /// <param name="y"></param>
-QRectF SelectionEditingBehavior::CalculateRect(double x, double y)
+Rect SelectionEditingBehavior::CalculateRect(double x, double y)
 {
-    QRectF newRect = _previousRect;
+    Rect newRect = _previousRect;
 
     switch ( _hitResult )
     {
@@ -313,7 +313,7 @@ QRectF SelectionEditingBehavior::CalculateRect(double x, double y)
         case InkCanvasSelectionHitResult::Selection:
             {
                 // Translate the rectangle
-                newRect.adjust(x, y, x, y);
+                newRect.Offset(x, y);
                 break;
             }
         default:
@@ -327,39 +327,39 @@ QRectF SelectionEditingBehavior::CalculateRect(double x, double y)
 }
 
 // ExtendSelectionLeft
-QRectF SelectionEditingBehavior::ExtendSelectionLeft(QRectF const & rect, double extendBy)
+Rect SelectionEditingBehavior::ExtendSelectionLeft(Rect const & rect, double extendBy)
 {
-    QRectF newRect = rect;
-    newRect.adjust(extendBy, 0, 0, 0);
+    Rect newRect = rect;
+    newRect.SetX(newRect.X() + extendBy);
 
     return newRect;
 }
 
 // ExtendSelectionTop
-QRectF SelectionEditingBehavior::ExtendSelectionTop(QRectF const & rect, double extendBy)
+Rect SelectionEditingBehavior::ExtendSelectionTop(Rect const & rect, double extendBy)
 {
-    QRectF newRect = rect;
+    Rect newRect = rect;
 
-    newRect.adjust(0, extendBy, 0, 0);
+    newRect.SetY(newRect.Y() + extendBy);
     return newRect;
 }
 
 // ExtendSelectionRight
-QRectF SelectionEditingBehavior::ExtendSelectionRight(QRectF const & rect, double extendBy)
+Rect SelectionEditingBehavior::ExtendSelectionRight(Rect const & rect, double extendBy)
 {
-    QRectF newRect = rect;
+    Rect newRect = rect;
 
-    newRect.adjust(0, 0, extendBy, 0);
+    newRect.SetWidth(newRect.Width() + extendBy);
 
     return newRect;
 }
 
 // ExtendSelectionBottom
-QRectF SelectionEditingBehavior::ExtendSelectionBottom(QRectF const & rect, double extendBy)
+Rect SelectionEditingBehavior::ExtendSelectionBottom(Rect const & rect, double extendBy)
 {
-    QRectF newRect = rect;
+    Rect newRect = rect;
 
-    newRect.adjust(0, 0, 0, extendBy);
+    newRect.SetHeight(newRect.Height() + extendBy);
 
     return newRect;
 }

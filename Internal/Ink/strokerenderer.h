@@ -6,6 +6,7 @@
 #include "Collections/Generic/list.h"
 #include "Windows/rect.h"
 #include "Windows/Media/matrix.h"
+#include "sharedptr.h"
 
 #ifdef INKCANVAS_QT
 #include <QColor>

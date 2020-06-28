@@ -43,21 +43,21 @@ VisualCollection::VisualCollection(ContainerVisual *parent)
 void VisualCollection::Add(Visual *visual)
 {
     parent_->AddVisualChild(visual);
-    append(visual);
+    Collection::Add(visual);
 }
 
 void VisualCollection::Insert(int index, Visual *visual)
 {
     parent_->AddVisualChild(visual);
-    if (index < size())
+    if (index < Count())
         visual->stackBefore(at(index));
-    insert(index, visual);
+    InsertItem(index, visual);
 }
 
 void VisualCollection::Remove(Visual *visual)
 {
-    if (contains(visual)) {
-        removeOne(visual);
+    if (Contains(visual)) {
+        Collection::Remove(visual);
         parent_->RemoveVisualChild(visual);
     }
 }

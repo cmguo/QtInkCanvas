@@ -93,7 +93,7 @@ void MouseDevice::SetLastPosition(const QPointF &pos)
 ///     Calculates the position of the mouse relative to
 ///     a particular element.
 /// </summary>
-QPointF MouseDevice::GetPosition(Visual* relativeTo)
+Point MouseDevice::GetPosition(Visual* relativeTo)
 {
     (void) relativeTo;
     UIElement* e = UIElement::fromItem(relativeTo);
@@ -176,18 +176,18 @@ int MouseDevice::Id()
     return 0;
 }
 
-QSharedPointer<StylusPointDescription> MouseDevice::PointDescription()
+SharedPointer<StylusPointDescription> MouseDevice::PointDescription()
 {
     return description_;
 }
 
-QVector<int> MouseDevice::PacketData(QEvent& event)
+Array<int> MouseDevice::PacketData(QEvent& event)
 {
     QGraphicsSceneMouseEvent& mouseEvent(static_cast<QGraphicsSceneMouseEvent&>(event));
-    QVector<int> data;
+    Array<int> data(2);
     QPoint pt2 = mouseEvent.pos().toPoint();
-    data.append(pt2.x());
-    data.append(pt2.y());
+    data[0] = pt2.x();
+    data[1] = pt2.y();
     return data;
 }
 

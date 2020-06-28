@@ -29,12 +29,12 @@ QMutex& PenContexts::SyncRoot()
 
 void PenContexts::AddStylusPlugInCollection(StylusPlugInCollection* pic)
 {
-    stylusPlugIns_.append(pic);
+    stylusPlugIns_.Add(pic);
 }
 
 void PenContexts::RemoveStylusPlugInCollection(StylusPlugInCollection* pic)
 {
-    stylusPlugIns_.removeOne(pic);
+    stylusPlugIns_.Remove(pic);
 }
 
 void PenContexts::FireCustomData()
@@ -42,7 +42,7 @@ void PenContexts::FireCustomData()
     for (RawStylusInputCustomData & cd : customDatas_) {
         cd.Owner->FireCustomData(cd.Data, action_, true);
     }
-    customDatas_.clear();
+    customDatas_.Clear();
 }
 
 bool PenContexts::eventFilter(QObject *watched, QEvent *event)
@@ -58,12 +58,12 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
         Stylus::SetLastInput(static_cast<QTouchEvent&>(*event));
-        customDatas_.clear();
+        customDatas_.Clear();
         for (StylusPlugInCollection* pic : stylusPlugIns_) {
             RawStylusInput stylusInput(static_cast<QTouchEvent&>(*event), transform_, pic);
             pic->FireRawStylusInput(stylusInput);
             action_ = stylusInput.Actions();
-            customDatas_.append(stylusInput.CustomDataList());
+            customDatas_.AddRange(stylusInput.CustomDataList());
         }
         break;
     case QEvent::GraphicsSceneMousePress:
@@ -72,12 +72,12 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
         Mouse::SetLastInput(static_cast<QGraphicsSceneMouseEvent&>(*event));
         if (!element_->acceptTouchEvents() ||
                 static_cast<QGraphicsSceneMouseEvent&>(*event).source() == Qt::MouseEventNotSynthesized) {
-            customDatas_.clear();
+            customDatas_.Clear();
             for (StylusPlugInCollection* pic : stylusPlugIns_) {
                 RawStylusInput stylusInput(static_cast<QGraphicsSceneMouseEvent&>(*event), transform_, pic);
                 pic->FireRawStylusInput(stylusInput);
                 action_ = stylusInput.Actions();
-                customDatas_.append(stylusInput.CustomDataList());
+                customDatas_.AddRange(stylusInput.CustomDataList());
             }
         }
         break;

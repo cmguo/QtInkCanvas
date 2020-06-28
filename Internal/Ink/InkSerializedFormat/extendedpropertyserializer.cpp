@@ -12,7 +12,6 @@
 
 #include <QDataStream>
 #include <QBuffer>
-#include <QMatrix>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -20,7 +19,7 @@ INKCANVAS_BEGIN_NAMESPACE
 //      Guids that did not include embedded type information (e.g. used the OS-internal
 //      property storage API), then it is always stored as byte array and does not
 //      include type information
-bool ExtendedPropertySerializer::UsesEmbeddedTypeInformation(QUuid const &propGuid)
+bool ExtendedPropertySerializer::UsesEmbeddedTypeInformation(Guid const &propGuid)
 {
     for (int i = 0; i < KnownIdCache::OriginalISFIdTableLength; i++)
     {
@@ -75,7 +74,7 @@ void ExtendedPropertySerializer::EncodeToStream(ExtendedProperty& attribute, QIO
 /// This function returns the Data bytes that accurately describes the object
 /// </summary>
 /// <returns></returns>
-void ExtendedPropertySerializer::EncodeAttribute(QUuid const &guid, QVariant const & value, QIODevice& stream)
+void ExtendedPropertySerializer::EncodeAttribute(Guid const &guid, QVariant const & value, QIODevice& stream)
 {
     // samgeo - Presharp issue
     // Presharp gives a warning when local IDisposable variables are not closed
@@ -103,7 +102,7 @@ void ExtendedPropertySerializer::EncodeAttribute(QUuid const &guid, QVariant con
 /// <summary>
 /// Encodes a custom attribute to the ISF stream
 /// </summary>
-uint ExtendedPropertySerializer::EncodeAsISF(QUuid const &id, QByteArray data, QIODevice& strm, GuidList& guidList, quint8 compressionAlgorithm, bool fTag)
+uint ExtendedPropertySerializer::EncodeAsISF(Guid const &id, QByteArray data, QIODevice& strm, GuidList& guidList, quint8 compressionAlgorithm, bool fTag)
 {
     uint cbWrite = 0;
     uint cbSize = guidList.GetDataSizeIfKnownGuid(id);
@@ -158,9 +157,9 @@ uint ExtendedPropertySerializer::EncodeAsISF(QUuid const &id, QByteArray data, Q
 /// </summary>
 /// <param name="stream">Memory buffer to load from</param>
 /// <param name="cbSize">Maximum length of buffer to read</param>
-/// <param name="guidList">QUuid const &cache to read from</param>
-/// <param name="tag">QUuid const &tag to lookup</param>
-/// <param name="guid">QUuid const &of property</param>
+/// <param name="guidList">Guid const &cache to read from</param>
+/// <param name="tag">Guid const &tag to lookup</param>
+/// <param name="guid">Guid const &of property</param>
 /// <param name="data">Data of property</param>
 /// <returns>Length of buffer read</returns>
 /// <SecurityNote>
@@ -181,13 +180,13 @@ uint ExtendedPropertySerializer::EncodeAsISF(QUuid const &id, QByteArray data, Q
 /// </summary>
 /// <param name="stream">Memory buffer to load from</param>
 /// <param name="cbSize">Maximum length of buffer to read</param>
-/// <param name="guidList">QUuid const &cache to read from</param>
-/// <param name="tag">QUuid const &tag to lookup</param>
-/// <param name="guid">QUuid const &of property</param>
+/// <param name="guidList">Guid const &cache to read from</param>
+/// <param name="tag">Guid const &tag to lookup</param>
+/// <param name="guid">Guid const &of property</param>
 /// <param name="data">Data of property</param>
 /// <returns>Length of buffer read</returns>
 #endif
-uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, GuidList& guidList, KnownTagCache::KnownTagIndex tag, QUuid &guid, QVariant& data)
+uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, GuidList& guidList, KnownTagCache::KnownTagIndex tag, Guid &guid, QVariant& data)
 {
     uint cb, cbRead = 0;
     uint cbTotal = cbSize;
@@ -289,12 +288,12 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
 /// If however, the guid is of unknown origin or not v1 internal, then the type
 ///     information is assumed to be stored in the first 2 bytes of the stream.
 /// </summary>
-/// <param name="guid">QUuid const &of property - to detect origin</param>
+/// <param name="guid">Guid const &of property - to detect origin</param>
 /// <param name="memStream">Buffer of data</param>
 /// <param name="type">the type info stored in the stream</param>
 /// <returns>object stored in data buffer</returns>
 /// <remarks>The buffer stream passed in to the method will be closed after reading</remarks>
-QVariant ExtendedPropertySerializer::DecodeAttribute(QUuid const &guid, QIODevice& memStream)
+QVariant ExtendedPropertySerializer::DecodeAttribute(Guid const &guid, QIODevice& memStream)
 {
     // First determine the object type
     //using (BinaryReader br = new BinaryReader(memStream))
@@ -395,9 +394,9 @@ uint ExtendedPropertySerializer::EncodeAsISF(ExtendedPropertyCollection const & 
 /// <param name="attributes"></param>
 /// <param name="count">count of guids returned (can be less than return.Length</param>
 /// <returns></returns>
-QVector<QUuid> ExtendedPropertySerializer::GetUnknownGuids(ExtendedPropertyCollection& attributes, int& count)
+QVector<Guid> ExtendedPropertySerializer::GetUnknownGuids(ExtendedPropertyCollection& attributes, int& count)
 {
-    QVector<QUuid> guids(attributes.Count());
+    QVector<Guid> guids(attributes.Count());
     count = 0;
     for (int x = 0; x < attributes.Count(); x++)
     {
@@ -417,7 +416,7 @@ QVector<QUuid> ExtendedPropertySerializer::GetUnknownGuids(ExtendedPropertyColle
 /// <param name="id">ExtendedProperty identifier</param>
 /// <param name="value">data</param>
 /// <remarks>Ignores Ids that are not known (e.g. ExtendedProperties)</remarks>
-void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & value)
+void ExtendedPropertySerializer::Validate(Guid const &id, QVariant const & value)
 {
     if (id == GuidList::Empty)
     {
@@ -468,14 +467,14 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
         // StylusTipTransform gets serialized as a String, but at runtime is a Matrix
         //
         int t = value.userType();
-        if ( t != qMetaTypeId<QString>() && t != qMetaTypeId<QMatrix>() )
+        if ( t != qMetaTypeId<QString>() && t != qMetaTypeId<Matrix>() )
         {
             throw std::runtime_error("value");
         }
-        else if ( t == qMetaTypeId<QMatrix>() )
+        else if ( t == qMetaTypeId<Matrix>() )
         {
-            QMatrix matrix = value.value<QMatrix>();
-            if ( !matrix.isInvertible() )
+            Matrix matrix = value.value<Matrix>();
+            if ( !matrix.HasInverse() )
             {
                 throw std::runtime_error("value");
             }
@@ -508,14 +507,14 @@ void ExtendedPropertySerializer::Validate(QUuid const &id, QVariant const & valu
 
         if (id == KnownIds::StylusHeight)
         {
-            if ( qIsNaN(dVal) || dVal < DrawingAttributes::MinHeight || dVal > DrawingAttributes::MaxHeight)
+            if ( Double::IsNaN(dVal) || dVal < DrawingAttributes::MinHeight || dVal > DrawingAttributes::MaxHeight)
             {
                 throw std::runtime_error("value");
             }
         }
         else
         {
-            if (qIsNaN(dVal) ||  dVal < DrawingAttributes::MinWidth || dVal > DrawingAttributes::MaxWidth)
+            if (Double::IsNaN(dVal) ||  dVal < DrawingAttributes::MinWidth || dVal > DrawingAttributes::MaxWidth)
             {
                 throw std::runtime_error("value");
             }

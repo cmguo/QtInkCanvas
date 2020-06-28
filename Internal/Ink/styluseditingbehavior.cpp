@@ -80,7 +80,7 @@ void StylusEditingBehavior::SwitchToMode(InkCanvasEditingMode mode)
 ///     InkCollectionBehavior calls a critical method with the stylusPoints as an argument.
 /// </SecurityNote>
 //[SecurityCritical]
-void StylusEditingBehavior::AddStylusPoints(QSharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void StylusEditingBehavior::AddStylusPoints(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
 {
     GetEditingCoordinator().DebugCheckActiveBehavior(this);
 

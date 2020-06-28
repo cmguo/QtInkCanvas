@@ -2,15 +2,14 @@
 #define STROKEDESCRIPTOR_H
 
 #include "Internal/Ink/InkSerializedFormat/isftagandguidcache.h"
-
-#include <QList>
+#include "Collections/Generic/list.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
 class StrokeDescriptor
 {
 public:
-    QList<KnownTagCache::KnownTagIndex> Template;
+    List<KnownTagCache::KnownTagIndex> Template;
     uint Size;
 
 public:

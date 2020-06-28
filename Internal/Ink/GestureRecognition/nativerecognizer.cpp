@@ -94,7 +94,7 @@ NativeRecognizer* NativeRecognizer::CreateInstance()
 ///         used maliciously. And we verify the length of the passed in array.
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
-QList<ApplicationGesture> NativeRecognizer::SetEnabledGestures(QList<ApplicationGesture> applicationGestures)
+List<ApplicationGesture> NativeRecognizer::SetEnabledGestures(List<ApplicationGesture> applicationGestures)
 {
     if (_disposed)
     {
@@ -102,7 +102,7 @@ QList<ApplicationGesture> NativeRecognizer::SetEnabledGestures(QList<Application
     }
 
     //validate and get an array out
-    QList<ApplicationGesture> enabledGestures =
+    List<ApplicationGesture> enabledGestures =
         GetApplicationGestureArrayAndVerify(applicationGestures);
 
     // Set enabled Gestures.
@@ -130,7 +130,7 @@ QList<ApplicationGesture> NativeRecognizer::SetEnabledGestures(QList<Application
 ///             InvokeGetLatticePtr
 /// </SecurityNote>
 //[SecurityCritical]
-QList<GestureRecognitionResult> NativeRecognizer::Recognize(QSharedPointer<StrokeCollection> strokes)
+List<GestureRecognitionResult> NativeRecognizer::Recognize(SharedPointer<StrokeCollection> strokes)
 {
     if (_disposed)
     {
@@ -145,15 +145,15 @@ QList<GestureRecognitionResult> NativeRecognizer::Recognize(QSharedPointer<Strok
     {
         throw std::exception("strokes"); // nullptr is not allowed as the argument value
     }
-    if (strokes->size() > 2)
+    if (strokes->Count() > 2)
     {
         throw std::exception("strokes");
     }
 
     // Create an empty result.
-    QList<GestureRecognitionResult> recResults;
+    List<GestureRecognitionResult> recResults;
 
-    if ( strokes->size() == 0 )
+    if ( strokes->Count() == 0 )
     {
         return recResults;
     }
@@ -215,7 +215,7 @@ QList<GestureRecognitionResult> NativeRecognizer::Recognize(QSharedPointer<Strok
 }
 
 
-QList<ApplicationGesture> NativeRecognizer::GetApplicationGestureArrayAndVerify(QList<ApplicationGesture> applicationGestures)
+List<ApplicationGesture> NativeRecognizer::GetApplicationGestureArrayAndVerify(List<ApplicationGesture> applicationGestures)
 {
     //if (applicationGestures == nullptr)
     //{
@@ -223,7 +223,7 @@ QList<ApplicationGesture> NativeRecognizer::GetApplicationGestureArrayAndVerify(
     //    throw std::exception("applicationGestures");
     //}
 
-    int count = applicationGestures.size();
+    int count = applicationGestures.Count();
     //we need to make a disconnected copy
     //ICollection<ApplicationGesture> collection = applicationGestures as ICollection<ApplicationGesture>;
     //if (collection != nullptr)
@@ -246,7 +246,7 @@ QList<ApplicationGesture> NativeRecognizer::GetApplicationGestureArrayAndVerify(
     }
 
     bool foundAllGestures = false;
-    QList<ApplicationGesture> gestures;
+    List<ApplicationGesture> gestures;
     for (ApplicationGesture gesture : applicationGestures)
     {
         if (!ApplicationGestureHelper::IsDefined(gesture))
@@ -261,16 +261,16 @@ QList<ApplicationGesture> NativeRecognizer::GetApplicationGestureArrayAndVerify(
         }
 
         //check for dupes
-        if (gestures.contains(gesture))
+        if (gestures.Contains(gesture))
         {
             throw std::exception("applicationGestures");
         }
 
-        gestures.append(gesture);
+        gestures.Add(gesture);
     }
 
     // AllGesture cannot be specified with other gestures
-    if (foundAllGestures && gestures.size() != 1)
+    if (foundAllGestures && gestures.Count() != 1)
     {
         // no dupes allowed
         throw std::exception("applicationGestures");
@@ -433,7 +433,7 @@ bool NativeRecognizer::LoadRecognizerDll()
 ///                 NativeRecognizer.UnsafeNativeMethods.SetEnabledUnicodeRanges
 /// </SecurityNote>
 //[SecurityCritical]
-int NativeRecognizer::SetEnabledGestures(HRECOCONTEXT recContext, QList<ApplicationGesture> enabledGestures)
+int NativeRecognizer::SetEnabledGestures(HRECOCONTEXT recContext, List<ApplicationGesture> enabledGestures)
 {
     Debug::Assert(recContext != nullptr);
 
@@ -455,7 +455,7 @@ int NativeRecognizer::SetEnabledGestures(HRECOCONTEXT recContext, QList<Applicat
     //              SetEnabledUnicodeRanges() with one range=(GESTURE_NULL,255).
 
     // Enabel gestures
-    int cRanges = ( enabledGestures.size() );
+    int cRanges = ( enabledGestures.Count() );
 
     QVector<CHARACTER_RANGE> charRanges(cRanges);
 
@@ -487,13 +487,13 @@ int NativeRecognizer::SetEnabledGestures(HRECOCONTEXT recContext, QList<Applicat
 ///                 ReleaseResourcesinPacketDescription
 /// </SecurityNote>
 //[SecurityCritical]
-int NativeRecognizer::AddStrokes(HRECOCONTEXT recContext, QSharedPointer<StrokeCollection> strokes)
+int NativeRecognizer::AddStrokes(HRECOCONTEXT recContext, SharedPointer<StrokeCollection> strokes)
 {
     Debug::Assert(recContext != nullptr);
 
     int hr;
 
-    for ( QSharedPointer<Stroke> stroke : *strokes )
+    for ( SharedPointer<Stroke> stroke : *strokes )
     {
         PACKET_DESCRIPTION packetDescription;
         QVector<int> packets;
@@ -535,7 +535,7 @@ int NativeRecognizer::AddStrokes(HRECOCONTEXT recContext, QSharedPointer<StrokeC
 //[SecurityCritical]
 void NativeRecognizer::GetPacketData
 (
-    QSharedPointer<Stroke> stroke,
+    SharedPointer<Stroke> stroke,
     PACKET_DESCRIPTION& packetDescription,
     int& countOfBytes,
     QVector<int>& packets,
@@ -546,13 +546,13 @@ void NativeRecognizer::GetPacketData
     countOfBytes = 0;
     //packets = nullptr;
     //packetDescription = new PACKET_DESCRIPTION;
-    //QMatrix matrix = QMatrix(1, 0, 0, 1, 0, 0);
+    //Matrix matrix = Matrix(1, 0, 0, 1, 0, 0);
     //xForm = new XFORM((float)(matrix.M11), (float)(matrix.M12), (float)(matrix.M21),
     //                                (float)(matrix.M22), (float)(matrix.OffsetX), (float)(matrix.OffsetY));
     xForm = XFORM{1, 0, 0, 1, 0, 0};
 
-    QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints();
-    if (stylusPoints->size() == 0)
+    SharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints();
+    if (stylusPoints->Count() == 0)
     {
         return; //we'll fail when the calling routine sees that packets is IntPtr.Zer
     }
@@ -562,7 +562,7 @@ void NativeRecognizer::GetPacketData
         //
         // reformat to X, Y, P
         //
-        QSharedPointer<StylusPointDescription> reformatDescription(new StylusPointDescription(
+        SharedPointer<StylusPointDescription> reformatDescription(new StylusPointDescription(
                     {
                         StylusPointPropertyInfo(StylusPointProperties::X),
                         StylusPointPropertyInfo(StylusPointProperties::Y),
@@ -574,12 +574,12 @@ void NativeRecognizer::GetPacketData
     //
     // now make sure we only take a finite amount of data for the stroke
     //
-    if (stylusPoints->size() > MaxStylusPoints)
+    if (stylusPoints->Count() > MaxStylusPoints)
     {
         stylusPoints = stylusPoints->Clone(MaxStylusPoints);
     }
 
-    QVector<QUuid> propertyGuids = {  StylusPointPropertyIds::X, //required index for SPD
+    QVector<Guid> propertyGuids = {  StylusPointPropertyIds::X, //required index for SPD
                                         StylusPointPropertyIds::Y, //required index for SPD
                                         StylusPointPropertyIds::NormalPressure}; //required index for SPD
 
@@ -632,14 +632,14 @@ void NativeRecognizer::GetPacketData
     }
 
     // Get packet data
-    QVector<int> rawPackets = stylusPoints->ToHiMetricArray();
-    int packetCount = rawPackets.size();
+    Array<int> rawPackets = stylusPoints->ToHiMetricArray();
+    int packetCount = rawPackets.Length();
     if (packetCount != 0)
     {
         countOfBytes = packetCount * static_cast<int>(sizeof(int));
         //packets = Marshal.AllocCoTaskMem(countOfBytes);
         //Marshal.Copy(rawPackets, 0, packets, packetCount);
-        packets = rawPackets;
+        packets = rawPackets.toQVector();
     }
 }
 
@@ -674,10 +674,10 @@ void NativeRecognizer::ReleaseResourcesinPacketDescription(PACKET_DESCRIPTION& p
         pd.pPacketProperties = IntPtr.Zero;
     }
 
-    if ( pd.pQUuidButtons != IntPtr.Zero )
+    if ( pd.pGuidButtons != IntPtr.Zero )
     {
-        Marshal.FreeCoTaskMem(pd.pQUuidButtons);
-        pd.pQUuidButtons = IntPtr.Zero;
+        Marshal.FreeCoTaskMem(pd.pGuidButtons);
+        pd.pGuidButtons = IntPtr.Zero;
     }
 
     if ( packets != IntPtr.Zero )
@@ -700,9 +700,9 @@ void NativeRecognizer::ReleaseResourcesinPacketDescription(PACKET_DESCRIPTION& p
 ///                 NativeRecognizer.UnsafeNativeMethods.DestroyAlternate
 /// </SecurityNote>
 //[SecurityCritical]
-QList<GestureRecognitionResult> NativeRecognizer::InvokeGetAlternateList()
+List<GestureRecognitionResult> NativeRecognizer::InvokeGetAlternateList()
 {
-    QList<GestureRecognitionResult> recResults;
+    List<GestureRecognitionResult> recResults;
     int hr = 0;
 
     RECO_RANGE recoRange;
@@ -717,7 +717,7 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetAlternateList()
 
         if ( SUCCEEDED(hr) && countOfAlternates != 0 )
         {
-            QList<GestureRecognitionResult> resultList;
+            List<GestureRecognitionResult> resultList;
 
             for ( int i = 0; i < static_cast<int>(countOfAlternates); i++ )
             {
@@ -736,7 +736,7 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetAlternateList()
                 Debug::Assert(ApplicationGestureHelper::IsDefined(gesture));
                 if (ApplicationGestureHelper::IsDefined(gesture))
                 {
-                    resultList.append(GestureRecognitionResult(static_cast<RecognitionConfidence>(confidenceLevel), gesture));
+                    resultList.Add(GestureRecognitionResult(static_cast<RecognitionConfidence>(confidenceLevel), gesture));
                 }
             }
 
@@ -770,9 +770,9 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetAlternateList()
 ///               And uses unsafe code
 /// </SecurityNote>
 //[SecurityCritical]
-QList<GestureRecognitionResult> NativeRecognizer::InvokeGetLatticePtr()
+List<GestureRecognitionResult> NativeRecognizer::InvokeGetLatticePtr()
 {
-    QList<GestureRecognitionResult> recResults;
+    List<GestureRecognitionResult> recResults;
 
 //            int hr = 0;
     RECO_LATTICE* ptr = nullptr;
@@ -792,7 +792,7 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetLatticePtr()
             Debug::Assert(!(bestResultColumnCount != 0 && pRecoLattice->pLatticeColumns == nullptr), "Invalid results!");
             if ( bestResultColumnCount > 0 && pRecoLattice->pLatticeColumns != nullptr )
             {
-                QList<GestureRecognitionResult> resultList;
+                List<GestureRecognitionResult> resultList;
 
                 RECO_LATTICE_COLUMN* pLatticeColumns = (pRecoLattice->pLatticeColumns);
                 ULONG* pulBestResultColumns = (pRecoLattice->pulBestResultColumns);
@@ -840,7 +840,7 @@ QList<GestureRecognitionResult> NativeRecognizer::InvokeGetLatticePtr()
                             if (ApplicationGestureHelper::IsDefined(gesture))
                             {
                                 // Get the gesture result
-                                resultList.append(GestureRecognitionResult(confidenceLevel,gesture));
+                                resultList.Add(GestureRecognitionResult(confidenceLevel,gesture));
                             }
                         }
                     }
@@ -886,10 +886,10 @@ HRECOGNIZER NativeRecognizer::RecognizerHandleSingleton()
     return s_hRec;
 }
 
-// The QUuid has been copied from public\internal\drivers\inc\tpcQUuid.h
+// The Guid has been copied from public\internal\drivers\inc\tpcGuid.h
 //// {7DFE11A7-FB5D-4958-8765-154ADF0D833F}
-//DEFINE_QUuid(QUuid_CONFIDENCELEVEL, 0x7dfe11a7, 0xfb5d, 0x4958, 0x87, 0x65, 0x15, 0x4a, 0xdf, 0xd, 0x83, 0x3f);
-const QUuid NativeRecognizer::GUID_CONFIDENCELEVEL = QUuid("{7DFE11A7-FB5D-4958-8765-154ADF0D833F}");
+//DEFINE_Guid(Guid_CONFIDENCELEVEL, 0x7dfe11a7, 0xfb5d, 0x4958, 0x87, 0x65, 0x15, 0x4a, 0xdf, 0xd, 0x83, 0x3f);
+const Guid NativeRecognizer::GUID_CONFIDENCELEVEL = {0x7dfe11a7u, 0xfb5d, 0x4958, 0x87, 0x65, 0x15, 0x4a, 0xdf, 0xd, 0x83, 0x3f};
 
 
 QMutex     NativeRecognizer::_syncRoot;
@@ -904,9 +904,9 @@ QMutex     NativeRecognizer::_syncRoot;
 HRECOGNIZER NativeRecognizer::s_hRec = nullptr;
 
 /// <summary>
-/// The QUuid of the GestureRecognizer used for registry lookup
+/// The Guid of the GestureRecognizer used for registry lookup
 /// </summary>
-QUuid        NativeRecognizer::s_Gesture = QUuid(GestureRecognizerGuid);
+Guid        NativeRecognizer::s_Gesture = {0xBED9A940,0x7D48,0x48E3,0x9A,0x68,0xF4,0x88,0x7A,0x5A,0x1B,0x2E};
 
 /// <summary>
 /// can we load the recognizer?

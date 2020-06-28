@@ -3,10 +3,10 @@
 
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
+#include "Windows/Media/matrix.h"
 
 #include <QObject>
 #include <QMutex>
-#include <QTransform>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -34,10 +34,10 @@ public:
 private:
     QMutex mutex_;
     UIElement * element_;
-    QList<StylusPlugInCollection*> stylusPlugIns_;
-    QTransform transform_;
+    List<StylusPlugInCollection*> stylusPlugIns_;
+    Matrix transform_;
     RawStylusActions action_;
-    QList<RawStylusInputCustomData> customDatas_;
+    List<RawStylusInputCustomData> customDatas_;
 };
 
 INKCANVAS_END_NAMESPACE

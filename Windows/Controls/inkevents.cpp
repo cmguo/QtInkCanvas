@@ -8,7 +8,7 @@ INKCANVAS_BEGIN_NAMESPACE
 /// <summary>
 /// [TBS]
 /// </summary>
-InkCanvasStrokeCollectedEventArgs::InkCanvasStrokeCollectedEventArgs(QSharedPointer<Stroke> stroke)
+InkCanvasStrokeCollectedEventArgs::InkCanvasStrokeCollectedEventArgs(SharedPointer<Stroke> stroke)
     : RoutedEventArgs(InkCanvas::StrokeCollectedEvent)
 {
     if (stroke == nullptr)
@@ -24,7 +24,7 @@ InkCanvasStrokeCollectedEventArgs::InkCanvasStrokeCollectedEventArgs(QSharedPoin
 /// <summary>
 /// InkCanvasStrokesReplacedEventArgs
 /// </summary>
-InkCanvasStrokesReplacedEventArgs::InkCanvasStrokesReplacedEventArgs(QSharedPointer<StrokeCollection> newStrokes, QSharedPointer<StrokeCollection> previousStrokes)
+InkCanvasStrokesReplacedEventArgs::InkCanvasStrokesReplacedEventArgs(SharedPointer<StrokeCollection> newStrokes, SharedPointer<StrokeCollection> previousStrokes)
 {
     if (newStrokes == nullptr)
     {
@@ -42,7 +42,7 @@ InkCanvasStrokesReplacedEventArgs::InkCanvasStrokesReplacedEventArgs(QSharedPoin
 /// <summary>
 /// Constructor
 /// </summary>
-InkCanvasSelectionChangingEventArgs::InkCanvasSelectionChangingEventArgs(QSharedPointer<StrokeCollection> selectedStrokes, QList<UIElement*> selectedElements)
+InkCanvasSelectionChangingEventArgs::InkCanvasSelectionChangingEventArgs(SharedPointer<StrokeCollection> selectedStrokes, List<UIElement*> selectedElements)
 {
     if (selectedStrokes == nullptr)
     {
@@ -67,7 +67,7 @@ InkCanvasSelectionChangingEventArgs::InkCanvasSelectionChangingEventArgs(QShared
 /// Set the selected elements
 /// </summary>
 /// <param name="selectedElements">The new selected elements</param>
-void InkCanvasSelectionChangingEventArgs::SetSelectedElements(QList<UIElement*> selectedElements)
+void InkCanvasSelectionChangingEventArgs::SetSelectedElements(List<UIElement*> selectedElements)
 {
     //if ( selectedElements == nullptr )
     //{
@@ -86,7 +86,7 @@ void InkCanvasSelectionChangingEventArgs::SetSelectedElements(QList<UIElement*> 
 /// Set the selected strokes
 /// </summary>
 /// <param name="selectedStrokes">The new selected strokes</param>
-void InkCanvasSelectionChangingEventArgs::SetSelectedStrokes(QSharedPointer<StrokeCollection> selectedStrokes)
+void InkCanvasSelectionChangingEventArgs::SetSelectedStrokes(SharedPointer<StrokeCollection> selectedStrokes)
 {
     if ( selectedStrokes == nullptr )
     {
@@ -101,12 +101,12 @@ void InkCanvasSelectionChangingEventArgs::SetSelectedStrokes(QSharedPointer<Stro
 /// Get the selected strokes
 /// </summary>
 /// <returns>The selected strokes</returns>
-QSharedPointer<StrokeCollection> InkCanvasSelectionChangingEventArgs::GetSelectedStrokes()
+SharedPointer<StrokeCollection> InkCanvasSelectionChangingEventArgs::GetSelectedStrokes()
 {
     //
     // make a copy of out collection.
     //
-    QSharedPointer<StrokeCollection> sc(new StrokeCollection());
+    SharedPointer<StrokeCollection> sc(new StrokeCollection());
     sc->Add(_strokes);
     return sc;
 }
@@ -115,7 +115,7 @@ QSharedPointer<StrokeCollection> InkCanvasSelectionChangingEventArgs::GetSelecte
 /// <summary>
 /// Constructor
 /// </summary>
- InkCanvasSelectionEditingEventArgs::InkCanvasSelectionEditingEventArgs(QRectF const & oldRectangle, QRectF const & newRectangle)
+InkCanvasSelectionEditingEventArgs::InkCanvasSelectionEditingEventArgs(Rect const & oldRectangle, Rect const & newRectangle)
 {
     _oldRectangle = oldRectangle;
     _newRectangle = newRectangle;
@@ -125,7 +125,7 @@ QSharedPointer<StrokeCollection> InkCanvasSelectionChangingEventArgs::GetSelecte
 /// <summary>
 /// Constructor
 /// </summary>
-InkCanvasStrokeErasingEventArgs::InkCanvasStrokeErasingEventArgs(QSharedPointer<Stroke> stroke)
+InkCanvasStrokeErasingEventArgs::InkCanvasStrokeErasingEventArgs(SharedPointer<Stroke> stroke)
 {
     if (stroke == nullptr)
     {
@@ -141,14 +141,14 @@ InkCanvasStrokeErasingEventArgs::InkCanvasStrokeErasingEventArgs(QSharedPointer<
 /// </summary>
 /// <param name="strokes">strokes</param>
 /// <param name="gestureRecognitionResults">gestureRecognitionResults</param>
-InkCanvasGestureEventArgs::InkCanvasGestureEventArgs(QSharedPointer<StrokeCollection> strokes, QList<GestureRecognitionResult> gestureRecognitionResults)
+InkCanvasGestureEventArgs::InkCanvasGestureEventArgs(SharedPointer<StrokeCollection> strokes, List<GestureRecognitionResult> gestureRecognitionResults)
     : RoutedEventArgs(InkCanvas::GestureEvent)
 {
     if (strokes == nullptr)
     {
         throw std::runtime_error("strokes");
     }
-    if (strokes->size() < 1)
+    if (strokes->Count() < 1)
     {
         throw std::runtime_error("strokes");
     }
@@ -156,9 +156,9 @@ InkCanvasGestureEventArgs::InkCanvasGestureEventArgs(QSharedPointer<StrokeCollec
     //{
     //    throw std::runtime_error("strokes");
     //}
-    //QList<GestureRecognitionResult> results =
+    //List<GestureRecognitionResult> results =
     //    new List<GestureRecognitionResult>(gestureRecognitionResults);
-    if (gestureRecognitionResults.size() == 0)
+    if (gestureRecognitionResults.Count() == 0)
     {
         throw std::runtime_error("gestureRecognitionResults");
     }

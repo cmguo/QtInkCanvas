@@ -2,8 +2,9 @@
 #define INKRENDERER_H
 
 #include "InkCanvas_global.h"
+#include "Collections/Generic/list.h"
+#include "sharedptr.h"
 
-#include <QSharedPointer>
 #include <QColor>
 #include <QMap>
 #include <QObject>
@@ -73,8 +74,8 @@ public:
     /// The Renderer will then listen to changes to the StrokeCollection
     /// and update its state to reflect the changes.
     /// </summary>
-    QSharedPointer<StrokeCollection> Strokes();
-    void SetStrokes(QSharedPointer<StrokeCollection> value);
+    SharedPointer<StrokeCollection> Strokes();
+    void SetStrokes(SharedPointer<StrokeCollection> value);
 
     /// <summary>
     /// User supposed to use this method to attach IncrementalRenderer's root visual
@@ -82,7 +83,7 @@ public:
     /// </summary>
     /// <param name="visual">visual to attach</param>
     /// <param name="drawingAttributes">drawing attributes that used in the incremental rendering</param>
-    void AttachIncrementalRendering(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    void AttachIncrementalRendering(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes);
 
     /// <summary>
     /// Detaches a visual previously attached via AttachIncrementalRendering
@@ -99,7 +100,7 @@ public:
     /// <summary>
     /// helper used to determine if a visual is in the right spot in the visual tree
     /// </summary>
-    bool AttachedVisualIsPositionedCorrectly(Visual* visual, QSharedPointer<DrawingAttributes> drawingAttributes);
+    bool AttachedVisualIsPositionedCorrectly(Visual* visual, SharedPointer<DrawingAttributes> drawingAttributes);
 
 
 
@@ -171,12 +172,12 @@ private:
     /// <summary>
     /// Attaches event handlers to stroke events
     /// </summary>
-    void StartListeningOnStrokeEvents(QSharedPointer<Stroke> stroke);
+    void StartListeningOnStrokeEvents(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Detaches event handlers from stroke
     /// </summary>
-    void StopListeningOnStrokeEvents(QSharedPointer<Stroke> stroke);
+    void StopListeningOnStrokeEvents(SharedPointer<Stroke> stroke);
 
     /// <summary>
     /// Finds a container for a new visual based on the drawing attributes
@@ -184,7 +185,7 @@ private:
     /// </summary>
     /// <param name="drawingAttributes">drawing attributes</param>
     /// <returns>visual</returns>
-    ContainerVisual* GetContainerVisual(QSharedPointer<DrawingAttributes> drawingAttributes);
+    ContainerVisual* GetContainerVisual(SharedPointer<DrawingAttributes> drawingAttributes);
 
     //#endregion
 
@@ -197,16 +198,16 @@ private:
     ContainerVisual* _regularInkVisuals;
 
     // Stroke-to-visual map
-    QMap<QSharedPointer<Stroke>, StrokeVisual*> _visuals;
+    QMap<SharedPointer<Stroke>, StrokeVisual*> _visuals;
 
     // Color-to-visual map for highlighter ink container visuals
     QMap<QColor, HighlighterContainerVisual*> _highlighters;
 
     // Collection of strokes this Renderer renders
-    QSharedPointer<StrokeCollection> _strokes;
+    SharedPointer<StrokeCollection> _strokes;
 
     // List of visuals attached via AttachIncrementalRendering
-    QList<Visual*> _attachedVisuals;
+    List<Visual*> _attachedVisuals;
 
     // Whhen true, will render in high contrast mode
     bool _highContrast;
