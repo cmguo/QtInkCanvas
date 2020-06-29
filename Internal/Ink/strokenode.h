@@ -45,25 +45,25 @@ public:
     /// Position of the node on the stroke spine.
     /// </summary>
     /// <value></value>
-    Point const & Position() { return _thisNode.Position(); }
+    Point const & Position() const { return _thisNode.Position(); }
 
     /// <summary>
     /// Position of the previous StrokeNode
     /// </summary>
     /// <value></value>
-    Point const & PreviousPosition() { return _lastNode.Position(); }
+    Point const & PreviousPosition() const { return _lastNode.Position(); }
 
     /// <summary>
     /// PressureFactor of the node on the stroke spine.
     /// </summary>
     /// <value></value>
-    double PressureFactor() { return _thisNode.PressureFactor(); }
+    double PressureFactor() const { return _thisNode.PressureFactor(); }
 
     /// <summary>
     /// PressureFactor of the previous StrokeNode
     /// </summary>
     /// <value></value>
-    double PreviousPressureFactor() { return _lastNode.PressureFactor(); }
+    double PreviousPressureFactor() const { return _lastNode.PressureFactor(); }
 
     /// <summary>
     /// Tells whether the node shape (the stylus shape used in the rendering)
@@ -71,35 +71,35 @@ public:
     /// returns the control points for the quadratic Bezier that defines the ellipse.
     /// </summary>
     /// <value>true if the shape is ellipse, false otherwise</value>
-    bool IsEllipse() { return IsValid() && _operations->IsNodeShapeEllipse(); }
+    bool IsEllipse() const { return IsValid() && _operations->IsNodeShapeEllipse(); }
 
     /// <summary>
     /// Returns true if this is the last node in the enumerator
     /// </summary>
-    bool IsLastNode() { return _isLastNode; }
+    bool IsLastNode() const { return _isLastNode; }
 
     /// <summary>
     /// Returns the bounds of the node shape w/o connecting quadrangle
     /// </summary>
     /// <returns></returns>
-    Rect GetBounds()
+    Rect GetBounds() const
     {
-        return IsValid() ? _operations->GetNodeBounds(_thisNode) : Rect();
+        return IsValid() ? _operations->GetNodeBounds(_thisNode) : Rect::Empty();
     }
 
     /// <summary>
     /// Returns the bounds of the node shape and connecting quadrangle
     /// </summary>
     /// <returns></returns>
-    Rect GetBoundsConnected()
+    Rect GetBoundsConnected() const
     {
-        return IsValid() ? Rect::Union(_operations->GetNodeBounds(_thisNode), ConnectingQuad().Bounds()) : Rect();
+        return IsValid() ? Rect::Union(_operations->GetNodeBounds(_thisNode), ConnectingQuad().Bounds()) : Rect::Empty();
     }
 
     /// <summary>
     /// Returns the points that make up the stroke node shape (minus the connecting quad)
     /// </summary>
-    void GetContourPoints(List<Point> & pointBuffer)
+    void GetContourPoints(List<Point> & pointBuffer) const
     {
         if (IsValid())
         {
@@ -110,7 +110,7 @@ public:
     /// <summary>
     /// Returns the points that make up the stroke node shape (minus the connecting quad)
     /// </summary>
-    void GetPreviousContourPoints(List<Point> & pointBuffer)
+    void GetPreviousContourPoints(List<Point> & pointBuffer) const
     {
         if (IsValid())
         {
@@ -121,7 +121,7 @@ public:
     /// <summary>
     /// Returns the connecting quad
     /// </summary>
-    Quad GetConnectingQuad()
+    Quad const & GetConnectingQuad() const
     {
         if (IsValid())
         {
@@ -210,7 +210,7 @@ public:
     /// and should only be called if that assumption is valid
     /// </summary>
     /// <returns></returns>
-    static Point GetIntersection(Point line1Start, Point line1End, Point line2Start, Point line2End);
+    static Point GetIntersection(Point const & line1Start, Point const & line1End, Point const & line2Start, Point const & line2End);
 
     /// <summary>
     /// This method tells whether the contour of a given stroke node
@@ -219,7 +219,7 @@ public:
     /// </summary>
     /// <param name="hitNode"></param>
     /// <returns></returns>
-    bool HitTest(StrokeNode hitNode);
+    bool HitTest(StrokeNode const & hitNode);
 
     /// <summary>
     /// Finds out if a given node intersects with this one,
@@ -227,7 +227,7 @@ public:
     /// </summary>
     /// <param name="hitNode"></param>
     /// <returns></returns>
-    StrokeFIndices CutTest(StrokeNode hitNode);
+    StrokeFIndices CutTest(StrokeNode const & hitNode);
 
     /// <summary>
     /// Finds out if a given linear segment intersects with the contour of this node
@@ -236,7 +236,7 @@ public:
     /// <param name="begin"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    StrokeFIndices CutTest(Point begin, Point end);
+    StrokeFIndices CutTest(Point const & begin, Point const & end);
 
     /// <summary>
     /// Binds a local fragment to this node by setting the integer part of the
@@ -256,7 +256,7 @@ public:
     /// </summary>
     /// <param name="fragment"></param>
     /// <returns></returns>
-    StrokeFIndices BindFIndicesForLassoHitTest(StrokeFIndices&fragment);
+    StrokeFIndices BindFIndicesForLassoHitTest(StrokeFIndices & fragment);
 
     /// <summary>
     /// Tells whether the StrokeNode instance is valid or not (created via the default ctor)
@@ -270,14 +270,14 @@ public:
     /// The type Quad is supposed to be internal even if we surface StrokeNode.
     /// External users of StrokeNode should use GetConnectionPoints instead.
     /// </summary>
-    Quad & ConnectingQuad();
+    Quad const & ConnectingQuad() const;
 
     /// <summary>
     /// Returns an enumerator for edges of the contour comprised by the node
     /// and connecting quadrangle (_lastNode is excluded)
     /// Used for hit-testing a stroke against an other stroke (stroke and point erasing)
     /// </summary>
-    List<ContourSegment> GetContourSegments();
+    List<ContourSegment> GetContourSegments() const;
 
     /// <summary>
     /// Returns the spine point that corresponds to the given findex.
@@ -301,8 +301,8 @@ private:
 
     // Calculating of the connecting quadrangle is not a cheap operations, therefore,
     // first, it's computed only by request, and second, once computed it's cached in the StrokeNode
-    bool            _isQuadCached = false;
-    Quad            _connectingQuad;
+    mutable bool            _isQuadCached = false;
+    mutable Quad            _connectingQuad;
 
     // Is the current stroke node the last node?
     bool _isLastNode = false;

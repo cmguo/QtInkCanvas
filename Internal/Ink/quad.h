@@ -15,7 +15,7 @@ private:
 
 public:
     /// <summary> Returns the static object representing an empty (unitialized) quad </summary>
-    static Quad Empty() { return s_empty; }
+    static Quad const & Empty() { return s_empty; }
 
     /// <summary> Constructor </summary>
     Quad(Point a, Point b, Point c, Point d)
@@ -25,23 +25,23 @@ public:
 
     /// <summary> The A vertex of the quad </summary>
 public:
-    Point& A() { return _A; }
+    Point const& A() const { return _A; }
     void SetA(Point const& value) { _A = value; }
 
     /// <summary> The B vertex of the quad </summary>
-    Point& B() { return _B; }
+    Point const& B() const { return _B; }
     void SetB(Point const& value) { _B = value; }
 
     /// <summary> The C vertex of the quad </summary>
-    Point& C() { return _C; }
+    Point const& C() const { return _C; }
     void SetC(Point const& value) { _C = value; }
 
     /// <summary> The D vertex of the quad </summary>
-    Point& D() { return _D; }
+    Point const& D() const { return _D; }
     void SetD(Point const& value) { _D = value; }
 
     // Returns quad's vertex by index where A is of the index 0, B - is 1, etc
-    Point & operator[](int index)
+    Point const & operator[](int index) const
     {
         switch (index)
         {
@@ -55,12 +55,12 @@ public:
     }
 
     /// <summary> Tells whether the quad is invalid (empty) </summary>
-    bool IsEmpty()
+    bool IsEmpty() const
     {
         return (_A == _B) && (_C == _D);
     }
 
-    void GetPoints(List<Point> & pointBuffer)
+    void GetPoints(List<Point> & pointBuffer) const
     {
         pointBuffer.Add(_A);
         pointBuffer.Add(_B);
@@ -69,9 +69,9 @@ public:
     }
 
     /// <summary> Returns the bounds of the quad </summary>
-    Rect Bounds()
+    Rect Bounds() const
     {
-        return IsEmpty() ? Rect() : Rect::Union(Rect(_A, _B), Rect(_C, _D));
+        return IsEmpty() ? Rect::Empty() : Rect::Union(Rect(_A, _B), Rect(_C, _D));
     }
 
 private:

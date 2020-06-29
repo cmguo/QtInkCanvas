@@ -822,7 +822,7 @@ void StrokeCollection::RaiseStrokesChanged(SharedPointer<StrokeCollection> added
 /// <returns></returns>
 Rect StrokeCollection::GetBounds()
 {
-    Rect bounds;
+    Rect bounds = Rect::Empty();
     for (SharedPointer<Stroke> stroke : *this)
     {
         // samgeo - Presharp issue

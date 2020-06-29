@@ -56,7 +56,7 @@ List<Drawing*>& DrawingGroup::Children()
 
 Rect DrawingGroup::Bounds()
 {
-    Rect bounds;
+    Rect bounds = Rect::Empty();
     for (Drawing * d : children_)
         bounds.Union(d->Bounds());
     return bounds;

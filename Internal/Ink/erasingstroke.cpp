@@ -78,7 +78,7 @@ bool ErasingStroke::HitTest(StrokeNodeIterator const & iterator)
         return false;
     }
 
-    Rect inkSegmentBounds;
+    Rect inkSegmentBounds = Rect::Empty();
     for (int i = 0; i < iterator.Count(); i++)
     {
         StrokeNode inkStrokeNode = iterator[i];
@@ -121,7 +121,7 @@ bool ErasingStroke::EraseTest(StrokeNodeIterator const & iterator, List<StrokeIn
         return false;
     }
 
-    Rect inkSegmentBounds;
+    Rect inkSegmentBounds = Rect::Empty();
     for (int x = 0; x < iterator.Count(); x++)
     {
         StrokeNode inkStrokeNode = iterator[x];

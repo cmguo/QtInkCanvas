@@ -66,7 +66,7 @@ public:
     /// <param name="node">node</param>
     /// <param name="quad">quadrangle connecting the node to the preceeding node</param>
     /// <returns>contour segments enumerator</returns>
-    virtual List<ContourSegment> GetContourSegments(StrokeNodeData const & node, Quad & quad);
+    virtual List<ContourSegment> GetContourSegments(StrokeNodeData const & node, Quad const & quad);
 
     /// <summary>
     /// ISSUE-2004/06/15- temporary workaround to avoid hit-testing ellipses with ellipses
@@ -95,7 +95,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>true if there's intersection, false otherwise</returns>
     virtual bool HitTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const &hitBeginPoint, Point const &hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, Point const &hitBeginPoint, Point const &hitEndPoint);
 
     /// <summary>
     /// Hit-tests a stroke segment defined by two nodes against another stroke segment.
@@ -107,7 +107,7 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns>true if the contours intersect or overlap</returns>
     virtual bool HitTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, List<ContourSegment> const & hitContour);
 
     /// <summary>
     /// Hit-tests ink segment defined by two nodes against a linear segment.
@@ -119,7 +119,7 @@ public:
     /// <param name="hitEndPoint">End point of the hitting segment</param>
     /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const &hitBeginPoint, Point const &hitEndPoint);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, Point const &hitBeginPoint, Point const &hitEndPoint);
 
     /// <summary>
     /// CutTest
@@ -131,7 +131,7 @@ public:
     /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
     /// <returns></returns>
     virtual StrokeFIndices CutTest(
-        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour);
+        StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, List<ContourSegment> const & hitContour);
 
     /// <summary>
     /// Cutting ink with polygonal tip shapes with a linear segment
@@ -143,7 +143,7 @@ public:
     /// <param name="hitBegin">Start point of the hitting segment</param>
     /// <param name="hitEnd">End point of the hitting segment</param>
     /// <returns>a double representing the point of clipping</returns>
-    double ClipTest(Point const & spinePoint, double pressureDelta, Vector const & hitBegin, Vector const & hitEnd);
+    double ClipTest(Vector const & spinePoint, double pressureDelta, Vector const & hitBegin, Vector const & hitEnd);
 
     /// <summary>
     /// Clip-Testing a polygonal inking segment against an arc (circle)
@@ -155,7 +155,7 @@ public:
     /// <param name="hitCenter">The center of the hitting circle</param>
     /// <param name="hitRadius">The radius of the hitting circle</param>
     /// <returns>a double representing the point of clipping</returns>
-    double ClipTestArc(Point const & spinePoint, double pressureDelta, Vector const & hitCenter, Vector const & hitRadius);
+    double ClipTestArc(Vector const & spinePoint, double pressureDelta, Vector const & hitCenter, Vector const & hitRadius);
 
     /// <summary>
     /// access to __vertices
@@ -185,7 +185,7 @@ public:
     /// <param name="endNode">End node of the stroke segment</param>
     /// <returns>true if hit; false otherwise</returns>
     bool HitTestInkContour(
-        List<ContourSegment> const & hitContour, Quad& quad, StrokeNodeData const & beginNode, StrokeNodeData const &endNode);
+        List<ContourSegment> const & hitContour, Quad const& quad, StrokeNodeData const & beginNode, StrokeNodeData const &endNode);
 
 
     /// <summary>
@@ -218,7 +218,7 @@ public:
 
     // Shape parameters
 private:
-    Rect        _shapeBounds;
+    Rect        _shapeBounds = Rect::Empty();
     Array<Vector>    _vertices;
 
 public:
@@ -241,7 +241,7 @@ public:
     /// <param name="hitBegin">begin point of the hitting segment</param>
     /// <param name="hitEnd">end point of the hitting segment</param>
     /// <returns>true if hit, false otherwise</returns>
-    static bool HitTestQuadSegment(Quad & quad, Point const& hitBegin, Point const& hitEnd);
+    static bool HitTestQuadSegment(Quad const & quad, Point const& hitBegin, Point const& hitEnd);
 
     /// <summary>
     /// Hit-test a polygin against a circle

@@ -179,7 +179,7 @@ void Stroke::Transform(Matrix const & transformMatrix, bool applyToStylusTip)
         std::unique_ptr<Geometry> geometry;
         SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
-        _cachedBounds = Rect();
+        _cachedBounds  = Rect::Empty();
 
         if (applyToStylusTip)
         {
@@ -500,7 +500,7 @@ void Stroke::SetDrawingAttributes(SharedPointer<DrawingAttributes> value)
     {
         SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
-        _cachedBounds = Rect();
+        _cachedBounds  = Rect::Empty();
     }
 
 #ifdef INKCANVAS_QT
@@ -530,7 +530,7 @@ void Stroke::SetStylusPoints(SharedPointer<StylusPointCollection> value)
     SetGeometry(geometry);
 
     // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
-    _cachedBounds = Rect();
+    _cachedBounds  = Rect::Empty();
 
     StylusPointsReplacedEventArgs e(value, _stylusPoints);
 
@@ -920,7 +920,7 @@ void Stroke::DrawingAttributes_Changed(PropertyDataChangedEventArgs& e)
     {
         SetGeometry(geometry);
         // Set the cached bounds to empty, which will force a re-calculation of the _cachedBounds upon next GetBounds call.
-        _cachedBounds = Rect();
+        _cachedBounds  = Rect::Empty();
     }
 
     OnDrawingAttributesChanged(e);
@@ -943,7 +943,7 @@ void Stroke::StylusPoints_Changed()
 {
     std::unique_ptr<Geometry> geometry;
     SetGeometry(geometry);
-    _cachedBounds = Rect();
+    _cachedBounds  = Rect::Empty();
 
     OnStylusPointsChanged();
     if (!_delayRaiseInvalidated)

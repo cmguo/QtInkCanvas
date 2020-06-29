@@ -99,7 +99,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
     // Also, here, distanceSquared > deltaSquared
     // Thus, 0 <= rSin < 1
     // Get the components of the radius vectors
-    double distance = sqrt(distanceSquared);
+    double distance = Math::Sqrt(distanceSquared);
 
     spine /= distance;
 
@@ -107,7 +107,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 
     // Turn left
     double temp = rad.Y();
-    rad.SetY(-rad.Y());
+    rad.SetY(-rad.X());
     rad.SetX(temp);
 
     Vector vectorToLeftTangent, vectorToRightTangent;
@@ -120,8 +120,8 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
     }
     else
     {
-        rad *= sqrt(1 - rSinSquared);
-        spine *= sqrt(rSinSquared);
+        rad *= Math::Sqrt(1 - rSinSquared);
+        spine *= Math::Sqrt(rSinSquared);
         if (beginNode.PressureFactor() < endNode.PressureFactor())
         {
             spine = -spine;
@@ -151,7 +151,7 @@ Quad EllipticalNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNod
 /// <param name="node"></param>
 /// <param name="quad"></param>
 /// <returns></returns>
-List<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad& quad)
+List<ContourSegment> EllipticalNodeOperations::GetContourSegments(StrokeNodeData const & node, Quad const& quad)
 {
     Debug::Assert(node.IsEmpty() == false);
 
@@ -196,7 +196,7 @@ List<ContourSegment> EllipticalNodeOperations::GetNonBezierContourSegments(Strok
 /// <param name="hitEndPoint">an end point of the hitting linear segment</param>
 /// <returns>true if the hitting segment intersect the contour comprised of the two stroke nodes</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
 {
     StrokeNodeData bigNode, smallNode;
     if (beginNode.IsEmpty() || (quad.IsEmpty() && (endNode.PressureFactor() > beginNode.PressureFactor())))
@@ -261,7 +261,7 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns>true if the contours intersect or overlap</returns>
 bool EllipticalNodeOperations::HitTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, List<ContourSegment> const & hitContour)
 {
     StrokeNodeData bigNode, smallNode;
     double bigRadiusSquared, smallRadiusSquared = 0;
@@ -367,7 +367,7 @@ bool EllipticalNodeOperations::HitTest(
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, Point const& hitBeginPoint, Point const& hitEndPoint)
 {
     // Compute the positions of the involved points relative to the endNode.
     Vector spineVector = beginNode.IsEmpty() ? Vector(0, 0) : (beginNode.Position() - endNode.Position());
@@ -445,7 +445,7 @@ StrokeFIndices EllipticalNodeOperations::CutTest(
 /// <param name="hitContour">The hitting ContourSegments</param>
 /// <returns>StrokeFIndices representing the location for cutting</returns>
 StrokeFIndices EllipticalNodeOperations::CutTest(
-    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad& quad, List<ContourSegment> const & hitContour)
+    StrokeNodeData const & beginNode, StrokeNodeData const & endNode, Quad const& quad, List<ContourSegment> const & hitContour)
 {
     // Compute the positions of the beginNode relative to the endNode.
     Vector spineVector = beginNode.IsEmpty() ? Vector(0, 0) : (beginNode.Position() - endNode.Position());
@@ -687,7 +687,7 @@ double EllipticalNodeOperations::ClipTest(Vector const &spineVector, double begi
 ///     A*s^2 + B*s + C = 0
 /// where the value of A, B and C are described in the source code.
 /// Solving for s:
-///             s = (-B + sqrt(B^2-4A*C))/(2A)  or s = (-B - sqrt(B^2-4A*C))/(2A)
+///             s = (-B + Math::Sqrt(B^2-4A*C))/(2A)  or s = (-B - Math::Sqrt(B^2-4A*C))/(2A)
 /// The smaller value between 0 and 1 is the one we want and discard the other one.
 /// </summary>
 /// <param name="spine">Represent the spine of the inking segment pointing from the beginNode to endNode</param>
@@ -707,7 +707,7 @@ double EllipticalNodeOperations::ClipTest(Vector const &spine, double beginRadiu
     if (DoubleUtil::IsZero(A) || !DoubleUtil::GreaterThanOrClose(B*B, 4.0f*A*C))
         return 1;
 
-    double tmp = sqrt(B*B-4.0f * A * C);
+    double tmp = Math::Sqrt(B*B-4.0f * A * C);
     double s1 = (-B + tmp)/(2.0f * A);
     double s2 = (-B - tmp)/(2.0f * A);
     double findex;

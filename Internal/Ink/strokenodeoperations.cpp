@@ -98,7 +98,7 @@ void StrokeNodeOperations::GetNodeContourPoints(StrokeNodeData const & node, Lis
 /// <param name="node">node</param>
 /// <param name="quad">quadrangle connecting the node to the preceeding node</param>
 /// <returns>contour segments enumerator</returns>
-List<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData const& node, Quad & quad)
+List<ContourSegment> StrokeNodeOperations::GetContourSegments(StrokeNodeData const& node, Quad const & quad)
 {
     Debug::Assert(node.IsEmpty() == false);
 
@@ -183,7 +183,7 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
     // There's no need to build shapes of the two nodes in order to find their connecting quad.
     // It's the spine Point between the nodes and their scaling diff (pressure delta) is all
     // that matters here.
-    Point spine = endNode.Position() - beginNode.Position();
+    Vector spine = endNode.Position() - beginNode.Position();
     double pressureDelta = endNode.PressureFactor() - beginNode.PressureFactor();
 
     // Iterate through the vertices of the default shape
@@ -191,7 +191,7 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
     for (int i = 0, j = count - 1; i < count; i++, j = ((j + 1) % count))
     {
         // Compute point of the connecting segment at the vertex [i]
-        Point connection = spine + _vertices[i] * pressureDelta;
+        Vector connection = spine + _vertices[i] * pressureDelta;
         if ((pressureDelta != 0) && (connection.X() == 0) && (connection.Y() == 0))
         {
             // One of the nodes,                       |----|
@@ -272,7 +272,7 @@ Quad StrokeNodeOperations::GetConnectingQuad(StrokeNodeData const & beginNode, S
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>true if there's intersection, false otherwise</returns>
 bool StrokeNodeOperations::HitTest(
-    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, Point const &hitBeginPoint, Point const &hitEndPoint)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad const& quad, Point const &hitBeginPoint, Point const &hitEndPoint)
 {
     // Check for special cases when the endNode is the very first one (beginNode.IsEmpty())
     // or one node is completely inside the other. In either case the connecting quad
@@ -363,7 +363,7 @@ bool StrokeNodeOperations::HitTest(
             while (((nodePosition + vertex) != end) && (count != 0))
             {
                 i = (i + 1) % _vertices.Length();
-                Point nextVertex = (pressureFactor == 1) ? _vertices[i] : (_vertices[i] * pressureFactor);
+                Vector nextVertex = (pressureFactor == 1) ? _vertices[i] : (_vertices[i] * pressureFactor);
                 hitResult = WhereIsSegmentAboutSegment(hitBegin, hitEnd, vertex, nextVertex);
                 if (HitResult::Hit == hitResult)
                 {
@@ -417,7 +417,7 @@ bool StrokeNodeOperations::HitTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns>true if the contours intersect or overlap</returns>
 bool StrokeNodeOperations::HitTest(
-    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, List<ContourSegment> const& hitContour)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad const& quad, List<ContourSegment> const& hitContour)
 {
     // Check for special cases when the endNode is the very first one (beginNode.IsEmpty())
     // or one node is completely inside the other. In either case the connecting quad
@@ -451,7 +451,7 @@ bool StrokeNodeOperations::HitTest(
 /// <param name="hitEndPoint">End point of the hitting segment</param>
 /// <returns>Exact location to cut at represented by StrokeFIndices</returns>
 StrokeFIndices StrokeNodeOperations::CutTest(
-    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, Point const &hitBeginPoint, Point const &hitEndPoint)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad const& quad, Point const &hitBeginPoint, Point const &hitEndPoint)
 {
     StrokeFIndices result = StrokeFIndices::Empty();
 
@@ -543,7 +543,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
 /// <param name="hitContour">a collection of basic segments outlining the hitting contour</param>
 /// <returns></returns>
 StrokeFIndices StrokeNodeOperations::CutTest(
-    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad& quad, List<ContourSegment> const& hitContour)
+    StrokeNodeData const& beginNode, StrokeNodeData const& endNode, Quad const& quad, List<ContourSegment> const& hitContour)
 {
     if (beginNode.IsEmpty())
     {
@@ -556,8 +556,8 @@ StrokeFIndices StrokeNodeOperations::CutTest(
 
     StrokeFIndices result = StrokeFIndices::Empty();
     bool isInside = true;
-    Point spineVector = (endNode.Position() - beginNode.Position()) / beginNode.PressureFactor();
-    Point spineVectorReversed = (beginNode.Position() - endNode.Position()) / endNode.PressureFactor();
+    Vector spineVector = (endNode.Position() - beginNode.Position()) / beginNode.PressureFactor();
+    Vector spineVectorReversed = (beginNode.Position() - endNode.Position()) / endNode.PressureFactor();
     double pressureDelta = (endNode.PressureFactor() / beginNode.PressureFactor()) - 1;
     double pressureDeltaReversed = (beginNode.PressureFactor() / endNode.PressureFactor()) - 1;
 
@@ -666,7 +666,7 @@ StrokeFIndices StrokeNodeOperations::CutTest(
 /// <param name="hitBegin">Start point of the hitting segment</param>
 /// <param name="hitEnd">End point of the hitting segment</param>
 /// <returns>a double representing the point of clipping</returns>
-double StrokeNodeOperations::ClipTest(Point const  &spineVector, double pressureDelta, Vector const & hitBegin, Vector const & hitEnd)
+double StrokeNodeOperations::ClipTest(Vector const  &spineVector, double pressureDelta, Vector const & hitBegin, Vector const & hitEnd)
 {
     // Let's represent the vertices for the startNode are N1, N2, ..., Ni and for the endNode, M1, M2,
     // ..., Mi.
@@ -788,14 +788,14 @@ double StrokeNodeOperations::ClipTest(Point const  &spineVector, double pressure
 /// <summary>
 /// Clip-Testing a polygonal inking segment against an arc (circle)
 /// </summary>
-/// <param name="spineVector">Point representing the starting and ending point for the inking
+/// <param name="spineVector">Vector representing the starting and ending point for the inking
 ///             segment</param>
 /// <param name="pressureDelta">Represents the difference in the node size for startNode and endNode.
 ///              pressureDelta = (endNode.PressureFactor() / beginNode.PressureFactor()) - 1</param>
 /// <param name="hitCenter">The center of the hitting circle</param>
 /// <param name="hitRadius">The radius of the hitting circle</param>
 /// <returns>a double representing the point of clipping</returns>
-double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double pressureDelta, Vector const & hitCenter, Vector const & hitRadius)
+double StrokeNodeOperations::ClipTestArc(Vector const & spineVector, double pressureDelta, Vector const & hitCenter, Vector const & hitRadius)
 {
     (void)spineVector;
     (void)pressureDelta;
@@ -807,8 +807,8 @@ double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double press
     double findex = StrokeFIndices::AfterLast;
 
     double radiusSquared = hitRadius.size()Squared;
-    Point vertex, lastVertex = _vertices[_vertices.Length() - 1];
-    Point nextVertexNextNode, nextNode = spineVector + lastVertex * pressureDelta;
+    Vector vertex, lastVertex = _vertices[_vertices.Length() - 1];
+    Vector nextVertexNextNode, nextNode = spineVector + lastVertex * pressureDelta;
     bool testNextEdge = false;
 
     for (int k = 0, count = _vertices.Length();
@@ -816,7 +816,7 @@ double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double press
         k++, lastVertex = vertex, nextNode = nextVertexNextNode)
     {
         vertex = _vertices[k % count];
-        Point nextVertex = vertex - lastVertex;
+        Vector nextVertex = vertex - lastVertex;
         nextVertexNextNode = spineVector + (vertex * pressureDelta);
 
         if (DoubleUtil::IsZero(nextNode.x()) && DoubleUtil::IsZero(nextNode.y()))
@@ -830,12 +830,12 @@ double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double press
         {
             testNextEdge = false;
 
-            Point normal = GetProjection(lastVertex - hitCenter, vertex - hitCenter);
+            Vector normal = GetProjection(lastVertex - hitCenter, vertex - hitCenter);
             if (radiusSquared <= normal.size()Squared)
             {
                 if (WhereIsVectorAboutVector(hitCenter - lastVertex, nextVertex) == HitResult::Left)
                 {
-                    Point hitPoint = hitCenter + (normal * sqrt(radiusSquared / normal.size()Squared));
+                    Vector hitPoint = hitCenter + (normal * Math::Sqrt(radiusSquared / normal.size()Squared));
                     if (HitResult::Right == WhereIsVectorAboutVector(hitPoint - vertex, nextVertexNextNode))
                     {
                         testNextEdge = true;
@@ -871,12 +871,12 @@ double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double press
         if (testConnectingEdge)
         {
             // Find out the projection of hitCenter on nextNode
-            Point v = lastVertex - hitCenter;
+            Vector v = lastVertex - hitCenter;
             double findexNearest = GetProjectionFIndex(v, v + nextNode);
 
             if (findexNearest > 0)
             {
-                Point nearest = nextNode * findexNearest;
+                Vector nearest = nextNode * findexNearest;
                 double squaredDistanceFromNearestToHitPoint = radiusSquared - (nearest + v).size()Squared;
                 if (DoubleUtil::IsZero(squaredDistanceFromNearestToHitPoint) && (findexNearest <= 1))
                 {
@@ -888,7 +888,7 @@ double StrokeNodeOperations::ClipTestArc(Point const & spineVector, double press
                 else if ((squaredDistanceFromNearestToHitPoint > 0)
                     && (nearest.size()Squared >= squaredDistanceFromNearestToHitPoint))
                 {
-                    double hitPointFIndex = findexNearest - sqrt(
+                    double hitPointFIndex = findexNearest - Math::Sqrt(
                         squaredDistanceFromNearestToHitPoint / nextNode.size()Squared);
                     Debug::Assert(DoubleUtil::GreaterThanOrClose(hitPointFIndex, 0));
                     if (hitPointFIndex < findex)
@@ -1002,7 +1002,7 @@ bool StrokeNodeOperations::HitTestPolygonContourSegments(
 /// <param name="endNode">End node of the stroke segment</param>
 /// <returns>true if hit; false otherwise</returns>
 bool StrokeNodeOperations::HitTestInkContour(
-    List<ContourSegment> const& hitContour, Quad& quad, StrokeNodeData const& beginNode, StrokeNodeData const &endNode)
+    List<ContourSegment> const& hitContour, Quad const& quad, StrokeNodeData const& beginNode, StrokeNodeData const &endNode)
 {
     Debug::Assert(!quad.IsEmpty());
     bool isHit = false;
@@ -1352,7 +1352,7 @@ bool StrokeNodeOperations::HitTestPolygonSegment(Array<Vector> const & vertices,
 /// <param name="hitBegin">begin point of the hitting segment</param>
 /// <param name="hitEnd">end point of the hitting segment</param>
 /// <returns>true if hit, false otherwise</returns>
-bool StrokeNodeOperations::HitTestQuadSegment(Quad & quad, Point const& hitBegin, Point const& hitEnd)
+bool StrokeNodeOperations::HitTestQuadSegment(Quad const & quad, Point const& hitBegin, Point const& hitEnd)
 {
     Debug::Assert(quad.IsEmpty() == false);
 
@@ -1784,7 +1784,7 @@ double StrokeNodeOperations::GetPositionBetweenLines(Vector const & linesVector,
     Debug::Assert((false == DoubleUtil::IsZero(shortest.X())) || (false == DoubleUtil::IsZero(shortest.Y())));
 
     //return DoubleUtil::IsZero(shortest.x()) ? (nearestOnFirst.Y / shortest.y()) : (nearestOnFirst.X / shortest.x());
-    return sqrt(nearestOnFirst.LengthSquared() / shortest.LengthSquared());
+    return Math::Sqrt(nearestOnFirst.LengthSquared() / shortest.LengthSquared());
 }
 
 /// <summary>

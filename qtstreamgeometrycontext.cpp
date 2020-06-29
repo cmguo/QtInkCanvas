@@ -117,7 +117,9 @@ void QtStreamGeometryContext::PolyBezierTo(const List<Point> &points, bool isStr
 
 void QtStreamGeometryContext::ArcTo(const Point &point, const Size &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
 {
-    //qDebug() << "ArcTo" << point << size;
+    QPointF lastp = path_.currentPosition();
+    QPointF curtp = static_cast<QPointF>(point);
+    //qDebug() << "ArcTo" << size << rotationAngle << lastp << curtp;
     (void) isStroked; (void) isSmoothJoin;
     // pt1, pt2 are two points in unit circle (location at [0, 0] and with r = 1)
     //   pt1 = [cos(t1) , sin(t1)]
@@ -137,7 +139,7 @@ void QtStreamGeometryContext::ArcTo(const Point &point, const Size &size, double
     QMatrix matrix(rx, 0, 0, ry, 0, 0);
     // t = [pt1 - pt2] / 2 = [cos(t1) - cos(t2), sin(t1) - sin(t2)] / 2;
     //                     = [-sin((t1 + t2) / 2) * sin((t1 - t2) / 2), cos((t1 + t2) / 2) * sin((t1 - t2) / 2)]
-    QPointF t = matrix.inverted().map(path_.currentPosition() - (QPointF)point) / 2;
+    QPointF t = matrix.inverted().map(lastp - curtp) / 2;
     //qInfo() << "t" << t;
     // a1 = (t1 + t2) / 2, a2 = (t1 - t2) / 2; t1 > t2
     qreal a1 = atan(-t.x() / t.y());
@@ -162,7 +164,7 @@ void QtStreamGeometryContext::ArcTo(const Point &point, const Size &size, double
     QPointF pt2(cos(t2), sin(t2));
     //qInfo() << "pt1 <-> pt2" << pt1 << pt2;
     //qInfo() << "t" << (pt1 - pt2) / 2;
-    QPointF c = (QPointF)point - matrix.map(pt2);
+    QPointF c = curtp - matrix.map(pt2);
     //
     QRectF rect(-rx, -ry, rx * 2, ry * 2);
     QPointF pe1(pt1.x() * rx, pt1.y() * ry);

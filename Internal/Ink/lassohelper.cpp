@@ -53,7 +53,7 @@ Array<Point> LassoHelper::AddPoints(List<Point> const & points)
             Vector last2next = point - _lastLassoPoint;
             double distanceSquared = last2next.LengthSquared();
 
-            // Avoid using Sqrt when the distance is equal to the step.
+            // Avoid using Math::Sqrt when the distance is equal to the step.
             if (DoubleUtil::AreClose(MinDistanceSquared, distanceSquared))
             {
                 AddLassoPoint(point);
@@ -67,7 +67,7 @@ Array<Point> LassoHelper::AddPoints(List<Point> const & points)
             }
             else if (MinDistanceSquared < distanceSquared)
             {
-                double step = sqrt(MinDistanceSquared / distanceSquared);
+                double step = Math::Sqrt(MinDistanceSquared / distanceSquared);
                 Point last = _lastLassoPoint;
                 for (double findex = step; findex < 1.0; findex += step)
                 {

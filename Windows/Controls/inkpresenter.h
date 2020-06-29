@@ -246,7 +246,7 @@ private:
     //
     InkPresenterHighContrastCallback*    _contrastCallback = nullptr;
 
-    Size                                 _constraintSize;
+    Size                                 _constraintSize = Size::Empty();
 
     //#endregion Fields
 

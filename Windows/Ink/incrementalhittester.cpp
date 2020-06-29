@@ -196,7 +196,7 @@ void IncrementalHitTester::OnStrokesChanged(StrokeCollectionChangedEventArgs& ar
             }
         }
 #endif
-        Debug::Assert(firstIndex + added->Count() == args.Index());
+        Debug::Assert(firstIndex == args.Index());
 #if STROKE_COLLECTION_MULTIPLE_LAYER
         firstIndex += previousCount;
 #endif
@@ -725,22 +725,22 @@ double StrokeInfo::GetPointWeight(int index)
     double weight = 0;
     if (index == 0)
     {
-        weight += sqrt(da->Width()*da->Width() + da->Height()*da->Height()) / 2.0;
+        weight += Math::Sqrt(da->Width()*da->Width() + da->Height()*da->Height()) / 2.0;
     }
     else
     {
         Vector spine = (Point)(*stylusPoints)[index] - (Point)(*stylusPoints)[index - 1];
-        weight += sqrt(spine.LengthSquared()) / 2.0;
+        weight += Math::Sqrt(spine.LengthSquared()) / 2.0;
     }
 
     if (index == stylusPoints->Count() - 1)
     {
-        weight += sqrt(da->Width()*da->Width() + da->Height()*da->Height()) / 2.0;
+        weight += Math::Sqrt(da->Width()*da->Width() + da->Height()*da->Height()) / 2.0;
     }
     else
     {
         Vector spine = (Point)(*stylusPoints)[index + 1] - (Point)(*stylusPoints)[index];
-        weight += sqrt(spine.LengthSquared()) / 2.0;
+        weight += Math::Sqrt(spine.LengthSquared()) / 2.0;
     }
 
     return weight;

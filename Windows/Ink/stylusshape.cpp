@@ -103,7 +103,7 @@ Array<Vector> StylusShape::GetVerticesAsVectors()
 
 Rect StylusShape::BoundingBox()
 {
-    Rect bbox;
+    Rect bbox = Rect::Empty();
 
     if (IsPolygon())
     {

@@ -622,7 +622,7 @@ void StrokeNode::GetPointsAtMiddleSegment( StrokeNode & previous,
 /// and should only be called if that assumption is valid
 /// </summary>
 /// <returns></returns>
-Point StrokeNode::GetIntersection(Point line1Start, Point line1End, Point line2Start, Point line2End)
+Point StrokeNode::GetIntersection(Point const & line1Start, Point const & line1End, Point const & line2Start, Point const & line2End)
 {
     double a1 = line1End.Y() - line1Start.Y();
     double b1 = line1Start.X() - line1End.X();
@@ -711,7 +711,7 @@ Point StrokeNode::GetIntersection(Point line1Start, Point line1End, Point line2S
 /// </summary>
 /// <param name="hitNode"></param>
 /// <returns></returns>
-bool StrokeNode::HitTest(StrokeNode hitNode)
+bool StrokeNode::HitTest(StrokeNode const & hitNode)
 {
     if (!IsValid() || !hitNode.IsValid())
     {
@@ -729,7 +729,7 @@ bool StrokeNode::HitTest(StrokeNode hitNode)
 /// </summary>
 /// <param name="hitNode"></param>
 /// <returns></returns>
-StrokeFIndices StrokeNode::CutTest(StrokeNode hitNode)
+StrokeFIndices StrokeNode::CutTest(StrokeNode const & hitNode)
 {
     if ((IsValid() == false) || (hitNode.IsValid() == false))
     {
@@ -752,7 +752,7 @@ StrokeFIndices StrokeNode::CutTest(StrokeNode hitNode)
 /// <param name="begin"></param>
 /// <param name="end"></param>
 /// <returns></returns>
-StrokeFIndices StrokeNode::CutTest(Point begin, Point end)
+StrokeFIndices StrokeNode::CutTest(Point const & begin, Point const & end)
 {
     if (IsValid() == false)
     {
@@ -851,7 +851,7 @@ StrokeFIndices StrokeNode::BindFIndicesForLassoHitTest(StrokeFIndices&fragment)
 /// The type Quad is supposed to be internal even if we surface StrokeNode.
 /// External users of StrokeNode should use GetConnectionPoints instead.
 /// </summary>
-Quad & StrokeNode::ConnectingQuad()
+Quad const & StrokeNode::ConnectingQuad() const
 {
     Debug::Assert(IsValid());
 
@@ -868,7 +868,7 @@ Quad & StrokeNode::ConnectingQuad()
 /// and connecting quadrangle (_lastNode is excluded)
 /// Used for hit-testing a stroke against an other stroke (stroke and point erasing)
 /// </summary>
-List<ContourSegment> StrokeNode::GetContourSegments()
+List<ContourSegment> StrokeNode::GetContourSegments() const
 {
     Debug::Assert(IsValid());
 

@@ -93,7 +93,7 @@ public:
 
 private:
     QImage image_;
-    Rect rect_;
+    Rect rect_ = Rect::Empty();
 };
 
 class SvgImageDrawing : public Drawing
@@ -113,7 +113,7 @@ public:
 
 private:
     QSvgRenderer * renderer_;
-    Rect rect_;
+    Rect rect_ = Rect::Empty();
 };
 
 class DrawingGroupDrawingContext : public DrawingDrawingContext

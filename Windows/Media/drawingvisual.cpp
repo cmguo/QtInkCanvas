@@ -56,7 +56,7 @@ DrawingGroup * DrawingVisual::GetDrawing()
 
 QRectF DrawingVisual::boundingRect() const
 {
-    return drawing_ ? drawing_->Bounds() : Rect();
+    return drawing_ ? QRectF(drawing_->Bounds()) : QRectF();
 }
 
 void DrawingVisual::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

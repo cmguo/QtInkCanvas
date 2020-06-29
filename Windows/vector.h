@@ -171,7 +171,7 @@ public:
     /// <summary>
     /// Operator Vector * double
     /// </summary>
-    friend Vector operator * (Vector vector, double scalar)
+    friend Vector operator * (Vector const & vector, double scalar)
     {
         return Vector(vector._x * scalar,
                           vector._y * scalar);
@@ -185,7 +185,7 @@ public:
     /// <summary>
     /// Multiply: Vector * double
     /// </summary>
-    static Vector Multiply(Vector vector, double scalar)
+    static Vector Multiply(Vector const & vector, double scalar)
     {
         return Vector(vector._x * scalar,
                           vector._y * scalar);

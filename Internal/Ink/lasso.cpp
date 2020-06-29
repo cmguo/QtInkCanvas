@@ -133,7 +133,7 @@ Array<StrokeIntersection> Lasso::HitTest(StrokeNodeIterator & iterator)
 
     Point lastNodePosition;
     Point lassoLastPoint = _points[_points.Count() - 1];
-    Rect currentStrokeSegmentBounds;
+    Rect currentStrokeSegmentBounds = Rect::Empty();
 
     // Initilize the current crossing to be an empty one
     LassoCrossing currentCrossing = LassoCrossing::EmptyCrossing();
@@ -558,7 +558,7 @@ bool SingleLoopLasso::Filter(Point const & point)
         if (true == IsIncrementalLassoDirty())
         {
             // Update the bounds
-            Rect bounds;
+            Rect bounds = Rect::Empty();
             for (int j = 0; j < points.Count(); j++)
             {
                 bounds.Union(points[j]);

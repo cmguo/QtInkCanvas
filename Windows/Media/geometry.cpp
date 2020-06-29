@@ -84,7 +84,7 @@ List<Geometry*>& GeometryGroup::Children()
 
 Rect GeometryGroup::Bounds()
 {
-    Rect bounds;
+    Rect bounds = Rect::Empty();
     for (Geometry* g : children_)
         bounds.Union(g->Bounds());
     return bounds;

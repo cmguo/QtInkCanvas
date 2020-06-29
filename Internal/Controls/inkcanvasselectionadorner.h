@@ -81,7 +81,7 @@ private:
     QPen             _adornerPenBrush;
     QBrush           _adornerFillBrush;
     QPen             _hatchPen;
-    Rect             _strokesBounds;
+    Rect             _strokesBounds = Rect::Empty();
     List<Rect>       _elementsBounds;
 
     // The buffer around the outside of this element

@@ -331,7 +331,7 @@ DynamicRenderer::DynamicRenderer()
     : StylusPlugIn()
     , __siLock(QMutex::Recursive)
 {
-    _zeroSizedFrozenRect = new RectangleGeometry(QRectF(0,0,0,0));
+    _zeroSizedFrozenRect = new RectangleGeometry(Rect(0,0,0,0));
     //_zeroSizedFrozenRect.Freeze();
 }
 
@@ -853,7 +853,7 @@ void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
     //{
     //    throw std::runtime_error("drawingContext");
     //}
-    drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
+    //drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -911,16 +911,16 @@ void DynamicRenderer::RenderPackets(SharedPointer<StylusPointCollection> stylusP
     #if DEBUG_RENDERING_FEEDBACK
             std::unique_ptr<DrawingContext> debugDC;
     #endif
-            StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator((*i).first),
-                                                 *si->GetDrawingAttributes(),
-    #if DEBUG_RENDERING_FEEDBACK
-                                                 *debugDC, //debug dc
-                                                 0,   //debug feedback size
-                                                 false,//render debug feedback
-    #endif
-                                                 false, //calc bounds
-                                                 strokeGeometry,
-                                                 bounds);
+//            StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator((*i).first),
+//                                                 *si->GetDrawingAttributes(),
+//    #if DEBUG_RENDERING_FEEDBACK
+//                                                 *debugDC, //debug dc
+//                                                 0,   //debug feedback size
+//                                                 false,//render debug feedback
+//    #endif
+//                                                 false, //calc bounds
+//                                                 strokeGeometry,
+//                                                 bounds);
 
             // If we are called from the app thread we can just stay on it and render to that
             // visual tree.  Otherwise we need to marshal over to our inking thread to do our work.

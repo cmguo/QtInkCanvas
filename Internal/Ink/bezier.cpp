@@ -535,7 +535,7 @@ void Bezier::FlattenSegment(int iFirst, double tolerance, List<Point> & points)
 
     // Otherwise we'll have at least 3 points
     // Tolerance is assumed to be positive
-    nPoints = static_cast<int>(sqrt(rCurv / tolerance)) + 3;
+    nPoints = static_cast<int>(Math::Sqrt(rCurv / tolerance)) + 3;
     if (nPoints > 1000)
         nPoints = 1000; // Arbitrary limitation, but...
 

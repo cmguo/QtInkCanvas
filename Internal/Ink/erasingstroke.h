@@ -69,7 +69,7 @@ private:
 private:
     StrokeNodeIterator    _nodeIterator;
     List<StrokeNode>      _erasingStrokeNodes;
-    Rect                  _bounds;
+    Rect                  _bounds = Rect::Empty();
 
 #if POINTS_FILTER_TRACE
     int                     _totalPointsAdded = 0;

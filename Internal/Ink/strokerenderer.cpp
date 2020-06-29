@@ -35,7 +35,7 @@ void StrokeRenderer::CalcGeometryAndBoundsWithTransform(StrokeNodeIterator& iter
 
     StreamGeometryContext& context = streamGeometry->Open();
     geometry = streamGeometry;
-    bounds = Rect();
+    bounds = Rect::Empty();
 
     //try
     {
@@ -224,7 +224,7 @@ void StrokeRenderer::CalcGeometryAndBounds(StrokeNodeIterator& iterator,
 
         StreamGeometryContext& context = streamGeometry->Open();
         geometry = streamGeometry;
-        Rect empty;
+        Rect empty = Rect::Empty();
         bounds = empty;
         //try
         {
@@ -1077,15 +1077,15 @@ double StrokeRenderer::GetAngleBetween(Point const & previousPosition, Point con
     {
         if (dx < 0.0)
         {
-            angle = atan(dy / dx) + Math::PI;
+            angle = Math::Atan(dy / dx) + Math::PI;
         }
         else if (dy < 0.0)
         {
-            angle = atan(dy / dx) + (2 * Math::PI);
+            angle = Math::Atan(dy / dx) + (2 * Math::PI);
         }
         else
         {
-            angle = atan(dy / dx);
+            angle = Math::Atan(dy / dx);
         }
     }
 

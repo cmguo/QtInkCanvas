@@ -53,6 +53,11 @@ public:
         return tan(v);
     }
 
+    static double Atan(double v)
+    {
+        return atan(v);
+    }
+
     static double Atan2(double y, double x)
     {
         return atan2(y, x);

@@ -27,7 +27,7 @@ InkCanvasSelection::InkCanvasSelection(InkCanvas& inkCanvas)
     //}
     //_inkCanvas = inkCanvas;
 
-    _inkCanvas.FeedbackAdorner().UpdateBounds(Rect());
+    _inkCanvas.FeedbackAdorner().UpdateBounds(Rect::Empty());
 }
 
 //#endregion Constructors
@@ -149,7 +149,7 @@ void InkCanvasSelection::EndFeedbackAdorner(Rect const & finalRectangle)
         "feedbackAdorner should have been added to tree.");
 
     // Reset the feedback bounds and detach it from the adorner layer.
-    feedbackAdorner.UpdateBounds(Rect());
+    feedbackAdorner.UpdateBounds(Rect::Empty());
     adornerLayer->Remove(&feedbackAdorner);
 
     // Commit the new rectange of the selection.
@@ -805,7 +805,7 @@ Rect InkCanvasSelection::GetStrokesBounds()
     if ( _areStrokesChanged )
     {
         _cachedStrokesBounds = SelectedStrokes()->Count() != 0 ?
-                                SelectedStrokes()->GetBounds( ) : Rect();
+                                SelectedStrokes()->GetBounds( ) : Rect::Empty();
         _areStrokesChanged = false;
     }
 
@@ -840,7 +840,7 @@ Rect InkCanvasSelection::GetElementsUnionBounds()
 {
     if ( SelectedElements().Count() == 0 )
     {
-        return Rect();
+        return Rect::Empty();
     }
 
     Rect elementsBounds;

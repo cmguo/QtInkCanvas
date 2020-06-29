@@ -142,7 +142,7 @@ protected:
 
 private:
     List<Point>             _points;
-    Rect                    _bounds;
+    Rect                    _bounds                 = Rect::Empty();
     bool                    _incrementalLassoDirty  = false;
     static constexpr double MinDistance             = 1.0;
 
@@ -267,7 +267,7 @@ protected:
 
 private:
     bool _hasLoop                           = false;
-    Rect _prevBounds;
+    Rect _prevBounds                        = Rect::Empty();
     static constexpr double NoIntersection  = StrokeFIndices::BeforeFirst;
 };
 

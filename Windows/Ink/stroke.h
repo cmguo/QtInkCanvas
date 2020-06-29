@@ -598,7 +598,7 @@ private:
     bool _cloneStylusPoints  = true;
     bool _delayRaiseInvalidated  = false;
     static constexpr double  HollowLineSize      = 1.0;
-    Rect _cachedBounds;
+    Rect _cachedBounds       = Rect::Empty();
 
     static constexpr char const * DrawingAttributesName = "DrawingAttributes";
     static constexpr char const * StylusPointsName = "StylusPoints";
