@@ -30,12 +30,12 @@ void Visual::SetOpacity(double opacity)
 
 GeneralTransform Visual::TransformToAncestor(Visual* visual)
 {
-    return itemTransform(visual);
+    return itemTransform(visual).toAffine();
 }
 
 GeneralTransform Visual::TransformToDescendant(Visual* visual)
 {
-    return itemTransform(visual);
+    return itemTransform(visual).toAffine();
 }
 
 

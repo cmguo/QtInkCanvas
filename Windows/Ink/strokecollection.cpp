@@ -14,7 +14,7 @@
 #ifndef INKCANVAS_CORE
 #include "Internal/Ink/InkSerializedFormat/strokecollectionserializer.h"
 #include "Windows/Media/drawingcontext.h"
-#include "notifycollectionchangedeventargs.h"
+#include "Collections/Specialized/notifycollectionchangedeventargs.h"
 #endif
 
 #ifdef INKCANVAS_QT

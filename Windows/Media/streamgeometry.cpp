@@ -1,7 +1,7 @@
 #include "Windows/Media/streamgeometry.h"
 
-#ifndef INKCANVAS_CORE
-#include "qtstreamgeometrycontext.h"
+#ifdef INKCANVAS_QT
+#include "Landing/Qt/qtstreamgeometrycontext.h"
 #include <QPainter>
 #endif
 

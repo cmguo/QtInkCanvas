@@ -10,7 +10,7 @@
 #include "double.h"
 
 #ifdef INKCANVAS_QT
-#include <QTransform>
+#include <QMatrix>
 #endif
 
 // IMPORTANT
@@ -88,7 +88,7 @@ public:
     }
 
 #ifdef INKCANVAS_QT
-    Matrix(QTransform const & t)
+    Matrix(QMatrix const & t)
     {
         _m11 = t.m11();
         _m12 = t.m12();
@@ -907,9 +907,9 @@ public:
     }
 
 #ifdef INKCANVAS_QT
-    operator QTransform() const
+    operator QMatrix() const
     {
-        return QTransform(_m11, _m12, _m21, _m22, _offsetX, _offsetY);
+        return QMatrix(_m11, _m12, _m21, _m22, _offsetX, _offsetY);
     }
 #endif
 
@@ -1042,7 +1042,7 @@ INKCANVAS_END_NAMESPACE
 
 #ifdef INKCANVAS_QT
 #include <QMetaType>
-#include <QTransform>
+#include <QMatrix>
 Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(Matrix));
 #endif
 

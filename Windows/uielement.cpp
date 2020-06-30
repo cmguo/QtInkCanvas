@@ -160,12 +160,12 @@ GeneralTransform UIElement::LayoutTransform()
 
 GeneralTransform UIElement::RenderTransform()
 {
-    return sceneTransform();
+    return sceneTransform().toAffine();
 }
 
 GeneralTransform UIElement::TransformToVisual(UIElement* visual)
 {
-    return itemTransform(visual);
+    return itemTransform(visual).toAffine();
 }
 
 Size UIElement::DesiredSize()

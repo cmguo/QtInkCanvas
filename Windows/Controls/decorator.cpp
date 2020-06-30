@@ -1,5 +1,8 @@
 #include "Windows/Controls/decorator.h"
-#include "qtpainterdrawingcontext.h"
+
+#ifdef INKCANVAS_QT
+#include "Landing/Qt/qtpainterdrawingcontext.h"
+#endif
 
 #include <QPainter>
 
@@ -47,7 +50,7 @@ void Adorner::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     (void) option;
     (void) widget;
     QTransform transform(painter->transform());
-    painter->setTransform(GetDesiredTransform(transform));
+    painter->setTransform(QTransform(GetDesiredTransform(transform.toAffine())));
     QtPainterDrawingContext context(*painter);
     OnRender(context);
     painter->setTransform(transform);

@@ -487,6 +487,7 @@ protected:
     virtual void DrawCore(DrawingContext & drawingContext, SharedPointer<DrawingAttributes>  drawingAttributes);
 #endif
 
+public:
     /// <summary>
     /// Returns the Geometry of this stroke.
     /// </summary>

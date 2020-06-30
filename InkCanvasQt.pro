@@ -28,28 +28,25 @@ DEFINES += DEBUG_OUTPUT=0
 DEFINES += OLD_ISF=0
 
 SOURCES += \
+    cmath.cpp \
     double.cpp \
     eventargs.cpp \
     guid.cpp \
-    notifycollectionchangedeventargs.cpp \
-    qtpainterdrawingcontext.cpp \
-    qtstreamgeometrycontext.cpp \
     single.cpp
 
 HEADERS += \
     InkCanvas_global.h \
     cmath.h \
     double.h \
+    single.h \
     eventargs.h \
-    guid.h \
-    notifycollectionchangedeventargs.h \
-    qtpainterdrawingcontext.h \
-    qtstreamgeometrycontext.h
+    guid.h
 
 include(Windows/Windows.pri)
 include(Internal/Internal.pri)
 include(Activities/Activities.pri)
 include(Collections/Collections.pri)
+include(Landing/Landing.pri)
 
 includes.files = $$PWD/*.h
 includes.windows.files = $$PWD/Windows/*.h

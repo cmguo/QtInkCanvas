@@ -134,7 +134,7 @@ void QtPainterDrawingContext::PushOpacity(double opacity, AnimationClock *opacit
 
 void QtPainterDrawingContext::PushTransform(Matrix const & transform)
 {
-    painter_.setTransform(transform);
+    painter_.setTransform(QTransform(transform));
 }
 
 void QtPainterDrawingContext::Pop()

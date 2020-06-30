@@ -8,8 +8,13 @@
 #include <QSharedPointer>
 #include <QPolygonF>
 INKCANVAS_BEGIN_NAMESPACE
+#ifdef Q_COMPILER_TEMPLATE_ALIAS
 template <typename T> using SharedPointer = QSharedPointer<T>;
 template <typename T> using EnableSharedFromThis = QEnableSharedFromThis<T>;
+#else
+#define SharedPointer QSharedPointer
+#define EnableSharedFromThis QEnableSharedFromThis
+#endif
 #define shared_from_this sharedFromThis
 INKCANVAS_END_NAMESPACE
 #else
