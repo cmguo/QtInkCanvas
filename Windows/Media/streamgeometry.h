@@ -2,11 +2,7 @@
 #define STREAMGEOMETRY_H
 
 #include "InkCanvas_global.h"
-#include "geometry.h"
-
-#ifndef INKCANVAS_CORE
-#include <QPainterPath>
-#endif
+#include "Windows/Media/geometry.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -42,7 +38,7 @@ public:
 
     StreamGeometryContext &Open();
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     void Close(QPainterPath & path);
 
     QPainterPath path() { return path_; }
@@ -50,13 +46,13 @@ public:
 
     virtual Rect Bounds() override;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
 #endif
 
 private:
     StreamGeometryContext * context_ = nullptr;
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     QPainterPath path_;
 #endif
 };

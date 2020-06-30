@@ -63,7 +63,7 @@ StrokeCollection::StrokeCollection(Collection<SharedPointer<Stroke>> const & str
     }
 }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 
 /// <summary>Creates a collection from ISF data in the specified stream</summary>
 /// <param name="stream">Stream of ISF data</param>
@@ -616,7 +616,7 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
     //they are the first in the delegate chain, they can be optimized
     //to not have to handle out of order events caused by 3rd party code
     //getting called first
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //if ( this.StrokesChangedInternal != nullptr)
     {
         emit StrokesChangedInternal(e);
@@ -666,7 +666,7 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
 /// to ensure that event listeners are notified</remarks>
 void StrokeCollection::OnPropertyDataChanged(Guid const & propName)
 {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //if ( this.PropertyDataChanged != null )
     {
         emit PropertyDataChanged(propName);
@@ -682,7 +682,7 @@ void StrokeCollection::OnPropertyDataChanged(Guid const & propName)
 /// instance, but every other INotifyPropertyChanged implementation follows this pattern.</remarks>
 void StrokeCollection::OnPropertyChanged(char const * propName)
 {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //if ( _propertyChanged != null )
     {
         _propertyChanged(propName);
@@ -690,7 +690,7 @@ void StrokeCollection::OnPropertyChanged(char const * propName)
 #endif
 }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 StrokeCollection::operator QVariantList()
 {
     QVariantList list;

@@ -9,6 +9,8 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
+#if QT_VERSION == 0x050C04
+
 class QPainterPathPrivate
 {
 public:
@@ -16,6 +18,7 @@ public:
     QVector<QPainterPath::Element> elements;
 };
 
+#endif
 //
 static thread_local QVector<QPainterPath::Element> sharedPathElements;
 

@@ -23,15 +23,11 @@ class DrawingContext;
 class ExtendedPropertyCollection;
 class ErasingStroke;
 
-#ifdef INKCANVAS_QT
-#define STROKE_COLLECTION_MULTIPLE_LAYER 1
-#define STROKE_COLLECTION_EDIT_MASK 1
-#else
-#define STROKE_COLLECTION_MULTIPLE_LAYER 0
-#define STROKE_COLLECTION_EDIT_MASK 0
+#ifdef INKCANVAS_QT_SIGNALS
+#include <QObject>
 #endif
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
 {
     Q_OBJECT
@@ -52,7 +48,7 @@ public:
     /// <summary>Creates a StrokeCollection based on a collection of existing strokes</summary>
     StrokeCollection(Collection<SharedPointer<Stroke>> const & strokes);
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_SIGNALS
     /// <summary>Creates a collection from ISF data in the specified stream</summary>
     /// <param name="stream">Stream of ISF data</param>
     StrokeCollection(QIODevice * stream);
@@ -62,7 +58,7 @@ public:
 
     ~StrokeCollection();
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>
     /// <param name="stream">The stream to save Ink Serialized Format to</param>
     /// <param name="compress">Flag if set to true the data will be compressed, which can
@@ -456,7 +452,7 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#ifdef INKCANVAS_QT
+#ifndef INKCANVAS_CORE
 
 #include "Windows/dependencyproperty.h"
 

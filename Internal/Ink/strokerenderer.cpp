@@ -1096,7 +1096,7 @@ double StrokeRenderer::GetAngleBetween(Point const & previousPosition, Point con
     return angle;
 }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 /// <summary>
 /// Get the DrawingAttributes to use for a highlighter stroke. The return value is a copy of
 /// the DA passed in if color.A != 255 with color.A overriden to be 255. Otherwise it returns

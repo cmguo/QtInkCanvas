@@ -95,7 +95,7 @@ void Stroke::Initialize()
     //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
     //_stylusPoints.Changed += new EventHandler(StylusPoints_Changed);
     //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     QObject::connect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
                      this, &Stroke::DrawingAttributes_Changed);
     QObject::connect(_stylusPoints.get(), &StylusPointCollection::Changed,
@@ -481,7 +481,7 @@ bool Stroke::ContainsPropertyData(Guid const & propertyDataId) const
 /// <value>The drawing attributes associated with the current stroke.</value>
 void Stroke::SetDrawingAttributes(SharedPointer<DrawingAttributes> value)
 {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //_drawingAttributes.AttributeChanged -= new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
     QObject::disconnect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
                      this, &Stroke::DrawingAttributes_Changed);
@@ -503,7 +503,7 @@ void Stroke::SetDrawingAttributes(SharedPointer<DrawingAttributes> value)
         _cachedBounds  = Rect::Empty();
     }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //_drawingAttributes.AttributeChanged += new PropertyDataChangedEventHandler(DrawingAttributes_Changed);
     QObject::connect(_drawingAttributes.get(), &DrawingAttributes::AttributeChanged,
                      this, &Stroke::DrawingAttributes_Changed);
@@ -534,7 +534,7 @@ void Stroke::SetStylusPoints(SharedPointer<StylusPointCollection> value)
 
     StylusPointsReplacedEventArgs e(value, _stylusPoints);
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //_stylusPoints.Changed -= new EventHandler(StylusPoints_Changed);
     //_stylusPoints.CountGoingToZero -= new CancelEventHandler(StylusPoints_CountGoingToZero);
     QObject::disconnect(_stylusPoints.get(), &StylusPointCollection::Changed,
@@ -544,7 +544,7 @@ void Stroke::SetStylusPoints(SharedPointer<StylusPointCollection> value)
 #endif
     _stylusPoints = value;
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //_stylusPoints.Changed += new EventHandler(StylusPoints_Changed);
     //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
     QObject::connect(_stylusPoints.get(), &StylusPointCollection::Changed,

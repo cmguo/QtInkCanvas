@@ -288,7 +288,7 @@ public:
     static Guid const & UndoEventArgsHandled = new Guid(0x53bf717, 0xdbe7, 0x4e52, 0x80, 0x5e, 0x64, 0x90, 0x61, 0x38, 0xfa, 0xad);
 #endif
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     static QString ConvertToString (const Guid & id)
     {
         return QUuid(id).toString();

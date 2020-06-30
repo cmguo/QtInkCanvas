@@ -14,8 +14,9 @@
 #include "Internal/Ink/InkSerializedFormat/drawingattributeserializer.h"
 #endif
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 #include <QColor>
+#include <QObject>
 #endif
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -28,7 +29,7 @@ class ExtendedPropertyCollection;
 
 // namespace System.Windows.Ink
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
     Q_OBJECT
@@ -48,7 +49,7 @@ public:
     /// <param name="extendedProperties"></param>
     DrawingAttributes(ExtendedPropertyCollection* extendedProperties);
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     virtual ~DrawingAttributes() override;
 #else
     virtual ~DrawingAttributes();
@@ -284,7 +285,7 @@ public:
     /// <param name="args">The custom attributes that changed</param>
     void ExtendedPropertiesChanged_EventForwarder(ExtendedPropertiesChangedEventArgs& args);
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 
 signals:
     /// <summary>
@@ -303,7 +304,7 @@ protected:
     /// <param name="e">The change information for the DrawingAttribute that was modified</param>
     virtual void OnAttributeChanged(PropertyDataChangedEventArgs &e);
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 
 signals:
      /// <summary>
@@ -325,7 +326,7 @@ protected:
         //    throw new ArgumentNullException("e", SR.Get(SRID.EventArgIsNull));
         //}
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         //if (this.PropertyDataChanged != null)
         //{
             emit PropertyDataChanged(e);
@@ -336,7 +337,7 @@ protected:
 
     virtual void OnPropertyChanged(PropertyChangedEventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         //if ( _propertyChanged != null )
         {
             emit  _propertyChanged(e);

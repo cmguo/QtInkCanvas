@@ -3,7 +3,27 @@
 
 #include "InkCanvas_global.h"
 
-#ifdef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
+
+#include <QVariant>
+
+INKCANVAS_BEGIN_NAMESPACE
+
+typedef QVariant Variant;
+
+inline bool operator==(Variant const & l, nullptr_t)
+{
+    return l.isNull();
+}
+
+inline bool operator!=(Variant const & l, nullptr_t)
+{
+    return !l.isNull();
+}
+
+INKCANVAS_END_NAMESPACE
+
+#else
 
 #include <algorithm>
 #include <assert.h>
@@ -119,26 +139,6 @@ private:
     bool (*equal_)(void*, void*) = nullptr;
     void (*destroy_)(void*) = nullptr;
 };
-
-INKCANVAS_END_NAMESPACE
-
-#elif defined INKCANVAS_QT
-
-#include <QVariant>
-
-INKCANVAS_BEGIN_NAMESPACE
-
-typedef QVariant Variant;
-
-inline bool operator==(Variant const & l, nullptr_t)
-{
-    return l.isNull();
-}
-
-inline bool operator!=(Variant const & l, nullptr_t)
-{
-    return !l.isNull();
-}
 
 INKCANVAS_END_NAMESPACE
 

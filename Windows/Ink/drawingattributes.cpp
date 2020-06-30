@@ -40,7 +40,7 @@ DrawingAttributes::~DrawingAttributes()
 void DrawingAttributes::Initialize()
 {
     Debug::Assert(_extendedProperties != nullptr);
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //_extendedProperties->Changed +=
     //    new ExtendedPropertiesChangedEventHandler(this.ExtendedPropertiesChanged_EventForwarder);
     QObject::connect(_extendedProperties, &ExtendedPropertyCollection::Changed,
@@ -48,7 +48,7 @@ void DrawingAttributes::Initialize()
 #endif
 }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 
 /// <summary>
 /// The color of the Stroke
@@ -467,7 +467,7 @@ SharedPointer<DrawingAttributes> DrawingAttributes::Clone()
 /// <returns></returns>
 Variant DrawingAttributes::GetDefaultDrawingAttributeValue(Guid const & id)
 {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     if (KnownIds::Color == id)
     {
         return QColor(Qt::black);
@@ -517,7 +517,7 @@ void DrawingAttributes::ValidateStylusTipTransform(Guid const & propertyDataId, 
     }
     else if (propertyDataId == KnownIds::StylusTipTransform)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         // StylusTipTransform gets serialized as a String, but at runtime is a Matrix
         if (propertyData.type() == Variant::Type::String)
         {
@@ -706,7 +706,7 @@ void DrawingAttributes::OnAttributeChanged(PropertyDataChangedEventArgs &e)
     //}
     //finally
     //{
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         //if ( this.AttributeChanged != null )
         //{
             emit AttributeChanged(e);
@@ -841,7 +841,7 @@ void DrawingAttributes::OnPropertyChanged(char const * propertyName)
     OnPropertyChanged(args);
 }
 
-#ifdef INKCANVAS_QT
+#ifndef INKCANVAS_CORE
 Variant DrawingAttributesDefaultValueFactory::DefaultValue()
 {
     return Variant::fromValue(SharedPointer<DrawingAttributes>(new DrawingAttributes));

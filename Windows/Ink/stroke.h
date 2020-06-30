@@ -31,7 +31,7 @@ class DrawingContext;
 
 // namespace System.Windows.Ink
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT Stroke : public QObject, public EnableSharedFromThis<Stroke>
 {
     Q_OBJECT
@@ -165,7 +165,7 @@ public:
 
     void SetStylusPoints(SharedPointer<StylusPointCollection> value);
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
 
 signals:
     /// <summary>Event that is fired when a drawing attribute is changed.</summary>
@@ -211,7 +211,7 @@ signals:
 protected:
     virtual void OnDrawingAttributesChanged(PropertyDataChangedEventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit DrawingAttributesChanged(e);
 #endif
     }
@@ -223,7 +223,7 @@ protected:
     /// <param name="e">DrawingAttributesReplacedEventArgs to raise the event with</param>
     virtual void OnDrawingAttributesReplaced(DrawingAttributesReplacedEventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit DrawingAttributesReplaced(e);
 #endif
     }
@@ -234,7 +234,7 @@ protected:
     /// <param name="e">EventArgs</param>
     virtual void OnStylusPointsReplaced(StylusPointsReplacedEventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit StylusPointsReplaced(e);
 #endif
     }
@@ -255,7 +255,7 @@ protected:
     /// to ensure that event listeners are notified</remarks>
     virtual void OnPropertyDataChanged(PropertyDataChangedEventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit PropertyDataChanged(e);
 #endif
     }
@@ -267,7 +267,7 @@ protected:
     /// </summary>
     virtual void OnInvalidated(EventArgs& e)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit Invalidated(e);
 #endif
     }
@@ -280,7 +280,7 @@ protected:
     /// instance, but every other INotifyPropertyChanged implementation follows this pattern.</remarks>
     virtual void OnPropertyChanged(char const * propName)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         emit PropertyChanged(propName);
 #endif
     }

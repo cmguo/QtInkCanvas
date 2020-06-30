@@ -20,21 +20,21 @@ StreamGeometry::~StreamGeometry()
 
 void StreamGeometry::SetFillRule(FillRule value)
 {
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     path_.setFillRule(value == FillRule::EvenOdd ? Qt::OddEvenFill : Qt::WindingFill);
 #endif
 }
 
 StreamGeometryContext &StreamGeometry::Open()
 {
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     if (context_ == nullptr)
         context_ = new QtStreamGeometryContext(this);
 #endif
     return *context_;
 }
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 
 void StreamGeometry::Close(QPainterPath &path)
 {
@@ -45,20 +45,18 @@ void StreamGeometry::Close(QPainterPath &path)
 
 Rect StreamGeometry::Bounds()
 {
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     return path_.boundingRect();
 #else
     return Rect();
 #endif
 }
 
-#ifndef INKCANVAS_CORE
-
+#ifdef INKCANVAS_QT_DRAW
 void StreamGeometry::Draw(QPainter &painter)
 {
     painter.drawPath(path_);
 }
-
 #endif
 
 INKCANVAS_END_NAMESPACE

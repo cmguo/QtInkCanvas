@@ -3,7 +3,7 @@
 
 #include "InkCanvas_global.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QObject>
 #include <QSharedPointer>
 #include <QPolygonF>

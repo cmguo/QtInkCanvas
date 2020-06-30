@@ -388,7 +388,7 @@ SharedPointer<StylusPointCollection> StylusPointCollection::Clone(Matrix const &
 /// <param name="e">
 void StylusPointCollection::OnChanged()
 {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     emit Changed();
 #endif
 }
@@ -621,7 +621,7 @@ bool StylusPointCollection::CanGoToZero()
     CancelEventArgs e;
     //e.Cancel = false;
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     //
     // call the listeners
     //

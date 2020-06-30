@@ -25,7 +25,29 @@ enum class DrawingFlag
     IgnoreAngle = 0x00000040,
 };
 
-#ifdef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
+
+INKCANVAS_END_NAMESPACE
+
+#include <QFlags>
+#include <QMetaType>
+
+INKCANVAS_BEGIN_NAMESPACE
+
+inline DrawingFlag operator ~(DrawingFlag f)
+{
+    return static_cast<DrawingFlag>(~static_cast<int>(f));
+}
+
+Q_DECLARE_FLAGS(DrawingFlags, DrawingFlag)
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(DrawingFlags)
+
+INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(DrawingFlags))
+
+#else
 
 typedef  DrawingFlag DrawingFlags;
 
@@ -70,28 +92,6 @@ inline bool operator!=(int l, DrawingFlag r)
 }
 
 INKCANVAS_END_NAMESPACE
-
-#else
-
-INKCANVAS_END_NAMESPACE
-
-#include <QFlags>
-#include <QMetaType>
-
-INKCANVAS_BEGIN_NAMESPACE
-
-inline DrawingFlag operator ~(DrawingFlag f)
-{
-    return static_cast<DrawingFlag>(~static_cast<int>(f));
-}
-
-Q_DECLARE_FLAGS(DrawingFlags, DrawingFlag)
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(DrawingFlags)
-
-INKCANVAS_END_NAMESPACE
-
-Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(DrawingFlags))
 
 #endif
 

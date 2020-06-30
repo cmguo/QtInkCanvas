@@ -3,7 +3,7 @@
 
 #include "InkCanvas_global.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QMetaType>
 #endif
 
@@ -39,6 +39,8 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
+#ifdef INKCANVAS_QT
 Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(StylusTip))
+#endif
 
 #endif // STYLUSTIP_H

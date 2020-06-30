@@ -6,7 +6,7 @@
 #include "cmath.h"
 #include "double.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QRectF>
 #endif
 
@@ -23,7 +23,7 @@ class INKCANVAS_EXPORT Rect
 public:
     Rect() : _x(0), _y(0), _width(0), _height(0) {}
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     Rect(QRectF const & rect) : Rect(rect.topLeft(), rect.size()) {}
 #endif
 
@@ -345,7 +345,7 @@ public:
         return Point(Right(), Bottom());
     }
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     operator QRectF() const { return QRectF(TopLeft(), GetSize()); }
 #endif
 

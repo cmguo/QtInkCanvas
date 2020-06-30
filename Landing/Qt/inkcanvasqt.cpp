@@ -21,7 +21,8 @@ public:
     }
 };
 
-SharedPointer<Stroke> InkCanvasQt::InkCanvasQt::makeStroke(const QList<QPointF> &points, qreal width, bool fitToCorve, bool ellipseShape)
+void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const QList<QPointF> &points,
+                                          qreal width, bool fitToCorve, bool ellipseShape, bool addPressure)
 {
     SharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
     QSharedPointer<StylusPointCollection> stylusPoints(
@@ -30,35 +31,49 @@ SharedPointer<Stroke> InkCanvasQt::InkCanvasQt::makeStroke(const QList<QPointF> 
         StylusPoint point(pt.x(), pt.y(), 1.0 /*pressure*/);
         stylusPoints->Add(point);
     }
-    SharedPointer<Stroke> st(new Stroke(stylusPoints, da));
-    return st;
+    if (addPressure) {
+        int n = 16;
+        if (stylusPoints->Count() > n) {
+            for (int i = 1; i < n; ++i) {
+                int m = stylusPoints->Count() + i - n;
+                StylusPoint point = (*stylusPoints)[m];
+                float d = static_cast<float>(i) / static_cast<float>(n);
+                point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
+                stylusPoints->SetItem(m, point);
+            }
+            --n;
+        } else {
+            n = 0;
+        }
+    }
+    stroke.reset(new Stroke(stylusPoints, da));
 }
 
-SharedPointer<Stroke> InkCanvasQt::cloneStroke(SharedPointer<Stroke> stroke)
+void InkCanvasQt::cloneStroke(SharedPointer<Stroke> & out, SharedPointer<Stroke> const & stroke)
 {
-    return stroke->Clone();
+    out = stroke->Clone();
 }
 
-void InkCanvasQt::transformStroke(SharedPointer<Stroke> stroke, QMatrix const &matrix)
+void InkCanvasQt::shareStroke(SharedPointer<Stroke> &out, const SharedPointer<Stroke> & stroke)
+{
+    out = stroke;
+}
+
+void InkCanvasQt::transformStroke(SharedPointer<Stroke> const & stroke, QMatrix const &matrix)
 {
     stroke->Transform(matrix, false);
 }
 
-void InkCanvasQt::transformStroke(SharedPointer<Stroke> stroke, const QRectF &from, const QRectF &to)
-{
-    stroke->Transform(InkCanvasSelection::MapRectToRect(from, to), false);
-}
-
-bool InkCanvasQt::hitTestStroke(SharedPointer<Stroke> stroke, const QPointF &point)
+bool InkCanvasQt::hitTestStroke(SharedPointer<Stroke> const & stroke, const QPointF &point)
 {
     return stroke->HitTest(point);
 }
 
-QPainterPath InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> stroke, QRectF & bounds)
+void InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QPainterPath & path, QRectF & bounds)
 {
     stroke->GetGeometry();
+    path = static_cast<StreamGeometry*>(stroke->GetGeometry())->path();
     bounds = stroke->GetBounds();
-    return static_cast<StreamGeometry*>(stroke->GetGeometry())->path();
 }
 
 INKCANVAS_END_NAMESPACE

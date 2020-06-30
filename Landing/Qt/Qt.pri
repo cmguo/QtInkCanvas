@@ -1,9 +1,18 @@
 HEADERS += \
     $$PWD/inkcanvasqt.h \
-    $$PWD/qtpainterdrawingcontext.h \
     $$PWD/qtstreamgeometrycontext.h
 
 SOURCES += \
     $$PWD/inkcanvasqt.cpp \
-    $$PWD/qtpainterdrawingcontext.cpp \
     $$PWD/qtstreamgeometrycontext.cpp
+
+!inkcanvas_core {
+
+    HEADERS += \
+        $$PWD/qtpainterdrawingcontext.h
+
+    SOURCES += \
+        $$PWD/qtpainterdrawingcontext.cpp
+
+}
+

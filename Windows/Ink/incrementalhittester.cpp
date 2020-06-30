@@ -95,7 +95,7 @@ void IncrementalHitTester::EndHitTesting()
 {
     if (_strokes != nullptr)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         // Detach the event handler
         //_strokes.StrokesChangedInternal -= new StrokeCollectionChangedEventHandler(OnStrokesChanged);
         QObject::disconnect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
@@ -136,7 +136,7 @@ IncrementalHitTester::IncrementalHitTester(SharedPointer<StrokeCollection> strok
 
     _strokes = strokes;
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     // Attach an event handler to the strokes' changed event
     //_strokes.StrokesChangedInternal += new StrokeCollectionChangedEventHandler(OnStrokesChanged);
     QObject::connect(_strokes.get(), &StrokeCollection::StrokesChangedInternal,
@@ -644,7 +644,7 @@ StrokeInfo::StrokeInfo(SharedPointer<Stroke> stroke)
     //_stroke = stroke;
     _bounds = stroke->GetBounds();
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
     // Start listening to the stroke events
     //_stroke.DrawingAttributesChanged += new PropertyDataChangedEventHandler(OnStrokeDrawingAttributesChanged);
     //_stroke.StylusPointsReplaced += new StylusPointsReplacedEventHandler(OnStylusPointsReplaced);
@@ -752,7 +752,7 @@ void StrokeInfo::Detach()
 {
     if (_stroke != nullptr)
     {
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_SIGNALS
         // Detach the event handlers
         //_stroke.DrawingAttributesChanged -= new PropertyDataChangedEventHandler(OnStrokeDrawingAttributesChanged);
         //_stroke.StylusPointsReplaced -= new StylusPointsReplacedEventHandler(OnStylusPointsReplaced);

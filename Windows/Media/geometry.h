@@ -8,8 +8,11 @@
 #include "Collections/Generic/list.h"
 
 #ifndef INKCANVAS_CORE
-#include <QPainterPath>
 class QPainter;
+#endif
+
+#ifdef INKCANVAS_QT
+#include <QPainterPath>
 #endif
 
 // namespace System.Windows.Media
@@ -38,7 +41,7 @@ public:
 
     virtual Rect Bounds() = 0;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) = 0;
 #endif
 
@@ -50,7 +53,7 @@ private:
     void * owner_ = nullptr;
 };
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 
 class PathGeometry : public Geometry
 {
@@ -65,7 +68,9 @@ public:
 
     virtual Rect Bounds() override;
 
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
+#endif
 
 private:
     QPainterPath path_;
@@ -82,7 +87,7 @@ public:
 
     virtual Rect Bounds() override;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
 #endif
 
@@ -97,7 +102,7 @@ public:
 
     virtual Rect Bounds() override;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
 #endif
 
@@ -114,7 +119,7 @@ public:
 
     virtual Rect Bounds() override;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
 #endif
 
@@ -130,7 +135,7 @@ public:
 
     virtual Rect Bounds() override;
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
     virtual void Draw(QPainter& painter) override;
 #endif
 

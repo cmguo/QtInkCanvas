@@ -55,7 +55,11 @@ void Mouse::UpdateCursor(UIElement* element)
     element->RaiseEvent(args);
     if (args.Handled()) {
 #ifdef WIN32
+#if QT_VERSION >= 0x050A00
         if (args.Cursor() == QCursor())
+#else
+        if (args.Cursor().shape() == QCursor().shape())
+#endif
             element->unsetCursor(); // not work on macosx
         else
 #endif

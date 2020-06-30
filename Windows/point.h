@@ -3,7 +3,7 @@
 
 #include "Windows/vector.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QPointF>
 #endif
 
@@ -18,7 +18,7 @@ class INKCANVAS_EXPORT Point
 public:
     Point() : _x(0), _y(0) {}
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     Point(QPointF const & point) : Point(point.x(), point.y()) {}
 #endif
 
@@ -155,7 +155,7 @@ public:
 
     void setY(double y) { _y = y; }
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     operator QPointF() const { return {_x, _y}; }
 #endif
 

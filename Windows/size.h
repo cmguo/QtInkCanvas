@@ -3,7 +3,7 @@
 
 #include "Windows/point.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
 #include <QSizeF>
 #endif
 
@@ -20,7 +20,7 @@ class INKCANVAS_EXPORT Size
 public:
     Size() : _width(0), _height(0) {}
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     Size(QSizeF const & size) : Size(size.width(), size.height()) {}
 #endif
 
@@ -140,7 +140,7 @@ public:
         return Point(_width, _height);
     }
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT
     operator QSizeF() const { return {_width, _height}; }
 #endif
 
