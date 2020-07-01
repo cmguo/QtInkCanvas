@@ -143,9 +143,12 @@ void QtStreamGeometryContext::ArcTo(const QPointF &point, const QSizeF &size, do
     qreal a1 = atan(-t.x() / t.y());
     qreal product = QPointF::dotProduct(t, t);
     if (product >= 1.0) {
-        //qInfo() << "product" << product;
-        path_.lineTo(point);
-        return;
+        if (!qFuzzyIsNull(product - 1.0)) {
+            qInfo() << "product" << product << size << path_.currentPosition() << point;
+            path_.lineTo(point);
+            return;
+        }
+        product = 1.0;
     }
     qreal a2 = asin(product);
     //qInfo() << "a1 <-> a2" << (a1 * 180 / M_PI) << (a2 * 180 / M_PI);
