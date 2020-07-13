@@ -231,7 +231,7 @@ public:
     /// <returns></returns>
     static int DoubleToInt(double val)
     {
-        return (0 < val) ? (int)(val + 0.5) : (int)(val - 0.5);
+        return (0 < val) ? static_cast<int>(val + 0.5) : static_cast<int>(val - 0.5);
     }
 
 
@@ -255,7 +255,7 @@ public:
     struct NanUnion
     {
         double DoubleValue;
-        uintptr_t UintValue;
+        uint64_t UintValue;
     };
 
     // The standard CLR double.IsNaN() function is approximately 100 times slower than our own wrapper,
@@ -268,8 +268,8 @@ public:
         NanUnion t;
         t.DoubleValue = value;
 
-        intptr_t exp = t.UintValue & 0xfff0000000000000;
-        intptr_t man = t.UintValue & 0x000fffffffffffff;
+        uint64_t exp = t.UintValue & 0xfff0000000000000;
+        uint64_t man = t.UintValue & 0x000fffffffffffff;
 
         return (exp == 0x7ff0000000000000 || exp == 0xfff0000000000000) && (man != 0);
     }

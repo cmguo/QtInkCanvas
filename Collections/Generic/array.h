@@ -68,10 +68,10 @@ public:
     Array & operator=(Array const & array) { std::vector<T>::operator=(array); return *this; }
     Array & operator=(Array && array) { std::vector<T>::operator=(std::move(array)); return *this; }
 
-    int Length() const { return static_cast<int>(size()); }
+    int Length() const { return static_cast<int>(std::vector<T>::size()); }
     void Add(T const & t) { push_back(t); }
     void Insert(int index, T const & t) { insert(begin() + index, t); }
-    void Clear() { clear(); }
+    void Clear() { std::vector<T>::clear(); }
 
     T & operator[](int index) { return std::vector<T>::operator[](static_cast<size_t>(index)); }
     T const & operator[](int index) const { return std::vector<T>::operator[](static_cast<size_t>(index)); }

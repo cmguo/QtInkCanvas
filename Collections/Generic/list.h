@@ -74,15 +74,15 @@ public:
     List() {}
     List(std::initializer_list<T> list) : std::vector<T>(list) {}
     List(Array<T> const & list) { std::copy(list.begin(), list.end(), std::back_inserter(static_cast<std::vector<T>&>(*this))); }
-    int Count() const { return static_cast<int>(size()); }
-    void Add(T const & t) { push_back(t); }
+    int Count() const { return static_cast<int>(std::vector<T>::size()); }
+    void Add(T const & t) { std::vector<T>::push_back(t); }
     void AddRange(List<T> const & list) { std::copy(list.begin(), list.end(), std::back_inserter(static_cast<std::vector<T>&>(*this))); }
-    void Insert(int index, T const & t) { insert(begin() + index, t); }
+    void Insert(int index, T const & t) { std::vector<T>::insert(begin() + index, t); }
     void InsertRange(int index, List<T> const & list) { std::copy(list.begin(), list.end(), std::inserter(static_cast<std::vector<T>&>(*this), begin() + index)); }
-    void Clear() { clear(); }
-    bool Remove(T const & t) { auto iter = std::find(begin(), end(), t); if (iter == end()) return false; erase(iter); return true; }
-    void RemoveAt(int index)  { erase(begin() + index); }
-    void RemoveRange(int index, int count) { erase(begin() + index, begin() + index + count); }
+    void Clear() {std::vector<T>:: clear(); }
+    bool Remove(T const & t) { auto iter = std::find(begin(), end(), t); if (iter == end()) return false; std::vector<T>::erase(iter); return true; }
+    void RemoveAt(int index)  { std::vector<T>::erase(begin() + index); }
+    void RemoveRange(int index, int count) { std::vector<T>::erase(begin() + index, begin() + index + count); }
     bool Contains(T const & t) const { return std::find(begin(), end(), t) != end(); }
     int IndexOf(T const & t) const { auto iter = std::find(begin(), end(), t); return iter == end() ? -1 : iter - begin(); }
 

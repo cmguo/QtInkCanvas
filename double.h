@@ -4,6 +4,7 @@
 #include "InkCanvas_global.h"
 
 #include <cmath>
+#include <cstdint>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -23,11 +24,13 @@ public:
     static const double PositiveInfinity;
     static const double NaN;
 
-    static bool IsInfinity(double d) {
-        return (*(long*)(&d) & 0x7FFFFFFFFFFFFFFF) == 0x7FF0000000000000;
+    static bool IsInfinity(double d)
+    {
+        return (*reinterpret_cast<uint64_t*>(&d) & 0x7FFFFFFFFFFFFFFF) == 0x7FF0000000000000;
     }
 
-    static bool IsPositiveInfinity(double d) {
+    static bool IsPositiveInfinity(double d)
+    {
         //Jit will generate inlineable code with this
         if (d == PositiveInfinity)
         {
@@ -39,7 +42,8 @@ public:
         }
     }
 
-    static bool IsNegativeInfinity(double d) {
+    static bool IsNegativeInfinity(double d)
+    {
         //Jit will generate inlineable code with this
         if (d == NegativeInfinity)
         {
@@ -51,21 +55,18 @@ public:
         }
     }
 
-    static bool IsNegative(double d) {
-        return (*(uintptr_t*)(&d) & 0x8000000000000000) == 0x8000000000000000;
+    static bool IsNegative(double d)
+    {
+        return (*reinterpret_cast<uint64_t*>(&d) & 0x8000000000000000) == 0x8000000000000000;
     }
 
     static bool IsNaN(double d)
     {
-        return (*(uintptr_t*)(&d) & 0x7FFFFFFFFFFFFFFFL) > 0x7FF0000000000000L;
+        return (*reinterpret_cast<uint64_t*>(&d) & 0x7FFFFFFFFFFFFFFFL) > 0x7FF0000000000000L;
     }
 
-    static bool IsNaN(float d)
+    static int Compare(double l, double r)
     {
-        return (*(uintptr_t*)(&d) & 0x7FFFFFFFFFFFFFFFL) > 0x7FF0000000000000L;
-    }
-
-    static int Compare(double l, double r) {
         if (l < r) return -1;
         if (l > r) return 1;
         if (l == r) return 0;
@@ -77,19 +78,21 @@ public:
             return 1;
     }
 
-    static bool Equals(double l, double r) {
+    static bool Equals(double l, double r)
+    {
         // This code below is written this way for performance reasons i.e the != and == check is intentional.
         if (l == r) {
             return true;
         }
         return IsNaN(l) && IsNaN(r);
     }
-};
 
-inline double Mod (double l, int r)
-{
-    return l - floor(l / r) * r;
-}
+    static double Mod (double l, int r)
+    {
+        return l - floor(l / r) * r;
+    }
+
+};
 
 INKCANVAS_END_NAMESPACE
 

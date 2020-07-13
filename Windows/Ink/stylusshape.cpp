@@ -48,7 +48,7 @@ StylusShape::StylusShape(StylusTip tip, double width, double height, double rota
     //
     m_width = width;
     m_height = height;
-    m_rotation = rotation == 0 ? 0 : Mod(rotation, 360);
+    m_rotation = rotation == 0 ? 0 : Double::Mod(rotation, 360);
     m_tip = tip;
     if (tip == StylusTip::Rectangle)
     {

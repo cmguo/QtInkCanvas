@@ -32,7 +32,7 @@ class ExtendedPropertyCollection;
 #ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
-    Q_OBJECT
+    //Q_OBJECT
 #else
 class INKCANVAS_EXPORT DrawingAttributes
 {
@@ -331,6 +331,8 @@ protected:
         //{
             emit PropertyDataChanged(e);
         //}
+#else
+        (void) e;
 #endif
     }
 
@@ -342,6 +344,8 @@ protected:
         {
             emit  _propertyChanged(e);
         }
+#else
+        (void) e;
 #endif
     }
 

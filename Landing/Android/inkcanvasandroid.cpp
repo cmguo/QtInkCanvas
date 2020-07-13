@@ -58,12 +58,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     sm_Matrix_getValues = env->GetMethodID(clazzRectF, "getValues", "([F)V");
     // Stroke methods
     JNINativeMethod2 methods[] = {
-        {"create", "([Landroid/graphics/PointF;DBBB)J]", &createStroke},
-        {"clone", "(J)J]", &cloneStroke},
-        {"transform", "(JLandroid/graphics/Matrix;)V]", &transformStroke},
-        {"hitTest", "(JLandroid/graphics/PointF;)B]", &hitTestStroke},
-        {"getGeometry", "(JLandroid/graphics/RectF;)Landroid/graphics/Path;]", &getStrokeGeometry},
-        {"free", "(J)V]", &freeStroke},
+        {"create", "([Landroid/graphics/PointF;DBBB)J]", (void*)&createStroke},
+        {"clone", "(J)J]", (void*)&cloneStroke},
+        {"transform", "(JLandroid/graphics/Matrix;)V]", (void*)&transformStroke},
+        {"hitTest", "(JLandroid/graphics/PointF;)B]", (void*)&hitTestStroke},
+        {"getGeometry", "(JLandroid/graphics/RectF;)Landroid/graphics/Path;]", (void*)&getStrokeGeometry},
+        {"free", "(J)V]", (void*)&freeStroke},
     };
     jclass clazzStroke = env->FindClass("com.tal.inkcanvas.Stroke");
     if (clazzStroke == nullptr) {

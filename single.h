@@ -4,6 +4,7 @@
 #include "InkCanvas_global.h"
 
 #include <cmath>
+#include <cstdint>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -13,27 +14,27 @@ public:
     //
     // constants
     //
-    static constexpr float MinValue = (float)-3.40282346638528859e+38;
-    static constexpr float Epsilon = (float)1.4e-45;
-    static constexpr float MaxValue = (float)3.40282346638528859e+38;
+    static constexpr float MinValue = -3.40282346638528859e+38f;
+    static constexpr float Epsilon = 1.4e-45f;
+    static constexpr float MaxValue = 3.40282346638528859e+38f;
     static const float PositiveInfinity;
     static const float NegativeInfinity;
     static const float NaN;
 
     static bool IsInfinity(float f) {
-        return (*(int*)(&f) & 0x7FFFFFFF) == 0x7F800000;
+        return (*reinterpret_cast<uint32_t*>(&f) & 0x7FFFFFFF) == 0x7F800000;
     }
 
     static bool IsPositiveInfinity(float f) {
-        return *(int*)(&f) == 0x7F800000;
+        return *reinterpret_cast<uint32_t*>(&f) == 0x7F800000;
     }
 
     static bool IsNegativeInfinity(float f) {
-        return *(int*)(&f) == (int)0xFF800000;
+        return *reinterpret_cast<uint32_t*>(&f) == (int)0xFF800000;
     }
 
     static bool IsNaN(float f) {
-        return (*(int*)(&f) & 0x7FFFFFFF) > 0x7F800000;
+        return (*reinterpret_cast<uint32_t*>(&f) & 0x7FFFFFFF) > 0x7F800000;
     }
 
     // Compares this object to another object, returning an integer that

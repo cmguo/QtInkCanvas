@@ -6,7 +6,7 @@
 #endif
 
 #ifdef INKCANVAS_ANDROID
-#include "Landing/Jni/androidstreamgeometrycontext.h"
+#include "Landing/Android/androidstreamgeometrycontext.h"
 #endif
 
 INKCANVAS_BEGIN_NAMESPACE

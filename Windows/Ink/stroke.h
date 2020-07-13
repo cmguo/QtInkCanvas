@@ -213,6 +213,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit DrawingAttributesChanged(e);
+#else
+        (void) e;
 #endif
     }
 
@@ -225,6 +227,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit DrawingAttributesReplaced(e);
+#else
+        (void) e;
 #endif
     }
 
@@ -236,6 +240,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit StylusPointsReplaced(e);
+#else
+        (void) e;
 #endif
     }
 
@@ -257,6 +263,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit PropertyDataChanged(e);
+#else
+        (void) e;
 #endif
     }
 
@@ -269,6 +277,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit Invalidated(e);
+#else
+        (void) e;
 #endif
     }
 
@@ -282,6 +292,8 @@ protected:
     {
 #ifdef INKCANVAS_QT_SIGNALS
         emit PropertyChanged(propName);
+#else
+        (void) propName;
 #endif
     }
 

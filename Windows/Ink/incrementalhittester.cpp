@@ -327,7 +327,7 @@ void IncrementalHitTester::RebuildStrokeInfoCache()
 
     _strokeInfos = newStrokeInfos;
 
-#if DEBUG
+#ifdef QT_DEBUG
     Debug.Assert(_strokeInfos.Count() == _strokes->Count());
     for (int x = 0; x < _strokeInfos.Count(); x++)
     {
@@ -493,7 +493,7 @@ void IncrementalLassoHitTester::AddPointsCore(List<Point> const & points)
 /// SelectionChanged event raiser
 /// </summary>
 /// <param name="eventArgs"></param>
-void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArgs&  eventArgs)
+void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArgs& eventArgs)
 {
     //Debug::Assert(eventArgs != nullptr);
 #ifdef INKCANVAS_QT
@@ -501,6 +501,8 @@ void IncrementalLassoHitTester::OnSelectionChanged(LassoSelectionChangedEventArg
     //{
         emit SelectionChanged(eventArgs);
     //}
+#else
+    (void) eventArgs;
 #endif
 }
 
@@ -620,6 +622,8 @@ void IncrementalStrokeHitTester::OnStrokeHit(StrokeHitEventArgs& eventArgs)
     //{
         emit StrokeHit(eventArgs);
     //}
+#else
+    (void) eventArgs;
 #endif
 }
 
@@ -729,7 +733,7 @@ double StrokeInfo::GetPointWeight(int index)
     }
     else
     {
-        Vector spine = (Point)(*stylusPoints)[index] - (Point)(*stylusPoints)[index - 1];
+        Vector spine = static_cast<Point>((*stylusPoints)[index]) - static_cast<Point>((*stylusPoints)[index - 1]);
         weight += Math::Sqrt(spine.LengthSquared()) / 2.0;
     }
 
@@ -739,7 +743,7 @@ double StrokeInfo::GetPointWeight(int index)
     }
     else
     {
-        Vector spine = (Point)(*stylusPoints)[index + 1] - (Point)(*stylusPoints)[index];
+        Vector spine = static_cast<Point>((*stylusPoints)[index + 1]) - static_cast<Point>((*stylusPoints)[index]);
         weight += Math::Sqrt(spine.LengthSquared()) / 2.0;
     }
 

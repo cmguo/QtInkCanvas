@@ -9,7 +9,7 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-#if QT_VERSION == 0x050C04
+#if QT_VERSION == 0x050C04 // 5.12.4
 
 class QPainterPathPrivate
 {
@@ -52,7 +52,7 @@ QtStreamGeometryContext::QtStreamGeometryContext(StreamGeometry* geometry)
     : geometry_(geometry)
 {
     path_.setFillRule(Qt::FillRule::WindingFill);
-    QPainterPath2::begin(path_);
+    //QPainterPath2::begin(path_);
 }
 
 void QtStreamGeometryContext::BeginFigure(const Point &startPoint, bool isFilled, bool isClosed)
@@ -198,7 +198,7 @@ void QtStreamGeometryContext::DisposeCore()
             path_.closeSubpath();
         isStarted_ = false;
     }
-    QPainterPath2::end(path_);
+    //QPainterPath2::end(path_);
     geometry_->Close(path_);
     path_ = QPainterPath();
 }

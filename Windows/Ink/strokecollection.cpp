@@ -654,6 +654,8 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
         _collectionChanged(*args);
         delete  args;
     }
+#else
+        (void) e;
 #endif
 }
 
@@ -671,6 +673,8 @@ void StrokeCollection::OnPropertyDataChanged(Guid const & propName)
     {
         emit PropertyDataChanged(propName);
     }
+#else
+        (void) propName;
 #endif
 }
 
@@ -687,6 +691,8 @@ void StrokeCollection::OnPropertyChanged(char const * propName)
     {
         _propertyChanged(propName);
     }
+#else
+        (void) propName;
 #endif
 }
 
@@ -1216,7 +1222,7 @@ void StrokeCollection::Erase(List<Point> const & eraserPath, StylusShape& eraser
 INKCANVAS_END_NAMESPACE
 
 #ifdef INKCANVAS_QT
-static bool operator<(QColor l, QColor r)
+inline bool operator<(QColor l, QColor r)
 {
     return l.rgba() < r.rgba();
 }
