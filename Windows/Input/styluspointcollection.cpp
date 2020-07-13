@@ -402,13 +402,14 @@ void StylusPointCollection::Transform(Matrix const & transform)
     Point point;
     for (int i = 0; i < Count(); i++)
     {
-        StylusPoint stylusPoint = (*this)[i];
+        StylusPoint & stylusPoint = Items()[i];
         point = stylusPoint;
         point = transform.Transform(point);
-        stylusPoint = point;
+        stylusPoint.SetX(point.X());
+        stylusPoint.SetY(point.Y());
 
         //this does not go through our virtuals
-        at(i) = stylusPoint;
+        //at(i) = stylusPoint;
     }
 
     if (Count() > 0)

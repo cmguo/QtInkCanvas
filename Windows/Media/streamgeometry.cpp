@@ -5,6 +5,10 @@
 #include <QPainter>
 #endif
 
+#ifdef INKCANVAS_ANDROID
+#include "Landing/Jni/androidstreamgeometrycontext.h"
+#endif
+
 INKCANVAS_BEGIN_NAMESPACE
 
 StreamGeometry::StreamGeometry()
@@ -31,6 +35,10 @@ StreamGeometryContext &StreamGeometry::Open()
     if (context_ == nullptr)
         context_ = new QtStreamGeometryContext(this);
 #endif
+#ifdef INKCANVAS_ANDROID
+    if (context_ == nullptr)
+        context_ = new AndroidStreamGeometryContext(this);
+#endif
     return *context_;
 }
 
@@ -39,6 +47,15 @@ StreamGeometryContext &StreamGeometry::Open()
 void StreamGeometry::Close(QPainterPath &path)
 {
     path_.swap(path);
+}
+
+#endif
+
+#ifdef INKCANVAS_ANDROID
+
+void StreamGeometry::Close(void * path)
+{
+    path_ = path;
 }
 
 #endif

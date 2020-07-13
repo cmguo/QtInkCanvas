@@ -68,7 +68,7 @@ public:
     Array & operator=(Array const & array) { std::vector<T>::operator=(array); return *this; }
     Array & operator=(Array && array) { std::vector<T>::operator=(std::move(array)); return *this; }
 
-    int Length() const { return size(); }
+    int Length() const { return static_cast<int>(size()); }
     void Add(T const & t) { push_back(t); }
     void Insert(int index, T const & t) { insert(begin() + index, t); }
     void Clear() { clear(); }

@@ -24,11 +24,11 @@ public:
 void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const QList<QPointF> &points,
                                           qreal width, bool fitToCorve, bool ellipseShape, bool addPressure)
 {
-    SharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
+    QSharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
     QSharedPointer<StylusPointCollection> stylusPoints(
                 new StylusPointCollection);
     for (QPointF const & pt : points) {
-        StylusPoint point(pt.x(), pt.y(), 1.0 /*pressure*/);
+        StylusPoint point(pt.x(), pt.y(), 0.5 /*pressure*/);
         stylusPoints->Add(point);
     }
     if (addPressure) {
@@ -74,6 +74,11 @@ void InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QPaint
     stroke->GetGeometry();
     path = static_cast<StreamGeometry*>(stroke->GetGeometry())->path();
     bounds = stroke->GetBounds();
+}
+
+void InkCanvasQt::freeStroke(QSharedPointer<Stroke> &stroke)
+{
+    stroke.reset();
 }
 
 INKCANVAS_END_NAMESPACE

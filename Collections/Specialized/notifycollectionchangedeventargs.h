@@ -2,7 +2,8 @@
 #define NOTIFYCOLLECTIONCHANGEDEVENTARGS_H
 
 #include "eventargs.h"
-#include <QVariant>
+#include "variant.h"
+#include "Collections/Generic/list.h"
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -39,7 +40,7 @@ public:
         if (action != NotifyCollectionChangedAction::Reset)
             throw std::runtime_error("action");
 
-        InitializeAdd(action, QVariantList(), -1);
+        InitializeAdd(action, List<Variant>(), -1);
     }
 
     /// <summary>
@@ -47,7 +48,7 @@ public:
     /// </summary>
     /// <param name="action">The action that caused the event; can only be Reset, Add or Remove action.</param>
     /// <param name="changedItem">The item affected by the change.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant changedItem)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, Variant changedItem)
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
@@ -55,14 +56,14 @@ public:
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
-            if (!changedItem.isNull())
+            if (changedItem == nullptr)
                 throw std::runtime_error("action");
 
-            InitializeAdd(action, QVariantList(), -1);
+            InitializeAdd(action, List<Variant>(), -1);
         }
         else
         {
-            InitializeAddOrRemove(action, QVariantList({changedItem}), -1);
+            InitializeAddOrRemove(action, List<Variant>({changedItem}), -1);
         }
     }
 
@@ -72,7 +73,7 @@ public:
     /// <param name="action">The action that caused the event.</param>
     /// <param name="changedItem">The item affected by the change.</param>
     /// <param name="index">The index where the change occurred.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant changedItem, int index)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, Variant changedItem, int index)
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
@@ -80,16 +81,16 @@ public:
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
-            if (!changedItem.isNull())
+            if (changedItem == nullptr)
                 throw std::runtime_error("action");
             if (index != -1)
                 throw std::runtime_error("action");
 
-            InitializeAdd(action, QVariantList(), -1);
+            InitializeAdd(action, List<Variant>(), -1);
         }
         else
         {
-            InitializeAddOrRemove(action, QVariantList({changedItem}), index);
+            InitializeAddOrRemove(action, List<Variant>({changedItem}), index);
         }
     }
 
@@ -98,7 +99,7 @@ public:
     /// </summary>
     /// <param name="action">The action that caused the event.</param>
     /// <param name="changedItems">The items affected by the change.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList changedItems)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> changedItems)
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
@@ -106,14 +107,14 @@ public:
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
-            if (changedItems.isEmpty())
+            if (changedItems.Count() == 0)
                 throw std::runtime_error("action");
 
-            InitializeAdd(action, QVariantList(), -1);
+            InitializeAdd(action, List<Variant>(), -1);
         }
         else
         {
-            if (changedItems.isEmpty())
+            if (changedItems.Count() == 0)
                 throw std::runtime_error("changedItems");
 
             InitializeAddOrRemove(action, changedItems, -1);
@@ -126,7 +127,7 @@ public:
     /// <param name="action">The action that caused the event.</param>
     /// <param name="changedItems">The items affected by the change.</param>
     /// <param name="startingIndex">The index where the change occurred.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList changedItems, int startingIndex)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> changedItems, int startingIndex)
     {
         if ((action != NotifyCollectionChangedAction::Add) && (action != NotifyCollectionChangedAction::Remove)
                 && (action != NotifyCollectionChangedAction::Reset))
@@ -134,16 +135,16 @@ public:
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
-            if (!changedItems.isEmpty())
+            if (!changedItems.Count() == 0)
                 throw std::runtime_error("action");
             if (startingIndex != -1)
                 throw std::runtime_error("action");
 
-            InitializeAdd(action, QVariantList(), -1);
+            InitializeAdd(action, List<Variant>(), -1);
         }
         else
         {
-            if (changedItems.isEmpty())
+            if (changedItems.Count() == 0)
                 throw std::runtime_error("changedItems");
             if (startingIndex < -1)
                 throw std::runtime_error("startingIndex");
@@ -158,12 +159,12 @@ public:
     /// <param name="action">Can only be a Replace action.</param>
     /// <param name="newItem">The new item replacing the original item.</param>
     /// <param name="oldItem">The original item that is replaced.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant newItem, QVariant oldItem)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, Variant newItem, Variant oldItem)
     {
         if (action != NotifyCollectionChangedAction::Replace)
             throw std::runtime_error("action");
 
-        InitializeMoveOrReplace(action, QVariantList({newItem}), QVariantList({oldItem}), -1, -1);
+        InitializeMoveOrReplace(action, List<Variant>({newItem}), List<Variant>({oldItem}), -1, -1);
     }
 
     /// <summary>
@@ -173,7 +174,7 @@ public:
     /// <param name="newItem">The new item replacing the original item.</param>
     /// <param name="oldItem">The original item that is replaced.</param>
     /// <param name="index">The index of the item being replaced.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant newItem, QVariant oldItem, int index)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, Variant newItem, Variant oldItem, int index)
     {
         if (action != NotifyCollectionChangedAction::Replace)
             throw std::runtime_error("action");
@@ -189,7 +190,7 @@ public:
             oldStartingIndex = -1;
         }
 #endif
-        InitializeMoveOrReplace(action, QVariantList({newItem}), QVariantList({oldItem}), index, oldStartingIndex);
+        InitializeMoveOrReplace(action, List<Variant>({newItem}), List<Variant>({oldItem}), index, oldStartingIndex);
     }
 
     /// <summary>
@@ -198,13 +199,13 @@ public:
     /// <param name="action">Can only be a Replace action.</param>
     /// <param name="newItems">The new items replacing the original items.</param>
     /// <param name="oldItems">The original items that are replaced.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> newItems, List<Variant> oldItems)
     {
         if (action != NotifyCollectionChangedAction::Replace)
             throw std::runtime_error("action");
-        if (newItems.isEmpty())
+        if (newItems.Count() == 0)
             throw std::runtime_error("newItems");
-        if (oldItems.isEmpty())
+        if (oldItems.Count() == 0)
             throw std::runtime_error("oldItems");
 
         InitializeMoveOrReplace(action, newItems, oldItems, -1, -1);
@@ -217,13 +218,13 @@ public:
     /// <param name="newItems">The new items replacing the original items.</param>
     /// <param name="oldItems">The original items that are replaced.</param>
     /// <param name="startingIndex">The starting index of the items being replaced.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems, int startingIndex)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> newItems, List<Variant> oldItems, int startingIndex)
     {
         if (action != NotifyCollectionChangedAction::Replace)
             throw std::runtime_error("action");
-        if (newItems.isEmpty())
+        if (newItems.Count() == 0)
             throw std::runtime_error("newItems");
-        if (oldItems.isEmpty())
+        if (oldItems.Count() == 0)
             throw std::runtime_error("oldItems");
 
         InitializeMoveOrReplace(action, newItems, oldItems, startingIndex, startingIndex);
@@ -236,14 +237,14 @@ public:
     /// <param name="changedItem">The item affected by the change.</param>
     /// <param name="index">The new index for the changed item.</param>
     /// <param name="oldIndex">The old index for the changed item.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariant changedItem, int index, int oldIndex)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, Variant changedItem, int index, int oldIndex)
     {
         if (action != NotifyCollectionChangedAction::Move)
             throw std::runtime_error("action");
         if (index < 0)
             throw std::runtime_error("index");
 
-        QVariantList changedItems= {changedItem};
+        List<Variant> changedItems= {changedItem};
         InitializeMoveOrReplace(action, changedItems, changedItems, index, oldIndex);
     }
 
@@ -254,7 +255,7 @@ public:
     /// <param name="changedItems">The items affected by the change.</param>
     /// <param name="index">The new index for the changed items.</param>
     /// <param name="oldIndex">The old index for the changed items.</param>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList changedItems, int index, int oldIndex)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> changedItems, int index, int oldIndex)
     {
         if (action != NotifyCollectionChangedAction::Move)
             throw std::runtime_error("action");
@@ -267,7 +268,7 @@ public:
     /// <summary>
     /// Construct a NotifyCollectionChangedEventArgs with given fields (no validation). Used by WinRT marshaling.
     /// </summary>
-    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems, int newIndex, int oldIndex)
+    NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, List<Variant> newItems, List<Variant> oldItems, int newIndex, int oldIndex)
     {
         _action = action;
 #if FEATURE_LEGACYNETCF
@@ -286,17 +287,17 @@ public:
     }
 
 private:
-    void InitializeAddOrRemove(NotifyCollectionChangedAction action, QVariantList changedItems, int startingIndex)
+    void InitializeAddOrRemove(NotifyCollectionChangedAction action, List<Variant> changedItems, int startingIndex)
     {
         if (action == NotifyCollectionChangedAction::Add)
             InitializeAdd(action, changedItems, startingIndex);
         else if (action == NotifyCollectionChangedAction::Remove)
             InitializeRemove(action, changedItems, startingIndex);
         else
-            throw std::runtime_error(QString("Unsupported action: %s").arg(action).toUtf8());
+            throw std::runtime_error("Unsupported action");
     }
 
-    void InitializeAdd(NotifyCollectionChangedAction action, QVariantList newItems, int newStartingIndex)
+    void InitializeAdd(NotifyCollectionChangedAction action, List<Variant> newItems, int newStartingIndex)
     {
         _action = action;
 #if FEATURE_LEGACYNETCF
@@ -312,14 +313,14 @@ private:
         _newStartingIndex = newStartingIndex;
     }
 
-    void InitializeRemove(NotifyCollectionChangedAction action, QVariantList oldItems, int oldStartingIndex)
+    void InitializeRemove(NotifyCollectionChangedAction action, List<Variant> oldItems, int oldStartingIndex)
     {
         _action = action;
         _oldItems = oldItems;
         _oldStartingIndex= oldStartingIndex;
     }
 
-    void InitializeMoveOrReplace(NotifyCollectionChangedAction action, QVariantList newItems, QVariantList oldItems, int startingIndex, int oldStartingIndex)
+    void InitializeMoveOrReplace(NotifyCollectionChangedAction action, List<Variant> newItems, List<Variant> oldItems, int startingIndex, int oldStartingIndex)
     {
         InitializeAdd(action, newItems, startingIndex);
         InitializeRemove(action, oldItems, oldStartingIndex);
@@ -342,7 +343,7 @@ private:
     /// <summary>
     /// The items affected by the change.
     /// </summary>
-    QVariantList NewItems()
+    List<Variant> NewItems()
     {
         return _newItems;
     }
@@ -350,7 +351,7 @@ private:
     /// <summary>
     /// The old items affected by the change (for Replace events).
     /// </summary>
-    QVariantList OldItems()
+    List<Variant> OldItems()
     {
         return _oldItems;
     }
@@ -378,7 +379,7 @@ private:
     //------------------------------------------------------
 
     NotifyCollectionChangedAction _action;
-    QVariantList _newItems, _oldItems;
+    List<Variant> _newItems, _oldItems;
     int _newStartingIndex = -1;
     int _oldStartingIndex = -1;
 };

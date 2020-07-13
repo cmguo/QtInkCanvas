@@ -44,6 +44,12 @@ public:
     QPainterPath path() { return path_; }
 #endif
 
+#ifdef INKCANVAS_ANDROID
+    void Close(void * path);
+
+    void * path() { return path_; }
+#endif
+
     virtual Rect Bounds() override;
 
 #ifdef INKCANVAS_QT_DRAW
@@ -54,6 +60,9 @@ private:
     StreamGeometryContext * context_ = nullptr;
 #ifdef INKCANVAS_QT
     QPainterPath path_;
+#endif
+#ifdef INKCANVAS_ANDROID
+    void * path_ = nullptr;
 #endif
 };
 

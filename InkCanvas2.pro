@@ -1,11 +1,38 @@
-QT += gui widgets svg
+QT =
 
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
 CONFIG += c++17
 CONFIG += inkcanvas_ext
-CONFIG += inkcanvas_qt inkcanvas_core
+CONFIG += inkcanvas_android inkcanvas_core
+
+inkcanvas_core {
+    DEFINES += INKCANVAS_CORE=1
+    CONFIG -= inkcanvas_ext
+    TARGET = InkCanvasCore
+}
+
+inkcanvas_qt {
+    DEFINES += INKCANVAS_QT=1
+    TARGET = InkCanvasQt
+    QT += gui widgets svg
+}
+
+inkcanvas_android {
+    DEFINES += INKCANVAS_ANDROID=1
+    TARGET = InkCanvasAndroid
+    INCLUDEPATH += "c:/Program Files/AdoptOpenJDK/jdk-8.0.212.03-hotspot/include/"
+    INCLUDEPATH += "c:/Program Files/AdoptOpenJDK/jdk-8.0.212.03-hotspot/include/win32/"
+}
+
+inkcanvas_ext {
+    DEFINES += STROKE_COLLECTION_EDIT_MASK=1
+    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=1
+} else {
+    DEFINES += STROKE_COLLECTION_EDIT_MASK=0
+    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=0
+}
 
 include(../config.pri)
 
@@ -19,25 +46,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-inkcanvas_core {
-    DEFINES += INKCANVAS_CORE=1
-    CONFIG -= inkcanvas_ext
-    TARGET = InkCanvasCore
-}
-
-inkcanvas_qt {
-    DEFINES += INKCANVAS_QT=1
-    TARGET = InkCanvasQt
-}
-
-inkcanvas_ext {
-    DEFINES += STROKE_COLLECTION_EDIT_MASK=1
-    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=1
-} else {
-    DEFINES += STROKE_COLLECTION_EDIT_MASK=0
-    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=0
-}
 
 DEFINES += DEBUG_RENDERING_FEEDBACK=0
 DEFINES += DEBUG_LASSO_FEEDBACK=0
