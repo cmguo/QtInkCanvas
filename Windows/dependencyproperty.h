@@ -18,8 +18,6 @@ public:
     virtual QVariant DefaultValue() = 0;
 };
 
-Q_DECLARE_METATYPE(DefaultValueFactory*)
-
 class DependencyProperty
 {
 public:
@@ -63,5 +61,7 @@ private:
 };
 
 INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(DefaultValueFactory)*)
 
 #endif // DEPENDENCYPROPERTY_H

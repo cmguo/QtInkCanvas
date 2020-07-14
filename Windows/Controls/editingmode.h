@@ -40,8 +40,6 @@ enum class InkCanvasEditingMode
     EraseByStroke,
 };
 
-Q_DECLARE_METATYPE(InkCanvasEditingMode)
-
 // NOTICE-2004/10/13-WAYNEZEN,
 // Whenever the InkCanvasEditingMode is modified, please update this EditingModeHelper.IsDefined.
 class EditingModeHelper
@@ -55,5 +53,7 @@ public:
 };
 
 INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode))
 
 #endif // EDITINGMODE_H

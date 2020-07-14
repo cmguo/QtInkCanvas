@@ -221,8 +221,8 @@ private:
    //#endregion
 };
 
-Q_DECLARE_METATYPE(StylusPlugInCollection*)
-
 INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(StylusPlugInCollection)*)
 
 #endif // STYLUSPLUGINCOLLECTION_H

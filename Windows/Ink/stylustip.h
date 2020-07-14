@@ -20,8 +20,6 @@ enum class StylusTip
     Ellipse
 };
 
-Q_DECLARE_METATYPE(StylusTip)
-
 // namespace System.Windows.Ink
 
 class StylusTipHelper
@@ -38,5 +36,7 @@ public:
 };
 
 INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(StylusTip))
 
 #endif // STYLUSTIP_H

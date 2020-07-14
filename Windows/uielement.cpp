@@ -48,6 +48,12 @@ struct RoutedEventStore
     QMap<int, RoutedEventAndHandlers*> bytype;
 };
 
+INKCANVAS_END_NAMESPACE
+
+Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(RoutedEventStore)*)
+
+INKCANVAS_BEGIN_NAMESPACE
+
 UIElement::UIElement()
 {
     //qDebug() << "construct" << static_cast<QObject*>(this);
@@ -69,8 +75,6 @@ UIElement::~UIElement()
         delete store;
     }
 }
-
-Q_DECLARE_METATYPE(RoutedEventStore*)
 
 void UIElement::AddHandler(RoutedEvent &event, const RoutedEventHandler &handler)
 {
