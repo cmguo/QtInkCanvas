@@ -7,7 +7,7 @@
 #include "Windows/rect.h"
 #include "Collections/Generic/list.h"
 
-#ifndef INKCANVAS_CORE
+#ifdef INKCANVAS_QT_DRAW
 class QPainter;
 #endif
 

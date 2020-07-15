@@ -5,6 +5,8 @@
 #  define INKCANVAS_NAMESPACE InkCanvasQt
 #elif defined INKCANVAS_ANDROID
 #  define INKCANVAS_NAMESPACE InkCanvasAndroid
+#elif defined INKCANVAS_IOS
+#  define INKCANVAS_NAMESPACE InkCanvasIos
 #elif defined INKCANVAS_CORE
 #  define INKCANVAS_NAMESPACE InkCanvasCore
 #else

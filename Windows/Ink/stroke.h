@@ -9,7 +9,6 @@
 #include "sharedptr.h"
 
 #ifdef INKCANVAS_QT
-#include <QMap>
 #include <QObject>
 #endif
 
@@ -25,7 +24,7 @@ class StylusPointsReplacedEventArgs;
 class DrawingAttributesReplacedEventArgs;
 class ExtendedPropertyCollection;
 
-#ifndef INKCANVAS_CORE
+#ifndef INKCANVAS_QT_SIGNALS
 class DrawingContext;
 #endif
 

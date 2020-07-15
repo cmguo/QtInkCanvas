@@ -7,7 +7,7 @@ CONFIG += c++17
 CONFIG += inkcanvas_ext
 CONFIG += inkcanvas_core
 
-win32: CONFIG += inkcanvas_qt
+win32: CONFIG += inkcanvas_ios
 android: CONFIG += inkcanvas_android
 
 inkcanvas_core {
@@ -27,6 +27,11 @@ inkcanvas_android {
     TARGET = InkCanvasAndroid
     INCLUDEPATH += "C:\Users\Brandon\AppData\Local\Android\Sdk\ndk-bundle\sources\cxx-stl\llvm-libc++\include"
     QMAKE_LFLAGS += -Wl,--version-script,$$PWD/InkCanvasJni.version
+}
+
+inkcanvas_ios {
+    DEFINES += INKCANVAS_IOS=1
+    TARGET = InkCanvasIos
 }
 
 inkcanvas_ext {

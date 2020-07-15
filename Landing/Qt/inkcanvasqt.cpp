@@ -73,11 +73,12 @@ bool InkCanvasQt::hitTestStroke(SharedPointer<Stroke> const & stroke, const QPoi
     return stroke->HitTest(point);
 }
 
-void InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QPainterPath & path, QRectF & bounds)
+QPainterPath InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QRectF & bounds)
 {
     stroke->GetGeometry();
-    path = static_cast<StreamGeometry*>(stroke->GetGeometry())->path();
     bounds = stroke->GetBounds();
+    return *reinterpret_cast<QPainterPath*>(
+                static_cast<StreamGeometry*>(stroke->GetGeometry())->path());
 }
 
 void InkCanvasQt::freeStroke(QSharedPointer<Stroke> &stroke)

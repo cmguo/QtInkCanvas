@@ -9,6 +9,10 @@
 #include "Landing/Android/androidstreamgeometrycontext.h"
 #endif
 
+#ifdef INKCANVAS_IOS
+#include "Landing/Ios/iosstreamgeometrycontext.h"
+#endif
+
 INKCANVAS_BEGIN_NAMESPACE
 
 StreamGeometry::StreamGeometry()
@@ -25,7 +29,9 @@ StreamGeometry::~StreamGeometry()
 void StreamGeometry::SetFillRule(FillRule value)
 {
 #ifdef INKCANVAS_QT
-    path_.setFillRule(value == FillRule::EvenOdd ? Qt::OddEvenFill : Qt::WindingFill);
+    reinterpret_cast<QPainterPath*>(path_)->setFillRule(value == FillRule::EvenOdd ? Qt::OddEvenFill : Qt::WindingFill);
+#else
+    (void) value;
 #endif
 }
 
@@ -39,31 +45,22 @@ StreamGeometryContext &StreamGeometry::Open()
     if (context_ == nullptr)
         context_ = new AndroidStreamGeometryContext(this);
 #endif
+#ifdef INKCANVAS_IOS
+    if (context_ == nullptr)
+        context_ = new IosStreamGeometryContext(this);
+#endif
     return *context_;
 }
-
-#ifdef INKCANVAS_QT
-
-void StreamGeometry::Close(QPainterPath &path)
-{
-    path_.swap(path);
-}
-
-#endif
-
-#ifdef INKCANVAS_ANDROID
 
 void StreamGeometry::Close(void * path)
 {
     path_ = path;
 }
 
-#endif
-
 Rect StreamGeometry::Bounds()
 {
 #ifdef INKCANVAS_QT
-    return path_.boundingRect();
+    return reinterpret_cast<QPainterPath*>(path_)->boundingRect();
 #else
     return Rect();
 #endif

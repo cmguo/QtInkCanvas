@@ -28,7 +28,7 @@ public:
 
     static bool hitTestStroke(QSharedPointer<Stroke> const & stroke, QPointF const & point);
 
-    static void getStrokeGeometry(QSharedPointer<Stroke> const & stroke, QPainterPath & path, QRectF & bounds);
+    static QPainterPath getStrokeGeometry(QSharedPointer<Stroke> const & stroke, QRectF & bounds);
 
     static void freeStroke(QSharedPointer<Stroke> & stroke);
 };

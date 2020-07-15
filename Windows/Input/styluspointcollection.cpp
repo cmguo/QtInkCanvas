@@ -146,6 +146,7 @@ StylusPointCollection::StylusPointCollection(SharedPointer<StylusPointDescriptio
 
         //first, determine the x, y values by xf-ing them
         Point p(rawPacketData[i], rawPacketData[i + 1]);
+        (void) tabletToView;
         //if (tabletToView != nullptr)
         //{
         //    p = tabletToView.map(p);

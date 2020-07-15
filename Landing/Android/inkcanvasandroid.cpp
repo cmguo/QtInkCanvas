@@ -102,7 +102,7 @@ static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
         env->ThrowNew(sc_RuntimeException, "stroke item not found"); \
         return F; \
     } \
-    std::shared_ptr<Stroke> s = strokes[static_cast<size_t>(stroke)]; \
+    std::shared_ptr<Stroke> & s = strokes[static_cast<size_t>(stroke)]; \
     if (s == nullptr) { \
         env->ThrowNew(sc_RuntimeException, "stroke item not found"); \
         return F; \
@@ -131,6 +131,8 @@ jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray press
         StylusPoint stylusPoint(static_cast<double>(x), static_cast<double>(y), p);
         stylusPoints->Add(stylusPoint);
     }
+    if (ps)
+        env->ReleaseFloatArrayElements(pressures, ps, JNI_ABORT);
     if (addPressure) {
         int n = 16;
         if (stylusPoints->Count() > n) {
