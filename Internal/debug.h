@@ -26,6 +26,8 @@ public:
 #endif
     }
 
+    static void Log(char const * message, ...);
+
 private:
     static void _Assert(bool condition, char const * message);
 };

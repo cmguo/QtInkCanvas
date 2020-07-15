@@ -8,8 +8,8 @@
 INKCANVAS_BEGIN_NAMESPACE
 
 
-jlong createStroke(JNIEnv * env, jobject object, jobjectArray points, jdouble width,
-                   jboolean fitToCorve, jboolean ellipseShape, jboolean addPressure);
+jlong createStroke(JNIEnv * env, jobject object, jobjectArray points, jfloatArray pressures,
+                   jfloat width, jboolean fitToCorve, jboolean ellipseShape, jboolean addPressure);
 
 jlong cloneStroke(JNIEnv * env, jobject object, jlong stroke);
 

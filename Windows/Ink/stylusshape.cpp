@@ -24,22 +24,22 @@ StylusShape::StylusShape(StylusTip tip, double width, double height, double rota
 {
     if (Double::IsNaN(width) || Double::IsInfinity(width) || width < DrawingAttributes::MinWidth || width > DrawingAttributes::MaxWidth)
     {
-        throw std::runtime_error("width");
+        throw std::runtime_error("StylusShape width");
     }
 
     if (Double::IsNaN(height) || Double::IsInfinity(height) || height < DrawingAttributes::MinHeight || height > DrawingAttributes::MaxHeight)
     {
-        throw std::runtime_error("height");
+        throw std::runtime_error("StylusShape height");
     }
 
     if (Double::IsNaN(rotation) || Double::IsInfinity(rotation))
     {
-        throw std::runtime_error("rotation");
+        throw std::runtime_error("StylusShape rotation");
     }
 
     if (!StylusTipHelper::IsDefined(tip))
     {
-        throw std::runtime_error("tip");
+        throw std::runtime_error("StylusShape tip");
     }
 
 

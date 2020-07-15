@@ -1,17 +1,24 @@
 package com.tal.inkcanvas;
 
-import android.graphics.PointF;
-import android.graphics.RectF;
 import android.graphics.Matrix;
 import android.graphics.Path;
+import android.graphics.PointF;
+import android.graphics.RectF;
 
-class Stroke
+public class Stroke
 {
     private long handle_ = 0;
 
-    public Stroke(final PointF[] points, final float width, final boolean fitToCorve, final boolean ellipseShape,
+    static {
+        System.loadLibrary("InkCanvasAndroid");
+    }
+
+    /*
+        if pressures != null, addPressure is ignored
+     */
+    public Stroke(final PointF[] points, final float[] pressures, final float width, final boolean fitToCorve, final boolean ellipseShape,
             final boolean addPressure) {
-        handle_ = create(points, width, fitToCorve, ellipseShape, addPressure);
+        handle_ = create(points, pressures, width, fitToCorve, ellipseShape, addPressure);
     }
 
     public Stroke(final Stroke o) {
@@ -22,20 +29,21 @@ class Stroke
         transform(handle_, matrix);
     }
 
-    boolean hitTest(final PointF point) {
+    public boolean hitTest(final PointF point) {
         return hitTest(handle_, point);
     }
 
-    Path getGeometry(final RectF bounds) {
+    public Path getGeometry(final RectF bounds) {
         return getGeometry(handle_, bounds);
     }
 
+    @Override
     public void finalize() {
         free(handle_);
         handle_ = 0;
     }
 
-    private native long create(PointF[] points, float width, 
+    private native long create(PointF[] points, float[] pressures, float width,
         boolean fitToCorve, boolean ellipseShape, boolean addPressure);
 
     private native long clone(long handle);

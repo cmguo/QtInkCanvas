@@ -69,6 +69,7 @@ public:
     Variant(Variant const & o)
         : value_(o.value_)
         , copy_(o.copy_)
+        , equal_(o.equal_)
         , destroy_(o.destroy_)
     {
         if (value_ && copy_)
@@ -99,7 +100,15 @@ public:
     {
         std::swap(value_, o.value_);
         std::swap(copy_, o.copy_);
+        std::swap(equal_, o.equal_);
         std::swap(destroy_, o.destroy_);
+    }
+
+    Variant & operator=(Variant const & o)
+    {
+        Variant temp(o);
+        swap(temp);
+        return *this;
     }
 
     template<typename T>

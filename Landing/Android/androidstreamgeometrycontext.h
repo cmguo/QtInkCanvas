@@ -7,9 +7,13 @@ INKCANVAS_BEGIN_NAMESPACE
 
 class StreamGeometry;
 
+void log(char const * msg, ...);
+
 class AndroidStreamGeometryContext : public StreamGeometryContext
 {
 public:
+    static bool init(void * env);
+
     AndroidStreamGeometryContext(StreamGeometry * geometry);
 
 private:

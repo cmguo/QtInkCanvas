@@ -1,3 +1,4 @@
+#include "androidstreamgeometrycontext.h"
 #include "inkcanvasandroid.h"
 
 #include <jni.h>
@@ -12,14 +13,11 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-static jclass sc_RuntimeError = nullptr;
+static jclass sc_RuntimeException = nullptr;
 static jfieldID sf_PointF_X = nullptr;
 static jfieldID sf_PointF_Y = nullptr;
 static jmethodID sm_Matrix_getValues = nullptr;
 static jmethodID sm_RectF_set = nullptr;
-
-extern JNIEnv * s_env;
-JNIEnv * s_env = nullptr;
 
 INKCANVAS_END_NAMESPACE
 
@@ -28,7 +26,7 @@ INKCANVAS_USE_NAMESPACE;
 typedef struct {
     char const *name;
     char const *signature;
-    void *fnPtr;
+    void const *fnPtr;
 } JNINativeMethod2;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
@@ -37,6 +35,14 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     int status = vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
     if (status != JNI_OK)
         return status;
+    if (!AndroidStreamGeometryContext::init(env))
+        return JNI_ERR;
+    // RuntimeException
+    sc_RuntimeException = env->FindClass("java/lang/RuntimeException");
+    if (sc_RuntimeException == nullptr) {
+        return JNI_ERR;
+    }
+    sc_RuntimeException = reinterpret_cast<jclass>(env->NewGlobalRef(sc_RuntimeException));
     // PointF fields
     jclass clazzPointF = env->FindClass("android/graphics/PointF");
     if (clazzPointF == nullptr) {
@@ -55,23 +61,24 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     if (clazzMatrix == nullptr) {
         return JNI_ERR;
     }
-    sm_Matrix_getValues = env->GetMethodID(clazzRectF, "getValues", "([F)V");
+    sm_Matrix_getValues = env->GetMethodID(clazzMatrix, "getValues", "([F)V");
     // Stroke methods
     JNINativeMethod2 methods[] = {
-        {"create", "([Landroid/graphics/PointF;DBBB)J]", (void*)&createStroke},
-        {"clone", "(J)J]", (void*)&cloneStroke},
-        {"transform", "(JLandroid/graphics/Matrix;)V]", (void*)&transformStroke},
-        {"hitTest", "(JLandroid/graphics/PointF;)B]", (void*)&hitTestStroke},
-        {"getGeometry", "(JLandroid/graphics/RectF;)Landroid/graphics/Path;]", (void*)&getStrokeGeometry},
-        {"free", "(J)V]", (void*)&freeStroke},
+        {"create", "([Landroid/graphics/PointF;[FFZZZ)J", reinterpret_cast<void*>(&createStroke)},
+        {"clone", "(J)J", reinterpret_cast<void*>(&cloneStroke)},
+        {"transform", "(JLandroid/graphics/Matrix;)V", reinterpret_cast<void*>(&transformStroke)},
+        {"hitTest", "(JLandroid/graphics/PointF;)Z", reinterpret_cast<void*>(&hitTestStroke)},
+        {"getGeometry", "(JLandroid/graphics/RectF;)Landroid/graphics/Path;", reinterpret_cast<void*>(&getStrokeGeometry)},
+        {"free", "(J)V", reinterpret_cast<void*>(&freeStroke)},
     };
-    jclass clazzStroke = env->FindClass("com.tal.inkcanvas.Stroke");
+    jclass clazzStroke = env->FindClass("com/tal/inkcanvas/Stroke");
     if (clazzStroke == nullptr) {
         return JNI_ERR;
     }
     status = env->RegisterNatives(clazzStroke, reinterpret_cast<JNINativeMethod*>(methods), sizeof(methods) / sizeof(methods[0]));
-    s_env = env;
-    return status;
+    if (status != JNI_OK)
+        return status;
+    return JNI_VERSION_1_6;
 }
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -92,26 +99,36 @@ static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
 
 #define S(env, stroke) \
     if (stroke >= static_cast<jlong>(strokes.size())) { \
-        env->ThrowNew(sc_RuntimeError, "stroke item not found"); \
+        env->ThrowNew(sc_RuntimeException, "stroke item not found"); \
         return F; \
     } \
     std::shared_ptr<Stroke> s = strokes[static_cast<size_t>(stroke)]; \
     if (s == nullptr) { \
-        env->ThrowNew(sc_RuntimeError, "stroke item not found"); \
+        env->ThrowNew(sc_RuntimeException, "stroke item not found"); \
         return F; \
     }
 
-jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jdouble width, jboolean fitToCorve, jboolean ellipseShape, jboolean addPressure)
+jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray pressures,
+                   jfloat width, jboolean fitToCorve, jboolean ellipseShape, jboolean addPressure)
 {
-    std::shared_ptr<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
+    //log("createStroke %lf", width);
+    std::shared_ptr<DrawingAttributes> da(new MyDrawingAttribute(static_cast<double>(width), fitToCorve, ellipseShape));
     std::shared_ptr<StylusPointCollection> stylusPoints(
                 new StylusPointCollection);
     int c = env->GetArrayLength(points);
+    float p = 0.5f; // pressure
+    float * ps = nullptr;
+    if (pressures) {
+        ps = env->GetFloatArrayElements(pressures, nullptr);
+        addPressure = false;
+    }
     for (int i = 0; i < c; ++i) {
         jobject point = env->GetObjectArrayElement(points, i);
         float x = env->GetFloatField(point, sf_PointF_X);
         float y = env->GetFloatField(point, sf_PointF_Y);
-        StylusPoint stylusPoint(static_cast<double>(x), static_cast<double>(y), 0.5 /*pressure*/);
+        if (ps)
+            p = ps[i];
+        StylusPoint stylusPoint(static_cast<double>(x), static_cast<double>(y), p);
         stylusPoints->Add(stylusPoint);
     }
     if (addPressure) {
@@ -140,6 +157,7 @@ jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jdouble width, jb
 
 jlong cloneStroke(JNIEnv * env, jobject, jlong stroke)
 {
+    log("cloneStroke");
 #undef F
 #define F 0
     S(env, stroke)
@@ -154,6 +172,7 @@ jlong cloneStroke(JNIEnv * env, jobject, jlong stroke)
 
 void transformStroke(JNIEnv * env, jobject, jlong stroke, jobject matrix)
 {
+    log("transformStroke");
 #undef F
 #define F
     S(env, stroke)
@@ -168,6 +187,7 @@ void transformStroke(JNIEnv * env, jobject, jlong stroke, jobject matrix)
 
 jboolean hitTestStroke(JNIEnv * env, jobject, jlong stroke, jobject point)
 {
+    log("hitTestStroke");
 #undef F
 #define F false
     S(env, stroke)
@@ -178,6 +198,7 @@ jboolean hitTestStroke(JNIEnv * env, jobject, jlong stroke, jobject point)
 
 jobject getStrokeGeometry(JNIEnv * env, jobject, jlong stroke, jobject bounds)
 {
+    //log("getStrokeGeometry");
 #undef F
 #define F nullptr
     S(env, stroke)
@@ -193,6 +214,7 @@ jobject getStrokeGeometry(JNIEnv * env, jobject, jlong stroke, jobject bounds)
 
 void freeStroke(JNIEnv *env, jobject, jlong stroke)
 {
+    log("freeStroke");
 #undef F
 #define F
     S(env, stroke)

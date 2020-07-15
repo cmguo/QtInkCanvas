@@ -712,7 +712,7 @@ public:
     /// <summary>
     /// MultiplyVector
     /// </summary>
-    void MultiplyVector(double x, double y) const
+    void MultiplyVector(double & x, double & y) const
     {
         switch (_type)
         {
