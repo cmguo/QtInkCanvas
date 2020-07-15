@@ -21,17 +21,21 @@ public:
     }
 };
 
-void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const QList<QPointF> &points,
+void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const QList<QPointF> &points, QList<float> const & pressures,
                                           qreal width, bool fitToCorve, bool ellipseShape, bool addPressure)
 {
     QSharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
     QSharedPointer<StylusPointCollection> stylusPoints(
                 new StylusPointCollection);
-    for (QPointF const & pt : points) {
-        StylusPoint point(pt.x(), pt.y(), 0.5 /*pressure*/);
+    float p = 0.5f; /*pressure*/
+    for (int i = 0; i < points.size(); ++i) {
+        QPointF const & pt = points[i];
+        if (!pressures.isEmpty())
+            p = pressures[i];
+        StylusPoint point(pt.x(), pt.y(), p);
         stylusPoints->Add(point);
     }
-    if (addPressure) {
+    if (pressures.isEmpty() && addPressure) {
         int n = 16;
         if (stylusPoints->Count() > n) {
             for (int i = 1; i < n; ++i) {

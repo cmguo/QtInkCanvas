@@ -327,11 +327,11 @@ void IncrementalHitTester::RebuildStrokeInfoCache()
 
     _strokeInfos = newStrokeInfos;
 
-#ifdef QT_DEBUG
-    Debug.Assert(_strokeInfos.Count() == _strokes->Count());
+#ifdef _DEBUG
+    Debug::Assert(_strokeInfos.Count() == _strokes->Count());
     for (int x = 0; x < _strokeInfos.Count(); x++)
     {
-        Debug.Assert(_strokeInfos[x].Stroke == (*_strokes)[x]);
+        Debug::Assert(_strokeInfos[x]->GetStroke() == (*_strokes)[x]);
     }
 #endif
 }

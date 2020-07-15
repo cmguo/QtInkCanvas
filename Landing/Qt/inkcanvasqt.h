@@ -16,7 +16,7 @@ class Stroke;
 class INKCANVAS_EXPORT InkCanvasQt
 {
 public:
-    static void makeStroke(QSharedPointer<Stroke> & stroke, QList<QPointF> const & points,
+    static void makeStroke(QSharedPointer<Stroke> & stroke, QList<QPointF> const & points, QList<float> const & pressures,
                                             qreal width, bool fitToCorve = true, bool ellipseShape = true, bool addPressure = true);
 
     static void cloneStroke(QSharedPointer<Stroke> & out, QSharedPointer<Stroke> const & stroke);
