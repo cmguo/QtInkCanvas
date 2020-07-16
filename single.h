@@ -30,7 +30,7 @@ public:
     }
 
     static bool IsNegativeInfinity(float f) {
-        return *reinterpret_cast<uint32_t*>(&f) == (int)0xFF800000;
+        return *reinterpret_cast<uint32_t*>(&f) == 0xFF800000;
     }
 
     static bool IsNaN(float f) {

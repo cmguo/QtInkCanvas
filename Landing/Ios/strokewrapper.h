@@ -2,7 +2,7 @@
 #define STROKEWRAPPER_H
 
 long StrokeWrapper_new(int n, double x[], double y[], float pressures[],
-                       double width, bool fitToCorve = true, bool ellipseShape = true, bool addPressure = true);
+                       double width, int fitToCorve, int ellipseShape, int addPressure);
 long StrokeWrapper_clone(long stroke);
 void StrokeWrapper_transform(long stroke, double matrix[6]);
 bool StrokeWrapper_hitTest(long stroke, double x, double y);

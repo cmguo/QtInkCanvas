@@ -37,7 +37,7 @@ public:
 };
 
 
-long StrokeWrapper_new(int n, double x[], double y[], float pressures[], double width, bool fitToCorve, bool ellipseShape, bool addPressure)
+long StrokeWrapper_new(int n, double x[], double y[], float pressures[], double width, int fitToCorve, int ellipseShape, int addPressure)
 {
     //log("createStroke %lf", width);
     std::shared_ptr<DrawingAttributes> da(new MyDrawingAttribute(static_cast<double>(width), fitToCorve, ellipseShape));

@@ -115,7 +115,7 @@ public:
     /// <returns></returns>
     StrokeNode GetNode(int index, int previousIndex) const;
 
-    friend bool operator!=(StrokeNodeIterator const & l, nullptr_t)
+    friend bool operator!=(StrokeNodeIterator const & l, std::nullptr_t)
     {
         return l._stylusPoints != nullptr;
     }

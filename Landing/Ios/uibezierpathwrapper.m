@@ -1,6 +1,6 @@
 #include "uibezierpathwrapper.h"
 
-#import "UIBezierPath"
+#include <UIKit/UIBezierPath.h>
 
 void * UIBezierPathWrapper_new()
 {
@@ -32,17 +32,17 @@ void UIBezierPathWrapper_addCurveToPoint(void * path, double x, double y, double
     [aPath addCurveToPoint:CGPointMake(x, y) controlPoint1:CGPointMake(cx1, cy1) controlPoint2:CGPointMake(cx2, cy2)];
 }
 
-void UIBezierPathWrapper_addArcWithCenter(void * path, double x, double y, double radius, double startAngle, double endAngle, bool clockwise)
+void UIBezierPathWrapper_addArcWithCenter(void * path, double x, double y, double radius, double startAngle, double endAngle, int clockwise)
 {
     UIBezierPath *aPath = (id) path;
     [aPath addArcWithCenter:CGPointMake(x, y) radius:radius startAngle:startAngle endAngle:endAngle clockwise:clockwise];
 }
 
-void UIBezierPathWrapper_currentPoint(void * path, double & x, double & y)
+void UIBezierPathWrapper_currentPoint(void * path, double * x, double * y)
 {
     UIBezierPath *aPath = (id) path;
     CGPoint p = [aPath currentPoint];
-    x = p.x; y = p.y;
+    *x = p.x; *y = p.y;
 }
 
 void UIBezierPathWrapper_closePath(void * path)

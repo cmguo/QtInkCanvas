@@ -43,7 +43,7 @@ public:
     {
     }
 
-    Variant(nullptr_t)
+    Variant(std::nullptr_t)
     {
     }
 

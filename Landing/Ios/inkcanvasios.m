@@ -3,12 +3,15 @@
 
 @implementation InkCanvasIos
 
-- (long) newStrokeWithPoints:(CGPoint[]) points pressures:(float[]) pressures
+- (long) newStrokeWithPoints:(int) n points:(CGPoint[]) points pressures:(float[]) pressures
                               width:(double) width fitToCorve:(bool) fitToCorve
                               ellipseShape:(bool) ellipseShape addPressure:(bool) addPressure {
-    int n;
-    double x[];
-    double y[];
+    double x[n];
+    double y[n];
+    for (int i = 0; i < n; ++n) {
+        x[i] = points[i].x;
+        y[i] = points[i].y;
+    }
     return StrokeWrapper_new(n, x, y, pressures, width,
                              fitToCorve, ellipseShape, addPressure);
 }
@@ -18,7 +21,7 @@
 }
 
 - (void) transformStroke:(long) stroke withMatrix:(CGAffineTransform) matrix {
-    double matrix2[6];
+    double matrix2[6] = {matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty};
     StrokeWrapper_transform(stroke, matrix2);
 }
 

@@ -7,8 +7,12 @@ CONFIG += c++17
 CONFIG += inkcanvas_ext
 CONFIG += inkcanvas_core
 
+warning($$CONFIG)
+
 win32: CONFIG += inkcanvas_ios
 android: CONFIG += inkcanvas_android
+macos: CONFIG += inkcanvas_macos
+ios: CONFIG += inkcanvas_ios
 
 inkcanvas_core {
     DEFINES += INKCANVAS_CORE=1
@@ -77,6 +81,13 @@ HEADERS += \
     guid.h \
     variant.h
 
+!inkcanvas_core {
+
+RESOURCES += \
+    inkcanvas.qrc
+
+}
+
 include(Windows/Windows.pri)
 include(Internal/Internal.pri)
 include(Activities/Activities.pri)
@@ -124,6 +135,3 @@ win32 {
     LIBS += -ladvapi32
     #LIBS += -L$$PWD -lmshwgst
 }
-
-RESOURCES += \
-    inkcanvas.qrc

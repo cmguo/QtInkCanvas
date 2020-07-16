@@ -64,7 +64,7 @@ void IosStreamGeometryContext::PolyBezierTo(const List<Point> &points, bool isSt
 void IosStreamGeometryContext::ArcTo(const Point &point, const Size &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool isStroked, bool isSmoothJoin)
 {
     double lx = 0, ly = 0;
-    UIBezierPathWrapper_currentPoint(path_, lx, ly);
+    UIBezierPathWrapper_currentPoint(path_, &lx, &ly);
     Point lastp(lx, ly);
     Point curtp = point;
     //log("ArcTo (%lf,%lf) %lf (%lf,%lf) (%lf,%lf)", size.Width(), size.Height(),

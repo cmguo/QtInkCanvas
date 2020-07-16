@@ -8,6 +8,6 @@ SOURCES += \
     $$PWD/iosstreamgeometrycontext.cpp \
     $$PWD/strokewrapper.cpp
 
-DISTFILES += \
-    $$PWD/inkcanvasios.m \
-    $$PWD/uibezierpathwrapper.m
+OBJECTIVE_SOURCES += \
+    $$PWD/uibezierpathwrapper.m \
+    $$PWD/inkcanvasios.m

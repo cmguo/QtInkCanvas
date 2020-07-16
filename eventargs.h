@@ -14,7 +14,7 @@ class EventHandler
 public:
     EventHandler() : data_(nullptr), handle_(nullptr) {}
 
-    EventHandler(nullptr_t) : data_(nullptr), handle_(nullptr) {}
+    EventHandler(std::nullptr_t) : data_(nullptr), handle_(nullptr) {}
 
     void operator()(EventArgs & e) const
     {
