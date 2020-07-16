@@ -1,6 +1,10 @@
 #ifndef UIBEZIERPATHWRAPPER_H
 #define UIBEZIERPATHWRAPPER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void * UIBezierPathWrapper_new();
 void UIBezierPathWrapper_moveToPoint(void * path, double x, double y);
 void UIBezierPathWrapper_addLineToPoint(void * path, double x, double y);
@@ -10,5 +14,9 @@ void UIBezierPathWrapper_addArcWithCenter(void * path, double x, double y, doubl
 void UIBezierPathWrapper_currentPoint(void * path, double * x, double * y);
 void UIBezierPathWrapper_closePath(void * path);
 void UIBezierPathWrapper_delete(void * path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UIBEZIERPATHWRAPPER_H

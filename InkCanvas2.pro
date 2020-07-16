@@ -4,7 +4,6 @@ TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
 CONFIG += c++17
-CONFIG += inkcanvas_ext
 CONFIG += inkcanvas_core
 
 win32: CONFIG += inkcanvas_qt
@@ -14,7 +13,6 @@ ios: CONFIG += inkcanvas_ios
 
 inkcanvas_core {
     DEFINES += INKCANVAS_CORE=1
-    CONFIG -= inkcanvas_ext
     TARGET = InkCanvasCore
 }
 
@@ -36,12 +34,9 @@ inkcanvas_ios {
     TARGET = InkCanvasIos
 }
 
-inkcanvas_ext {
-    DEFINES += STROKE_COLLECTION_EDIT_MASK=1
-    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=1
-} else {
-    DEFINES += STROKE_COLLECTION_EDIT_MASK=0
-    DEFINES += STROKE_COLLECTION_MULTIPLE_LAYER=0
+inkcanvas_macos {
+    DEFINES += INKCANVAS_MACOS=1
+    TARGET = InkCanvasMacos
 }
 
 include(../config.pri)
@@ -133,3 +128,5 @@ win32 {
     LIBS += -ladvapi32
     #LIBS += -L$$PWD -lmshwgst
 }
+
+mac: LIBS += -framework AppKit
