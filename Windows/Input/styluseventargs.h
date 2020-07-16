@@ -1,9 +1,11 @@
-#ifndef STYLUSEVENTARGS_H
+﻿#ifndef STYLUSEVENTARGS_H
 #define STYLUSEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/point.h"
 #include "sharedptr.h"
+
+#include <qevent.h>
 
 INKCANVAS_BEGIN_NAMESPACE
 

@@ -1,9 +1,10 @@
-#ifndef ROUTEDEVENTARGS_H
+﻿#ifndef ROUTEDEVENTARGS_H
 #define ROUTEDEVENTARGS_H
 
 #include "eventargs.h"
 
 #include <QBitArray>
+#include <QEvent>
 #include <QList>
 
 INKCANVAS_BEGIN_NAMESPACE

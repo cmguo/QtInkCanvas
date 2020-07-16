@@ -1,4 +1,4 @@
-#ifndef STYLUSDEVICE_H
+﻿#ifndef STYLUSDEVICE_H
 #define STYLUSDEVICE_H
 
 #include "InkCanvas_global.h"
@@ -9,6 +9,7 @@
 #include "sharedptr.h"
 
 #include <QMap>
+#include <qevent.h>
 
 class QTouchDevice;
 class QTouchEvent;

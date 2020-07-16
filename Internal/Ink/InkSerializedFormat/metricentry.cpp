@@ -1,4 +1,4 @@
-#include "Internal/Ink/InkSerializedFormat/metricentry.h"
+﻿#include "Internal/Ink/InkSerializedFormat/metricentry.h"
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Internal/doubleutil.h"

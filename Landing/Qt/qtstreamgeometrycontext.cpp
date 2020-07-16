@@ -1,4 +1,4 @@
-#include "qtstreamgeometrycontext.h"
+﻿#include "qtstreamgeometrycontext.h"
 #include "Windows/Media/streamgeometry.h"
 
 #include <QtMath>
@@ -9,7 +9,6 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-#if QT_VERSION == 0x050C04 // 5.12.4
 
 class QPainterPathPrivate
 {
@@ -18,7 +17,6 @@ public:
     QVector<QPainterPath::Element> elements;
 };
 
-#endif
 //
 static thread_local QVector<QPainterPath::Element> sharedPathElements;
 

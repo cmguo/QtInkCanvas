@@ -1,4 +1,4 @@
-#ifndef STROKECOLLECTIONSERIALIZER_H
+﻿#ifndef STROKECOLLECTIONSERIALIZER_H
 #define STROKECOLLECTIONSERIALIZER_H
 
 #include "Internal/Ink/serializationflags.h"
@@ -6,6 +6,8 @@
 #include "Windows/Media/matrix.h"
 #include "Collections/Generic/list.h"
 #include "sharedptr.h"
+
+#include <QMap>
 
 INKCANVAS_BEGIN_NAMESPACE
 

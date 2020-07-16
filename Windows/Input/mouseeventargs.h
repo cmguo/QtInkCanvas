@@ -1,8 +1,10 @@
-#ifndef MOUSEEVENTARGS_H
+﻿#ifndef MOUSEEVENTARGS_H
 #define MOUSEEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/Input/mousebuttonstate.h"
+
+#include <QTouchEvent>
 
 class QGraphicsSceneMouseEvent;
 
