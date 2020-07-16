@@ -28,6 +28,8 @@ StreamGeometry::~StreamGeometry()
 
 void StreamGeometry::SetFillRule(FillRule value)
 {
+    if (path_ == nullptr)
+        return;
 #ifdef INKCANVAS_QT
     reinterpret_cast<QPainterPath*>(path_)->setFillRule(value == FillRule::EvenOdd ? Qt::OddEvenFill : Qt::WindingFill);
 #else

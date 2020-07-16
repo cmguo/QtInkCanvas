@@ -73,7 +73,7 @@ bool InkCanvasQt::hitTestStroke(SharedPointer<Stroke> const & stroke, const QPoi
     return stroke->HitTest(point);
 }
 
-QPainterPath InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QRectF & bounds)
+QPainterPath const & InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const & stroke, QRectF & bounds)
 {
     stroke->GetGeometry();
     bounds = stroke->GetBounds();

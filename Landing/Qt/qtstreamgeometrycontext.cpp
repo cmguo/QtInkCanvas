@@ -198,7 +198,7 @@ void QtStreamGeometryContext::DisposeCore()
     }
     //QPainterPath2::end(path_);
     geometry_->Close(&path_);
-    path_ = QPainterPath();
+    //path_ = QPainterPath();
 }
 
 void QtStreamGeometryContext::SetClosedState(bool closed)

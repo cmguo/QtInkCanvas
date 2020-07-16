@@ -7,9 +7,7 @@ CONFIG += c++17
 CONFIG += inkcanvas_ext
 CONFIG += inkcanvas_core
 
-warning($$CONFIG)
-
-win32: CONFIG += inkcanvas_ios
+win32: CONFIG += inkcanvas_qt
 android: CONFIG += inkcanvas_android
 macos: CONFIG += inkcanvas_macos
 ios: CONFIG += inkcanvas_ios
