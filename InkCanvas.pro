@@ -3,7 +3,7 @@ QT += gui widgets svg
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
-CONFIG += c++17
+CONFIG += c++17 inkcanvas_qt
 
 include(../config.pri)
 
@@ -46,6 +46,7 @@ include(Windows/Windows.pri)
 include(Internal/Internal.pri)
 include(Activities/Activities.pri)
 include(Collections/Collections.pri)
+include(Landing/Landing.pri)
 
 includes.files = $$PWD/*.h
 includes.windows.files = $$PWD/Windows/*.h
