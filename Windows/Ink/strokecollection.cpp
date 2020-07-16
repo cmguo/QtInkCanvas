@@ -639,17 +639,17 @@ void StrokeCollection::OnStrokesChanged(StrokeCollectionChangedEventArgs& e)
         else if ( e.Added()->Count() == 0 )
         {
             //Remove
-            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Remove, *e.Removed(), e.Index());
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Remove, Variant::fromValue(e.Removed()), e.Index());
         }
         else if ( e.Removed()->Count() == 0 )
         {
             //Add
-            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Add, *e.Added(), e.Index());
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Add, Variant::fromValue(e.Added()), e.Index());
         }
         else
         {
             //Replace
-            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Replace, *e.Added(), *e.Removed(), e.Index());
+            args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction::Replace, Variant::fromValue(e.Added()), Variant::fromValue(e.Removed()), e.Index());
         }
         _collectionChanged(*args);
         delete  args;

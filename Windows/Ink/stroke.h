@@ -9,6 +9,7 @@
 #include "sharedptr.h"
 
 #ifdef INKCANVAS_QT
+#include <Windows/Media/drawingcontext.h>
 #include <QObject>
 #endif
 

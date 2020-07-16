@@ -69,7 +69,7 @@ Rect StreamGeometry::Bounds()
 #ifdef INKCANVAS_QT_DRAW
 void StreamGeometry::Draw(QPainter &painter)
 {
-    painter.drawPath(path_);
+    painter.drawPath(*reinterpret_cast<QPainterPath*>(path_));
 }
 #endif
 

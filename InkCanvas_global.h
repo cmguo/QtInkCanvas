@@ -11,7 +11,7 @@
 #  define INKCANVAS_NAMESPACE InkCanvasCore
 #else
 #  define INKCANVAS_QT 1
-#  define INKCANVAS_NAMESPACE InkCanvasQt
+#  define INKCANVAS_NAMESPACE QtInkCanvas
 #endif
 
 #if !defined INKCANVAS_CORE && defined INKCANVAS_QT

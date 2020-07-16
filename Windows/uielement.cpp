@@ -504,6 +504,3 @@ Visual* FrameworkElement::GetVisualChild(int index)
 }
 
 INKCANVAS_END_NAMESPACE
-
-Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(RoutedEventStore)*)
-

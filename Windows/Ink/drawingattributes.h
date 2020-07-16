@@ -32,7 +32,7 @@ class ExtendedPropertyCollection;
 #ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT DrawingAttributes : public QObject
 {
-    //Q_OBJECT
+    Q_OBJECT
 #else
 class INKCANVAS_EXPORT DrawingAttributes
 {

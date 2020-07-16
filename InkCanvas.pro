@@ -27,20 +27,24 @@ DEFINES += DEBUG_OUTPUT=0
 DEFINES += OLD_ISF=0
 
 SOURCES += \
+    cmath.cpp \
     double.cpp \
     eventargs.cpp \
-    notifycollectionchangedeventargs.cpp \
-    qtpainterdrawingcontext.cpp \
-    qtstreamgeometrycontext.cpp
+    guid.cpp \
+    single.cpp \
+    variant.cpp
 
 HEADERS += \
     InkCanvas_global.h \
     cmath.h \
     double.h \
+    single.h \
     eventargs.h \
-    notifycollectionchangedeventargs.h \
-    qtpainterdrawingcontext.h \
-    qtstreamgeometrycontext.h
+    guid.h \
+    variant.h
+
+RESOURCES += \
+    inkcanvas.qrc
 
 include(Windows/Windows.pri)
 include(Internal/Internal.pri)
@@ -90,6 +94,3 @@ win32 {
     LIBS += -ladvapi32
     #LIBS += -L$$PWD -lmshwgst
 }
-
-RESOURCES += \
-    inkcanvas.qrc

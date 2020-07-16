@@ -31,7 +31,7 @@ class ErasingStroke;
 #ifdef INKCANVAS_QT_SIGNALS
 class INKCANVAS_EXPORT StrokeCollection : public QObject, public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
 {
-    //Q_OBJECT
+    Q_OBJECT
 #else
 class INKCANVAS_EXPORT StrokeCollection : public Collection<SharedPointer<Stroke>>, public EnableSharedFromThis<StrokeCollection>
 {
