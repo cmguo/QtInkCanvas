@@ -5,6 +5,7 @@
 #include "Internal/Ink/InkSerializedFormat/metricblock.h"
 #include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
+#include "Internal/Ink/InkSerializedFormat/extendedpropertyserializer.h"
 #include "Internal/debug.h"
 #include "Windows/Input/styluspointcollection.h"
 #include "Windows/Input/styluspointdescription.h"
@@ -137,7 +138,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                         }
 
                         // load the extended property data from the stream (and decode the type)
-                        //locallyDecodedBytes = ExtendedPropertySerializer::DecodeAsISF(stream, remainingBytesInStrokeBlock, guidList, tag, ref guid, out data);
+                        locallyDecodedBytes = ExtendedPropertySerializer::DecodeAsISF(stream, remainingBytesInStrokeBlock, guidList, tag, guid, data);
 
                         // add the guid/data pair into the property collection (don't redecode the type)
                         if (extendedProperties == nullptr)
@@ -261,7 +262,7 @@ uint StrokeSerializer::DecodeISFIntoStroke(
                     }
 
                     // load the extended property data from the stream (and decode the type)
-                    //locallyDecodedBytes = ExtendedPropertySerializer::DecodeAsISF(stream, remainingBytesInStrokeBlock, guidList, tag, guid, out data);
+                    locallyDecodedBytes = ExtendedPropertySerializer::DecodeAsISF(stream, remainingBytesInStrokeBlock, guidList, tag, guid, data);
 
                     // add the guid/data pair into the property collection (don't redecode the type)
                     if (extendedProperties == nullptr)
@@ -591,8 +592,8 @@ uint StrokeSerializer::EncodeStroke(
                                 stream,
                                 strokeLookupEntry);
 
-    //if (stroke.ExtendedProperties().Count() > 0)
-    //    cbWrite += ExtendedPropertySerializer::EncodeAsISF(stroke.ExtendedProperties(), stream, guidList, compressionAlgorithm, false);
+    if (stroke.ExtendedProperties().Count() > 0)
+        cbWrite += ExtendedPropertySerializer::EncodeAsISF(stroke.ExtendedProperties(), stream, guidList, compressionAlgorithm, false);
 
     return cbWrite;
 }
@@ -834,7 +835,7 @@ uint StrokeSerializer::SavePackets(
 uint StrokeSerializer::SavePacketPropertyData(
     Array<int> packetdata,
     QIODevice& stream,
-    Guid const & guid,
+    Guid const &,
     quint8& algo)
 {
     if (packetdata.Length() == 0)

@@ -24,7 +24,7 @@ public:
     Array & operator=(Array const & array) { QVector<T>::operator=(array); return *this; }
     Array & operator=(Array && array) { QVector<T>::operator=(std::move(array)); return *this; }
 
-    int Length() const { return size(); }
+    int Length() const { return QVector<T>::size(); }
     //void Add(T const & t) { push_back(t); }
     //void Insert(int index, T const & t) { insert(begin() + index, t); }
     //void Clear() { clear(); }

@@ -132,8 +132,8 @@ bool MetricBlock::CompareMetricBlock( MetricBlock& metricColl, SetType& setType)
     // Else compare the entries
 
     bool  fTagFound = false;
-    uint cbLhs = MetricEntryCount();    // No of entries in this block
-    uint cbRhs = metricColl.MetricEntryCount();   // No of entries in the block to be compared
+    //uint cbLhs = MetricEntryCount();    // No of entries in this block
+    //uint cbRhs = metricColl.MetricEntryCount();   // No of entries in the block to be compared
 
     MetricEntry* outside, *inside;
     if( metricColl.MetricEntryCount() <= MetricEntryCount() )

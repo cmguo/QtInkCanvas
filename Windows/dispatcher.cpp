@@ -36,7 +36,7 @@ bool Dispatcher::CheckAccess()
     return eventDispatche_ && QThread::currentThread()->eventDispatcher() == eventDispatche_;
 }
 
-void Dispatcher::BeginInvoke(std::function<void (void *)> func, void *data)
+void Dispatcher::BeginInvoke(std::function<void (void *)>, void *)
 {
 
 }

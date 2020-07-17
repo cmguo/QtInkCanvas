@@ -784,7 +784,7 @@ void InkCanvas::OnStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
 ///         that this is only called if userInitiated is true.
 /// </SecurityNote>
 //[SecurityCritical]
-void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs& e, bool)
+void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs& e, bool userInitiated)
 {
     //Debug::Assert(e != null, "EventArg can not be null");
     bool addStrokeToInkCanvas = true; // Initialize our flag.
@@ -854,6 +854,8 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
                 }
             }
         }
+#else
+        (void) userInitiated;
 #endif
 
         // Reset the flag.
@@ -1368,13 +1370,15 @@ List<ApplicationGesture> InkCanvas::GetEnabledGestures()
 /// is false
 /// </summary>
 /// <returns></returns>
-void InkCanvas::SetEnabledGestures(List<ApplicationGesture>)
+void InkCanvas::SetEnabledGestures(List<ApplicationGesture> applicationGestures)
 {
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
 #ifdef WIN32
     GetGestureRecognizer().SetEnabledGestures(applicationGestures);
+#else
+    (void) applicationGestures;
 #endif
 }
 

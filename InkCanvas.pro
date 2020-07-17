@@ -58,18 +58,18 @@ includes.windows.input.files = $$PWD/Windows/Input/*.h
 includes.internal.files = $$PWD/Internal/*.h
 includes.internal.control.files = $$PWD/Internal/Controls/*.h
 includes.internal.ink.files = $$PWD/Internal/Ink/*.h
-win32 {
-    includes.path = $$[QT_INSTALL_HEADERS]/InkCanvas
-    includes.windows.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows
-    includes.windows.control.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Controls
-    includes.windows.ink.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Ink
-    includes.windows.media.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Media
-    includes.windows.input.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Input
-    includes.internal.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal
-    includes.internal.control.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal/Controls
-    includes.internal.ink.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal/Ink
-    target.path = $$[QT_INSTALL_LIBS]
-}
+
+includes.path = $$[QT_INSTALL_HEADERS]/InkCanvas
+includes.windows.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows
+includes.windows.control.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Controls
+includes.windows.ink.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Ink
+includes.windows.media.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Media
+includes.windows.input.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Windows/Input
+includes.internal.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal
+includes.internal.control.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal/Controls
+includes.internal.ink.path = $$[QT_INSTALL_HEADERS]/InkCanvas/Internal/Ink
+target.path = $$[QT_INSTALL_LIBS]
+
 INSTALLS += includes \
     includes.windows \
     includes.windows.control \
