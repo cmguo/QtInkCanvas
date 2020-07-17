@@ -21,7 +21,7 @@ INKCANVAS_BEGIN_NAMESPACE
 //      include type information
 bool ExtendedPropertySerializer::UsesEmbeddedTypeInformation(Guid const &propGuid)
 {
-    for (int i = 0; i < KnownIdCache::OriginalISFIdTableLength; i++)
+    for (unsigned int i = 0; i < KnownIdCache::OriginalISFIdTableLength; i++)
     {
         if (propGuid == (KnownIdCache::OriginalISFIdTable[i]))
         {
@@ -29,7 +29,7 @@ bool ExtendedPropertySerializer::UsesEmbeddedTypeInformation(Guid const &propGui
         }
     }
 
-    for (int i = 0; i < KnownIdCache::TabletInternalIdTableLength; i++)
+    for (unsigned int i = 0; i < KnownIdCache::TabletInternalIdTableLength; i++)
     {
         if (propGuid == (KnownIdCache::TabletInternalIdTable[i]))
         {
@@ -80,8 +80,8 @@ void ExtendedPropertySerializer::EncodeAttribute(Guid const &guid, QVariant cons
     // Presharp gives a warning when local IDisposable variables are not closed
     // in this case, we can't call Dispose since it will also close the underlying stream
     // which still needs to be written to
-    #pragma warning disable 1634, 1691
-    #pragma warning disable 6518
+    //#pragma warning disable 1634, 1691
+    //#pragma warning disable 6518
     QDataStream bw(&stream);
     bw.setVersion(QDataStream::Qt_4_0);
 
@@ -95,8 +95,8 @@ void ExtendedPropertySerializer::EncodeAttribute(Guid const &guid, QVariant cons
     }
     // We know the type of the object. We must serialize it accordingly.
     bw << value;
-    #pragma warning restore 6518
-    #pragma warning restore 1634, 1691
+    //#pragma warning restore 6518
+    //#pragma warning restore 1634, 1691
 }
 
 /// <summary>
@@ -110,7 +110,7 @@ uint ExtendedPropertySerializer::EncodeAsISF(Guid const &id, QByteArray data, QI
 
     if (fTag)
     {
-        uint uTag = (uint)guidList.FindTag(id, true);
+        uint uTag = guidList.FindTag(id, true);
 
         cbWrite += SerializationHelper::Encode(strm, uTag);
     }
@@ -293,7 +293,7 @@ uint ExtendedPropertySerializer::DecodeAsISF(QIODevice& stream, uint cbSize, Gui
 /// <param name="type">the type info stored in the stream</param>
 /// <returns>object stored in data buffer</returns>
 /// <remarks>The buffer stream passed in to the method will be closed after reading</remarks>
-QVariant ExtendedPropertySerializer::DecodeAttribute(Guid const &guid, QIODevice& memStream)
+QVariant ExtendedPropertySerializer::DecodeAttribute(Guid const &, QIODevice& memStream)
 {
     // First determine the object type
     //using (BinaryReader br = new BinaryReader(memStream))
@@ -305,7 +305,7 @@ QVariant ExtendedPropertySerializer::DecodeAttribute(Guid const &guid, QIODevice
         // read the variant type from the ISF stream.  Instead,
         // we assume it to be a byte[]
         //
-        bool usesEmbeddedTypeInfo = UsesEmbeddedTypeInformation(guid);
+        //bool usesEmbeddedTypeInfo = UsesEmbeddedTypeInformation(guid);
 
         // if the Id has embedded type information then retrieve it from the stream
         //if (usesEmbeddedTypeInfo)

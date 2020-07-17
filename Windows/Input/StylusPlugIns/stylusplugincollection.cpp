@@ -512,13 +512,13 @@ void StylusPlugInCollection::OnRenderTransformChanged(EventArgs& e)
     OnLayoutUpdated(e);
 }
 
-void StylusPlugInCollection::OnSourceChanged(SourceChangedEventArgs& e)
+void StylusPlugInCollection::OnSourceChanged(SourceChangedEventArgs&)
 {
     // This means that the element has been added or remvoed from its source.
     UpdatePenContextsState();
 }
 
-void StylusPlugInCollection::OnLayoutUpdated(EventArgs& e)
+void StylusPlugInCollection::OnLayoutUpdated(EventArgs&)
 {
     // Make sure our rect and transform is up to date on layout changes.
 

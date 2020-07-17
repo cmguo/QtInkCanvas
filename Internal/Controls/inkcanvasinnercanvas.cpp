@@ -65,7 +65,7 @@ void InkCanvasInnerCanvas::OnVisualChildrenChanged(DependencyObject* visualAdded
 /// </summary>
 /// <param name="constraint">Constraint size.</param>
 /// <returns>Computed desired size.</returns>
-Size InkCanvasInnerCanvas::MeasureOverride(Size constraint)
+Size InkCanvasInnerCanvas::MeasureOverride(Size)
 {
     Size childConstraint = Size(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
 
@@ -79,7 +79,7 @@ Size InkCanvasInnerCanvas::MeasureOverride(Size constraint)
         // We only honor Left and/or Top property for the measure.
         // For Right/Bottom, only the child->width()/Height will be used. Those properties will be used by the arrange
         // but not the measure.
-        double left = (double)GetInkCanvas().GetLeft(child);
+        double left = GetInkCanvas().GetLeft(child);
         if ( !Double::IsNaN(left) )
         {
             newSize.setWidth(qMax(newSize.Width(), left + child->DesiredSize().Width()));
@@ -89,7 +89,7 @@ Size InkCanvasInnerCanvas::MeasureOverride(Size constraint)
             newSize.setWidth(qMax(newSize.Width(), child->DesiredSize().Width()));
         }
 
-        double top = (double)GetInkCanvas().GetTop(child);
+        double top = GetInkCanvas().GetTop(child);
         if ( !Double::IsNaN(top) )
         {
             newSize.setHeight(Math::Max(newSize.Height(), top + child->DesiredSize().Height()));

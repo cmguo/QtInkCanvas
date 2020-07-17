@@ -404,7 +404,7 @@ quint32 DrawingAttributeSerializer::EncodeAsISF(DrawingAttributes& da, QIODevice
 }
 
 
-void DrawingAttributeSerializer::PersistDrawingFlags(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw)
+void DrawingAttributeSerializer::PersistDrawingFlags(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream&)
 {
     //
     // always serialize DrawingFlags, even when it is the default of AntiAliased.  V1 loaders
@@ -422,7 +422,7 @@ void DrawingAttributeSerializer::PersistDrawingFlags(DrawingAttributes& da, QIOD
     }
 }
 
-void DrawingAttributeSerializer::PersistColorAndTransparency(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw)
+void DrawingAttributeSerializer::PersistColorAndTransparency(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream&)
 {
     // if the color is non-default (e.g. not black), then store it
     // the v1 encoder throws away the default color (Black) so it isn't valuable
@@ -496,7 +496,7 @@ void DrawingAttributeSerializer::PersistRasterOperation(DrawingAttributes& da, Q
 /// Encodes the ExtendedProperties in the ISF stream.
 /// </Summary>
 #endif
-void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw, unsigned char compressionAlgorithm, bool fTag)
+void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream&, unsigned char compressionAlgorithm, bool fTag)
 {
     // Now save the extended properties
     ExtendedPropertyCollection& epcClone = *da.CopyPropertyData();
@@ -542,7 +542,7 @@ void DrawingAttributeSerializer::PersistExtendedProperties(DrawingAttributes& da
 /// Encodes the StylusTip in the ISF stream.
 /// </Summary>
 #endif
-void DrawingAttributeSerializer::PersistStylusTip(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream& bw)
+void DrawingAttributeSerializer::PersistStylusTip(DrawingAttributes& da, QIODevice& stream, GuidList& guidList, quint32& cbData, QDataStream&)
 {
     //
     // persist the StylusTip

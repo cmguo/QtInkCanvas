@@ -293,7 +293,7 @@ void ClipboardProcessor::SetPreferredFormats(List<InkCanvasClipboardFormat> valu
 /// </SecurityNote>
 //[SecurityCritical, SecurityTreatAsSafe]
 
-bool ClipboardProcessor::CopySelectionInXAML(DataObject* dataObject, SharedPointer<StrokeCollection> strokes, List<UIElement*> elements, Matrix transform, Size size)
+bool ClipboardProcessor::CopySelectionInXAML(DataObject*, SharedPointer<StrokeCollection>, List<UIElement*>, Matrix, Size)
 {
     //NOTE: after meeting with the partial trust team, we have
     //collectively decided to only allow copy / cut of XAML if the caller

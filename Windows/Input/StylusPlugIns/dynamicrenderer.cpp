@@ -595,7 +595,7 @@ void DynamicRenderer::OnStylusUp(RawStylusInput& rawStylusInput)
     }
 }
 
-bool DynamicRenderer::IsStylusUp(int stylusId)
+bool DynamicRenderer::IsStylusUp(int)
 {
     //TabletDeviceCollection tabletDevices = Tablet.TabletDevices;
     //for (int i=0; i<tabletDevices.Count; i++)
@@ -718,7 +718,7 @@ void DynamicRenderer::NotifyAppOfDRThreadRenderComplete(StrokeInfo* si)
 }
 
 
-void DynamicRenderer::OnDRThreadRenderComplete(EventArgs& e)
+void DynamicRenderer::OnDRThreadRenderComplete(EventArgs&)
 {
     QThread * drThread = _renderingThread;
     Dispatcher* drDispatcher = nullptr;
@@ -843,10 +843,10 @@ void DynamicRenderer::NotifyOnNextRenderComplete()
 /// <summary>
 /// [TBS]
 /// </summary>
-void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
+void DynamicRenderer::OnDraw(  DrawingContext&,
                                 SharedPointer<StylusPointCollection> stylusPoints,
-                                Geometry* geometry,
-                                QBrush fillBrush)
+                                Geometry*,
+                                QBrush)
 {
     (void) stylusPoints;
     //if (drawingContext == nullptr)

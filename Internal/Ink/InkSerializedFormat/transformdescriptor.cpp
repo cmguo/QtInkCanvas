@@ -9,7 +9,7 @@ bool TransformDescriptor::Compare(TransformDescriptor const & that)
     {
         if( that.Size == Size )
         {
-            for( int i = 0; i < Size; i++ )
+            for(unsigned int i = 0; i < Size; i++ )
             {
                 if( !DoubleUtil::AreClose(that.Transform[i], Transform[i] ))
                     return false;

@@ -84,14 +84,14 @@ QCursor PenCursorManager::GetPointEraserCursor(StylusShape& stylusShape, Matrix 
     return GetPenCursor(da, true, false/*isRightToLeft*/, dpiScaleX, dpiScaleY);
 }
 
-QCursor PenCursorManager::GetPointEraserCursor1(double dpiScaleX, double dpiScaleY)
+QCursor PenCursorManager::GetPointEraserCursor1(double, double)
 {
     static QPixmap eraserPixmap(":/inkcanvas/erasercursor.svg");
     static QCursor eraserCursor(eraserPixmap);
     return eraserCursor;
 }
 
-QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, Matrix const &tranform, double dpiScaleX, double dpiScaleY)
+QCursor PenCursorManager::GetPointEraserCursor2(StylusShape& stylusShape, Matrix const &tranform, double, double)
 {
     Debug::Assert(DoubleUtil::IsZero(tranform.OffsetX()) && DoubleUtil::IsZero(tranform.OffsetY()), "The EraserShape cannot be translated.");
     Debug::Assert(tranform.HasInverse(), "The transform has to be invertable.");
@@ -227,7 +227,7 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
 ///     Critical: Critical as this code calls IconHelper.CreateIconCursor which is Critical
 /// </SecurityNote>
 //[SecurityCritical]
-QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const & hotspot)
+QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const &)
 {
     // A default cursor.
     QCursor cursor = Qt::ArrowCursor;

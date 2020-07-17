@@ -744,7 +744,7 @@ void InkCanvasSelection::MoveSelection(Rect const & previousRect, Rect const & n
 /// </summary>
 /// <param name="sender"></param>
 /// <param name="e"></param>
-void InkCanvasSelection::OnCanvasLayoutUpdated(EventArgs& e)
+void InkCanvasSelection::OnCanvasLayoutUpdated(EventArgs&)
 {
     Debug::Assert( SelectedElements().Count() != 0,
         "The handler only can be hooked up when there are elements being selected" );
@@ -756,7 +756,7 @@ void InkCanvasSelection::OnCanvasLayoutUpdated(EventArgs& e)
 /// <summary>
 /// Our own listener for packet changes
 /// </summary>
-void InkCanvasSelection::OnStrokeInvalidated(EventArgs& e)
+void InkCanvasSelection::OnStrokeInvalidated(EventArgs&)
 {
     StrokeCollectionChangedEventArgs args(
                 SharedPointer<StrokeCollection>(new StrokeCollection()),

@@ -1,4 +1,4 @@
-﻿#include "Internal/Ink/InkSerializedFormat/metricentry.h"
+#include "Internal/Ink/InkSerializedFormat/metricentry.h"
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
 #include "Internal/doubleutil.h"
@@ -78,7 +78,7 @@ bool MetricEntry::Compare(MetricEntry const & metricEntry)
         return false;
     if( Size() != metricEntry.Size() )
         return false;
-    for( int i = 0; i < Size(); i++ )
+    for(unsigned int i = 0; i < Size(); i++ )
     {
         if( Data()[i] != metricEntry.Data()[i] )
             return false;

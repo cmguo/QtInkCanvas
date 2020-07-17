@@ -10,7 +10,7 @@ Guid const & DrawingAttributeIds::Color = KnownIdCache::OriginalISFIdTable[Known
 /// <summary>
 /// Guid const & DrawingAttributeIds::identifying the StylusTip
 /// </summary>
-Guid const DrawingAttributeIds::StylusTip(0x3526c731, 0xee79, 0x4988, 0xb9, 0x3e, 0x70, 0xd9, 0x2f, 0x89, 0x7, 0xed);
+Guid const DrawingAttributeIds::StylusTip(0x3526c731, 0xee79u, 0x4988, 0xb9, 0x3e, 0x70, 0xd9, 0x2f, 0x89, 0x7, 0xed);
 /// <summary>
 /// Guid const & DrawingAttributeIds::identifying the StylusTipTransform
 /// </summary>
@@ -208,7 +208,7 @@ Guid const & KnownIds::StrokeTimeId = KnownIdCache::TabletInternalIdTable[KnownI
 /// <summary>
 /// Guid const & identifying the StylusTip
 /// </summary>
-Guid const KnownIds::StylusTip(0x3526c731, 0xee79, 0x4988, 0xb9, 0x3e, 0x70, 0xd9, 0x2f, 0x89, 0x7, 0xed);
+Guid const KnownIds::StylusTip(0x3526c731, 0xee79u, 0x4988, 0xb9, 0x3e, 0x70, 0xd9, 0x2f, 0x89, 0x7, 0xed);
 
 /// <summary>
 /// Guid const & identifying the StylusTipTransform

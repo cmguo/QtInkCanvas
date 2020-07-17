@@ -53,7 +53,7 @@ uint AlgoModule::DecompressPacketData(QByteArray input, QVector<int>& outputBuff
 /// <param name="input">byte[] data ready to be compressed</param>
 /// <param name="compression">the compression to use</param>
 /// <returns></returns>
-QByteArray AlgoModule::CompressPropertyData(QByteArray input, quint8 compression)
+QByteArray AlgoModule::CompressPropertyData(QByteArray input, quint8)
 {
     QByteArray output(input.size() + 1, 0);
     memcpy(output.data() + 1, input.data(), input.length());

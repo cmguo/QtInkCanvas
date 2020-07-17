@@ -182,7 +182,7 @@ void EraserBehavior::OnActivate()
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void EraserBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void EraserBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylusPoints, bool)
 {
     //
     // get a disposable dynamic hit-tester and add event handler
@@ -229,7 +229,7 @@ void EraserBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylu
 /// </summary>
 /// <param name="stylusPoints">stylusPoints</param>
 /// <param name="userInitiated">true if the source eventArgs.UserInitiated flag was set to true</param>
-void EraserBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool userInitiated)
+void EraserBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> stylusPoints, bool)
 {
     _stylusPoints->Add(*stylusPoints);
 
@@ -240,7 +240,7 @@ void EraserBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> st
 /// StylusInputEnd
 /// </summary>
 /// <param name="commit">commit</param>
-void EraserBehavior::StylusInputEnd(bool commit)
+void EraserBehavior::StylusInputEnd(bool)
 {
     if ( InkCanvasEditingMode::EraseByPoint == _cachedEraseMode )
     {

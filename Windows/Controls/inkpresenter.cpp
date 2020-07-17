@@ -483,7 +483,7 @@ void InkPresenter::SetStrokeChangedHandlers(SharedPointer<StrokeCollection> adde
     }
 }
 
-void InkPresenter::OnStrokeChanged(EventArgs& e)
+void InkPresenter::OnStrokeChanged(EventArgs&)
 {
     OnStrokeChanged2();
 }

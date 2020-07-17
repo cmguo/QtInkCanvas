@@ -86,6 +86,8 @@ void StylusPlugIn::RawStylusInput2(RawStylusInput& rawStylusInput)
             case RawStylusActions::Up:
                 OnStylusUp(rawStylusInput);
                 break;
+            default:
+                break;
         }
     }
 }
@@ -94,7 +96,7 @@ void StylusPlugIn::RawStylusInput2(RawStylusInput& rawStylusInput)
 /// <summary>
 /// [TBS] - on RTI Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusEnter(RawStylusInput& rawStylusInput, bool confirmed)
+void StylusPlugIn::OnStylusEnter(RawStylusInput&, bool)
 {
 }
 
@@ -102,7 +104,7 @@ void StylusPlugIn::OnStylusEnter(RawStylusInput& rawStylusInput, bool confirmed)
 /// <summary>
 /// [TBS] - on RTI Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusLeave(RawStylusInput& rawStylusInput, bool confirmed)
+void StylusPlugIn::OnStylusLeave(RawStylusInput&, bool)
 {
 }
 
@@ -110,7 +112,7 @@ void StylusPlugIn::OnStylusLeave(RawStylusInput& rawStylusInput, bool confirmed)
 /// <summary>
 /// [TBS] - on RTI Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusDown(RawStylusInput& rawStylusInput)
+void StylusPlugIn::OnStylusDown(RawStylusInput&)
 {
 }
 
@@ -118,7 +120,7 @@ void StylusPlugIn::OnStylusDown(RawStylusInput& rawStylusInput)
 /// <summary>
 /// [TBS] - on RTI Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusMove(RawStylusInput& rawStylusInput)
+void StylusPlugIn::OnStylusMove(RawStylusInput&)
 {
 }
 
@@ -126,7 +128,7 @@ void StylusPlugIn::OnStylusMove(RawStylusInput& rawStylusInput)
 /// <summary>
 /// [TBS] - on RTI Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusUp(RawStylusInput& rawStylusInput)
+void StylusPlugIn::OnStylusUp(RawStylusInput&)
 {
 }
 
@@ -148,6 +150,8 @@ void StylusPlugIn::FireCustomData(void* callbackData, RawStylusActions& action, 
             case RawStylusActions::Up:
                 OnStylusUpProcessed(callbackData, targetVerified);
                 break;
+            default:
+                break;
         }
     }
 }
@@ -156,7 +160,7 @@ void StylusPlugIn::FireCustomData(void* callbackData, RawStylusActions& action, 
 /// <summary>
 /// [TBS] - on app Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusDownProcessed(void* callbackData, bool targetVerified)
+void StylusPlugIn::OnStylusDownProcessed(void*, bool)
 {
 }
 
@@ -164,7 +168,7 @@ void StylusPlugIn::OnStylusDownProcessed(void* callbackData, bool targetVerified
 /// <summary>
 /// [TBS] - on app Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusMoveProcessed(void* callbackData, bool targetVerified)
+void StylusPlugIn::OnStylusMoveProcessed(void*, bool)
 {
 }
 
@@ -172,7 +176,7 @@ void StylusPlugIn::OnStylusMoveProcessed(void* callbackData, bool targetVerified
 /// <summary>
 /// [TBS] - on app Dispatcher
 /// </summary>
-void StylusPlugIn::OnStylusUpProcessed(void* callbackData, bool targetVerified)
+void StylusPlugIn::OnStylusUpProcessed(void*, bool)
 {
 }
 

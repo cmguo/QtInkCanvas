@@ -39,7 +39,7 @@ QVariant DependencyObject::GetValue(DependencyProperty const * prop)
     return v;
 }
 
-void DependencyObject::InvalidateSubProperty(DependencyProperty const * prop)
+void DependencyObject::InvalidateSubProperty(DependencyProperty const *)
 {
 
 }

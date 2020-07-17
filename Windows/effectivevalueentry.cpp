@@ -187,7 +187,7 @@ void EffectiveValueEntry::RestoreExpressionMarker()
 // This take into account all flags and should only be used sparingly.
 void EffectiveValueEntry::ComputeIsDeferred() const
 {
-    bool isDeferredReference = false;
+    //bool isDeferredReference = false;
     if (!HasModifiers())
     {
         //isDeferredReference = Value is DeferredReference;
@@ -513,7 +513,7 @@ ModifiedValue EffectiveValueEntry::GetModifiedValue()
     return ModifiedValue();
 }
 
-ModifiedValue EffectiveValueEntry::EnsureModifiedValue(bool useWeakReferenceForBaseValue)
+ModifiedValue EffectiveValueEntry::EnsureModifiedValue(bool)
 {
     ModifiedValue modifiedValue;
     //if (_value == null)
@@ -567,7 +567,7 @@ QVariant ModifiedValue::BaseValue()
 }
 
 
-void ModifiedValue::SetBaseValue(QVariant value, bool useWeakReference)
+void ModifiedValue::SetBaseValue(QVariant value, bool)
 {
     _baseValue = /*(useWeakReference && !value.GetType().IsValueType)
                 ? new BaseValueWeakReference(value)
