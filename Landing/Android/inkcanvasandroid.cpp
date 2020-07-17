@@ -1,15 +1,13 @@
 #include "androidstreamgeometrycontext.h"
 #include "inkcanvasandroid.h"
 
-#include <jni.h>
-
 #include <Windows/point.h>
-
-#include <Collections/Generic/array.h>
-
 #include <Windows/Ink/stroke.h>
-
 #include <Windows/Media/streamgeometry.h>
+#include <Collections/Generic/array.h>
+#include <Internal/debug.h>
+
+#include <jni.h>
 
 INKCANVAS_BEGIN_NAMESPACE
 
@@ -111,7 +109,7 @@ static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
 jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray pressures,
                    jfloat width, jboolean fitToCorve, jboolean ellipseShape, jboolean addPressure)
 {
-    //log("createStroke %lf", width);
+    //Debug::Log("createStroke %lf", width);
     std::shared_ptr<DrawingAttributes> da(new MyDrawingAttribute(static_cast<double>(width), fitToCorve, ellipseShape));
     std::shared_ptr<StylusPointCollection> stylusPoints(
                 new StylusPointCollection);
@@ -159,7 +157,7 @@ jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray press
 
 jlong cloneStroke(JNIEnv * env, jobject, jlong stroke)
 {
-    log("cloneStroke");
+    Debug::Log("cloneStroke");
 #undef F
 #define F 0
     S(env, stroke)
@@ -174,7 +172,7 @@ jlong cloneStroke(JNIEnv * env, jobject, jlong stroke)
 
 void transformStroke(JNIEnv * env, jobject, jlong stroke, jobject matrix)
 {
-    log("transformStroke");
+    Debug::Log("transformStroke");
 #undef F
 #define F
     S(env, stroke)
@@ -189,7 +187,7 @@ void transformStroke(JNIEnv * env, jobject, jlong stroke, jobject matrix)
 
 jboolean hitTestStroke(JNIEnv * env, jobject, jlong stroke, jobject point)
 {
-    log("hitTestStroke");
+    Debug::Log("hitTestStroke");
 #undef F
 #define F false
     S(env, stroke)
@@ -200,7 +198,7 @@ jboolean hitTestStroke(JNIEnv * env, jobject, jlong stroke, jobject point)
 
 jobject getStrokeGeometry(JNIEnv * env, jobject, jlong stroke, jobject bounds)
 {
-    //log("getStrokeGeometry");
+    //Debug::Log("getStrokeGeometry");
 #undef F
 #define F nullptr
     S(env, stroke)
@@ -216,7 +214,7 @@ jobject getStrokeGeometry(JNIEnv * env, jobject, jlong stroke, jobject bounds)
 
 void freeStroke(JNIEnv *env, jobject, jlong stroke)
 {
-    log("freeStroke");
+    Debug::Log("freeStroke");
 #undef F
 #define F
     S(env, stroke)

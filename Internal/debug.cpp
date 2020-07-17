@@ -31,7 +31,7 @@ void Debug::Log(const char *message, ...)
 #endif
 }
 
-void Debug::_Assert(bool condition, char const * message)
+void Debug::_Assert(bool, char const * message)
 {
 #ifdef INKCANVAS_ANDROID
     __android_log_assert(message, "InkCanvasAndroid", nullptr);
