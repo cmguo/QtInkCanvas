@@ -53,5 +53,6 @@ void UIBezierPathWrapper_closePath(void * path)
 
 void UIBezierPathWrapper_delete(void * path)
 {
+    (void) path;
 }
 

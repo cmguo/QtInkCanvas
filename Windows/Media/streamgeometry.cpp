@@ -13,6 +13,10 @@
 #include "Landing/Ios/iosstreamgeometrycontext.h"
 #endif
 
+#ifdef INKCANVAS_MACOS
+#include "Landing/Macos/macosstreamgeometrycontext.h"
+#endif
+
 INKCANVAS_BEGIN_NAMESPACE
 
 StreamGeometry::StreamGeometry()
@@ -39,17 +43,19 @@ void StreamGeometry::SetFillRule(FillRule value)
 
 StreamGeometryContext &StreamGeometry::Open()
 {
+    if (context_)
+        return *context_;
 #ifdef INKCANVAS_QT
-    if (context_ == nullptr)
-        context_ = new QtStreamGeometryContext(this);
+    context_ = new QtStreamGeometryContext(this);
 #endif
 #ifdef INKCANVAS_ANDROID
-    if (context_ == nullptr)
-        context_ = new AndroidStreamGeometryContext(this);
+    context_ = new AndroidStreamGeometryContext(this);
 #endif
 #ifdef INKCANVAS_IOS
-    if (context_ == nullptr)
-        context_ = new IosStreamGeometryContext(this);
+    context_ = new IosStreamGeometryContext(this);
+#endif
+#ifdef INKCANVAS_MACOS
+    context_ = new MacosStreamGeometryContext(this);
 #endif
     return *context_;
 }

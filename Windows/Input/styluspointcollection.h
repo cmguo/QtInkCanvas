@@ -35,11 +35,14 @@ signals:
     /// </summary>
     void CountGoingToZero(CancelEventArgs & e);
 
+public:
 #else
 class INKCANVAS_EXPORT StylusPointCollection : public Collection<StylusPoint>
 {
-#endif
 public:
+    virtual ~StylusPointCollection() {}
+
+#endif
     StylusPointCollection();
 
     /// <summary>

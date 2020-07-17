@@ -1,24 +1,13 @@
 #include "androidstreamgeometrycontext.h"
 #include "cmath.h"
 
-#include <jni.h>
-
 #include <Windows/Media/matrix.h>
 #include <Windows/Media/streamgeometry.h>
+#include <Internal/debug.h>
 
-#include <android/log.h>
-
-#define _STRING(x) #x
-#define STRING(x) _STRING(x)
+#include <jni.h>
 
 INKCANVAS_BEGIN_NAMESPACE
-
-void log(char const * msg, ...) {
-    va_list args;
-    va_start(args, msg);
-    __android_log_vprint(ANDROID_LOG_WARN, STRING(INKCANVAS_NAMESPACE), msg, args);
-    va_end(args);
-}
 
 static JNIEnv * s_env = nullptr;
 
@@ -51,38 +40,38 @@ bool AndroidStreamGeometryContext::init(void * env)
 
 AndroidStreamGeometryContext::AndroidStreamGeometryContext(StreamGeometry * geometry)
 {
-    //log("AndroidStreamGeometryContext");
+    //Debug::Log("AndroidStreamGeometryContext");
     geometry_ = geometry;
     path_ = s_env->NewObject(sc_Path, sm_Path);
-    //log("path %p", path_);
+    //Debug::Log("path %p", path_);
 }
 
 #define P reinterpret_cast<jobject>(path_)
 
 void AndroidStreamGeometryContext::BeginFigure(const Point &startPoint, bool, bool)
 {
-    //log("BeginFigure (%lf,%lf)", startPoint.X(), startPoint.Y());
+    //Debug::Log("BeginFigure (%lf,%lf)", startPoint.X(), startPoint.Y());
     s_env->CallVoidMethod(P, sm_Path_moveTo, startPoint.X(), startPoint.Y());
     lastPoint_ = startPoint;
 }
 
 void AndroidStreamGeometryContext::LineTo(const Point &point, bool, bool)
 {
-    //log("LineTo (%lf,%lf)", point.X(), point.Y());
+    //Debug::Log("LineTo (%lf,%lf)", point.X(), point.Y());
     s_env->CallVoidMethod(P, sm_Path_lineTo, point.X(), point.Y());
     lastPoint_ = point;
 }
 
 void AndroidStreamGeometryContext::QuadraticBezierTo(const Point &point1, const Point &point2, bool, bool)
 {
-    //log("QuadraticBezierTo");
+    //Debug::Log("QuadraticBezierTo (%lf,%lf) (%lf,%lf)", point1.X(), point1.Y(), point2.X(), point2.Y());
     s_env->CallVoidMethod(P, sm_Path_quadTo, point1.X(), point1.Y(), point2.X(), point2.Y());
     lastPoint_ = point2;
 }
 
 void AndroidStreamGeometryContext::BezierTo(const Point &point1, const Point &point2, const Point &point3, bool, bool)
 {
-    //log("BezierTo");
+    //Debug::Log("BezierTo (%lf,%lf) (%lf,%lf) (%lf,%lf)", point1.X(), point1.Y(), point2.X(), point2.Y(), point3.X(), point3.Y());
     s_env->CallVoidMethod(P, sm_Path_cubicTo, point1.X(), point1.Y(), point2.X(), point2.Y(), point3.X(), point3.Y());
     lastPoint_ = point3;
 }
@@ -112,7 +101,7 @@ void AndroidStreamGeometryContext::ArcTo(const Point &point, const Size &size, d
 {
     Point lastp = lastPoint_;
     Point curtp = point;
-    //log("ArcTo (%lf,%lf) %lf (%lf,%lf) (%lf,%lf)", size.Width(), size.Height(),
+    //Debug::Log("ArcTo (%lf,%lf) %lf (%lf,%lf) (%lf,%lf)", size.Width(), size.Height(),
     //    rotationAngle, lastp.X(), lastp.Y(), curtp.X(), curtp.Y());
     // pt1, pt2 are two points in unit circle (location at [0, 0] and with r = 1)
     //   pt1 = [cos(t1) , sin(t1)]
@@ -134,12 +123,12 @@ void AndroidStreamGeometryContext::ArcTo(const Point &point, const Size &size, d
     //                     = [-sin((t1 + t2) / 2) * sin((t1 - t2) / 2), cos((t1 + t2) / 2) * sin((t1 - t2) / 2)]
     Matrix matrix2 = matrix; matrix2.Invert();
     Vector t = matrix2.Transform(lastp - curtp) / 2;
-    //log("t (%lf,%lf)", t.X(), t.Y());
+    //Debug::Log("t (%lf,%lf)", t.X(), t.Y());
     // a1 = (t1 + t2) / 2, a2 = (t1 - t2) / 2; t1 > t2
     double a1 = atan(-t.X() / t.Y());
     double product = t.LengthSquared();
     if (product > 1.0) {
-        //log("product %lf", product << t);
+        //Debug::Log("product %lf", product << t);
         if (!DoubleUtil::AreClose(product, 1.0)) {
             LineTo(curtp, false, false);
             return;
@@ -147,27 +136,27 @@ void AndroidStreamGeometryContext::ArcTo(const Point &point, const Size &size, d
         product = 1.0;
     }
     double a2 = asin(product);
-    //log("a1 <-> a2 %lf %lf", (a1 * 180 / Math::PI), (a2 * 180 / Math::PI));
+    //Debug::Log("a1 <-> a2 %lf %lf", (a1 * 180 / Math::PI), (a2 * 180 / Math::PI));
     if (isLargeArc != (sweepDirection == SweepDirection::Clockwise))
         a2 = -a2;
     if (a2 * t.Y() <= 0)
         a1 += Math::PI;
     double t1 = a1 + a2, t2 = a1 - a2;
-    //log("t1 <-> t2 %lf %lf", (t1 * 180 / Math::PI), (t2 * 180 / Math::PI));
+    //Debug::Log("t1 <-> t2 %lf %lf", (t1 * 180 / Math::PI), (t2 * 180 / Math::PI));
     //Vector pt1(cos(t1), sin(t1));
     Vector pt2(cos(t2), sin(t2));
-    //log("pt1 <-> pt2 (%lf,%lf) (%lf,%lf)", pt1.X(), pt1.Y(), pt2.X(), pt2.Y());
+    //Debug::Log("pt1 <-> pt2 (%lf,%lf) (%lf,%lf)", pt1.X(), pt1.Y(), pt2.X(), pt2.Y());
     //t = (pt1 - pt2) / 2;
-    //log("t (%lf,%lf)", t.X(), t.Y());
+    //Debug::Log("t (%lf,%lf)", t.X(), t.Y());
     Point c = curtp - matrix.Transform(pt2);
     //
     Rect rect(-rx, -ry, rx * 2, ry * 2);
     //Point pe1(pt1.X() * rx, pt1.Y() * ry);
     //Point pe2(pt2.X() * rx, pt2.Y() * ry);
-    //log("pe1 <-> pe2 %lf %lf", pe1, pe2);
+    //Debug::Log("pe1 <-> pe2 %lf %lf", pe1, pe2);
     a1 = 360 - t1 * 180 / Math::PI; // Y axis is up
     a2 = 360 - t2 * 180 / Math::PI;
-    //log("a1 <-> a2 %lf %lf", a1, a2);
+    //Debug::Log("a1 <-> a2 %lf %lf", a1, a2);
     a2 -= a1;
     if (sweepDirection == SweepDirection::Clockwise) {
         if (a2 > 0)
@@ -188,14 +177,14 @@ void AndroidStreamGeometryContext::SetClosedState(bool)
 
 void AndroidStreamGeometryContext::Close()
 {
-    //log("Close");
+    //Debug::Log("Close");
     s_env->CallVoidMethod(P, sm_Path_close);
     StreamGeometryContext::Close();
 }
 
 void AndroidStreamGeometryContext::DisposeCore()
 {
-    //log("DisposeCore");
+    //Debug::Log("DisposeCore");
     geometry_->Close(path_);
     path_ = nullptr;
 }

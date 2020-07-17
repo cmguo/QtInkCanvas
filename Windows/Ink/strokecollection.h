@@ -57,7 +57,7 @@ public:
 
     StrokeCollection(StrokeCollection const & o);
 
-    ~StrokeCollection();
+    virtual ~StrokeCollection();
 
 #ifdef INKCANVAS_QT_SIGNALS
     /// <summary>Save the collection of strokes, including any custom attributes to a stream</summary>

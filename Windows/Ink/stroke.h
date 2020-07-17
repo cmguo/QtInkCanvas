@@ -607,7 +607,9 @@ private:
 private:
     Geometry * _cachedGeometry     = nullptr;
     bool _isSelected         = false;
+#ifndef INKCANVAS_CORE
     bool _drawAsHollow       = false;
+#endif
     bool _cloneStylusPoints  = true;
     bool _delayRaiseInvalidated  = false;
     static constexpr double  HollowLineSize      = 1.0;

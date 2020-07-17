@@ -1299,8 +1299,8 @@ bool StrokeNodeOperations::IsInvalidCutTestResult(StrokeFIndices const & result)
     // 3) > 1, AfterLast
     //
     if (DoubleUtil::AreClose(result.BeginFIndex(), result.EndFIndex()) ||
-        DoubleUtil::AreClose(result.BeginFIndex(), StrokeFIndices::BeforeFirst) && result.EndFIndex() < 0.0f ||
-        result.BeginFIndex() > 1.0f && DoubleUtil::AreClose(result.EndFIndex(), StrokeFIndices::AfterLast))
+        (DoubleUtil::AreClose(result.BeginFIndex(), StrokeFIndices::BeforeFirst) && result.EndFIndex() < 0.0f) ||
+        (result.BeginFIndex() > 1.0f && DoubleUtil::AreClose(result.EndFIndex(), StrokeFIndices::AfterLast)))
     {
         return true;
     }
