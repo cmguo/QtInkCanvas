@@ -784,7 +784,7 @@ void InkCanvas::OnStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
 ///         that this is only called if userInitiated is true.
 /// </SecurityNote>
 //[SecurityCritical]
-void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs& e, bool userInitiated)
+void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs& e, bool)
 {
     //Debug::Assert(e != null, "EventArg can not be null");
     bool addStrokeToInkCanvas = true; // Initialize our flag.
@@ -800,7 +800,7 @@ void InkCanvas::RaiseGestureOrStrokeCollected(InkCanvasStrokeCollectedEventArgs&
             }
         });
 
-#if WIN32
+#ifdef WIN32
         //
         // perform gesture reco before raising this event
         // if we're in the right mode
@@ -1356,7 +1356,7 @@ List<ApplicationGesture> InkCanvas::GetEnabledGestures()
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
-#if WIN32
+#ifdef WIN32
     return List<ApplicationGesture>(GetGestureRecognizer().GetEnabledGestures());
 #else
     return {};
@@ -1368,12 +1368,12 @@ List<ApplicationGesture> InkCanvas::GetEnabledGestures()
 /// is false
 /// </summary>
 /// <returns></returns>
-void InkCanvas::SetEnabledGestures(List<ApplicationGesture> applicationGestures)
+void InkCanvas::SetEnabledGestures(List<ApplicationGesture>)
 {
     // No need to invoke VerifyAccess since it's checked in GestureRecognizer.GetEnabledGestures.
 
     //gestureRecognizer throws appropriately if there is no gesture recognizer available
-#if WIN32
+#ifdef WIN32
     GetGestureRecognizer().SetEnabledGestures(applicationGestures);
 #endif
 }
@@ -2319,7 +2319,7 @@ bool InkCanvas::InkCanvasIsAncestorOf(UIElement* element)
 /// Also - we do not currently call through the DefaultDrawingAttributes setter since
 /// parameter validation in the setter may detect if the reference isn't changing, and ignore
 /// the call. Also - there is no need for extra parameter validation.</remarks>
-void InkCanvas::DefaultDrawingAttributes_Changed(PropertyDataChangedEventArgs& args)
+void InkCanvas::DefaultDrawingAttributes_Changed(PropertyDataChangedEventArgs&)
 {
     // note that sender should be the same as _defaultDrawingAttributes
     // If a developer writes code to change the DefaultDrawingAttributes inside of the event
@@ -2411,7 +2411,7 @@ GestureRecognizer& InkCanvas::GetGestureRecognizer()
 {
     if (_gestureRecognizer == nullptr)
     {
-#if WIN32
+#ifdef WIN32
         _gestureRecognizer = new GestureRecognizer();
 #endif
     }
@@ -2760,7 +2760,7 @@ public:
     /// <summary>
     /// Returns the dispatcher if the object is associated to a UIContext.
     /// </summary>
-    virtual Dispatcher* GetDispatcher()
+    Dispatcher* GetDispatcher()
     {
         return _thisInkCanvas.GetDispatcher();
     }

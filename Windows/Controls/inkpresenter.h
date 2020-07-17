@@ -244,7 +244,7 @@ private:
     //
     // HighContrast support
     //
-    InkPresenterHighContrastCallback*    _contrastCallback = nullptr;
+    //InkPresenterHighContrastCallback*    _contrastCallback = nullptr;
 
     Size                                 _constraintSize = Size::Empty();
 

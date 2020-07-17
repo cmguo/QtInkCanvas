@@ -252,7 +252,7 @@ public:
         return false;
     }
 
-    struct NanUnion
+    union NanUnion
     {
         double DoubleValue;
         uint64_t UintValue;

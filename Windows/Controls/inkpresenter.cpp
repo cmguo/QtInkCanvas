@@ -350,7 +350,7 @@ public:
     }
 
     InkPresenterHighContrastCallback()
-        : _thisInkPresenter(*(InkPresenter*)nullptr)
+        : _thisInkPresenter(*reinterpret_cast<InkPresenter*>(1))
     { }
 
     //#endregion Constructors

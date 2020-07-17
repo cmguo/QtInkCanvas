@@ -653,7 +653,7 @@ void DrawingDrawingContext::DrawImage(
     AnimationClock * rectangleAnimations)
 {
 
-#if DEBUG
+#ifdef DEBUG
     //MediaTrace.DrawingContextOp.Trace("DrawImage(animate)");
 #endif
 
@@ -826,7 +826,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DrawVideo(
 /// </summary>
 /// <param name="clipGeometry"> The Geometry to which we will clip. </param>
 void DrawingDrawingContext::DrawingDrawingContext::PushClip(
-    Geometry * clipGeometry)
+    Geometry *)
 {
 
 //#if DEBUG
@@ -906,7 +906,7 @@ void DrawingDrawingContext::DrawingDrawingContext::PushOpacity(
 /// </param>
 /// <param name="opacityAnimations"> Optional AnimationClock * for opacity. </param>
 void DrawingDrawingContext::DrawingDrawingContext::PushOpacity(
-    double opacity,
+    double,
     AnimationClock * opacityAnimations)
 {
 
@@ -944,7 +944,7 @@ void DrawingDrawingContext::DrawingDrawingContext::PushOpacity(
 /// </summary>
 /// <param name="transform"> The Transform to push. </param>
 void DrawingDrawingContext::DrawingDrawingContext::PushTransform(
-    Transform const & transform)
+    Transform const &)
 {
 
 //#if DEBUG
