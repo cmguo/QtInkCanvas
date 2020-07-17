@@ -135,7 +135,7 @@ public:
 
         if (action == NotifyCollectionChangedAction::Reset)
         {
-            if (!changedItems.Count() == 0)
+            if (changedItems.Count() == 0)
                 throw std::runtime_error("action");
             if (startingIndex != -1)
                 throw std::runtime_error("action");
