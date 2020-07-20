@@ -21,7 +21,7 @@ public:
     }
 };
 
-void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const QList<QPointF> &points, QList<float> const & pressures,
+QSharedPointer<Stroke> InkCanvasQt::InkCanvasQt::createStroke(const QList<QPointF> &points, QList<float> const & pressures,
                                           qreal width, bool fitToCorve, bool ellipseShape, bool addPressure)
 {
     QSharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, fitToCorve, ellipseShape));
@@ -50,7 +50,7 @@ void InkCanvasQt::InkCanvasQt::makeStroke(SharedPointer<Stroke> & stroke, const 
             n = 0;
         }
     }
-    stroke.reset(new Stroke(stylusPoints, da));
+    return QSharedPointer<Stroke>(new Stroke(stylusPoints, da));
 }
 
 void InkCanvasQt::cloneStroke(SharedPointer<Stroke> & out, SharedPointer<Stroke> const & stroke)
@@ -84,6 +84,12 @@ QPainterPath const & InkCanvasQt::getStrokeGeometry(SharedPointer<Stroke> const 
 void InkCanvasQt::freeStroke(QSharedPointer<Stroke> &stroke)
 {
     stroke.reset();
+}
+
+void InkCanvasQt::unload()
+{
+    QMetaType::unregisterType(qMetaTypeId<INKCANVAS_PREPEND_NAMESPACE(DrawingFlags)>());
+    QMetaType::unregisterType(qMetaTypeId<INKCANVAS_PREPEND_NAMESPACE(StylusTip)>());
 }
 
 INKCANVAS_END_NAMESPACE

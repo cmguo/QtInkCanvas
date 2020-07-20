@@ -39,7 +39,7 @@ inkcanvas_macos {
     TARGET = InkCanvasMacos
 }
 
-#include(../config.pri)
+include(../config.pri)
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
