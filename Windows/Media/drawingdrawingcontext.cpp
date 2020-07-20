@@ -1326,7 +1326,7 @@ void DrawingDrawingContext::DrawingDrawingContext::DisposeCore()
 /// <remarks>
 ///     This will only be called once (at most) per instance.
 /// </remarks>
-void DrawingDrawingContext::DrawingDrawingContext::CloseCore(List<Drawing*> rootDrawingGroupChildren)
+void DrawingDrawingContext::DrawingDrawingContext::CloseCore(List<Drawing*>)
 {
     // Default implementation is a no-op
 }

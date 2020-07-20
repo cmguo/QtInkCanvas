@@ -135,11 +135,15 @@ public:
 
 #ifdef INKCANVAS_QT
 
+#ifdef WIN32
+
     operator GUID() const
     {
         return {static_cast<ulong>(_a), static_cast<ushort>(_b),
                     static_cast<ushort>(_c), {_d, _e, _f, _g, _h, _i, _j, _k}};
     }
+
+#endif
 
     operator QUuid() const
     {

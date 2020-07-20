@@ -17,21 +17,21 @@ public:
     List() {}
     List(std::initializer_list<T> list) : QList<T>(list) {}
     List(QList<T> const & list) : QList<T>(list) {}
-    List(Array<T> const & list) { for (auto & t : list) append(t); }
-    int Count() const { return size(); }
-    void Add(T const & t) { push_back(t); }
-    void AddRange(List<T> const & list) { append(list); }
-    void Insert(int index, T const & t) { insert(begin() + index, t); }
+    List(Array<T> const & list) { for (auto & t : list) QList<T>::append(t); }
+    int Count() const { return QList<T>::size(); }
+    void Add(T const & t) { QList<T>::push_back(t); }
+    void AddRange(List<T> const & list) { QList<T>::append(list); }
+    void Insert(int index, T const & t) { QList<T>::insert(begin() + index, t); }
     void InsertRange(int index, List<T> const & list) {
         for (T const & t : list)
-            insert(index++, t);
+            QList<T>::insert(index++, t);
     }
-    void Clear() { clear(); }
-    bool Remove(T const & t) { return removeOne(t); }
-    void RemoveRange(int index, int count) { erase(begin() + index, begin() + index + count); }
-    void RemoveAt(int index)  { removeAt(index); }
-    int IndexOf(T const & t) const { return indexOf(t); }
-    bool Contains(T const & t) const { return contains(t); }
+    void Clear() { QList<T>::clear(); }
+    bool Remove(T const & t) { return QList<T>::removeOne(t); }
+    void RemoveRange(int index, int count) { QList<T>::erase(begin() + index, begin() + index + count); }
+    void RemoveAt(int index)  { QList<T>::removeAt(index); }
+    int IndexOf(T const & t) const { return QList<T>::indexOf(t); }
+    bool Contains(T const & t) const { return QList<T>::contains(t); }
 
     T & operator[](int index) { return QList<T>::operator[](static_cast<size_t>(index)); }
     T const & operator[](int index) const { return QList<T>::operator[](static_cast<size_t>(index)); }
@@ -39,7 +39,7 @@ public:
     Array<T> ToArray() const
     {
         Array<T> a(Count());
-        a = toVector();
+        a = QList<T>::toVector();
         return a;
     }
 

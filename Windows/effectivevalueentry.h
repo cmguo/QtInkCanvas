@@ -253,7 +253,7 @@ private:
     class BaseValueWeakReference
     {
     public:
-        BaseValueWeakReference(QVariant target) {}
+        BaseValueWeakReference(QVariant) {}
     };
 
     //#endregion Data

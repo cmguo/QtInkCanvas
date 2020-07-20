@@ -31,7 +31,7 @@ EffectiveValueEntry::EffectiveValueEntry(DependencyProperty const * dp, FullValu
     _source = fullValueSource;
 }
 
-void EffectiveValueEntry::SetExpressionValue(QVariant value, QVariant baseValue)
+void EffectiveValueEntry::SetExpressionValue(QVariant, QVariant)
 {
     //Debug.Asert(value != UnsetValue);
 
@@ -45,7 +45,7 @@ void EffectiveValueEntry::SetExpressionValue(QVariant value, QVariant baseValue)
     //Debug.DependencyProperty::Assert(IsDeferredReference == (value is DeferredReference));
 }
 
-void EffectiveValueEntry::SetAnimatedValue(QVariant value, QVariant baseValue)
+void EffectiveValueEntry::SetAnimatedValue(QVariant, QVariant)
 {
     //Debug.Asert((value != DependencyProperty::UnsetValue) &&
     //             !(value is DeferredReference));
