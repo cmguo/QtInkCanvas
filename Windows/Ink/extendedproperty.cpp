@@ -25,7 +25,7 @@ ExtendedProperty::ExtendedProperty()
 {
 }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_VARIANT
 
 QString ExtendedProperty::ToString()
 {

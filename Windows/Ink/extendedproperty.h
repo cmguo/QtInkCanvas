@@ -104,7 +104,7 @@ public:
         return !(first == second);
     }
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_VARIANT
     /// <summary>
     /// Returns a debugger-friendly version of the ExtendedProperty
     /// </summary>

@@ -13,6 +13,7 @@
 #  define INKCANVAS_NAMESPACE InkCanvasCore
 #else
 #  define INKCANVAS_QT 1
+#  define INKCANVAS_QT_VARIANT 1
 #  define INKCANVAS_NAMESPACE QtInkCanvas
 #endif
 

@@ -3,7 +3,7 @@
 
 #include "InkCanvas_global.h"
 
-#ifdef INKCANVAS_QT
+#ifdef INKCANVAS_QT_VARIANT
 
 #include <QVariant>
 
