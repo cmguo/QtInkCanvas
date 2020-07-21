@@ -10,6 +10,8 @@ template <typename T>
 class Collection
 {
 public:
+    typedef typename List<T>::const_iterator const_iterator;
+
     T const & operator[](int index) const
     {
         return items[index];
@@ -70,12 +72,12 @@ public:
 
     void SetCapacity(int n) { items.reserve(n); }
 
-    auto begin() const
+    const_iterator begin() const
     {
         return items.begin();
     }
 
-    auto end() const
+    const_iterator end() const
     {
         return items.end();
     }

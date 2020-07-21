@@ -135,22 +135,22 @@ public:
     /// called by base class Collection&lt;T&gt; when the list is being cleared;
     /// raises a CollectionChanged event to any listeners
     /// </summary>
-    void ClearItems() override;
+    virtual void ClearItems() override;
 
     /// <summary>
     /// called by base class RemoveAt or Remove methods
     /// </summary>
-    void RemoveItem(int index) override;
+    virtual void RemoveItem(int index) override;
 
     /// <summary>
     /// called by base class Insert, Add methods
     /// </summary>
-    void InsertItem(int index, SharedPointer<Stroke> const & stroke) override;
+    virtual void InsertItem(int index, SharedPointer<Stroke> const & stroke) override;
 
     /// <summary>
     /// called by base class set_Item method
     /// </summary>
-    void SetItem(int index, SharedPointer<Stroke> const & stroke) override;
+    virtual void SetItem(int index, SharedPointer<Stroke> const & stroke) override;
 
     /// <summary>
     /// Gets the index of the stroke, or -1 if it is not found

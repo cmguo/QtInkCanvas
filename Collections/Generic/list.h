@@ -71,6 +71,7 @@ class List : private std::vector<T>
 {
 public:
     typedef typename std::vector<T>::value_type value_type;
+    typedef typename std::vector<T>::const_iterator const_iterator;
     List() {}
     List(std::initializer_list<T> list) : std::vector<T>(list) {}
     List(Array<T> const & list) { std::copy(list.begin(), list.end(), std::back_inserter(static_cast<std::vector<T>&>(*this))); }
