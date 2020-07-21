@@ -843,17 +843,17 @@ void DynamicRenderer::NotifyOnNextRenderComplete()
 /// <summary>
 /// [TBS]
 /// </summary>
-void DynamicRenderer::OnDraw(  DrawingContext&,
+void DynamicRenderer::OnDraw(  DrawingContext& drawingContext,
                                 SharedPointer<StylusPointCollection> stylusPoints,
-                                Geometry*,
-                                QBrush)
+                                Geometry* geometry,
+                                QBrush fillBrush)
 {
     (void) stylusPoints;
     //if (drawingContext == nullptr)
     //{
     //    throw std::runtime_error("drawingContext");
     //}
-    //drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
+    drawingContext.DrawGeometry(fillBrush, Qt::NoPen, geometry);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -911,16 +911,16 @@ void DynamicRenderer::RenderPackets(SharedPointer<StylusPointCollection> stylusP
     #if DEBUG_RENDERING_FEEDBACK
             std::unique_ptr<DrawingContext> debugDC;
     #endif
-//            StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator((*i).first),
-//                                                 *si->GetDrawingAttributes(),
-//    #if DEBUG_RENDERING_FEEDBACK
-//                                                 *debugDC, //debug dc
-//                                                 0,   //debug feedback size
-//                                                 false,//render debug feedback
-//    #endif
-//                                                 false, //calc bounds
-//                                                 strokeGeometry,
-//                                                 bounds);
+            StrokeRenderer::CalcGeometryAndBounds(si->GetStrokeNodeIterator((*i).first),
+                                                 *si->GetDrawingAttributes(),
+    #if DEBUG_RENDERING_FEEDBACK
+                                                 *debugDC, //debug dc
+                                                 0,   //debug feedback size
+                                                 false,//render debug feedback
+    #endif
+                                                 false, //calc bounds
+                                                 strokeGeometry,
+                                                 bounds);
 
             // If we are called from the app thread we can just stay on it and render to that
             // visual tree.  Otherwise we need to marshal over to our inking thread to do our work.

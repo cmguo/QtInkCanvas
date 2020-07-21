@@ -47,6 +47,7 @@ DrawingContext * DrawingVisual::RenderOpen()
 
 void DrawingVisual::RenderClose()
 {
+    prepareGeometryChange();
 }
 
 DrawingGroup * DrawingVisual::GetDrawing()
