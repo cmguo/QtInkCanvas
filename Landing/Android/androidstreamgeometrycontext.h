@@ -3,6 +3,8 @@
 
 #include <Windows/Media/streamgeometrycontext.h>
 
+#include <jni.h>
+
 INKCANVAS_BEGIN_NAMESPACE
 
 class StreamGeometry;
@@ -10,13 +12,14 @@ class StreamGeometry;
 class AndroidStreamGeometryContext : public StreamGeometryContext
 {
 public:
-    static bool init(void * env);
+    static bool init(JavaVM * vm, JNIEnv * env_);
 
     AndroidStreamGeometryContext(StreamGeometry * geometry);
 
 private:
     StreamGeometry * geometry_ = nullptr;
-    void* path_;
+    JNIEnv * env_ = nullptr;
+    void* path_ = nullptr;
     Point lastPoint_;
 
     // StreamGeometryContext interface

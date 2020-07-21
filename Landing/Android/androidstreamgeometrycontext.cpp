@@ -5,11 +5,9 @@
 #include <Windows/Media/streamgeometry.h>
 #include <Internal/debug.h>
 
-#include <jni.h>
-
 INKCANVAS_BEGIN_NAMESPACE
 
-static JNIEnv * s_env = nullptr;
+static JavaVM* s_vm = nullptr;
 
 static jclass sc_Path = nullptr;
 static jmethodID sm_Path = nullptr;
@@ -20,21 +18,21 @@ static jmethodID sm_Path_cubicTo = nullptr;
 static jmethodID sm_Path_arcTo = nullptr;
 static jmethodID sm_Path_close = nullptr;
 
-bool AndroidStreamGeometryContext::init(void * env)
+bool AndroidStreamGeometryContext::init(JavaVM * vm, JNIEnv * env)
 {
-    s_env = reinterpret_cast<JNIEnv*>(env);
-    sc_Path = s_env->FindClass("android/graphics/Path");
+    s_vm = vm;
+    sc_Path = env->FindClass("android/graphics/Path");
     if (sc_Path == nullptr) {
         return false;
     }
-    sc_Path = reinterpret_cast<jclass>(s_env->NewGlobalRef(sc_Path));
-    sm_Path = s_env->GetMethodID(sc_Path, "<init>", "()V");
-    sm_Path_moveTo = s_env->GetMethodID(sc_Path, "moveTo", "(FF)V");
-    sm_Path_lineTo = s_env->GetMethodID(sc_Path, "lineTo", "(FF)V");
-    sm_Path_quadTo = s_env->GetMethodID(sc_Path, "quadTo", "(FFFF)V");
-    sm_Path_cubicTo = s_env->GetMethodID(sc_Path, "cubicTo", "(FFFFFF)V");
-    sm_Path_arcTo = s_env->GetMethodID(sc_Path, "arcTo", "(FFFFFFZ)V");
-    sm_Path_close = s_env->GetMethodID(sc_Path, "close", "()V");
+    sc_Path = reinterpret_cast<jclass>(env->NewGlobalRef(sc_Path));
+    sm_Path = env->GetMethodID(sc_Path, "<init>", "()V");
+    sm_Path_moveTo = env->GetMethodID(sc_Path, "moveTo", "(FF)V");
+    sm_Path_lineTo = env->GetMethodID(sc_Path, "lineTo", "(FF)V");
+    sm_Path_quadTo = env->GetMethodID(sc_Path, "quadTo", "(FFFF)V");
+    sm_Path_cubicTo = env->GetMethodID(sc_Path, "cubicTo", "(FFFFFF)V");
+    sm_Path_arcTo = env->GetMethodID(sc_Path, "arcTo", "(FFFFFFZ)V");
+    sm_Path_close = env->GetMethodID(sc_Path, "close", "()V");
     return true;
 }
 
@@ -42,37 +40,49 @@ AndroidStreamGeometryContext::AndroidStreamGeometryContext(StreamGeometry * geom
 {
     //Debug::Log("AndroidStreamGeometryContext");
     geometry_ = geometry;
-    path_ = s_env->NewObject(sc_Path, sm_Path);
+    int status = s_vm->GetEnv(reinterpret_cast<void**>(&env_), JNI_VERSION_1_6);
+    if (status != JNI_OK) {
+        Debug::Log("AndroidStreamGeometryContext GetEnv failed %d", status);
+        return;
+    }
+    path_ = env_->NewObject(sc_Path, sm_Path);
     //Debug::Log("path %p", path_);
 }
 
-#define P reinterpret_cast<jobject>(path_)
+#define P() \
+    if (env_ == nullptr || path_ == nullptr) \
+        return; \
+    jobject p = reinterpret_cast<jobject>(path_)
 
 void AndroidStreamGeometryContext::BeginFigure(const Point &startPoint, bool, bool)
 {
     //Debug::Log("BeginFigure (%lf,%lf)", startPoint.X(), startPoint.Y());
-    s_env->CallVoidMethod(P, sm_Path_moveTo, startPoint.X(), startPoint.Y());
+    P();
+    env_->CallVoidMethod(p, sm_Path_moveTo, startPoint.X(), startPoint.Y());
     lastPoint_ = startPoint;
 }
 
 void AndroidStreamGeometryContext::LineTo(const Point &point, bool, bool)
 {
     //Debug::Log("LineTo (%lf,%lf)", point.X(), point.Y());
-    s_env->CallVoidMethod(P, sm_Path_lineTo, point.X(), point.Y());
+    P();
+    env_->CallVoidMethod(p, sm_Path_lineTo, point.X(), point.Y());
     lastPoint_ = point;
 }
 
 void AndroidStreamGeometryContext::QuadraticBezierTo(const Point &point1, const Point &point2, bool, bool)
 {
     //Debug::Log("QuadraticBezierTo (%lf,%lf) (%lf,%lf)", point1.X(), point1.Y(), point2.X(), point2.Y());
-    s_env->CallVoidMethod(P, sm_Path_quadTo, point1.X(), point1.Y(), point2.X(), point2.Y());
+    P();
+    env_->CallVoidMethod(p, sm_Path_quadTo, point1.X(), point1.Y(), point2.X(), point2.Y());
     lastPoint_ = point2;
 }
 
 void AndroidStreamGeometryContext::BezierTo(const Point &point1, const Point &point2, const Point &point3, bool, bool)
 {
     //Debug::Log("BezierTo (%lf,%lf) (%lf,%lf) (%lf,%lf)", point1.X(), point1.Y(), point2.X(), point2.Y(), point3.X(), point3.Y());
-    s_env->CallVoidMethod(P, sm_Path_cubicTo, point1.X(), point1.Y(), point2.X(), point2.Y(), point3.X(), point3.Y());
+    P();
+    env_->CallVoidMethod(p, sm_Path_cubicTo, point1.X(), point1.Y(), point2.X(), point2.Y(), point3.X(), point3.Y());
     lastPoint_ = point3;
 }
 
@@ -99,6 +109,7 @@ void AndroidStreamGeometryContext::PolyBezierTo(const List<Point> &points, bool 
 
 void AndroidStreamGeometryContext::ArcTo(const Point &point, const Size &size, double rotationAngle, bool isLargeArc, SweepDirection sweepDirection, bool, bool)
 {
+    P();
     Point lastp = lastPoint_;
     Point curtp = point;
     //Debug::Log("ArcTo (%lf,%lf) %lf (%lf,%lf) (%lf,%lf)", size.Width(), size.Height(),
@@ -166,7 +177,7 @@ void AndroidStreamGeometryContext::ArcTo(const Point &point, const Size &size, d
             a2 += 360;
     }
     rect.Offset((c - rect.TopLeft()) - Vector(rect.GetSize()) / 2.0);
-    s_env->CallVoidMethod(P, sm_Path_arcTo, rect.Left(), rect.Top(), rect.Right(), rect.Bottom(),
+    env_->CallVoidMethod(p, sm_Path_arcTo, rect.Left(), rect.Top(), rect.Right(), rect.Bottom(),
                           360.0 - a1, -a2, false);
     lastPoint_ = point;
 }
@@ -178,7 +189,8 @@ void AndroidStreamGeometryContext::SetClosedState(bool)
 void AndroidStreamGeometryContext::Close()
 {
     //Debug::Log("Close");
-    s_env->CallVoidMethod(P, sm_Path_close);
+    P();
+    env_->CallVoidMethod(p, sm_Path_close);
     StreamGeometryContext::Close();
 }
 

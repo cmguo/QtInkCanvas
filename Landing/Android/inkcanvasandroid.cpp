@@ -7,6 +7,8 @@
 #include <Collections/Generic/array.h>
 #include <Internal/debug.h>
 
+#include <mutex>
+
 #include <jni.h>
 
 INKCANVAS_BEGIN_NAMESPACE
@@ -33,7 +35,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     int status = vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
     if (status != JNI_OK)
         return status;
-    if (!AndroidStreamGeometryContext::init(env))
+    if (!AndroidStreamGeometryContext::init(vm, env))
         return JNI_ERR;
     // RuntimeException
     sc_RuntimeException = env->FindClass("java/lang/RuntimeException");
@@ -94,10 +96,12 @@ public:
 };
 
 static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
+static std::mutex smutex;
 
 #define S(env, stroke) \
+    std::scoped_lock l(smutex); \
     if (stroke >= static_cast<jlong>(strokes.size())) { \
-        env->ThrowNew(sc_RuntimeException, "stroke item not found"); \
+        env->ThrowNew(sc_RuntimeException, "stroke index out of range"); \
         return F; \
     } \
     std::shared_ptr<Stroke> & s = strokes[static_cast<size_t>(stroke)]; \
@@ -147,6 +151,7 @@ jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray press
         }
     }
     std::shared_ptr<Stroke> s(new Stroke(stylusPoints, da));
+    std::scoped_lock l(smutex);
     auto iter = std::find(strokes.begin() + 1, strokes.end(), nullptr);
     if (iter == strokes.end())
         iter = strokes.insert(iter, s);

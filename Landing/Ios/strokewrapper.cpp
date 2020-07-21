@@ -11,11 +11,15 @@
 
 #include <Windows/Media/streamgeometry.h>
 
+#include <mutex>
+
 INKCANVAS_USE_NAMESPACE
 
 static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
+static std::mutex smutex;
 
 #define S(stroke) \
+    std::scoped_lock l(smutex); \
     if (stroke >= static_cast<long>(strokes.size())) { \
         return F; \
     } \
@@ -66,6 +70,7 @@ long StrokeWrapper_new(int n, double x[], double y[], float pressures[], double 
         }
     }
     std::shared_ptr<Stroke> s(new Stroke(stylusPoints, da));
+    std::scoped_lock l(smutex);
     auto iter = std::find(strokes.begin() + 1, strokes.end(), nullptr);
     if (iter == strokes.end())
         iter = strokes.insert(iter, s);
