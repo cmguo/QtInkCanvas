@@ -14,6 +14,7 @@ template<typename T>
 class List : private QList<T>
 {
 public:
+    typedef typename QList<T>::const_iterator const_iterator;
     List() {}
     List(std::initializer_list<T> list) : QList<T>(list) {}
     List(QList<T> const & list) : QList<T>(list) {}
