@@ -12,112 +12,112 @@ public:
     /// <summary>
     /// X
     /// </summary>
-    static StylusPointProperty X;
+    static StylusPointProperty const X;
 
     /// <summary>
     /// Y
     /// </summary>
-    static StylusPointProperty Y;
+    static StylusPointProperty const Y;
 
     /// <summary>
     /// Z
     /// </summary>
-    static StylusPointProperty Z;
+    static StylusPointProperty const Z;
 
     /// <summary>
     /// Width
     /// </summary>
-    static StylusPointProperty Width;
+    static StylusPointProperty const Width;
 
     /// <summary>
     /// Height
     /// </summary>
-    static StylusPointProperty Height;
+    static StylusPointProperty const Height;
 
     /// <summary>
     /// SystemContact
     /// </summary>
-    static StylusPointProperty SystemTouch;
+    static StylusPointProperty const SystemTouch;
 
     /// <summary>
     /// PacketStatus
     /// </summary>
-    static StylusPointProperty PacketStatus;
+    static StylusPointProperty const PacketStatus;
 
     /// <summary>
     /// SerialNumber
     /// </summary>
-    static StylusPointProperty SerialNumber;
+    static StylusPointProperty const SerialNumber;
 
     /// <summary>
     /// NormalPressure
     /// </summary>
-    static StylusPointProperty NormalPressure;
+    static StylusPointProperty const NormalPressure;
 
     /// <summary>
     /// TangentPressure
     /// </summary>
-    static StylusPointProperty TangentPressure;
+    static StylusPointProperty const TangentPressure;
 
     /// <summary>
     /// ButtonPressure
     /// </summary>
-    static StylusPointProperty ButtonPressure;
+    static StylusPointProperty const ButtonPressure;
 
     /// <summary>
     /// XTiltOrientation
     /// </summary>
-    static StylusPointProperty XTiltOrientation;
+    static StylusPointProperty const XTiltOrientation;
 
     /// <summary>
     /// YTiltOrientation
     /// </summary>
-    static StylusPointProperty YTiltOrientation;
+    static StylusPointProperty const YTiltOrientation;
 
     /// <summary>
     /// AzimuthOrientation
     /// </summary>
-    static StylusPointProperty AzimuthOrientation;
+    static StylusPointProperty const AzimuthOrientation;
 
     /// <summary>
     /// AltitudeOrientation
     /// </summary>
-    static StylusPointProperty AltitudeOrientation;
+    static StylusPointProperty const AltitudeOrientation;
 
     /// <summary>
     /// TwistOrientation
     /// </summary>
-    static StylusPointProperty TwistOrientation;
+    static StylusPointProperty const TwistOrientation;
 
     /// <summary>
     /// PitchRotation
     /// </summary>
-    static StylusPointProperty PitchRotation;
+    static StylusPointProperty const PitchRotation;
 
     /// <summary>
     /// RollRotation
     /// </summary>
-    static StylusPointProperty RollRotation;
+    static StylusPointProperty const RollRotation;
 
     /// <summary>
     /// YawRotation
     /// </summary>
-    static StylusPointProperty YawRotation;
+    static StylusPointProperty const YawRotation;
 
     /// <summary>
     /// TipButton
     /// </summary>
-    static StylusPointProperty TipButton;
+    static StylusPointProperty const TipButton;
 
     /// <summary>
     /// BarrelButton
     /// </summary>
-    static StylusPointProperty BarrelButton;
+    static StylusPointProperty const BarrelButton;
 
     /// <summary>
     /// SecondaryTipButton
     /// </summary>
-    static StylusPointProperty SecondaryTipButton;
+    static StylusPointProperty const SecondaryTipButton;
 };
 
 INKCANVAS_END_NAMESPACE

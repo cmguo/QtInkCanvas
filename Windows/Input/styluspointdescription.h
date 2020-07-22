@@ -48,7 +48,7 @@ public:
     /// HasProperty
     /// </summary>
     /// <param name="stylusPointProperty">stylusPointProperty
-    bool HasProperty(StylusPointProperty& stylusPointProperty) const;
+    bool HasProperty(StylusPointProperty const & stylusPointProperty) const;
 
     /// <summary>
     /// The count of properties this StylusPointDescription contains
@@ -59,7 +59,7 @@ public:
     /// GetProperty
     /// </summary>
     /// <param name="stylusPointProperty">stylusPointProperty
-    StylusPointPropertyInfo GetPropertyInfo(StylusPointProperty & stylusPointProperty) const;
+    StylusPointPropertyInfo GetPropertyInfo(StylusPointProperty const & stylusPointProperty) const;
 
     /// <summary>
     /// GetPropertyInfo

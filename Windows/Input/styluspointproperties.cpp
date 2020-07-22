@@ -2,111 +2,111 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
-StylusPointProperty StylusPointProperties::X(StylusPointPropertyIds::X, false);
+StylusPointProperty const StylusPointProperties::X(StylusPointPropertyIds::X, false);
 
 /// <summary>
 /// Y
 /// </summary>
-StylusPointProperty StylusPointProperties::Y(StylusPointPropertyIds::Y, false);
+StylusPointProperty const StylusPointProperties::Y(StylusPointPropertyIds::Y, false);
 
 /// <summary>
 /// Z
 /// </summary>
-StylusPointProperty StylusPointProperties::Z(StylusPointPropertyIds::Z, false);
+StylusPointProperty const StylusPointProperties::Z(StylusPointPropertyIds::Z, false);
 
 /// <summary>
 /// Width
 /// </summary>
-StylusPointProperty StylusPointProperties::Width(StylusPointPropertyIds::Width, false);
+StylusPointProperty const StylusPointProperties::Width(StylusPointPropertyIds::Width, false);
 
 /// <summary>
 /// Height
 /// </summary>
-StylusPointProperty StylusPointProperties::Height(StylusPointPropertyIds::Height, false);
+StylusPointProperty const StylusPointProperties::Height(StylusPointPropertyIds::Height, false);
 
 /// <summary>
 /// SystemContact
 /// </summary>
-StylusPointProperty StylusPointProperties::SystemTouch(StylusPointPropertyIds::SystemTouch, false);
+StylusPointProperty const StylusPointProperties::SystemTouch(StylusPointPropertyIds::SystemTouch, false);
 
 /// <summary>
 /// PacketStatus
 /// </summary>
-StylusPointProperty StylusPointProperties::PacketStatus(StylusPointPropertyIds::PacketStatus, false);
+StylusPointProperty const StylusPointProperties::PacketStatus(StylusPointPropertyIds::PacketStatus, false);
 
 /// <summary>
 /// SerialNumber
 /// </summary>
-StylusPointProperty StylusPointProperties::SerialNumber(StylusPointPropertyIds::SerialNumber, false);
+StylusPointProperty const StylusPointProperties::SerialNumber(StylusPointPropertyIds::SerialNumber, false);
 
 /// <summary>
 /// NormalPressure
 /// </summary>
-StylusPointProperty StylusPointProperties::NormalPressure(StylusPointPropertyIds::NormalPressure, false);
+StylusPointProperty const StylusPointProperties::NormalPressure(StylusPointPropertyIds::NormalPressure, false);
 
 /// <summary>
 /// TangentPressure
 /// </summary>
-StylusPointProperty StylusPointProperties::TangentPressure(StylusPointPropertyIds::TangentPressure, false);
+StylusPointProperty const StylusPointProperties::TangentPressure(StylusPointPropertyIds::TangentPressure, false);
 
 /// <summary>
 /// ButtonPressure
 /// </summary>
-StylusPointProperty StylusPointProperties::ButtonPressure(StylusPointPropertyIds::ButtonPressure, false);
+StylusPointProperty const StylusPointProperties::ButtonPressure(StylusPointPropertyIds::ButtonPressure, false);
 
 /// <summary>
 /// XTiltOrientation
 /// </summary>
-StylusPointProperty StylusPointProperties::XTiltOrientation(StylusPointPropertyIds::XTiltOrientation, false);
+StylusPointProperty const StylusPointProperties::XTiltOrientation(StylusPointPropertyIds::XTiltOrientation, false);
 
 /// <summary>
 /// YTiltOrientation
 /// </summary>
-StylusPointProperty StylusPointProperties::YTiltOrientation(StylusPointPropertyIds::YTiltOrientation, false);
+StylusPointProperty const StylusPointProperties::YTiltOrientation(StylusPointPropertyIds::YTiltOrientation, false);
 
 /// <summary>
 /// AzimuthOrientation
 /// </summary>
-StylusPointProperty StylusPointProperties::AzimuthOrientation(StylusPointPropertyIds::AzimuthOrientation, false);
+StylusPointProperty const StylusPointProperties::AzimuthOrientation(StylusPointPropertyIds::AzimuthOrientation, false);
 
 /// <summary>
 /// AltitudeOrientation
 /// </summary>
-StylusPointProperty StylusPointProperties::AltitudeOrientation(StylusPointPropertyIds::AltitudeOrientation, false);
+StylusPointProperty const StylusPointProperties::AltitudeOrientation(StylusPointPropertyIds::AltitudeOrientation, false);
 
 /// <summary>
 /// TwistOrientation
 /// </summary>
-StylusPointProperty StylusPointProperties::TwistOrientation(StylusPointPropertyIds::TwistOrientation, false);
+StylusPointProperty const StylusPointProperties::TwistOrientation(StylusPointPropertyIds::TwistOrientation, false);
 
 /// <summary>
 /// PitchRotation
 /// </summary>
-StylusPointProperty StylusPointProperties::PitchRotation(StylusPointPropertyIds::PitchRotation, false);
+StylusPointProperty const StylusPointProperties::PitchRotation(StylusPointPropertyIds::PitchRotation, false);
 
 /// <summary>
 /// RollRotation
 /// </summary>
-StylusPointProperty StylusPointProperties::RollRotation(StylusPointPropertyIds::RollRotation, false);
+StylusPointProperty const StylusPointProperties::RollRotation(StylusPointPropertyIds::RollRotation, false);
 
 /// <summary>
 /// YawRotation
 /// </summary>
-StylusPointProperty StylusPointProperties::YawRotation(StylusPointPropertyIds::YawRotation, false);
+StylusPointProperty const StylusPointProperties::YawRotation(StylusPointPropertyIds::YawRotation, false);
 
 /// <summary>
 /// TipButton
 /// </summary>
-StylusPointProperty StylusPointProperties::TipButton(StylusPointPropertyIds::TipButton, true);
+StylusPointProperty const StylusPointProperties::TipButton(StylusPointPropertyIds::TipButton, true);
 
 /// <summary>
 /// BarrelButton
 /// </summary>
-StylusPointProperty StylusPointProperties::BarrelButton(StylusPointPropertyIds::BarrelButton, true);
+StylusPointProperty const StylusPointProperties::BarrelButton(StylusPointPropertyIds::BarrelButton, true);
 
 /// <summary>
 /// SecondaryTipButton
 /// </summary>
-StylusPointProperty StylusPointProperties::SecondaryTipButton(StylusPointPropertyIds::SecondaryTipButton, true);
+StylusPointProperty const StylusPointProperties::SecondaryTipButton(StylusPointPropertyIds::SecondaryTipButton, true);
 
 INKCANVAS_END_NAMESPACE

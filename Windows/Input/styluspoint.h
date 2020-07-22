@@ -122,20 +122,20 @@ public:
     /// Returns true if this StylusPoint supports the specified property
     /// </summary>
     /// <param name="stylusPointProperty">The StylusPointProperty to see if this StylusPoint supports
-    bool HasProperty(StylusPointProperty & stylusPointProperty) const;
+    bool HasProperty(StylusPointProperty const & stylusPointProperty) const;
 
     /// <summary>
     /// Provides read access to all stylus properties
     /// </summary>
     /// <param name="stylusPointProperty">The StylusPointPropertyIds of the property to retrieve
-    int GetPropertyValue(StylusPointProperty & stylusPointProperty) const;
+    int GetPropertyValue(StylusPointProperty const & stylusPointProperty) const;
 
     /// <summary>
     /// Allows supported properties to be set
     /// </summary>
     /// <param name="stylusPointProperty">The property to set, it must exist on this StylusPoint
     /// <param name="value">value
-    void SetPropertyValue(StylusPointProperty & stylusPointProperty, int value);
+    void SetPropertyValue(StylusPointProperty const & stylusPointProperty, int value);
 
     /// <summary>
     /// Optimization that lets the ctor call setvalue repeatly without causing a copy of the int[]
@@ -143,7 +143,7 @@ public:
     /// <param name="stylusPointProperty">stylusPointProperty
     /// <param name="value">value
     /// <param name="copyBeforeWrite">
-    void SetPropertyValue(StylusPointProperty & stylusPointProperty, int value, bool copyBeforeWrite);
+    void SetPropertyValue(StylusPointProperty const & stylusPointProperty, int value, bool copyBeforeWrite);
 
     /// <summary>
     /// Explicit cast converter between StylusPoint and Point

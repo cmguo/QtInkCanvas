@@ -204,7 +204,7 @@ void StylusPoint::SetDescription(SharedPointer<StylusPointDescription> value)
 /// Returns true if this StylusPoint supports the specified property
 /// </summary>
 /// <param name="stylusPointProperty">The StylusPointProperty to see if this StylusPoint supports
-bool StylusPoint::HasProperty(StylusPointProperty & stylusPointProperty) const
+bool StylusPoint::HasProperty(StylusPointProperty const & stylusPointProperty) const
 {
     return Description()->HasProperty(stylusPointProperty);
 }
@@ -213,7 +213,7 @@ bool StylusPoint::HasProperty(StylusPointProperty & stylusPointProperty) const
 /// Provides read access to all stylus properties
 /// </summary>
 /// <param name="stylusPointProperty">The StylusPointPropertyIds of the property to retrieve
-int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty) const
+int StylusPoint::GetPropertyValue(StylusPointProperty const & stylusPointProperty) const
 {
     if (stylusPointProperty.Id() == StylusPointPropertyIds::X)
     {
@@ -267,7 +267,7 @@ int StylusPoint::GetPropertyValue(StylusPointProperty & stylusPointProperty) con
 /// </summary>
 /// <param name="stylusPointProperty">The property to set, it must exist on this StylusPoint
 /// <param name="value">value
-void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, int value)
+void StylusPoint::SetPropertyValue(StylusPointProperty const & stylusPointProperty, int value)
 {
     SetPropertyValue(stylusPointProperty, value, true);
 }
@@ -278,7 +278,7 @@ void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, in
 /// <param name="stylusPointProperty">stylusPointProperty
 /// <param name="value">value
 /// <param name="copyBeforeWrite">
-void StylusPoint::SetPropertyValue(StylusPointProperty & stylusPointProperty, int value, bool copyBeforeWrite)
+void StylusPoint::SetPropertyValue(StylusPointProperty const & stylusPointProperty, int value, bool copyBeforeWrite)
 {
     if (stylusPointProperty.Id() == StylusPointPropertyIds::X)
     {

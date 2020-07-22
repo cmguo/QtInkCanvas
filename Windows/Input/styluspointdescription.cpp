@@ -73,7 +73,7 @@ StylusPointDescription::StylusPointDescription(List<StylusPointPropertyInfo> con
 /// HasProperty
 /// </summary>
 /// <param name="stylusPointProperty">stylusPointProperty
-bool StylusPointDescription::HasProperty(StylusPointProperty & stylusPointProperty) const
+bool StylusPointDescription::HasProperty(StylusPointProperty const & stylusPointProperty) const
 {
     int index = IndexOf(stylusPointProperty.Id());
     if (-1 == index)
@@ -95,7 +95,7 @@ int StylusPointDescription::PropertyCount() const
 /// GetProperty
 /// </summary>
 /// <param name="stylusPointProperty">stylusPointProperty
-StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(StylusPointProperty& stylusPointProperty) const
+StylusPointPropertyInfo StylusPointDescription::GetPropertyInfo(StylusPointProperty const & stylusPointProperty) const
 {
     return GetPropertyInfo(stylusPointProperty.Id());
 }
