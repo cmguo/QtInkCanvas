@@ -98,8 +98,11 @@ StylusDevice* Stylus::CurrentDevice = nullptr;
 static const Guid StylusPointPropertyId =
     { 0x17e84f40u, 0xd488, 0x4edd, 0x96, 0x9e, 0xc1, 0x21, 0xdb, 0xe1, 0xec, 0x83 };
 
+static const StylusPointProperty StylusPointProperty =
+    { StylusPointPropertyId, false };
+
 StylusPointPropertyInfo Stylus::StylusPointIdPropertyInfo
-        (StylusPointProperty(StylusPointPropertyId, false),
+        (StylusPointProperty,
                                     0,
                                     1,
                                     StylusPointPropertyUnit::None,
