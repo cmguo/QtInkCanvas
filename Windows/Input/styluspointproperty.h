@@ -17,7 +17,7 @@ public:
     /// Instance data
     /// </summary>
 private:
-    Guid _id;
+    Guid const & _id;
     bool _isButton;
 
     /// <summary>
@@ -26,9 +26,13 @@ private:
     /// <param name="identifier">identifier
     /// <param name="isButton">isButton
 public:
-    StylusPointProperty() {}
+    static StylusPointProperty const Empty;
+
+    StylusPointProperty() : _id(Guid::Empty), _isButton(false) {}
 
     StylusPointProperty(Guid const & identifier, bool isButton)
+        : _id(identifier)
+        , _isButton(isButton)
     {
         Initialize(identifier, isButton);
     }
@@ -39,8 +43,10 @@ public:
     /// <param name="stylusPointProperty">
     /// <remarks>Protected - used by the StylusPointPropertyInfo ctor</remarks>
     StylusPointProperty(StylusPointProperty const & stylusPointProperty)
+        : _id(stylusPointProperty._id)
+        , _isButton(stylusPointProperty._isButton)
     {
-        Initialize(stylusPointProperty._id, stylusPointProperty._isButton);
+        //Initialize(stylusPointProperty._id, stylusPointProperty._isButton);
     }
 
     /// <summary>
@@ -55,7 +61,7 @@ public:
     /// <summary>
     /// Id
     /// </summary>
-    Guid Id() const
+    Guid const & Id() const
     {
         return _id;
     }

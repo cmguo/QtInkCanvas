@@ -4,6 +4,8 @@
 
 INKCANVAS_BEGIN_NAMESPACE
 
+StylusPointProperty const StylusPointProperty::Empty;
+
 void StylusPointProperty::Initialize(Guid const & identifier, bool isButton)
 {
     //
@@ -26,8 +28,8 @@ void StylusPointProperty::Initialize(Guid const & identifier, bool isButton)
         }
     }
 
-    _id = identifier;
-    _isButton = isButton;
+    //_id = identifier;
+    //_isButton = isButton;
 }
 
 INKCANVAS_END_NAMESPACE

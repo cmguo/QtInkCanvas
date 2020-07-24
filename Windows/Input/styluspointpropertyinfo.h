@@ -27,12 +27,13 @@ enum StylusPointPropertyUnit {
 
 // namespace System.Windows.Input
 
-class StylusPointPropertyInfo : public StylusPointProperty
+class StylusPointPropertyInfo
 {
 private:
     /// <summary>
     /// Instance data
     /// </summary>
+    StylusPointProperty const * prop_;
     int                     _min;
     int                     _max;
     float                   _resolution;
@@ -43,7 +44,7 @@ private:
     /// </summary>
     /// <param name="stylusPointProperty">
 public:
-    StylusPointPropertyInfo() {}
+    StylusPointPropertyInfo() : prop_(&StylusPointProperty::Empty) {}
 
     StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty);
 
@@ -58,10 +59,25 @@ public:
     StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty, int minimum, int maximum,
                             StylusPointPropertyUnit unit, float resolution);
 
+    operator StylusPointProperty const & () const
+    {
+        return *prop_;
+    }
+
+    Guid const & Id() const
+    {
+        return prop_->Id();
+    }
+
+    bool IsButton() const
+    {
+        return prop_->IsButton();
+    }
+
     /// <summary>
     /// Minimum
     /// </summary>
-    int Minimum()
+    int Minimum() const
     {
         return _min;
     }
@@ -69,7 +85,7 @@ public:
     /// <summary>
     /// Maximum
     /// </summary>
-    int Maximum()
+    int Maximum() const
     {
         return _max;
     }
@@ -77,7 +93,7 @@ public:
     /// <summary>
     /// Resolution
     /// </summary>
-    float Resolution()
+    float Resolution() const
     {
         return _resolution;
     }
@@ -85,7 +101,7 @@ public:
     /// <summary>
     /// Unit
     /// </summary>
-    StylusPointPropertyUnit Unit()
+    StylusPointPropertyUnit Unit() const
     {
         return _unit;
     }

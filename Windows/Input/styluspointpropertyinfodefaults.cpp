@@ -233,8 +233,11 @@ StylusPointPropertyInfo StylusPointPropertyInfoDefaults::SecondaryTipButton
 static const Guid PropertyDefaultValue =
 { 0x517c8834, 0x4817, 0x4843, 0x81, 0x36, 0x75, 0x47, 0xc1, 0x66, 0x5, 0xb2 };
 
+static const StylusPointProperty DefaultValueProperty =
+    { PropertyDefaultValue, false };
+
 StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultValue
-        (StylusPointProperty(PropertyDefaultValue, false),
+        (DefaultValueProperty,
                                     INT_MIN,
                                     INT_MAX,
                                     StylusPointPropertyUnit::None,
@@ -247,8 +250,11 @@ StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultValue
 static const Guid PropertyDefaultButton =
 { 0xa3d9363a, 0x3b18, 0x4a9b, 0x95, 0x91, 0x9, 0x6e, 0x8c, 0x1f, 0x63, 0xc9 };
 
+static const StylusPointProperty DefaultButtonProperty =
+    { PropertyDefaultButton, false };
+
 StylusPointPropertyInfo StylusPointPropertyInfoDefaults::DefaultButton
-        (StylusPointProperty(PropertyDefaultButton, true),
+        (DefaultButtonProperty,
                                     0,
                                     1,
                                     StylusPointPropertyUnit::None,

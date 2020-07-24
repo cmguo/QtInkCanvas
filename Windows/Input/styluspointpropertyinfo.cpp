@@ -6,7 +6,7 @@
 INKCANVAS_BEGIN_NAMESPACE
 
 StylusPointPropertyInfo::StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty)
-    : StylusPointProperty (stylusPointProperty) //base checks for null
+    : prop_(&stylusPointProperty) //base checks for null
 {
     StylusPointPropertyInfo info =
         StylusPointPropertyInfoDefaults::GetStylusPointPropertyInfoDefault(stylusPointProperty);
@@ -19,7 +19,7 @@ StylusPointPropertyInfo::StylusPointPropertyInfo(StylusPointProperty const & sty
 
 StylusPointPropertyInfo::StylusPointPropertyInfo(StylusPointProperty const & stylusPointProperty, int minimum, int maximum,
                                                  StylusPointPropertyUnit unit, float resolution)
-    : StylusPointProperty(stylusPointProperty) //base checks for null
+    : prop_(&stylusPointProperty) //base checks for null
 {
     // validate unit
     //if (!StylusPointPropertyUnitHelper::IsDefined(unit))
