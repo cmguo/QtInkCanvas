@@ -4,7 +4,7 @@
 #include "eventargs.h"
 #include "variant.h"
 #include "Collections/Generic/list.h"
-
+#include <stdexcept>
 INKCANVAS_BEGIN_NAMESPACE
 
 enum NotifyCollectionChangedAction

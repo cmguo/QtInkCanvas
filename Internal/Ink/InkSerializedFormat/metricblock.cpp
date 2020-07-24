@@ -1,7 +1,7 @@
 #include "Internal/Ink/InkSerializedFormat/metricblock.h"
 #include "Internal/Ink/InkSerializedFormat/serializationhelper.h"
 #include "Windows/Input/styluspointpropertyinfo.h"
-
+#include <stdexcept>
 #include <QIODevice>
 
 INKCANVAS_BEGIN_NAMESPACE

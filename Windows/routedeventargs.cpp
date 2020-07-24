@@ -1,6 +1,6 @@
 #include "Windows/routedeventargs.h"
 #include "Internal/finallyhelper.h"
-
+#include <stdexcept>
 INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>

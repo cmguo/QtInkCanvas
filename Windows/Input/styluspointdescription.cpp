@@ -1,5 +1,6 @@
 #include "Windows/Input/styluspointdescription.h"
 #include "Windows/Input/styluspointpropertyinfodefaults.h"
+#include <stdexcept>
 
 INKCANVAS_BEGIN_NAMESPACE
 

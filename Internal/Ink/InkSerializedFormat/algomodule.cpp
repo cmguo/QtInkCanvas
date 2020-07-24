@@ -1,4 +1,5 @@
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
+#include <stdexcept>
 
 INKCANVAS_BEGIN_NAMESPACE
 

@@ -2,6 +2,7 @@
 #include "Internal/debug.h"
 #include "double.h"
 #include "single.h"
+#include <stdexcept>
 
 INKCANVAS_BEGIN_NAMESPACE
 

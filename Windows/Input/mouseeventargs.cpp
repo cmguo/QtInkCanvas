@@ -1,6 +1,7 @@
 #include "Windows/Input/mouseeventargs.h"
 #include "Windows/Input/mousedevice.h"
 #include "Windows/Input/stylusdevice.h"
+#include <stdexcept>
 
 INKCANVAS_BEGIN_NAMESPACE
 

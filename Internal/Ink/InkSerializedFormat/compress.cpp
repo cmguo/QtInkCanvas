@@ -1,6 +1,6 @@
 #include "Internal/Ink/InkSerializedFormat/compress.h"
 #include "Internal/Ink/InkSerializedFormat/algomodule.h"
-
+#include <stdexcept>
 INKCANVAS_BEGIN_NAMESPACE
 
 /// <summary>

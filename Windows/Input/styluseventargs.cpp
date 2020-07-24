@@ -1,6 +1,6 @@
 #include "Windows/Input/styluseventargs.h"
 #include "Windows/Input/stylusdevice.h"
-
+#include <stdexcept>
 INKCANVAS_BEGIN_NAMESPACE
 
 StylusEventArgs::StylusEventArgs(QTouchEvent& event)

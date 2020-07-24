@@ -2,6 +2,7 @@
 #define MOUSEBUTTONEVENTARGS_H
 
 #include "Windows/Input/mouseeventargs.h"
+#include <stdexcept>
 
 INKCANVAS_BEGIN_NAMESPACE
 
