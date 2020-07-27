@@ -1,5 +1,6 @@
-﻿#include "qtstreamgeometrycontext.h"
+#include "qtstreamgeometrycontext.h"
 #include "Windows/Media/streamgeometry.h"
+#include <Internal/doubleutil.h>
 
 #include <QtMath>
 #include <QThread>
@@ -146,8 +147,9 @@ void QtStreamGeometryContext::ArcTo(const Point &point, const Size &size, double
     qreal a1 = atan(-t.x() / t.y());
     qreal product = QPointF::dotProduct(t, t);
     if (product > 1.0) {
-        if (!qFuzzyIsNull(product - 1.0)) {
-            qInfo() << "product" << product << size << path_.currentPosition() << point;
+        //qDebug() << "product" << product << t;
+        if (!DoubleUtil::AreClose2(product, 1.0)) {
+            qDebug() << "product" << product;
             path_.lineTo(point);
             return;
         }

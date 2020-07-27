@@ -19,6 +19,7 @@ struct DoubleUtil
 {
 public:
     static constexpr double DBL_EPSILON  =   2.2204460492503131e-016; /* smallest such that 1.0+DBL_EPSILON != 1.0 */
+    static constexpr double DBL_EPSILON2  =   1.0e-13;
     //static constexpr float  FLT_MIN      =   1.175494351e-38F; /* Number close to zero, where float.MinValue is -float.MaxValue */
 
     /// <summary>
@@ -42,6 +43,16 @@ public:
         if(value1 == value2) return true;
         // This computes (|value1-value2| / (|value1| + |value2| + 10.0)) < DBL_EPSILON
         double eps = (Math::Abs(value1) + Math::Abs(value2) + 10.0) * DBL_EPSILON;
+        double delta = value1 - value2;
+        return(-eps < delta) && (eps > delta);
+    }
+
+    static bool AreClose2(double value1, double value2)
+    {
+        //in case they are Infinities (then epsilon check does not work)
+        if(value1 == value2) return true;
+        // This computes (|value1-value2| / (|value1| + |value2| + 10.0)) < DBL_EPSILON2
+        double eps = (Math::Abs(value1) + Math::Abs(value2) + 10.0) * DBL_EPSILON2;
         double delta = value1 - value2;
         return(-eps < delta) && (eps > delta);
     }

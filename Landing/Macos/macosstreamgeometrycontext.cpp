@@ -100,8 +100,9 @@ void MacosStreamGeometryContext::ArcTo(const Point &point, const Size &size, dou
     double a1 = atan(-t.X() / t.Y());
     double product = t.LengthSquared();
     if (product > 1.0) {
-        //Debug::Log("product %lf", product << t);
-        if (!DoubleUtil::AreClose(product, 1.0)) {
+        //Debug::Log("product %lf (%lf,%lf)", product, t);
+        if (!DoubleUtil::AreClose2(product, 1.0)) {
+            Debug::Log("product %lf", product);
             LineTo(curtp, false, false);
             return;
         }
