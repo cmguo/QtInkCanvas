@@ -3,13 +3,13 @@ QT =
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
-CONFIG += c++17
+CONFIG += c++14
 CONFIG += inkcanvas_core
 
 win32: CONFIG += inkcanvas_qt
 android: CONFIG += inkcanvas_android
 macos: CONFIG += inkcanvas_macos
-ios: CONFIG += inkcanvas_ios
+ios: CONFIG += inkcanvas_ios c++1z
 
 inkcanvas_core {
     DEFINES += INKCANVAS_CORE=1
