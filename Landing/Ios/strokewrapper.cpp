@@ -2,15 +2,12 @@
 
 #include <Windows/Ink/drawingattributes.h>
 #include <Windows/Ink/stroke.h>
+#include <Windows/Input/styluspoint.h>
+#include <Windows/Input/styluspointcollection.h>
+#include <Windows/Media/streamgeometry.h>
 
 #include <memory>
 #include <vector>
-
-#include <Windows/Input/styluspoint.h>
-#include <Windows/Input/styluspointcollection.h>
-
-#include <Windows/Media/streamgeometry.h>
-
 #include <mutex>
 
 INKCANVAS_USE_NAMESPACE

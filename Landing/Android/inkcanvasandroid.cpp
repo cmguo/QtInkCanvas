@@ -99,7 +99,7 @@ static std::vector<std::shared_ptr<Stroke>> strokes(1, nullptr);
 static std::mutex smutex;
 
 #define S(env, stroke) \
-    std::scoped_lock l(smutex); \
+    std::lock_guard<std::mutex> l(smutex); \
     if (stroke >= static_cast<jlong>(strokes.size())) { \
         env->ThrowNew(sc_RuntimeException, "stroke index out of range"); \
         return F; \
@@ -151,7 +151,7 @@ jlong createStroke(JNIEnv * env, jobject, jobjectArray points, jfloatArray press
         }
     }
     std::shared_ptr<Stroke> s(new Stroke(stylusPoints, da));
-    std::scoped_lock l(smutex);
+    std::lock_guard<std::mutex> l(smutex);
     auto iter = std::find(strokes.begin() + 1, strokes.end(), nullptr);
     if (iter == strokes.end())
         iter = strokes.insert(iter, s);

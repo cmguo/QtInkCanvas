@@ -3,7 +3,7 @@ QT =
 TEMPLATE = lib
 DEFINES += INKCANVAS_LIBRARY
 
-CONFIG += c++14
+CONFIG += c++17
 CONFIG += inkcanvas_core
 
 win32: CONFIG += inkcanvas_qt
