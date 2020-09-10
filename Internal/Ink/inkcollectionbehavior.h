@@ -236,7 +236,7 @@ private:
     /// The cached DrawingAttributes and Cursor instances for rendering the pen cursor.
     /// </summary>
     SharedPointer<DrawingAttributes>                               _cursorDrawingAttributes;
-    QCursor                                          _cachedPenCursor;
+    std::unique_ptr<QCursor>                                       _cachedPenCursor;
 
     //#endregion Fields
 };

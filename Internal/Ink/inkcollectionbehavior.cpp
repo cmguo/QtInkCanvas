@@ -404,7 +404,7 @@ void InkCollectionBehavior::StylusInput(SharedPointer<StylusPointCollection> sty
 void InkCollectionBehavior::OnTransformChanged()
 {
     // Drop the cached pen cursor.
-    //_cachedPenCursor = nullptr ;
+    _cachedPenCursor = nullptr;
 }
 
 //#endregion Protected Methods
@@ -421,7 +421,7 @@ QCursor InkCollectionBehavior::PenCursor()
 {
     // We only update our cache cursor when DefaultDrawingAttributes has changed or
     // there are animated transforms being applied to GetInkCanvas().
-    if ( /*_cachedPenCursor == nullptr ||*/ !_cursorDrawingAttributes || *_cursorDrawingAttributes != *GetInkCanvas().DefaultDrawingAttributes() )
+    if ( _cachedPenCursor == nullptr || !_cursorDrawingAttributes || *_cursorDrawingAttributes != *GetInkCanvas().DefaultDrawingAttributes() )
     {
         //adjust the DA for any Layout/Render transforms.
         Matrix xf = GetElementTransformMatrix();
@@ -443,10 +443,11 @@ QCursor InkCollectionBehavior::PenCursor()
         _cursorDrawingAttributes = GetInkCanvas().DefaultDrawingAttributes()->Clone();
         //DpiScale dpi = GetInkCanvas().GetDpi();
         qreal dpi = QApplication::primaryScreen()->devicePixelRatio();
-        _cachedPenCursor = PenCursorManager::GetPenCursor(da, false, (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft), dpi, dpi);
+        _cachedPenCursor.reset(new QCursor(PenCursorManager::GetPenCursor(
+                                               da, false, (GetInkCanvas().GetFlowDirection() == FlowDirection::RightToLeft), dpi, dpi)));
     }
 
-    return _cachedPenCursor;
+    return *_cachedPenCursor;
 }
 
 //#endregion Methods

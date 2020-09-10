@@ -227,26 +227,26 @@ QCursor PenCursorManager::GetSelectionCursor(InkCanvasSelectionHitResult hitResu
 ///     Critical: Critical as this code calls IconHelper.CreateIconCursor which is Critical
 /// </SecurityNote>
 //[SecurityCritical]
-QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const &)
+QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const & hotspot)
 {
     // A default cursor.
     QCursor cursor = Qt::ArrowCursor;
 
     Rect drawingBounds = drawing.Bounds();
 
-    //double originalWidth = drawingBounds.width();
-    //double originalHeight = drawingBounds.height();
+    double originalWidth = drawingBounds.Width();
+    double originalHeight = drawingBounds.Height();
 
     // Cursors like to be multiples of 8 in dimension.
     int width = AlignToBytes(drawingBounds.Width(), 1);
     int height = AlignToBytes(drawingBounds.Height(), 1);
 
     // Now inflate the drawing bounds to the new dimension.
-    //drawingBounds.adjust(-(width - originalWidth) / 2, -(height - originalHeight) / 2, (width - originalWidth) / 2, (height - originalHeight) / 2);
+    drawingBounds.Inflate((width - originalWidth) / 2, (height - originalHeight) / 2);
 
     // Translate the hotspot accordingly.
-    //int xHotspot = qRound(hotspot.x() - drawingBounds.left());
-    //int yHotspot = qRound(hotspot.y() - drawingBounds.top());
+    int xHotspot = qRound(hotspot.X() - drawingBounds.Left());
+    int yHotspot = qRound(hotspot.Y() - drawingBounds.Top());
 
     // Create a DrawingVisual which represents the cursor drawing.
     std::unique_ptr<DrawingVisual> cursorDrawingVisual(CreateCursorDrawingVisual(drawing, width, height));
@@ -273,7 +273,7 @@ QCursor PenCursorManager::CreateCursorFromDrawing(Drawing& drawing, Point const 
     //}
 
     //cursor = CursorInteropHelper.CriticalCreate(finalCursor);
-    cursor = QCursor(rtb);
+    cursor = QCursor(rtb, xHotspot, yHotspot);
     return cursor;
 }
 
@@ -284,22 +284,18 @@ public:
 
     virtual Rect Bounds()
     {
-        QRectF b = d_->Bounds();
-        b.moveTopLeft({0, 0});
-        return b;
+        return r_;
     }
 
     virtual void Draw(QPainter& painer)
     {
-        Rect b = d_->Bounds();
-        painer.translate(r_.center());
-        painer.scale(r_.width() / b.Width(), r_.height() / b.Height());
+        painer.translate(QRectF(r_).center());
         d_->Draw(painer);
     }
 
 private:
     Drawing* d_;
-    QRectF r_;
+    Rect r_;
 };
 
 /// <summary>
