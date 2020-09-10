@@ -1,4 +1,4 @@
-﻿#ifndef ROUTEDEVENTARGS_H
+#ifndef ROUTEDEVENTARGS_H
 #define ROUTEDEVENTARGS_H
 
 #include "eventargs.h"
@@ -65,7 +65,7 @@ private:
 
 // namespace System.Windows
 
-class RoutedEventArgs : public EventArgs
+class INKCANVAS_EXPORT RoutedEventArgs : public EventArgs
 {
 public:
     /// <summary>

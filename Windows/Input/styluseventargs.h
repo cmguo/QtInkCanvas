@@ -1,4 +1,4 @@
-﻿#ifndef STYLUSEVENTARGS_H
+#ifndef STYLUSEVENTARGS_H
 #define STYLUSEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
@@ -76,6 +76,8 @@ public:
     /// </summary>
     SharedPointer<StylusPointCollection> GetStylusPoints(Visual* relativeTo, SharedPointer<StylusPointDescription> subsetToReformatTo);
 
+    QTouchEvent * event() const { return event_; }
+
 protected:
     /////////////////////////////////////////////////////////////////////
     /// <summary>
@@ -109,6 +111,9 @@ protected:
     /////////////////////////////////////////////////////////////////////
 
     //RawStylusInputReport*    _inputReport;
+
+private:
+    QTouchEvent * event_;
 };
 
 INKCANVAS_END_NAMESPACE

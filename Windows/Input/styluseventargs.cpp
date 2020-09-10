@@ -5,6 +5,7 @@ INKCANVAS_BEGIN_NAMESPACE
 
 StylusEventArgs::StylusEventArgs(QTouchEvent& event)
     : InputEventArgs(Stylus::GetDevice(event.device()), static_cast<int>(event.timestamp()))
+    , event_(&event)
 {
 }
 
@@ -20,6 +21,7 @@ StylusEventArgs::StylusEventArgs(QTouchEvent& event)
 ///
 StylusEventArgs::StylusEventArgs(StylusDevice* stylus, int timestamp)
     : InputEventArgs(stylus, timestamp)
+    , event_(nullptr)
 {
     if( stylus == nullptr )
     {

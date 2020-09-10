@@ -372,6 +372,8 @@ void RoutedEvent::handle2(QEvent &event, QList<RoutedEventHandler> handlers)
 
 void RoutedEvent::handle(QEvent &event, RoutedEventArgs &args, QList<RoutedEventHandler> handlers)
 {
+    args.SetRoutedEvent(*this);
+    args.MarkAsUserInitiated();
     for (RoutedEventHandler & h : handlers) {
         h(args);
         if (args.Handled()) {

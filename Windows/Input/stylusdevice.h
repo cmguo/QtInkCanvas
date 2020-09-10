@@ -1,4 +1,4 @@
-﻿#ifndef STYLUSDEVICE_H
+#ifndef STYLUSDEVICE_H
 #define STYLUSDEVICE_H
 
 #include "InkCanvas_global.h"
@@ -74,7 +74,7 @@ public:
     QVector<int> newPointIds;
 };
 
-class StylusDevice : public InputDevice
+class INKCANVAS_EXPORT StylusDevice : public InputDevice
 {
     Q_OBJECT
 public:
@@ -105,6 +105,8 @@ public:
     virtual Array<int> PacketData(QEvent& event) override;
 
     QMap<int, StylusGroup> const & StylusGroups() { return lastGroups_; }
+
+    QTouchDevice * device() const { return device_; }
 
 private:
     int id_;

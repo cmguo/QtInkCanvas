@@ -20,14 +20,12 @@ StylusEvent::StylusEvent(int type, int type2)
 void StylusEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
 {
     StylusEventArgs args(static_cast<QTouchEvent&>(event));
-    args.MarkAsUserInitiated();
     RoutedEvent::handle(event, args, handlers);
 }
 
 void StylusEvent::handle2(QEvent &event, QList<RoutedEventHandler> handlers)
 {
     MouseButtonEventArgs args(static_cast<QTouchEvent&>(event));
-    args.MarkAsUserInitiated();
     RoutedEvent::handle(event, args, handlers);
 }
 
@@ -165,6 +163,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
         g.pointIds.clear();
         g.newPointIds.clear();
     }
+    // recalc with old points
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
         if (gid) {
@@ -173,6 +172,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
             g.pointIds.append(tp.id());
         }
     }
+    // update with new points
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
         if (gid) continue;
@@ -205,6 +205,7 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
         g.newPointIds.append(tp.id());
         groupMap_.insert(tp.id(), gid);
     }
+    // non-eraser group points
     lastPoints_.clear();
     for (QTouchEvent::TouchPoint const & tp : points) {
         int gid = groupMap_.value(tp.id(), 0);
@@ -212,12 +213,13 @@ void StylusDevice::SetLastPoints(const QList<QTouchEvent::TouchPoint> &points, b
 #if MULTIPLE_STROKES_IN_ONE_GROUP
         if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT) {
 #else
-        if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT && tp.id() == gid) {
+        if (g.allPointIds.size() == 1) {
 #endif
             lastPoints_.append(tp);
         }
     }
     //qDebug() << "----" << lastPoints_;
+    // adjust bound of eraser-group
     for (StylusGroup & g : lastGroups_) {
         if (g.allPointIds.size() < ERASER_FINGER_MIN_COUNT) {
             g.newPointIds.clear();

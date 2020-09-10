@@ -28,7 +28,6 @@ MouseEvent::MouseEvent(int type)
 void MouseEvent::handle(QEvent &event, QList<RoutedEventHandler> handlers)
 {
     MouseButtonEventArgs args(static_cast<QGraphicsSceneMouseEvent&>(event));
-    args.MarkAsUserInitiated();
     RoutedEvent::handle(event, args, handlers);
 }
 
