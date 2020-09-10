@@ -211,7 +211,8 @@ void EraserBehavior::StylusInputBegin(SharedPointer<StylusPointCollection> stylu
     //
     // start erasing
     //
-    _incrementalStrokeHitTester->AddPoints(stylusPoints);
+    if (stylusPoints->Count() > 0)
+        _incrementalStrokeHitTester->AddPoints(stylusPoints);
 
     // NTRAID:WINDOWSOS#1642274-2006/05/10-WAYNEZEN,
     // Since InkCanvas will ignore the animated tranforms when it receives the property changes.
@@ -233,7 +234,8 @@ void EraserBehavior::StylusInputContinue(SharedPointer<StylusPointCollection> st
 {
     _stylusPoints->Add(*stylusPoints);
 
-    _incrementalStrokeHitTester->AddPoints(stylusPoints);
+    if (stylusPoints->Count() > 0)
+        _incrementalStrokeHitTester->AddPoints(stylusPoints);
 }
 
 /// <summary>

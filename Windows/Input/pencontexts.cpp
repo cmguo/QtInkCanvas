@@ -49,7 +49,8 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
 {
     switch (event->type()) {
     case QEvent::TouchBegin:
-        if (qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::Ink)
+        if (qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::Ink
+                || qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::EraseByPoint)
             // TODO: adjust to scene transform
             Stylus::SetGroupSize(qobject_cast<InkCanvas*>(element_)->property("StylusGroupSize").toSizeF());
         else
