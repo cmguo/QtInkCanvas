@@ -451,6 +451,13 @@ Drawing* PenCursorManager::CreatePenDrawing(SharedPointer<DrawingAttributes> dra
             // Invoke the public Draw method which will handle the Highlighter correctly.
             singleStroke->Draw(*dc, singleStroke->GetDrawingAttributes());
         }
+        if (strokeBounds.Width() < 8) {
+            QPen p(da->Color(), 2);
+            dc->DrawLine(p, {-8, 0}, {-strokeBounds.Width() - 1, 0});
+            dc->DrawLine(p, {8, 0}, {strokeBounds.Width() + 1, 0});
+            dc->DrawLine(p, {0, -8}, {0, -strokeBounds.Height() - 1});
+            dc->DrawLine(p, {0, 8}, {0, strokeBounds.Height() + 1});
+        }
     }
     //finally
     //{
