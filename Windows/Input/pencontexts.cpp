@@ -50,11 +50,13 @@ bool PenContexts::eventFilter(QObject *watched, QEvent *event)
     switch (event->type()) {
     case QEvent::TouchBegin:
         if (qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::Ink
-                || qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::EraseByPoint)
-            // TODO: adjust to scene transform
-            Stylus::SetGroupSize(qobject_cast<InkCanvas*>(element_)->property("StylusGroupSize").toSizeF());
-        else
+                || qobject_cast<InkCanvas*>(element_)->ActiveEditingMode() == InkCanvasEditingMode::EraseByPoint) {
+            QSizeF gs = qobject_cast<InkCanvas*>(element_)->property("StylusGroupSize").toSizeF();
+            gs = element_->sceneTransform().inverted().mapRect(QRectF({0, 0}, gs)).size();
+            Stylus::SetGroupSize(gs);
+        } else {
             Stylus::SetGroupSize(QSizeF());
+        }
         Q_FALLTHROUGH();
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
