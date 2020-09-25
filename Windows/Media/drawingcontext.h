@@ -1,5 +1,5 @@
-#ifndef DRAWINGCONTEXT_H
-#define DRAWINGCONTEXT_H
+#ifndef WINDOWS_MEDIA_DRAWINGCONTEXT_H
+#define WINDOWS_MEDIA_DRAWINGCONTEXT_H
 
 #include "InkCanvas_global.h"
 #include "Windows/rect.h"
@@ -435,4 +435,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // DRAWINGCONTEXT_H
+#endif // WINDOWS_MEDIA_DRAWINGCONTEXT_H

@@ -1,5 +1,5 @@
-#ifndef STROKECOLLECTION_H
-#define STROKECOLLECTION_H
+#ifndef WINDOWS_INK_STROKECOLLECTION_H
+#define WINDOWS_INK_STROKECOLLECTION_H
 
 #include "InkCanvas_global.h"
 #include "Collections/ObjectModel/collection.h"
@@ -472,4 +472,4 @@ INKCANVAS_END_NAMESPACE
 
 #endif
 
-#endif // STROKECOLLECTION_H
+#endif // WINDOWS_INK_STROKECOLLECTION_H

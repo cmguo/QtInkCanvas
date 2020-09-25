@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+#ifndef WINDOWS_MEDIA_GEOMETRY_H
+#define WINDOWS_MEDIA_GEOMETRY_H
 
 #include "InkCanvas_global.h"
 
@@ -145,4 +145,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // GEOMETRY_H
+#endif // WINDOWS_MEDIA_GEOMETRY_H

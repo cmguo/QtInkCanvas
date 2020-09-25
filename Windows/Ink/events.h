@@ -1,5 +1,5 @@
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef WINDOWS_INK_EVENTS_H
+#define WINDOWS_INK_EVENTS_H
 
 #include "strokecollection.h"
 #include "Windows/Input/styluspointcollection.h"
@@ -340,4 +340,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // EVENTS_H
+#endif // WINDOWS_INK_EVENTS_H

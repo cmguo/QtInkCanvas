@@ -1,5 +1,5 @@
-#ifndef STYLUSDEVICE_H
-#define STYLUSDEVICE_H
+#ifndef WINDOWS_INPUT_STYLUSDEVICE_H
+#define WINDOWS_INPUT_STYLUSDEVICE_H
 
 #include "InkCanvas_global.h"
 
@@ -119,4 +119,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STYLUSDEVICE_H
+#endif // WINDOWS_INPUT_STYLUSDEVICE_H

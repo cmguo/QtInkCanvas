@@ -1,5 +1,5 @@
-#ifndef KNOWNIDS_H
-#define KNOWNIDS_H
+#ifndef WINDOWS_INK_KNOWNIDS_H
+#define WINDOWS_INK_KNOWNIDS_H
 
 #include "InkCanvas_global.h"
 
@@ -299,4 +299,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // KNOWNIDS_H
+#endif // WINDOWS_INK_KNOWNIDS_H

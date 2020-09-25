@@ -1,5 +1,5 @@
-#ifndef INPUTEVENTARGS_H
-#define INPUTEVENTARGS_H
+#ifndef WINDOWS_INPUT_INPUTEVENTARGS_H
+#define WINDOWS_INPUT_INPUTEVENTARGS_H
 
 #include "Windows/routedeventargs.h"
 
@@ -67,4 +67,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // INPUTEVENTARGS_H
+#endif // WINDOWS_INPUT_INPUTEVENTARGS_H

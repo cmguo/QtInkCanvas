@@ -1,5 +1,5 @@
-#ifndef STROKE_H
-#define STROKE_H
+#ifndef WINDOWS_INK_STROKE_H
+#define WINDOWS_INK_STROKE_H
 
 #include "InkCanvas_global.h"
 #include "Windows/Ink/drawingattributes.h"
@@ -712,4 +712,4 @@ class IEnumerablePointHelper
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STROKE_H
+#endif // WINDOWS_INK_STROKE_H

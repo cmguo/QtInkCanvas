@@ -1,5 +1,5 @@
-#ifndef INCREMENTALHITTESTER_H
-#define INCREMENTALHITTESTER_H
+#ifndef WINDOWS_INK_INCREMENTALHITTESTER_H
+#define WINDOWS_INK_INCREMENTALHITTESTER_H
 
 #include "strokecollection.h"
 #include "Windows/Input/styluspointcollection.h"
@@ -421,4 +421,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // INCREMENTALHITTESTER_H
+#endif // WINDOWS_INK_INCREMENTALHITTESTER_H

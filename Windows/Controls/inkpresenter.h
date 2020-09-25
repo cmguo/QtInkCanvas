@@ -1,5 +1,5 @@
-#ifndef INKPRESENTER_H
-#define INKPRESENTER_H
+#ifndef WINDOWS_CONTROLS_INKPRESENTER_H
+#define WINDOWS_CONTROLS_INKPRESENTER_H
 
 #include "Windows/uielement.h"
 #include "Windows/Controls/decorator.h"
@@ -254,4 +254,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // INKPRESENTER_H
+#endif // WINDOWS_CONTROLS_INKPRESENTER_H

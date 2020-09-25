@@ -1,5 +1,5 @@
-#ifndef STYLUSEVENTARGS_H
-#define STYLUSEVENTARGS_H
+#ifndef WINDOWS_INPUT_STYLUSEVENTARGS_H
+#define WINDOWS_INPUT_STYLUSEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/point.h"
@@ -118,4 +118,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STYLUSEVENTARGS_H
+#endif // WINDOWS_INPUT_STYLUSEVENTARGS_H

@@ -1,5 +1,5 @@
-#ifndef STROKEINTERSECTION_H
-#define STROKEINTERSECTION_H
+#ifndef WINDOWS_INK_STROKEINTERSECTION_H
+#define WINDOWS_INK_STROKEINTERSECTION_H
 
 #include "Internal/Ink/strokefindices.h"
 #include "Internal/doubleutil.h"
@@ -209,4 +209,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STROKEINTERSECTION_H
+#endif // WINDOWS_INK_STROKEINTERSECTION_H

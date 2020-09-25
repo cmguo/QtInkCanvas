@@ -1,5 +1,5 @@
-#ifndef STYLUSSHAPE_H
-#define STYLUSSHAPE_H
+#ifndef WINDOWS_INK_STYLUSSHAPE_H
+#define WINDOWS_INK_STYLUSSHAPE_H
 
 #include "InkCanvas_global.h"
 
@@ -166,4 +166,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STYLUSSHAPE_H
+#endif // WINDOWS_INK_STYLUSSHAPE_H

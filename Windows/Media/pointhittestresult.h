@@ -1,5 +1,5 @@
-#ifndef POINTHITTESTRESULT_H
-#define POINTHITTESTRESULT_H
+#ifndef WINDOWS_MEDIA_POINTHITTESTRESULT_H
+#define WINDOWS_MEDIA_POINTHITTESTRESULT_H
 
 #include "Windows/Media/hittestresult.h"
 #include "Windows/point.h"
@@ -41,4 +41,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // POINTHITTESTRESULT_H
+#endif // WINDOWS_MEDIA_POINTHITTESTRESULT_H

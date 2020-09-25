@@ -1,5 +1,5 @@
-#ifndef STREAMGEOMETRY_H
-#define STREAMGEOMETRY_H
+#ifndef WINDOWS_MEDIA_STREAMGEOMETRY_H
+#define WINDOWS_MEDIA_STREAMGEOMETRY_H
 
 #include "InkCanvas_global.h"
 #include "Windows/Media/geometry.h"
@@ -55,4 +55,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STREAMGEOMETRY_H
+#endif // WINDOWS_MEDIA_STREAMGEOMETRY_H

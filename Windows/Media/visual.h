@@ -1,5 +1,5 @@
-#ifndef VISUAL_H
-#define VISUAL_H
+#ifndef WINDOWS_MEDIA_VISUAL_H
+#define WINDOWS_MEDIA_VISUAL_H
 
 #include "InkCanvas_global.h"
 
@@ -47,4 +47,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // VISUAL_H
+#endif // WINDOWS_MEDIA_VISUAL_H

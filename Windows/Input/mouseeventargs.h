@@ -1,5 +1,5 @@
-﻿#ifndef MOUSEEVENTARGS_H
-#define MOUSEEVENTARGS_H
+#ifndef WINDOWS_INPUT_MOUSEEVENTARGS_H
+#define WINDOWS_INPUT_MOUSEEVENTARGS_H
 
 #include "Windows/Input/inputeventargs.h"
 #include "Windows/Input/mousebuttonstate.h"
@@ -105,4 +105,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // MOUSEEVENTARGS_H
+#endif // WINDOWS_INPUT_MOUSEEVENTARGS_H

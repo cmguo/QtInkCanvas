@@ -1,5 +1,5 @@
-#ifndef DRAWINGFLAGS_H
-#define DRAWINGFLAGS_H
+#ifndef WINDOWS_INK_DRAWINGFLAGS_H
+#define WINDOWS_INK_DRAWINGFLAGS_H
 
 #include "InkCanvas_global.h"
 
@@ -95,4 +95,4 @@ INKCANVAS_END_NAMESPACE
 
 #endif
 
-#endif // DRAWINGFLAGS_H
+#endif // WINDOWS_INK_DRAWINGFLAGS_H

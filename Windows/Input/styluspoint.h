@@ -1,5 +1,5 @@
-#ifndef STYLUSPOINT_H
-#define STYLUSPOINT_H
+#ifndef WINDOWS_INPUT_STYLUSPOINT_H
+#define WINDOWS_INPUT_STYLUSPOINT_H
 
 #include "InkCanvas_global.h"
 #include "Windows/Input/styluspointdescription.h"
@@ -311,4 +311,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // STYLUSPOINT_H
+#endif // WINDOWS_INPUT_STYLUSPOINT_H

@@ -1,5 +1,5 @@
-#ifndef ARRAY_H
-#define ARRAY_H
+#ifndef COLLECTIONS_GENERIC_ARRAY_H
+#define COLLECTIONS_GENERIC_ARRAY_H
 
 #include "InkCanvas_global.h"
 
@@ -89,4 +89,4 @@ INKCANVAS_END_NAMESPACE
 
 #endif
 
-#endif // ARRAY_H
+#endif // COLLECTIONS_GENERIC_ARRAY_H

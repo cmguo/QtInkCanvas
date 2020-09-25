@@ -1,5 +1,5 @@
-#ifndef DRAWINGVISUAL_H
-#define DRAWINGVISUAL_H
+#ifndef WINDOWS_MEDIA_DRAWINGVISUAL_H
+#define WINDOWS_MEDIA_DRAWINGVISUAL_H
 
 #include "containervisual.h"
 
@@ -34,4 +34,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // DRAWINGVISUAL_H
+#endif // WINDOWS_MEDIA_DRAWINGVISUAL_H

@@ -1,5 +1,5 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef COLLECTIONS_GENERIC_LIST_H
+#define COLLECTIONS_GENERIC_LIST_H
 
 #include "InkCanvas_global.h"
 #include "Collections/Generic/array.h"
@@ -110,4 +110,4 @@ INKCANVAS_END_NAMESPACE
 
 #endif
 
-#endif // LIST_H
+#endif // COLLECTIONS_GENERIC_LIST_H

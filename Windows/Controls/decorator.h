@@ -1,5 +1,5 @@
-#ifndef DECORATOR_H
-#define DECORATOR_H
+#ifndef WINDOWS_CONTROLS_DECORATOR_H
+#define WINDOWS_CONTROLS_DECORATOR_H
 
 #include "Windows/uielement.h"
 
@@ -67,4 +67,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // DECORATOR_H
+#endif // WINDOWS_CONTROLS_DECORATOR_H

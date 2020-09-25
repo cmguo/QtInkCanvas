@@ -1,5 +1,5 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef WINDOWS_MEDIA_MATRIX_H
+#define WINDOWS_MEDIA_MATRIX_H
 
 #include "InkCanvas_global.h"
 
@@ -1046,4 +1046,4 @@ INKCANVAS_END_NAMESPACE
 Q_DECLARE_METATYPE(INKCANVAS_PREPEND_NAMESPACE(Matrix));
 #endif
 
-#endif // MATRIX_H
+#endif // WINDOWS_MEDIA_MATRIX_H

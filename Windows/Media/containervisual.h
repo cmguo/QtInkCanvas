@@ -1,5 +1,5 @@
-#ifndef CONTAINERVISUAL_H
-#define CONTAINERVISUAL_H
+#ifndef WINDOWS_MEDIA_CONTAINERVISUAL_H
+#define WINDOWS_MEDIA_CONTAINERVISUAL_H
 
 #include "visual.h"
 #include "Collections/ObjectModel/collection.h"
@@ -48,4 +48,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // CONTAINERVISUAL_H
+#endif // WINDOWS_MEDIA_CONTAINERVISUAL_H

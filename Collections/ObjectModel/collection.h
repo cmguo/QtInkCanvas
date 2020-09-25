@@ -1,5 +1,5 @@
-#ifndef COLLECTION_H
-#define COLLECTION_H
+#ifndef COLLECTIONS_OBJECTMODEL_COLLECTION_H
+#define COLLECTIONS_OBJECTMODEL_COLLECTION_H
 
 #include "InkCanvas_global.h"
 #include "Collections/Generic/list.h"
@@ -106,4 +106,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // COLLECTION_H
+#endif // COLLECTIONS_OBJECTMODEL_COLLECTION_H

@@ -1,5 +1,5 @@
-#ifndef INKCANVAS_H
-#define INKCANVAS_H
+#ifndef WINDOWS_CONTROLS_INKCANVAS_H
+#define WINDOWS_CONTROLS_INKCANVAS_H
 
 #include "InkCanvas_global.h"
 
@@ -1654,4 +1654,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // INKCANVAS_H
+#endif // WINDOWS_CONTROLS_INKCANVAS_H

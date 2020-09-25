@@ -1,5 +1,5 @@
-#ifndef INPUTDEVICE_H
-#define INPUTDEVICE_H
+#ifndef WINDOWS_INPUT_INPUTDEVICE_H
+#define WINDOWS_INPUT_INPUTDEVICE_H
 
 #include "InkCanvas_global.h"
 #include "Collections/Generic/array.h"
@@ -54,4 +54,4 @@ public:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // INPUTDEVICE_H
+#endif // WINDOWS_INPUT_INPUTDEVICE_H

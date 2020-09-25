@@ -1,5 +1,5 @@
-#ifndef PENCONTEXTS_H
-#define PENCONTEXTS_H
+#ifndef WINDOWS_INPUT_PENCONTEXTS_H
+#define WINDOWS_INPUT_PENCONTEXTS_H
 
 #include "Windows/Input/StylusPlugIns/rawstylusactions.h"
 #include "Windows/Input/StylusPlugIns/rawstylusinput.h"
@@ -42,4 +42,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // PENCONTEXTS_H
+#endif // WINDOWS_INPUT_PENCONTEXTS_H

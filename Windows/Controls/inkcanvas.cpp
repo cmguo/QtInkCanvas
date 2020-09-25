@@ -55,8 +55,10 @@ InkCanvas::InkCanvas(QGraphicsItem* parent)
     Initialize();
     setParentItem(parent);
     QObject::connect(this, &UIElement::IsVisibleChanged, [this]() {
-        UpdateCursor();
-        _RegisterClipboardHandlers();
+        if (IsVisible()) {
+            UpdateCursor();
+            _RegisterClipboardHandlers();
+        }
     });
 }
 

@@ -1,5 +1,5 @@
-#ifndef MOUSEDEVICE_H
-#define MOUSEDEVICE_H
+#ifndef WINDOWS_INPUT_MOUSEDEVICE_H
+#define WINDOWS_INPUT_MOUSEDEVICE_H
 
 #include "Windows/Input/inputdevice.h"
 #include "Windows/Input/mousebuttonstate.h"
@@ -98,4 +98,4 @@ private:
 
 INKCANVAS_END_NAMESPACE
 
-#endif // MOUSEDEVICE_H
+#endif // WINDOWS_INPUT_MOUSEDEVICE_H
