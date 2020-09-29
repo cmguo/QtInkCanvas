@@ -7,6 +7,10 @@
 #elif defined INKCANVAS_IOS || defined INKCANVAS_MACOS
 #include <stdarg.h>
 extern "C" void NS_Log(char const * t, char const * m, va_list args);
+#elif defined INKCANVAS_QT
+#include <QDebug>
+#include <stdlib.h>
+#include <stdarg.h>
 #endif
 
 #define _STRING(x) #x
@@ -26,6 +30,13 @@ void Debug::Log(const char *message, ...)
     va_start(args, message);
     NS_Log(STRING(INKCANVAS_NAMESPACE), message, args);
     va_end(args);
+#elif defined INKCANVAS_QT
+    va_list args;
+    va_start(args, message);
+    char buf[1024];
+    vsprintf_s(buf, message, args);
+    va_end(args);
+    qDebug() << buf;
 #else
     (void) message;
 #endif
