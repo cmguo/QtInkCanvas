@@ -19,6 +19,8 @@ public:
     static QSharedPointer<Stroke> createStroke(QList<QPointF> const & points, QList<float> const & pressures,
                                             qreal width, bool fitToCorve = true, bool ellipseShape = true, bool addPressure = true);
 
+    static QSharedPointer<Stroke> createStroke(QPainterPath const & path, QColor color, qreal width);
+
     // may release old from out
     static void cloneStroke(QSharedPointer<Stroke> & out, QSharedPointer<Stroke> const & stroke);
 
@@ -35,6 +37,7 @@ public:
 
     // called when unload library
     static void unload();
+
 };
 
 INKCANVAS_END_NAMESPACE

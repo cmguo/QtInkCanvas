@@ -53,6 +53,20 @@ QSharedPointer<Stroke> InkCanvasQt::InkCanvasQt::createStroke(const QList<QPoint
     return QSharedPointer<Stroke>(new Stroke(stylusPoints, da));
 }
 
+QSharedPointer<Stroke> InkCanvasQt::createStroke(QPainterPath const & path, QColor color, qreal width)
+{
+    QSharedPointer<DrawingAttributes> da(new MyDrawingAttribute(width, true, true));
+    da->SetColor(color);
+    QSharedPointer<StylusPointCollection> stylusPoints(
+                new StylusPointCollection);
+    for (qreal t = 0; t < 1; t += 0.01) {
+        QPointF pt = path.pointAtPercent(t);
+        StylusPoint point(pt.x(), pt.y());
+        stylusPoints->Add(point);
+    }
+    return QSharedPointer<Stroke>(new Stroke(stylusPoints, da));
+}
+
 void InkCanvasQt::cloneStroke(SharedPointer<Stroke> & out, SharedPointer<Stroke> const & stroke)
 {
     out = stroke->Clone();
