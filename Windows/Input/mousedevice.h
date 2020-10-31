@@ -20,7 +20,7 @@ public:
     virtual void handle(QEvent &event, QList<RoutedEventHandler> handlers) override;
 };
 
-class Mouse
+class INKCANVAS_EXPORT Mouse
 {
 public:
     static MouseDevice* PrimaryDevice;
