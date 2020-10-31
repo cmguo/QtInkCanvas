@@ -331,6 +331,7 @@ Rect SelectionEditingBehavior::ExtendSelectionLeft(Rect const & rect, double ext
 {
     Rect newRect = rect;
     newRect.SetX(newRect.X() + extendBy);
+    newRect.SetWidth(newRect.Width() - extendBy);
 
     return newRect;
 }
@@ -341,6 +342,8 @@ Rect SelectionEditingBehavior::ExtendSelectionTop(Rect const & rect, double exte
     Rect newRect = rect;
 
     newRect.SetY(newRect.Y() + extendBy);
+    newRect.SetHeight(newRect.Height() - extendBy);
+
     return newRect;
 }
 
