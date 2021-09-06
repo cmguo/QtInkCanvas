@@ -34,7 +34,11 @@ void Debug::Log(const char *message, ...)
     va_list args;
     va_start(args, message);
     char buf[1024];
+  #if defined WIN32
     vsprintf_s(buf, message, args);
+  #else
+    vsprintf(buf, message, args);
+  #endif
     va_end(args);
     qDebug() << buf;
 #else
