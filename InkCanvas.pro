@@ -5,6 +5,8 @@ DEFINES += INKCANVAS_LIBRARY
 
 CONFIG += c++17 inkcanvas_qt
 
+include($$(applyCommonConfig))
+
 include(../config.pri)
 
 # The following define makes your compiler emit warnings if you use
