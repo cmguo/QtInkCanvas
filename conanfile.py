@@ -13,10 +13,16 @@ class ConanConfig(QtConanFile):
     name = package_name
     version = package_version
 
-    git_url = "git@git.100tal.com:epg_xhb_solution/talcloud_khaos_inkcanvas"
+    git_url = "git@gitlab.xiaoheiban.cn:windows/talcloud_khaos_inkcanvas"
     git_branch = "develop/master"
 
     short_paths = True
+
+    exports_sources = "*"
+
+    def source(self):
+        conans_tools.move_dir_files_to_folder(self.get_library_name())
+        super(ConanConfig, self).source()
     
     def package_include(self):
         super(ConanConfig, self).package_include()
