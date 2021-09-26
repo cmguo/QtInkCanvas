@@ -1430,7 +1430,7 @@ Matrix StrokeCollectionSerializer::LoadTransform(TransformDescriptor* tdrd)
 /// <param name="tag"></param>
 /// <param name="block"></param>
 /// <returns></returns>
-StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(Guid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block)
+StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(StylusPointProperty const & prop, KnownTagCache::KnownTagIndex tag, MetricBlock* block)
 {
     int dw = 0;
     bool fSetDefault = false;
@@ -1530,7 +1530,7 @@ StylusPointPropertyInfo StrokeCollectionSerializer::GetStylusPointPropertyInfo(G
     }
 
     // return a new StylusPointPropertyInfo
-    return StylusPointPropertyInfo( StylusPointProperty(guid, StylusPointPropertyIds::IsKnownButton(guid)),
+    return StylusPointPropertyInfo( prop,
                                         minimum,
                                         maximum,
                                         unit,
@@ -1605,9 +1605,9 @@ SharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPoi
 
 
     List<StylusPointPropertyInfo> stylusPointPropertyInfos;
-    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::X, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::X, block));
-    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::Y, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::Y, block));
-    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(KnownIds::NormalPressure, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::NormalPressure, block));
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(StylusPointProperties::X, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::X, block));
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(StylusPointProperties::Y, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::Y, block));
+    stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(StylusPointProperties::NormalPressure, KnownIdCache::KnownGuidBaseIndex + KnownIdCache::OriginalISFIdIndex::NormalPressure, block));
 
     int pressureIndex = -1;
     //if (tags != null)
@@ -1626,7 +1626,7 @@ SharedPointer<StylusPointDescription> StrokeCollectionSerializer::BuildStylusPoi
                 continue; //we've already added pressure (above)
             }
 
-            stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(guid, tags[i], block));
+            // stylusPointPropertyInfos.Add(GetStylusPointPropertyInfo(guid, tags[i], block));
         }
 
         //if (null != buttonguids)

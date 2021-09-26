@@ -18,6 +18,7 @@ class StrokeCollection;
 class TransformDescriptor;
 class GuidList;
 class MetricBlock;
+class StylusPointProperty;
 class StylusPointPropertyInfo;
 class DrawingAttributes;
 
@@ -231,7 +232,7 @@ private:
     /// <param name="tag"></param>
     /// <param name="block"></param>
     /// <returns></returns>
-    StylusPointPropertyInfo GetStylusPointPropertyInfo(Guid const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block);
+    StylusPointPropertyInfo GetStylusPointPropertyInfo(StylusPointProperty const & guid, KnownTagCache::KnownTagIndex tag, MetricBlock* block);
 
 
     /// <summary>
