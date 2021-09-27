@@ -2221,6 +2221,8 @@ void InkCanvas::_RegisterClipboardHandlers()
         CodeAccessPermission.RevertAssert();
     }
     */
+    if (!property("enableshortcuts").toBool())
+        return;
     QWidget* widget = scene()->views().first();
     if (!widget->property("inkcanvasshortcut").isValid()) {
         QKeySequence::StandardKey keys[] = {
@@ -2520,8 +2522,7 @@ void InkCanvas::_OnCommandExecuted()
         }
     }
     */
-    if (!scene() || (scene()->focusItem() != this
-                     && !this->isAncestorOf(scene()->focusItem())))
+    if (!scene())
         return;
     QShortcut* shortcut = qobject_cast<QShortcut*>(sender());
     if ( IsEnabled() && !GetEditingCoordinator().UserIsEditing() ) {

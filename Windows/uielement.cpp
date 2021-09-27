@@ -61,7 +61,7 @@ UIElement::UIElement()
     setData(ITEM_DATA_RECT, QRectF());
     setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
-    setFlag(ItemIsFocusable);
+    //setFlag(ItemIsFocusable);
 }
 
 UIElement::~UIElement()
