@@ -27,7 +27,7 @@ InkCanvasFeedbackAdorner::InkCanvasFeedbackAdorner(InkCanvas& inkCanvas)
     // Initialize the internal data
     //_inkCanvas = inkCanvas;
 
-    _adornerBorderPen = QPen(Qt::black, 1.0);
+    _adornerBorderPen = QPen(QColor::fromRgb(132, 146, 222), 1.0);
     QVector<double> dashes;
     dashes.append(4.5);
     dashes.append(4.5);
